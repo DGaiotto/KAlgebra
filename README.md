@@ -1,9 +1,7 @@
 # A_q[T] — K-theoretic Coulomb-branch algebras
 
 A contract-first, **dependency-free (pure Python 3)** implementation of the
-K-theoretic Coulomb-branch algebras `A_q[T]` of 4d N=2 gauge theories, following
-Ambrosino–Gaiotto, *K-theoretic Coulomb branches and quantum algebras*
-(DESY-25-035). Nothing to install:
+K-theoretic Coulomb-branch algebras `A_q[T]` of 4d N=2 gauge theories. Nothing to install:
 
 ```bash
 python3 run_tests.py        # or:  pytest

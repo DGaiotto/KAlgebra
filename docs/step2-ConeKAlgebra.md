@@ -1,7 +1,7 @@
 # ConeKAlgebra — closed-form, spine-free K_𝖖-algebras
 
 **Step 2** of the modular release: many examples of the K-theoretic
-Coulomb-branch algebras `A_𝖖[T]` (Ambrosino–Gaiotto, DESY-25-035), each realized
+Coulomb-branch algebras `A_𝖖[T]`, each realized
 with the **`ConeKAlgebra` machinery** — a cone presentation of the
 **multiplicative generators** — extending the Step-1 `KAlgebra` contract export,
 plus the finite-type zoo. Packaged **without any realisation engine** (no

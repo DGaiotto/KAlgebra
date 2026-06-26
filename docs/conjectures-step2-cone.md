@@ -2,7 +2,7 @@
 
 This package ships closed-form, spine-free `ConeKAlgebra` realisations. The
 single conjecture they directly bear on — exactly what `test_cones.py` checks —
-is the one below. See Ambrosino–Gaiotto (DESY-25-035) for the full theory.
+is the one below.
 
 ## Orthonormality of the canonical basis
 

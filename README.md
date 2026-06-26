@@ -1,81 +1,65 @@
-# A_q[T] — K-theoretic Coulomb-branch algebras
+# K_𝖖-algebras
 
-A contract-first, **dependency-free (pure Python 3)** implementation of the
-K-theoretic Coulomb-branch algebras `A_q[T]` of 4d N=2 gauge theories. Nothing to install:
+A dependency-free (pure Python 3) implementation of **K_𝖖-algebras** and a range
+of worked examples.
 
-```bash
-python3 run_tests.py        # or:  pytest
+A K_𝖖-algebra axiomatises the fusion algebra of rotation-equivariant BPS line
+defects in a 4d 𝒩=2 theory. It is an associative algebra `A_𝖖` over `Z[𝖖^±]`,
+free as a `Z[𝖖^±]`-module, equipped with
+
+- a **bar involution** — an antimultiplicative involution sending `𝖖 ↦ 𝖖⁻¹`;
+- a **canonical basis** `{L_a}` of bar-invariant elements, containing the unit;
+- an algebra **automorphism `ρ`** permuting the canonical basis; and
+- a **`ρ²`-twisted trace** `Tr`, under which the pairing
+  ```
+  I_{a,b} = Tr(L_{ρ(a)} · L_b) = δ_{a,b} + O(𝖖)
+  ```
+
+The final relation — orthonormality of the canonical basis to leading order in
+`𝖖` — is the defining constraint, and it is rigid enough to determine the trace
+(`docs/axioms-and-bootstrap.md` explains how). The abstract contract is the
+`KAlgebra` class; the examples implemented here include the quantum torus
+`Q_𝖖(Γ)`, the pentagon `K_𝖖([A_1,A_2])`, the SU(2)-flavoured `U_𝖖(𝔰𝔩₂)` (the
+algebra of SQED₂), and a range of K-theoretic Coulomb-branch algebras.
+
+## Organisation
+
+A single package layered over one contract:
+
+| directory | contents |
+|---|---|
+| `src/core/` | the `KAlgebra` contract (the primitives and the derived axiom verifiers), the Z₊-ring coefficient layer (for flavoured algebras), exact `Z[𝖖^±]` arithmetic, and the `KAlgebraIso` isomorphism witness |
+| `src/samples/` | algebras implemented directly from the contract: the quantum torus, the pentagon `K_𝖖([A_1,A_2])`, and SQED₁/₂/_{N_f}_ |
+| `src/cone/` | the `ConeKAlgebra` helper — a `KAlgebra` subclass that reduces the canonical basis to normal-ordered expressions in a set of multiplicative *ray* generators — together with the catalogue of realisations it presents |
+| `src/iso/` | `KAlgebraIso` witnesses identifying a sample algebra with its cone realisation |
+
+Per-layer documentation is in `docs/`: `docs/step1-KAlgebra.md` (the contract and
+the samples), `docs/step2-ConeKAlgebra.md` (the cone realisations),
+`docs/conjectures-*.md` (the orthonormality conjecture), and
+`docs/axioms-and-bootstrap.md` (how the axioms determine the traces).
+
+## Tests
+
+```
+python3 run_tests.py        # or: pytest
 ```
 
-It is meant to let researchers (and their coding agents) **understand, use, and
-extend** these algebras — and to document, executably, **how the defining axioms
-are satisfied and how strongly they constrain the structure**. The trace
-bootstrap is the prime example; see
-[`docs/axioms-and-bootstrap.md`](docs/axioms-and-bootstrap.md).
+runs `tests/test_samples.py`, `tests/test_cones.py`, and
+`tests/test_sample_cone_iso.py`. These exercise the contract verifiers — the bar
+involution, the unit law, associativity, the `ρ`-automorphism property,
+`ρ²`-twisted trace cyclicity, and orthonormality — on the sample algebras, the
+cone realisations, and the sample-to-cone isomorphisms.
 
-## What this is
+The modules import one another by unqualified name; `conftest.py` and
+`run_tests.py` place each `src/` subdirectory on `sys.path`. The modules must
+therefore not be nested further, nor given `__init__.py` files.
 
-Each `A_q[T]` is an associative algebra over `Z[q^±]` with a distinguished
-**canonical basis** `{L_a}`. The headline result, verified throughout, is
-**orthonormality** of that basis under the ρ²-twisted trace:
+## Arithmetic
 
-```
-I_{a,b}(q) = Tr(ρ(L_a)·L_b) = δ_{a,b} + O(q).
-```
-
-The code is layered over one shared contract:
-
-| layer | dir | what it provides |
-|---|---|---|
-| **core**    | `src/core/`    | the abstract `KAlgebra` contract (six primitives + axiom verifiers), the Z₊-ring coefficient layer, exact `Z[q^±]` arithmetic, and the `KAlgebraIso` witness |
-| **samples** | `src/samples/` | **Step 1** — sample algebras worked by hand: pentagon, SQED₁/₂/_Nf_, the Z² quantum torus, and `QuantumTorusKAlg(B)` over an arbitrary lattice `(Γ, B)` |
-| **cone**    | `src/cone/`    | **Step 2** — `ConeKAlgebra` (a helper `KAlgebra` subclass that automates the multiplicative structure, reducing the canonical basis to normal-ordered expressions in multiplicative *ray* generators) plus a large catalogue of standalone realizations and the finite-type zoo |
-| **iso**     | `src/iso/`     | `KAlgebraIso` witnesses certifying a Step-1 sample and a Step-2 cone realization are the *same abstract algebra* (pentagon, A1A1, A1D2) |
-
-## The axioms constrain the structure — the trace bootstrap
-
-Orthonormality is rigid enough to **determine the traces**. The Step-2
-`ConeKAlgebra` realizations compute every structure constant from a smaller subset via associativity. ρ²-
-cyclicity reduces any trace to a few elementary seeds. The seeds may be already known exactly, but in general 
-they are fixed by orthonormality recursion relations from the single vacuum seed `Tr(1)` (known from other sources). 
-Every path is exact and improvable to arbitrary q-order and the cone self-test
-runs with only this code on the path, so a green run is itself the proof of
-engine-freeness. Full account: [`docs/axioms-and-bootstrap.md`](docs/axioms-and-bootstrap.md).
-
-## Using a KAlgebra
-
-```python
-from samples import PentagonSampleKAlgebra      # path set by conftest.py / run_tests.py
-
-A  = PentagonSampleKAlgebra()
-L0 = (0, 1, 0)                                  # the generator L_0; labels are (i, a, b)
-
-A.multiply(L0, L0)                              # L_0² in the canonical basis
-A.trace(L0, K=8)                                # Tr(L_0) to O(q^8)
-assert A.verify_orthonormality(L0, L0, K=6)     # I_{0,0} = 1 + O(q)
-```
-
-## Running the tests
-
-`python3 run_tests.py` runs the three contract suites and prints:
-
-- `ALL SAMPLE CONTRACT TESTS PASSED`              (`tests/test_samples.py`)
-- `ALL … CONE CONTRACT TESTS PASSED`              (`tests/test_cones.py`)
-- the Step-1 ↔ Step-2 `KAlgebraIso` certification (`tests/test_sample_cone_iso.py`)
-
-Pure Python 3, no third-party packages. The modules import one another by **bare
-name**; `conftest.py` / `run_tests.py` put each `src/` layer on `sys.path`, so do
-**not** nest the modules under a package directory or add `__init__.py`.
-
-## Documentation
-
-- [`docs/axioms-and-bootstrap.md`](docs/axioms-and-bootstrap.md) — the contract,
-  how the axioms are checked, and how they constrain the structure (the trace bootstrap)
-- `docs/conjectures-step1-samples.md`, `docs/conjectures-step2-cone.md` — the
-  orthonormality conjecture and its cone-level form
-- `docs/step1-KAlgebra.md`, `docs/step2-ConeKAlgebra.md` — per-layer notes
-- `CLAUDE.md` — orientation for contributors and coding agents
+Structure constants, traces, and pairings are computed in exact `Z[𝖖^±]` and
+`R[𝖖^±]` arithmetic. Truncation to `O(𝖖^K)` occurs only where a trace is read
+out.
 
 ## License
 
-GPL-3.0-or-later — see `LICENSE`.
+GPL-3.0-or-later; see `LICENSE`.

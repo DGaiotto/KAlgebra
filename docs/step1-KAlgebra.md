@@ -1,8 +1,7 @@
 # KAlgebra — K_𝖖-algebras of 4d N=2 K-theoretic Coulomb branches
 
 A contract-first, dependency-free (pure Python 3) implementation of the
-**K-theoretic Coulomb branch algebras** `A_𝖖[T]` of 4d N=2 gauge theories,
-following Ambrosino–Gaiotto (DESY-25-035).
+**K-theoretic Coulomb branch algebras** `A_𝖖[T]` of 4d N=2 gauge theories.
 
 This package is **Step 1** of a modular release: the abstract `KAlgebra`
 contract, the coefficient-ring ("Z₊-ring") layer it is defined over, a set of
@@ -159,6 +158,4 @@ canonical basis**, `I_{a,b}(𝖖) = δ_{a,b} + O(𝖖)`, which the samples and
 
 ## Reference
 
-M. Ambrosino, D. Gaiotto, *K-theoretic Coulomb branches and quantum algebras*
-(DESY-25-035). This package is the companion code; see the paper for the full
-theory.
+Companion code to a paper in preparation.

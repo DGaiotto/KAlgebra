@@ -28,9 +28,8 @@ carry its own flavour charge, so each zoo seed matches a character
 combination up to a per-seed monomial ``z^c`` (``A3_SEED_DICTIONARY``,
 re-derived by the tests from leading terms).
 
-Provenance: Ambrosino–Gaiotto defect-index papers (P1 :1918–1926 for
-su(2)_{−4/3}, P2 §5.1 for the vortex residues), transcribed via the
-2026-06-10 harvest.  Certification (`tests/test_ad_characters.py` +
+Provenance: the su(2)_{−4/3} characters and vortex residues, transcribed via
+the 2026-06-10 harvest.  Certification (`tests/test_ad_characters.py` +
 `experiments/a3_refreeze_from_characters.py`): bulk agreement with the
 2026-06-10 frozen a3 table, full-row agreement with the live embedded
 BPS oracle at enlarged window, internal ρ²-cyclicity, and the M(2,5)/

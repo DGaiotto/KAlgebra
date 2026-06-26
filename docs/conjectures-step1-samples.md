@@ -3,8 +3,7 @@
 This package ships the `K_𝖖`-algebra contract, the coefficient-ring layer, and a
 set of sample algebras. The single conjecture below is the one those exported
 structures directly bear on — it is exactly what the samples and
-`test_samples.py` check. See Ambrosino–Gaiotto (DESY-25-035) for the full
-theory and its other conjectures.
+`test_samples.py` check.
 
 ## Orthonormality of the canonical basis
 

@@ -9,7 +9,7 @@ plus the optional lift-coordinate methods `r_label_decompose` /
 default, which bridges to `r_label_decompose`).
 
 These are reference examples of "how to write a K_𝖖-algebra" against the
-current contract (Ambrosino–Gaiotto, §"K_𝖖-algebras"):
+current contract:
 
   * `Z2QTorusSampleKAlgebra` — `Q_𝖖(Z²)`, the canonical example (unflavoured):
     `X_γ X_{γ'} = 𝖖^{⟨γ,γ'⟩} X_{γ+γ'}`, `ρ(γ) = −γ`,

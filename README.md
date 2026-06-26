@@ -35,11 +35,10 @@ The code is layered over one shared contract:
 ## The axioms constrain the structure — the trace bootstrap
 
 Orthonormality is rigid enough to **determine the traces**. The Step-2
-`ConeKAlgebra` realizations compute every structure constant and trace with **no
-realisation engine** (no BPS-quiver / RG-flow / quantum-torus backend): ρ²-
-cyclicity reduces any trace to a few elementary seeds, which orthonormality then
-pins from the single vacuum seed `Tr(1)` (an exact Nahm sum). Every path is exact
-and improvable to arbitrary q-order — no fixed-K cutoff — and the cone self-test
+`ConeKAlgebra` realizations compute every structure constant from a smaller subset via associativity. ρ²-
+cyclicity reduces any trace to a few elementary seeds. The seeds may be already known exactly, but in general 
+they are fixed by orthonormality recursion relations from the single vacuum seed `Tr(1)` (known from other sources). 
+Every path is exact and improvable to arbitrary q-order and the cone self-test
 runs with only this code on the path, so a green run is itself the proof of
 engine-freeness. Full account: [`docs/axioms-and-bootstrap.md`](docs/axioms-and-bootstrap.md).
 

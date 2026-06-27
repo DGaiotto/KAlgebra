@@ -186,7 +186,7 @@ class U1OctagonKAlg(ConeKAlgebra):
         exact M(1,4) singlet character + the certified orthonormality
         bootstrap.  Verified seed-by-seed against gauged-A_6 `BPSKAlgebra`
         across the v-tower, the long chord and its powers, and the diameter
-        and its powers (`tests/test_u1_octagon_trace.py`).
+        and its powers.
 
         For the raw Layer-1 cone-monomial decomposition (a dict), call
         `trace_layer1` directly.

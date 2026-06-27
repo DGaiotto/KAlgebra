@@ -5,7 +5,7 @@ The matter rays `(((i,1),), m)` have **no scalar-unit pivot** — the abelian
 forward solve stalls — but the Layer-1 reduction coefficients are SU(2)
 characters that **fuse** (Clebsch–Gordan), so taking each
 `Tr(L)=δ+O(𝖖)` / `I_{a,b}=δ+O(𝖖)` equation **per output irrep χ_N** gives an
-exact *integer* system that **does** pin them.  This is the export
+exact *integer* system that **does** pin them.  This is the
 `su2_bootstrap` mechanism specialised to the deven cone, wrapped in the
 `u1aodd_trace_bootstrap` known/unknown structure: the gauge sector (`Tr(1)` +
 the v-tower `X01^m`, both signs) is **known** (supplied by the caller), the

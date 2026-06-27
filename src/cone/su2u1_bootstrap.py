@@ -36,8 +36,7 @@ diagnosis; the window/δ-propagation/peel machinery here is the reusable
 scaffold for that follow-up.
 
 Per-entry: a1d4 `RHO_DELTA`=0; a1d6 nonzero `RHO_DELTA`; a1d8 lacks `RHO_DELTA`
-(compute via the e7 recipe, `experiments/e7_compute_rho_delta.py`) — all three
-gate on the solver above.
+(compute via the e7 recipe) — all three gate on the solver above.
 """
 from __future__ import annotations
 

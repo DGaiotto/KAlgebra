@@ -1,8 +1,8 @@
 """Self-contained contract tests for the sample K_𝖖-algebras.
 
-Run from inside the package folder:
+Run (from the repository root):
 
-    python test_samples.py
+    python3 run_tests.py
 
 Exercises, on each sample, the KAlgebra axiom verifiers (unit law,
 associativity, ρ-automorphism, ρ⁻¹, ρ²-twisted trace cyclicity) and the
@@ -11,10 +11,15 @@ canonical-basis orthonormality relation `Tr(ρ(a)·b) = δ_{a,b} + O(𝖖)`.
 import os
 import sys
 
-# The package modules live in this same (flat) folder.
-_HERE = os.path.dirname(os.path.abspath(__file__))
-if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+# Put every src/<layer>/ directory on sys.path (the project's bare-name import
+# convention) so this file also runs standalone; run_tests.py / conftest.py do
+# the same for the full gate.
+_SRC = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+for _root, _dirs, _ in os.walk(_SRC):
+    _dirs[:] = [_d for _d in _dirs if _d != "__pycache__"]
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from samples import (
     Z2QTorusSampleKAlgebra,

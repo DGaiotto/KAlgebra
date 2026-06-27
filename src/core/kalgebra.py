@@ -63,8 +63,7 @@ on linear combinations, the inner product, axiom verifiers,
 
 Module-internal dependencies: `zplus_ring` for the R-side types and
 `laurent_poly` for `LaurentPoly` (the Z[q^±] type used for Element
-coefficients).  Both are canonical repo-root modules; `kalgebra`
-imports nothing from the preliminary `legacy/` stack.
+coefficients).  Both are core modules imported by bare name.
 """
 
 from __future__ import annotations
@@ -417,9 +416,8 @@ class KAlgebra(ABC):
     # The handling generalises factor-by-factor when `R = R₁ ⊗ ⋯ ⊗ R_k`:
     # peel the *non-unit* (free) factors' characters into the canonical
     # section, keep the *unit* (torus) factors' charges in the labels —
-    # the split is at the unit boundary.  See the "Freeness over R" recipe
-    # in `kalgebra.md` (worked examples: a1d3, all-free; a1deven, SU(2)
-    # free / U(1) in labels).
+    # the split is at the unit boundary.  Worked examples: a1d3, all-free;
+    # a1deven, SU(2) free / U(1) in labels.
 
     # -------- six abstract primitives --------
     # (the flavour-lift coordinate `r_label_decompose` is the seventh
@@ -739,7 +737,7 @@ class KAlgebra(ABC):
         responsibility:** `from_R_form(to_R_form(L_a)) == L_a` is the condition
         that this view is faithful — checked inline where realisations exercise
         the R-form, but *not* enforced contract-wide (there is deliberately no
-        `verify_R_form_roundtrip`).  See kalgebra.md "Z-form vs R-form"."""
+        `verify_R_form_roundtrip`)."""
         R = self.coefficient_ring()
         out: dict[Label, RLaurent] = {}
         for label, lp in x.terms.items():
@@ -1026,8 +1024,7 @@ class KAlgebra(ABC):
         R = self.coefficient_ring()
         # The paper's flavoured orthonormality is on the **identity
         # summand**: I^(1)_{a,b}[q⁰] = δ_{a,b} — the χ₀-component of
-        # the R-valued coefficient, NOT the whole series (kalgebra.md
-        # §"Orthonormality with a non-abelian R").  This is exactly
+        # the R-valued coefficient, NOT the whole series.  This is exactly
         # faithful on canonical labels read as pairs (section label,
         # R element): by Schur orthogonality the χ₀-component of
         # r_a⋆ · r_b is δ_{r_a, r_b}, abelian and non-abelian alike.

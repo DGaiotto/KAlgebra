@@ -301,8 +301,7 @@ def gammas_to_q_order(
 
     Used by ``BPSKAlgebra.rg_generator(K)`` to determine the γ-set
     whose ``s_γ`` data should be included in the truncated spectrum
-    generator (D5 in
-    ``restructuring_plans/01_bps_to_qt_rg/decisions.md``).
+    generator.
 
     Implementation
     --------------
@@ -601,8 +600,7 @@ def fs_dict_for_eta_set(
     ``cone_gens = [(1,0), (0,-1)]``): every required μ with negative
     second coordinate fell outside the box, the walk returned a
     truncated table, and ``[F·S|0>]_η`` came out zero where it
-    shouldn't.  See ``bug_inner_product_chart_dependence.md``.  The
-    witness-based L-shell is cone-direction-agnostic and always
+    shouldn't.  The witness-based L-shell is cone-direction-agnostic and always
     contains the needed μ.
     """
     if not eta_set:

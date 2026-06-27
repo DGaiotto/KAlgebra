@@ -21,10 +21,8 @@ No BPS / RG / quantum-torus engine is touched.  Everything below uses only
 `zplus_ring.SU3ZPlusRing` (weight diagrams / characters) and the letter
 machinery of `su3_ad_kalg` (cone relations; lazily, no import cycle).
 
-Background: `su3ad_layer2_numerators.md`, `su3ad_flavour_layer1_defect.md`.
-The character/fugacity bootstrap was prototyped in
-`experiments/sl3_{m32_vacuum_char,fug_reduce,fugacity_solve}.py`; this module
-is the consolidated, engine-free production version those validate against.
+This module is the consolidated, engine-free production version of the
+character/fugacity bootstrap.
 """
 from __future__ import annotations
 
@@ -324,7 +322,7 @@ def seed_z_fast(lab):
 # Result: {(tile,a,b): {q_exp: z-Laurent}} — canonical monomials whose flavour
 # coefficient is a (possibly non-self-dual) Cartan weight, NOT a prematurely
 # symmetrized character.  This is the fix the layer-1 defect note prescribes
-# for the ρ²-twisted trace of a *product* (`su3ad_flavour_layer1_defect.md`).
+# for the ρ²-twisted trace of a *product*.
 
 def fug_multiply(letter_seq, z, q_factor, depth=0):
     if depth > 90:

@@ -20,13 +20,11 @@ This is the closed-form / `ConeKAlgebra` tier counterpart of the engine-backed
 giving `2(k+1)(2k+3)` mult-gens (k=0: 6 = a1d3, k=1: 20 = a1d5, k=2: 42 = a1d7).
 
 The orbit↔(a,p) dictionary is PINNED (verified via the leading trace
-`(−1)^a q^a χ_p`, and against the BPS fork-quiver seed charges
-`experiments/a1dodd_general_k_scaffold.seed_charge`):
+`(−1)^a q^a χ_p`, and against the BPS fork-quiver seed charges):
 
     a1d5  T = (1,0),  D = (1,1),  V = (2,1),  W = (2,0)
 
-Closed-form backbone (all VERIFIED against a1d5 / a1d3; see
-`a1dodd_cone_cracking_notes.md`):
+Closed-form backbone (all VERIFIED against a1d5 / a1d3):
 
   * **ρ is the clean rotation** `(a,p,i) ↦ (a,p,i+1 mod 2k+3)`, χ-fixed — the
     genuine `Z_{2k+3}` once-punctured-`(2k+3)`-gon cluster symmetry.  In this
@@ -78,8 +76,7 @@ Closed-form backbone (all VERIFIED against a1d5 / a1d3; see
   hand-built a1d5/a1d7 frames are per-orbit gauges with non-linear ρ) and the
   **`T·D` / chord-chord puncture-fork** daughters (the pure chord-chord 4-term
   fork is a genuinely NEW phenomenon at k≥1 — NOT an a1d3 relation — and does
-  NOT reduce to per-crossing skein smoothings).  See
-  `a1dodd_cone_cracking_notes.md` for the full cracked rules + the open frame.
+  NOT reduce to per-crossing skein smoothings).
 
 Native label convention (cone-data, Pattern III, like a1d5):
   the χ-content is **stripped** at the `A1DoddKAlg.multiply` boundary and
@@ -151,7 +148,7 @@ _A1D5_AP_TO_KIND = {v: k for k, v in _A1D5_KIND_TO_AP.items()}
 # q-shifts) is built by the geometric skein resolution where derived (the
 # ORDINARY 2-term case is closed-form & verified; the PUNCTURE fork — the a1d3
 # `T·T` / `T·D` embedding — is structurally characterised, see the module
-# docstring + `a1dodd_cone_cracking_notes.md`).  For the table itself k=0/1 stay
+# docstring).  For the table itself k=0/1 stay
 # sourced from `_extract_k{0,1}` (entry-exact), which the closed-form classifier
 # is checked against.
 
@@ -467,16 +464,14 @@ def _extract_engine(k):
         computable for k>=3 without it.
 
     So the k>=3 table is not emitted; the classifier (the genuine new science),
-    the `T·T` skein rule, and k=0,1,2 (entry-exact, decoded + verified) are.
-    See `a1dodd_cone_cracking_notes.md` for the full case zoo + the cracked rules."""
+    the `T·T` skein rule, and k=0,1,2 (entry-exact, decoded + verified) are."""
     raise NotImplementedError(
         f"a1dodd_cone_data(k={k}): k=0 (a1d3) / k=1 (a1d5) / k=2 (FiniteA1D7) build "
         f"and are entry-exact (decoded from the verified reference algebras).  The "
         f"CLOSED-FORM crossing/χ classifier `classify_i0(k)` + the puncture `T·T` "
         f"skein rule are exact for ALL k; the fully entry-for-entry closed table at "
         f"k>={k} additionally needs the general-k gauge-charge frame and the `T·D`/"
-        f"chord-chord puncture-fork daughters (characterised, not yet closed).  "
-        f"See a1dodd_cone_cracking_notes.md."
+        f"chord-chord puncture-fork daughters (characterised, not yet closed)."
     )
 
 

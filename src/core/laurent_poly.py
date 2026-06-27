@@ -262,16 +262,9 @@ class QuantumTorus:
 
     Internally stored as a dict mapping (a, b) -> LaurentPoly coefficient.
 
-    SCOPE NOTE — *not* dead, despite the canonical surface not using it.
-    The canonical `A_𝖖[T]` quantum torus is `QuantumTorusKAlg`
+    Note: the canonical `A_𝖖[T]` quantum torus is `QuantumTorusKAlg`
     (`quantum_torus_kalgebra.py`); this rank-2 `QuantumTorus` is a separate,
-    preliminary type used by the kept-at-root primitive `mutation.py` (the
-    `_decompose`/`mutate`/`complete` machinery), which `lattice_mutation.py`
-    — and hence `bps_kalgebra` / `bps_okmodule` — depend on, plus the
-    `quantum_torus` shim and its legacy regression tests.  The public
-    `KAlgebra` export (a 16-file subset with no `mutation.py`) correctly drops
-    this class as unused *there*; do **not** mirror that deletion here — it is
-    load-bearing in Cluster.
+    lower-level Laurent-arithmetic helper type kept alongside it.
     """
 
     __slots__ = ("_terms",)

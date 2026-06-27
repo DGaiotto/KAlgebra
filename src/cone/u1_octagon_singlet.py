@@ -62,8 +62,8 @@ def tr_v_n(n: int, K: int) -> LaurentPoly:
 def _verify_against_bps(K: int = 30, n_range: range = range(-2, 3)) -> None:
     """Compute Tr_U1Oct(v^n) via direct gauged-A_6 BPSKAlgebra and
     compare against the closed form."""
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
 
     # gauged A_6 (= U1Octagon's hidden BPS):  A_6 antisymmetric pairing,
     # first 5 standard basis vectors as node_charges, MU_CHARGE = (1,0,1,0,1,0).

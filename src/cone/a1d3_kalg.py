@@ -557,7 +557,7 @@ def _trace_reduce_word(alg, word, chi_idx, q_factor, depth=0, max_depth=40):
 # Construction: each character = BPS-Verma denominator × an explicit
 # numerator constructed from the Creutzig–Ridout Σ_j formulas
 # (arXiv:1306.4388, Prop. 3.10), with BPS Schur convention q_CR = q²
-# and z = μ.  See `restructuring_plans/a1d3_layer2_magic.md`.
+# and z = μ.
 
 
 def _laurent_clean(d):
@@ -1046,8 +1046,7 @@ class A1D3KAlg(ConeKAlgebra):
         where {κ_0, κ_1^sym, κ_1^anti} are the BPS-Verma-renormalised
         characters of admissible irreducibles {L_{1,0}, D⁺_{1,1},
         D⁻_{1,1}} of affine sl(2)_{−4/3} (the chiral algebra of
-        [A_1, D_3]).  See module-level Layer-2 docstring and
-        `restructuring_plans/a1d3_layer2_magic.md`.
+        [A_1, D_3]).  See module-level Layer-2 docstring.
 
         Returns dict mapping elementary trace key → RPowerSeries:
             'Tr_1', 'Tr_T', 'Tr_D'.

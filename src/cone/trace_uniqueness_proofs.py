@@ -46,8 +46,7 @@ The all-orders (N = ∞) statement needs the stabilisation of the
 order-k constraint matrices in k — visibly the same phenomenon as the
 trace miracle (Goal 2.11); flagged as the research continuation.
 
-Run:  PYTHONPATH=. python trace_uniqueness_proofs.py   (sweeps the
-trivial-R zoo and prints the proof table)
+Running this module sweeps the trivial-R zoo and prints the proof table.
 """
 from __future__ import annotations
 

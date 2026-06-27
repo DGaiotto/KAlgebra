@@ -26,7 +26,6 @@ where (everything in Cartan fugacity μ, q_paper grade = 𝖖²):
 
 The verma/division helpers are shared with `a1d3_kalg`.  This is the v=5
 analogue of `a1d3_kalg`'s explicit su(2)₋₄/₃ Layer-2 (κ₀/κ₁^sym/κ₁^anti).
-Derivation + validation history: `a1dodd_layer2_status.md`.
 """
 from __future__ import annotations
 
@@ -101,7 +100,7 @@ def _scale(d: dict, c: int) -> dict:
 # the four elementary-trace seeds + vacuum, as (q, μ)-Laurent
 # ---------------------------------------------------------------------------
 # Each entry: list of (builder, s, q-shift, χ₁-dress?, coeff).  Validated to
-# q²⁶ against the reliable bootstrap oracle (a1dodd_layer2_status.md).
+# q²⁶ against the reliable bootstrap oracle.
 _SEED_RECIPE = {
     "vac": [("dir", 0, 0, False, 1)],
     0:     [("dir", 0, 0, False, 1), ("sym", 1, -2, False, 1),

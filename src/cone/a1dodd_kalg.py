@@ -76,7 +76,7 @@ and defers the rest (the dressed sector = cone × ρ-image-of-cone, ρ, and the
 trace) to the engine.  "Closed-form on the clean sector" is a *speed* property,
 **not** a self-containment boundary — the engine is self-contained on all of it.
 A closed form for the dressed sector would need the genuine D-type arc frame
-(`a1d5_cone_data`); see `a1dodd_cone_cracking_notes.md`.
+(`a1d5_cone_data`).
 """
 from __future__ import annotations
 
@@ -610,7 +610,7 @@ def A1DoddKAlg(k: int = 1, presentation: str = "engine"):
 # (u1a1aodd) is never imported on the cone path.  Runtime deps are only the cone
 # framework (`cone_kalgebra`, `cone_data`, `kalgebra`, `zplus_ring`,
 # `laurent_poly`) and the closed-form SU(2) trace (`a1dodd_layer2`, with the
-# shared `a1d3_kalg` Verma/Laurent helpers) — all in `export/ConeKAlgebra/`.
+# shared `a1d3_kalg` Verma/Laurent helpers) — all in `src/cone/`.
 #
 # multiply reproduces the references exactly (a1d3 k=0, a1d5 k=1, FiniteA1D7 k=2);
 # bar-involution + ρ-automorphism pass; `Tr(1)` = the sl(2) vacuum character.

@@ -788,8 +788,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         (`_trace_residual`) evaluates them via the exact M(1,3) singlet
         character (`u1_hexagon_singlet.tr_v_n`) + the certified orthonormality
         bootstrap (long chord = the k=1 diameter; the short chords vanish).
-        Verified seed-by-seed against the BPS twin (`_bps_trace`,
-        `tests/test_u1_hexagon_trace.py`).
+        Verified seed-by-seed against the BPS twin (`_bps_trace`).
 
         `label` must be a single cone monomial (canonical basis element); a
         cross-cone product is not a basis element — `multiply` it first.  For
@@ -815,8 +814,8 @@ class U1HexagonKAlg(ConeKAlgebra):
         if cache_key in self._trace_cache:
             return self._trace_cache[cache_key]
         if not hasattr(self, '_bps'):
-            raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-                "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+            raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+                "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
             self._bps = BPSKAlgebra(
                 pairing=B_GAUGED,
                 node_charges=[(1,0,0,0),(0,1,0,0),(0,0,1,0)],
@@ -879,8 +878,8 @@ class U1HexagonKAlg(ConeKAlgebra):
 
 def verify_all_reference_pairs():
     """Verify all 81 reference pairwise products against BPS."""
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
     A_bps = BPSKAlgebra(pairing=B_GAUGED,
                         node_charges=[(1,0,0,0),(0,1,0,0),(0,0,1,0)])
     A_my = U1HexagonKAlg()

@@ -3,7 +3,7 @@
 **Step 2** of the modular release: many examples of the K-theoretic
 Coulomb-branch algebras `A_𝖖[T]`, each realized
 with the **`ConeKAlgebra` machinery** — a cone presentation of the
-**multiplicative generators** — extending the Step-1 `KAlgebra` contract export,
+**multiplicative generators** — extending the Step-1 `KAlgebra` contract,
 plus the finite-type zoo. Packaged **without any realisation engine** (no
 BPS-quiver, RG-flow or quantum-torus machinery), pure Python 3, no third-party
 dependencies.
@@ -44,7 +44,7 @@ of its mult-gens into *monomial* (identity change-of-basis), *quantum-torus*
 `χ_k = U_k(χ_1)`) kinds, set via `Cone(parent, gens, torus_gens=…, char_gens=…)`
 and queried with `is_monomial()` / `is_quantum_torus()` / `is_character()`. (The
 former `MonomialCone`/`QTCone`/`CharacterCone` subclasses were folded into this
-one class; they survive as prior art in the repo's `legacy/cone_wrappers.py`.)
+one class.)
 
 ## The golden standard — A1A2k
 
@@ -149,13 +149,14 @@ drivers); and `vacuum_nahm`, the exact Nahm-sum `Tr(1)` on the embedded BPS spec
 (using only the spine-free `nahm_local`/`snf_kernel`/`qpoch`/`habiro`/`lattice`),
 verified coefficient-for-coefficient against the engine.
 
-`CONE_EXPORT_STATUS.md` (in the parent `export/`) records the per-class trace
-mechanism and the read-the-code spine-dependency verdict.
-
 ## Quick start
 
 ```python
-import sys; sys.path.insert(0, ".")          # modules import by flat name
+# from the repo root, with the src/ layer dirs on sys.path (run_tests.py and
+# conftest.py do this automatically; modules import by flat name):
+import sys, pathlib
+sys.path[:0] = [str(p) for p in pathlib.Path("src").rglob("*")
+                if p.is_dir() and p.name != "__pycache__"]
 
 from a1a2k_kalg import A1A2kKAlg              # the golden standard
 A = A1A2kKAlg(1)                              # pentagon, M(2,5)
@@ -172,8 +173,7 @@ N2.trace(N2.identity(), K=12)                 # the Spin(4) Schur index
 ## Tests
 
 ```bash
-# Step 1 must be on the path — this package imports the core from it:
-PYTHONPATH=/path/to/KAlgebra:/path/to/ConeKAlgebra python test_cones.py   # ALL 31 …
+python3 run_tests.py        # the full gate (all layers), from the repo root
 ```
 
 `test_cones.py` runs the generic contract (multiply / ρ / trace / orthonormality)
@@ -181,15 +181,14 @@ on every shipped cone algebra, then a `check_improvable` battery that traces pas
 the old frozen windows to witness arbitrary q-improvability spine-free — e.g.
 pentagon→q⁷⁰, A1A2k(2)→q⁶⁰, U1A1Aodd→q⁴⁰, U1A1Deven(1)→q⁷⁰, A1D{3,5}ConeKAlg→q⁴⁰,
 SU3AD `Tr_T`→q³⁰, the A1D7 diameter seed→q³⁰, the ungauged polygons→q³⁰⁻⁴⁰,
-A1Deven→q³⁰, SU2Nf2 (Spin(4) index)→q¹². It runs with **only the two packages on
-the path and no realisation engine present**, so a green run is a proof of
-spine-freeness.
+A1Deven→q³⁰, SU2Nf2 (Spin(4) index)→q¹². It runs with **no realisation-engine
+module present**, so a green run is a proof of spine-freeness.
 
-**Step-1↔Step-2 correspondence.** With *both* packages on the path, a separate
-test certifies the cone realisation against the Step-1 sample:
+**Step-1↔Step-2 correspondence.** A separate test certifies the cone realisation
+against the Step-1 sample:
 
 ```bash
-PYTHONPATH=/path/to/KAlgebra:/path/to/ConeKAlgebra python test_sample_cone_iso.py
+python3 tests/test_sample_cone_iso.py        # certifies the Step-1 ↔ Step-2 isos
 ```
 
 It builds a `KAlgebraIso` between each Step-1 sample and its cone twin and runs

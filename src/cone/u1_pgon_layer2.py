@@ -120,15 +120,13 @@ def _tr_L_long_neg(p: int, n: int, K: int) -> LaurentPoly:
     inferred** (parallel to the confirmed p-1): the gauged-RG oracle's
     two-window convergence is UNRELIABLE beyond ~q^29 at k=3 (it sprouts
     spurious terms / grows coefficients with the window — the documented
-    artifact, see u1pgon_trace_recursion.md "the gauged-RG oracle is
-    unreliable"), so q^33 was matched against an artifact, not real data.
+    artifact), so q^33 was matched against an artifact, not real data.
     **OPEN — the whole j>=2 tail is unverified**: the reliable structure is
     the singlet false-theta TOWER (Σ_r false-theta at momentum (2r+1)(p-1),
     unit coeffs — NOT a derivative/growing theta), whose r>=2 components need
     the reliable A1A2k bridge, not the oracle.  Consumers that aggregate this
     seed deep (the k=3 `Tr(L_diam^{n>=5})`) are therefore still wrong —
-    `U1A1AoddKAlg` honest-fails them via its provable trace-level guard.
-    See `u1a1aodd_self_contained_findings.md`."""
+    `U1A1AoddKAlg` honest-fails them via its provable trace-level guard."""
     m = -n  # = |n|
     po = (p % 2 == 1)
     overall = 1 if po else (-1 if (m + 1) % 2 == 1 else 1)

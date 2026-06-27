@@ -386,8 +386,7 @@ def _tt_dist2(i):
     zero-weights), so `(χ_(1,1)−2) + 2·𝟙 = χ_(1,1) + 2·𝟙`.  The old `4+2χ`
     double-counted the adjoint by `χ_(1,1)+2` — invisible to the character-
     level iso cert (its `to_R_form` fold double-counts identically) but exposed
-    by the ρ²-twisted trace / the U(1)² reference.  See
-    su3ad_flavour_layer1_defect.md.
+    by the ρ²-twisted trace / the U(1)² reference.
     """
     return [
         (-3, {_T(i + 1): 1}, (0, 0), 1),
@@ -970,14 +969,14 @@ class SU3ADKAlg(ConeKAlgebra):
 
     def _bps_engine(self):
         """The `SU3BPSKAlgebra` companion is a cross-check oracle only and is
-        **not shipped** in this spine-free export.  The public surface
+        **not shipped** in this spine-free release.  The public surface
         (`multiply` / `rho` / `trace` / `inner_product` / `trace_word` /
         `verify_orthonormality`) computes entirely engine-free via
         `sl3_su3_traces`; this method exists only so the few oracle-comparison
         helpers below have a definition, and honest-fails if reached."""
         raise NotImplementedError(
             "SU3ADKAlg._bps_engine: the BPS oracle is not shipped in the "
-            "spine-free export; the trace path is fully engine-free.")
+            "spine-free release; the trace path is fully engine-free.")
 
     def _std_to_bps_label(self, label):
         """Transport a standalone canonical label `(tile, a, b, p, q)` to
@@ -1045,8 +1044,8 @@ class SU3ADKAlg(ConeKAlgebra):
         generators (each `factors[i]` a standalone label), **BPS-free**.
 
         The ρ²-twisted trace of a *product* must not symmetrize the
-        intermediate non-self-dual flavour content (the
-        `su3ad_flavour_layer1_defect.md` lesson).  We therefore fugacity-
+        intermediate non-self-dual flavour content (the layer-1
+        flavour-defect lesson).  We therefore fugacity-
         multiply the whole product (`sl3_su3_traces.fug_multiply`: weights,
         not characters), single-label-trace each resulting canonical monomial,
         and Weyl-symmetrize the *total* to SU(3) characters only at the end —

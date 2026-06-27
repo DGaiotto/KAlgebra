@@ -3,8 +3,7 @@ exact_characters.py
 ===================
 
 Computable, **arbitrary-q** closed-form Schur indices / VOA vacuum characters,
-harvested from the literature (catalogue + provenance in
-`exact_schur_characters.md`).  Pure Python, no repo dependencies — each routine
+harvested from the literature.  Pure Python, no repo dependencies — each routine
 returns plain dicts so the module is reusable standalone (the repo bridges wrap
 the output into `RPowerSeries` over the appropriate `ZPlusRing`).
 
@@ -18,11 +17,9 @@ Currently implemented
   (Creutzig 1701.05926 `(A1, D_{2p})` formula, `x⁰` slice).  Cross-verified
   against the repo's INDEPENDENT `sl(3)₋₃/₂` Kac–Wakimoto vacuum character
   (theta sums, no cone/BPS) at every order to `q_d²⁸`; this exposed a defect in
-  the cone oracle from `q_d²⁴` on (`exact_schur_characters.md` §2.1).
+  the cone oracle from `q_d²⁴` on.
 * `creutzig_Aodd_Tr1_z` — `(A1, A_{2p-3})` ↔ `B_p` vacuum index (eq. (5.14)
   of Beem–Nair as written in Creutzig l.284), as a `z`-Laurent q-series.
-
-See `exact_schur_characters.md` for the full catalogue and conventions.
 """
 from __future__ import annotations
 
@@ -161,7 +158,7 @@ def eisenstein_E2k(kk, K):
     `{q_power: Fraction}` to order `q^K`:
     `E_{2k} = 1 - (4k/B_{2k}) Σ_{n≥1} σ_{2k-1}(n) qⁿ`, `σ` the divisor power sum.
     (`E_2,E_4,E_6,…`; building block for the unflavoured `N=4` SU(N) indices and
-    the genus indices in `exact_schur_characters.md`.)"""
+    the genus indices.)"""
     from fractions import Fraction as Fr
     B = _bernoulli(2 * kk)
     pref = Fr(-4 * kk) / B[2 * kk]

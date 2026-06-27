@@ -40,13 +40,12 @@ STATUS — WORKING for general k:
     Plückers).
   * **Bar-invariant**, **associative**, unital, `E·E⁻¹ = 𝟙`, and
     `multiply` matches the oracle **exactly** on all chord pairs —
-    verified k=1 (81/81) and k=2 (400/400) in
-    `tests/test_u1a1aodd_kalg.py`.  k=1 = `U1HexagonKAlg`'s L1/L2 mod E.
+    verified k=1 (81/81) and k=2 (400/400).  k=1 = `U1HexagonKAlg`'s
+    L1/L2 mod E.
   * Build is fast (oracle-extracted once at construction, ρ-reduced:
     ~0.2s k=1, ~0.7s k=2, ~2.3s k=3).
   * **ρ_UV is hard-coded** (`rho`/`rho_inverse`): closed-form label maps,
-    matched to the oracle on chords + q-commuting monomials (k=1,2,3) in
-    `tests/test_u1a1aodd_kalg.py`.
+    matched to the oracle on chords + q-commuting monomials (k=1,2,3).
   * **trace** (Schur index): Layer-1 ρ²-cyclicity over the cones reduces
     any trace to **low-charge seeds** (v-tower / single chords), whose
     values are the **closed-form M(1, p) singlet characters** of
@@ -111,7 +110,7 @@ def _load_frozen_into(cd, k):
 def freeze_tables(k):
     """(Re)generate `u1a1aodd_tables_k{k}.pkl` from the oracle (run where the
     RG-flow spine is available).  Pickles every cone-data attribute except the
-    oracle-holders, so the export loads it and never builds the oracle."""
+    oracle-holders, so this package loads it and never builds the oracle."""
     import pickle
     alg = U1A1AoddKAlg(k)
     cd = alg._cd

@@ -29,8 +29,7 @@ combination up to a per-seed monomial ``z^c`` (``A3_SEED_DICTIONARY``,
 re-derived by the tests from leading terms).
 
 Provenance: the su(2)_{−4/3} characters and vortex residues, transcribed via
-the 2026-06-10 harvest.  Certification (`tests/test_ad_characters.py` +
-`experiments/a3_refreeze_from_characters.py`): bulk agreement with the
+the 2026-06-10 harvest.  Certification: bulk agreement with the
 2026-06-10 frozen a3 table, full-row agreement with the live embedded
 BPS oracle at enlarged window, internal ρ²-cyclicity, and the M(2,5)/
 M(2,7) match of the pentagon/heptagon frozen tables.
@@ -188,7 +187,7 @@ def su2_m43_trace_table(K: int) -> dict:
 #: zoo mg-seed ↔ character dictionary for the a3 entry: per-seed
 #: (combination, z-shift), i.e. ``T_seed = z^c · I_X(q→𝖖², z²→μ)``.
 #: Tied to the current `finite_a3_kalg` mg indexing; re-derived from
-#: leading terms by `tests/test_ad_characters.py`.  ρ²-orbits {0,3,4}
+#: leading terms.  ρ²-orbits {0,3,4}
 #: and {1,2,5} carry the expected unit-character (μ^δ) twists.
 A3_SEED_DICTIONARY = {
     0: ("I_B", 0),

@@ -3,8 +3,7 @@ u1a1aodd_mult_table.py
 ======================
 
 Ray-generator multiplication structure for the gauged `[A_1, A_{2k+1}]`
-family, read off the validated oracle `U1A1AoddGaugedRG` (see
-`U1A1AODD_GAUGED_PROGRESS.md`).
+family, read off the validated oracle `U1A1AoddGaugedRG`.
 
 Verified structure: with the gauged algebra `≅ BPS` over the `A_{2k+2}`
 linear chain,
@@ -43,7 +42,7 @@ if _HERE not in sys.path:
 
 def bijection_charge(k):
     """Return `phi`: oracle-label → `B_GAUGED_k` charge (the verified iso
-    map; `tests/test_u1a1aodd_gauged_rg.py`)."""
+    map)."""
     from a1a2k_bps_iso import _compute_chord_charges   # lazy: spine-adjacent
     n = 2 * k + 2
     CC = {(a, i): tuple(v)

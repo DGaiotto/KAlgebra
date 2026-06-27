@@ -38,9 +38,7 @@ missing pairs mean missing equations — so a PASS at growing windows is
 accumulating evidence, not a proof; a kernel SMALLER than the rescale
 line, or the known trace failing the system, would be a genuine
 contradiction.  Dimensions are reported per window so growth can be
-watched.  First systematic results live in
-`tests/test_trace_uniqueness.py` (pentagon, heptagon) and are discussed
-in `finite_type_kalgebras.md`.
+watched.
 """
 from __future__ import annotations
 

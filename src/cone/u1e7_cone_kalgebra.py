@@ -5,8 +5,8 @@ u1e7_cone_kalgebra.py
 `U1E7ConeKAlgebra` — the u(1)-gauged E7 algebra as a **standalone QT-cone
 ConeKAlgebra**, built once from the `U1E7GaugedRG` RG-flow oracle (no engine at
 runtime once the tables are frozen).  Rebuilt per the spine-free
-QTCone-from-RG recipe (`gauged_qtcone_from_rg.md`); the earlier explicit-`(c0,c1)`
-construction (#589) is superseded — see that note for why it failed.
+QTCone-from-RG recipe; the earlier explicit-`(c0,c1)`
+construction (#589) is superseded.
 
 Structure (= the recipe):
   * **rank-1 torus** = the gauge leg `E = X_{(0,1)}` (Laurent).  The magnetic
@@ -41,7 +41,7 @@ from cone_data import FiniteConeData, Cone
 from cone_kalgebra import ConeKAlgebra
 # NOTE: `u1e7_gauged_rg` (the RG-flow oracle) and `u1e7_cone_derivation` are
 # imported LAZILY (inside the build / oracle paths only) so the frozen,
-# spine-free export never touches the realisation engine.
+# spine-free release never touches the realisation engine.
 
 
 def _lp(c) -> LaurentPoly:
@@ -143,7 +143,7 @@ class U1E7ConeData(FiniteConeData):
         self._cone_chord_atoms: dict = {
             cone: [a for a in cone if a[0]] for cone in self._cones}
 
-    # ---- freeze / load (spine-free export) ------------------------------
+    # ---- freeze / load (spine-free release) ------------------------------
 
     _FROZEN_KEYS = ("_atoms", "_sig", "_mono", "_E", "_torus_gens",
                     "_ai_atoms", "_nb", "_cones", "_cone_by_type",

@@ -5,7 +5,7 @@ u1a1aodd_k3_chord_charges.py
 Chord-generator BPS charges for U1DecagonKAlg (k=3, u(1)-gauged [A_1, A_7]).
 
 Primitive chord generators (verified via the bigger-than-Plücker
-diagnostic — see `u1_decagon_bootstrap.md`):
+diagnostic):
   L_1 (short,  distance 2, magnetic):     10 generators
   L_2 (medium, distance 3, non-magnetic): 10 generators
   L_3 (with F, magnetic):                 10 generators
@@ -96,8 +96,8 @@ def _regenerate_via_bps():
     """Recompute the frozen charge dicts as ρ-orbits of the universal seeds in
     the gauged-A_8 BPS quiver (offline reproducibility; imports BPS lazily).
     Returns {a: {i: charge}}; asserts they match the frozen literals."""
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
     n = 8  # 2k+2 nodes = 7 dyn + 1 flavour
     B = [[0] * n for _ in range(n)]
     for i in range(n - 1):
@@ -131,8 +131,8 @@ def _regenerate_via_bps():
 # on attribute access so importing this module stays BPS-free.
 def __getattr__(name):
     if name == "_BPS":
-        raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-            "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+        raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+            "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
         n = 8
         B = [[0] * n for _ in range(n)]
         for i in range(n - 1):

@@ -14527,8 +14527,8 @@ class FiniteA1D8KAlgebra(ConeKAlgebra):
     # ρ's U(1) flavour shift r (the (section, r) map; SU(2) part is ρ-invariant
     # — χ_n is self-dual).  This standalone shipped WITHOUT it (like e7 on the
     # u1 side), so the contract ρ dropped r and verify_rho_is_automorphism
-    # failed.  Recomputed from the BPS σ + flavour-lattice section by
-    # experiments/compute_su2u1_rho_delta.py; ρ is an honest automorphism once
+    # failed.  Recomputed from the BPS σ + flavour-lattice section;
+    # ρ is an honest automorphism once
     # the labels carry the U(1) charge explicitly via the su2u1 Z-form
     # (finite_su2u1_zform.FiniteSU2U1ZKAlgebra).  Values fall in clean index
     # ranges (0..41: 0, 42..99: -2, 100..119: -4).

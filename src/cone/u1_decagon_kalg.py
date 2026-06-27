@@ -141,7 +141,7 @@ class U1DecagonKAlg(ConeKAlgebra):
         trace to v-tower / chord seeds, and Layer-2 (`_trace_residual`)
         evaluates them via the exact M(1,5) singlet character + the certified
         orthonormality bootstrap.  Verified seed-by-seed against gauged-A_8
-        `BPSKAlgebra` (`tests/test_u1_decagon_trace.py`).
+        `BPSKAlgebra`.
 
         `label` must be a single cone monomial (canonical basis element); a
         cross-cone product is not a basis element — `multiply` it first, then

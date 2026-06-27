@@ -1,4 +1,4 @@
-"""Runnable self-test for the exported ConeKAlgebra package.
+"""Runnable self-test for the ConeKAlgebra layer.
 
 Pure Python 3, no third-party dependencies, no realisation-spine
 modules (no BPS / RG / quantum-torus engine).  Each shipped cone
@@ -17,7 +17,7 @@ generators:
   * `trace` (the closed-form residual),
   * `verify_orthonormality` (the Schur pairing `I_{a,b}=δ_{a,b}+O(q)`),
 
-i.e. the orthonormality conjecture of CONJECTURES.md on the exported
+i.e. the orthonormality conjecture (docs/conjectures-step2-cone.md) on these
 structures.
 """
 from __future__ import annotations
@@ -113,7 +113,7 @@ CONE_ALGEBRAS = [
     #   ONLY k=1 ships: the k=1 matter bootstrap is tractable (re-solvable to any
     #   q-order).  k>=2 (D6/D8) are PULLED — their matter sector is frozen at
     #   K=8-12 and honest-fails beyond (the spine-free SU(2) matter bootstrap is
-    #   intractable for k>=2), violating the export bar (#651; see CONE_EXPORT_STATUS).
+    #   intractable for k>=2), so they are held back.
     ("u1a1deven_cone_kalgebra", "U1A1DevenConeKAlgebra", (1,)),
 ]
 
@@ -256,7 +256,7 @@ def check_improvable():
     # genuine closed-form D-type cone presentations.  Closed-form cone multiply
     # (frozen inline Plücker tables) + arbitrary-q sl(2) admissible-character trace,
     # both fully spine-free -- pulling NONE of a1d5_kalg/finite_a1d7_kalg/u1a1aodd/
-    # rgkalgebra (this whole self-test runs with only export/ConeKAlgebra on the path).
+    # rgkalgebra (this whole self-test runs with no realisation-spine module imported).
     # Trace far past the finite-class q^24 window to witness no fixed-K cap.
     a1dodd = importlib.import_module("a1dodd_kalg")
     for cls_name, Kq in (("A1D3ConeKAlg", 40), ("A1D5ConeKAlg", 40), ("A1D7ConeKAlg", 30)):
@@ -271,8 +271,8 @@ def check_improvable():
         print(f"  OK   {cls_name:24s} closed-form sl(2) char trace spine-free to q^{Kq}")
     # A1D7ConeKAlg completeness regression (#617): the diameter seed (a=k+1=3, p=0)
     # was the orthonormality hold-out; its closed-form trace must resolve, reach
-    # high q, AND pass orthonormality -- export-only.  Guards the shipped
-    # a1dodd_layer2 against source↔export drift (the diameter recipe must be synced).
+    # high q, AND pass orthonormality.  This guards the shipped a1dodd_layer2
+    # diameter recipe against regressions (it must stay synced).
     D7 = a1dodd.A1D7ConeKAlg()
     dia = ((((3, 0, 0), 1),), 0)
     td = D7.trace(dia, K=30)

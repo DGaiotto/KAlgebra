@@ -9,8 +9,7 @@ q-order, no bootstrap, no BPS.  Same construction as D₅/D₇, with the k+1 dis
 modules s = 1..k+1 and (u, v) = (2, 2k+3).
 
 Seed indexing.  The 2(k+1) seeds are indexed by **(level a = 1..k+1, parity
-p ∈ {0,1})**, with leading Schur term (−1)^a q^a χ_p (see
-`experiments/a1dodd_general_k_scaffold.py`).  The flat `idx` (matching
+p ∈ {0,1})**, with leading Schur term (−1)^a q^a χ_p.  The flat `idx` (matching
 `a1d5_layer2`/`a1d7_layer2`'s `seed_trace(idx)`) is
 
     idx ∈ [0, k]      ->  p = 0,  a = k + 1 − idx       (p=0 block, a descending)
@@ -37,7 +36,7 @@ returns None there and `seed_trace` honestly raises rather than fabricate.  The
 multiply side of `[A₁, D_{2k+3}]` is closed-form for ALL k (see
 `a1dodd_cone_data`), so this trace residual is the one piece blocking k≥3
 orthonormality; deriving the correct general-k admissible-character combination
-for it is tracked in `a1dodd_cone_cracking_notes.md`.
+for it is the standing residual.
 
 κ machinery (σ_j numerator, verma, sym/anti modules) is identical to
 `a1d5_layer2`; the verma/division helpers are shared with `a1d3_kalg`.
@@ -149,8 +148,7 @@ def _recipe(k: int, a: int, p: int):
     `−𝖖³χ₀` and gives spurious negative-𝖖 content for the a=4 diameter — the BPS
     truth is the clean `{3:−χ₀, 5:−χ₂, …}` / `{4:χ₀, …}`).  Deriving the correct
     general-k admissible-character combination for these is the standing residual
-    (the SU(2)-refined Schur index = affine sl(2)_{−(4k+4)/(2k+3)} characters);
-    tracked in `a1dodd_cone_cracking_notes.md`."""
+    (the SU(2)-refined Schur index = affine sl(2)_{−(4k+4)/(2k+3)} characters)."""
     if p == 1:
         S = range(1, k + 2) if a == 1 else range(a - 1, k + 1)
         return [("anti", s, -a, False, -1) for s in S]
@@ -237,7 +235,7 @@ def vacuum_trace(k: int, K: int) -> dict:
 
 def vacuum_trace_pe(k: int, K: int) -> dict:
     """Tr(1) via the **plethystic-exponential closed form** of Pan–Yang
-    (arXiv, "Exact non-Lagrangian Schur index in closed form", eq. 47):
+    (arXiv:2509.20439, "Exact non-Lagrangian Schur index in closed form", eq. 47):
 
         I_{D_{2k+3}(sl2,[1^2])} = PE[ (q − q^p)/((1−q)(1−q^p)) · χ_adj(z) ],
         p = 2k+3,  χ_adj = z² + 1 + z⁻²  (su(2) spin-1) .

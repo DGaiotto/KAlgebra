@@ -32,8 +32,7 @@ the pseudoreal SU(2)+Nf case), with the same surface:
   formula), the inverse lift.
 * `verify_flavour_assembly` — the recognition `(covariant, content, genuine)`.
 * `SUNZPlusRing(M)` — the **general `R(SU(M))` Z₊-ring** (the repo's
-  `SU2ZPlusRing` / `SU3ZPlusRing` are its `M = 2, 3` cases — cross-checked in
-  `tests/test_sun_characters.py`).
+  `SU2ZPlusRing` / `SU3ZPlusRing` are its `M = 2, 3` cases).
 * `SUNFlavourRing` — `⊗_i R(SU(M_i)) ⊗ R(U(1)^r)`: the coefficient ring of an
   SU-enhanced presentation, the abelian factor carrying the *formal* residue
   (per-group diagonal levels + link slots).
@@ -269,8 +268,8 @@ from zplus_ring import ZPlusRing
 # home) — merged 2026-06-12 (user ruling) from this module's class and the
 # Plan 30 twin: ONE class, the union surface (`reduce`/`character`/`dim`/
 # `_validate`/`m`), Kostka-DP LR engine, cross-certified against this
-# module's Weyl-denominator machinery (`character`/`decompose`) in
-# `tests/test_sun_zplus_ring.py`.  Re-exported here for back-compat.
+# module's Weyl-denominator machinery (`character`/`decompose`).
+# Re-exported here for back-compat.
 # ---------------------------------------------------------------------------
 from zplus_ring import SUNZPlusRing            # noqa: F401  (re-export)
 

@@ -652,7 +652,7 @@ class TensorZPlusRing(ZPlusRing):
     structure constants.  `⋆` acts factor-wise.
 
     This is the 'missing infrastructure piece' for SU(2)^n-flavoured
-    KAlgebras (`skein_sphere/KALGEBRA_NOTES.md`); the per-factor
+    KAlgebras; the per-factor
     un-branch from the `U(1)^k` Cartan (`AbelianZPlusRing(k)`) up to the
     non-abelian product is a `FlavourEnhancementKAlgebra`-style wrapper
     (Weyl group `∏_i W(R_i)`; for SU(2)^n the per-puncture `μ_p ↔ μ_p⁻¹`).
@@ -2538,8 +2538,7 @@ class SUNZPlusRing(ZPlusRing):
     `N`, reflect, strip).
 
     `SUNZPlusRing(2)` ≅ `SU2ZPlusRing` under `(n,) ↔ n`;
-    `SUNZPlusRing(3)` ≅ `SU3ZPlusRing` under `(a,b) ↔ Dynkin (a−b, b)`
-    — both certified in `tests/test_sun_zplus_ring.py`.
+    `SUNZPlusRing(3)` ≅ `SU3ZPlusRing` under `(a,b) ↔ Dynkin (a−b, b)`.
     """
 
     def __init__(self, N: int) -> None:
@@ -2709,7 +2708,7 @@ class SUNZPlusRing(ZPlusRing):
     # ----- the merged surface (Plan 30; the sun_characters twin folded
     # in here 2026-06-12 — one ring, two cross-certifying engines: this
     # class's Kostka-DP LR vs sun_characters' Weyl-denominator toolkit,
-    # pinned equal in tests/test_sun_zplus_ring.py) -------------------
+    # pinned equal) -------------------
 
     @property
     def m(self) -> int:
@@ -2760,8 +2759,7 @@ def augmentation_hom(source: ZPlusRing) -> RingHom:
     augmentation (the Frobenius–Perron dimension of the Z₊-ring).  For an
     abelian torus every irrep is 1-dimensional, so this is the classic
     `μ^f ↦ 1` "gauge quotient / set μ → 1" specialization — the previous
-    `AbelianZPlusRing`-only signature is exactly that special case.  Aligns
-    with the bundle stack's `CoulombAlgebra.schur_index` output.
+    `AbelianZPlusRing`-only signature is exactly that special case.
 
     Generalised to any `ZPlusRing` for the Plan-32 forgetful map.
     """
@@ -3017,7 +3015,7 @@ def su2_to_u1_hom(
     the adjoint-normalised fugacity is μ = z²).  This is the hom that
     restricts an SU(2)-flavoured KAlgebra to its maximal torus, e.g.
     `a1d3.base_change(su2_to_u1_hom())` = the z-refined μ-flavoured
-    hexagon face (Finalized.md, hexagon pair)."""
+    hexagon face."""
     if source is None:
         source = SU2ZPlusRing()
     if target is None:

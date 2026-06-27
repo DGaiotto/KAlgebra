@@ -80,17 +80,14 @@ from __future__ import annotations
 import sys
 import os
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
-
-# Make the sibling Step-1 package importable when running from a checkout
-# (the documented contract is to set PYTHONPATH to both export dirs).
-_EXPORT_ROOT = os.path.dirname(_HERE)                      # .../export
-for _sib in ("KAlgebra", "ConeKAlgebra"):
-    _p = os.path.join(_EXPORT_ROOT, _sib)
-    if os.path.isdir(_p) and _p not in sys.path:
-        sys.path.insert(0, _p)
+# Put every src/<layer>/ directory on sys.path (the project's bare-name import
+# convention) so this module also imports standalone from a checkout;
+# run_tests.py / conftest.py do the same for the full gate.
+_SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _root, _dirs, _ in os.walk(_SRC):
+    _dirs[:] = [_d for _d in _dirs if _d != "__pycache__"]
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from kalgebra import KAlgebra, Element
 from cone_kalgebra import ConeKAlgebra

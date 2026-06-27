@@ -48,8 +48,7 @@ the **exact closed-form character** `exact_characters.deven_gauged_xn_qn` (the
 oracle, no freeze cap).  Cross-verified against the repo's INDEPENDENT
 `sl(3)₋₃/₂` Kac–Wakimoto vacuum character (theta sums, no cone/BPS) for the
 slices `n = 0…4` to `q_d²⁸` — which exposed and replaced the cone oracle's
-fixed-cutoff matter-tower truncation from `q_d²⁴` on (`exact_schur_characters.md`
-§2.1, repo_audit A13).  (That cross-check is `k=1`; for **even k** the odd
+fixed-cutoff matter-tower truncation from `q_d²⁴` on.  (That cross-check is `k=1`; for **even k** the odd
 v-powers carry genuine **odd-q_d** terms — the `√Q = -q_d` branch — which the
 closed form now emits with sign `(-1)^{sh}`, verified for `k=2`/D6 against the
 oracle's `Tr(X01ⁿ)`, `n=0…3`.)  The matter-ray seeds serve from the frozen table
@@ -114,7 +113,7 @@ from u1a1deven_cone_build import (
     DevenConeTables, build_tables, E_GEN, E_INV, _gen_sort_key)
 # NOTE: `u1a1deven_rgkalgebra` (the RG oracle) is imported LAZILY in the
 # `_oracle` property only — the frozen runtime path never builds it, so the
-# module drops cleanly into a strict-isolation export (the u1e7 pattern).
+# module drops cleanly into a strict-isolation release (the u1e7 pattern).
 
 
 class U1A1DevenConeData(FiniteConeData):
@@ -222,7 +221,7 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
         self._R = SU2ZPlusRing()
         # Cone tables: loaded **spine-free** from the shipped freeze
         # (`u1a1deven_tables_k{k}.pkl`) when present — construction then needs no
-        # oracle (the strict-isolation export path) — else *learned* (ρ-folded,
+        # oracle (the strict-isolation release path) — else *learned* (ρ-folded,
         # closed-form q-powers) from the fast RG oracle and memoised per process.
         # Either way multiply/ρ are oracle-free closed forms (no mult-table
         # freeze: the q-powers are derived, unlike the u1a1aodd sibling).
@@ -306,8 +305,7 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
         (`exact_characters.deven_gauged_xn_qn`).  Cross-verified against the
         repo's INDEPENDENT `sl(3)₋₃/₂` Kac–Wakimoto vacuum character (theta sums)
         for `e = 0…4` to `q_d²⁸`; this is what exposed the cone-oracle's
-        fixed-cutoff matter-tower truncation from `q_d²⁴` on
-        (`exact_schur_characters.md` §2.1, repo_audit A13)."""
+        fixed-cutoff matter-tower truncation from `q_d²⁴` on."""
         from exact_characters import deven_gauged_xn_qn
         return self._qn_to_rps(deven_gauged_xn_qn(self.k, e, K), K)
 

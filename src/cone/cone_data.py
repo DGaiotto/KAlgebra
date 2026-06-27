@@ -59,8 +59,7 @@ character together) are constructible directly via
 `Cone(parent, mult_gens, torus_gens=…, char_gens=…)`.  The partition is
 carried as data and queried with `is_monomial()` / `is_quantum_torus()` /
 `is_character()`.  (The historical thin partition-fixing subclasses
-`MonomialCone` / `QTCone` / `CharacterCone` were removed in #640; archived
-for prior art / regression in `legacy/cone_wrappers.py`.)
+`MonomialCone` / `QTCone` / `CharacterCone` were removed in #640.)
 
 The companion abstract `ConeKAlgebra` (in `cone_kalgebra.py`) is the
 "closed-form" presentation tier: a `KAlgebra` defined by a `ConeData`
@@ -98,10 +97,8 @@ The generic `derived_multiply(a, b)` reduces the concatenated word
 past each other (paying cocycle phases), (ii) substituting
 `cross_product` at non-q-commuting collisions, (iii) terminating when
 each surviving word lies in a single cone, then reading off the native
-labels via `from_cone_label`.  The algorithm is pinned by
-`tests/test_pentagon_cone_data.py` and `tests/test_cone_kalgebra.py`
-(validated against PentagonKAlg's full ordered-pair multiplication
-table).
+labels via `from_cone_label`.  The algorithm is validated against
+PentagonKAlg's full ordered-pair multiplication table.
 
 Flavour in the cone presentation
 --------------------------------
@@ -1509,8 +1506,7 @@ class Cone:
     is carried as data and queried with `is_monomial()` /
     `is_quantum_torus()` / `is_character()`; there are no per-kind
     subclasses (the historical `MonomialCone` / `QTCone` / `CharacterCone`
-    were thin partition-fixers, removed in #640 and archived in
-    `legacy/cone_wrappers.py`).
+    were thin partition-fixers, removed in #640).
 
     The PBW ↔ canonical change of variables dispatches on the
     partition: an empty `char_gens` gives the identity (monomial) change

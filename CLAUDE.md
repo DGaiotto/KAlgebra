@@ -11,7 +11,7 @@ axiomatisation of the fusion algebra of rotation-equivariant BPS line defects in
 a 4d 𝒩=2 theory — and a range of examples. A K_𝖖-algebra is an algebra `A_𝖖`
 over `Z[𝖖^±]` with a bar involution, a canonical basis `{L_a}`, an automorphism
 `ρ`, and a `ρ²`-twisted trace under which `I_{a,b} = Tr(L_{ρ(a)} L_b) = δ_{a,b} +
-O(𝖖)`. Two layers of algebras sit over one shared contract:
+O(𝖖)`. Three layers of algebras sit over one shared contract:
 
 - **core** (`src/core/`): the abstract `KAlgebra` contract, the Z₊-ring
   coefficient layer (for flavoured algebras), exact `Z[𝖖^±]` arithmetic, and the
@@ -24,6 +24,12 @@ O(𝖖)`. Two layers of algebras sit over one shared contract:
   set of multiplicative *ray* generators**, so a realisation supplies only its
   cone data; its traces are computed without a BPS/RG engine, by the bootstrap
   described in `docs/axioms-and-bootstrap.md`.
+- **rg** (`src/rg/`): `RGKAlgebra` and the catalogue of RG flows it presents.
+  `RGKAlgebra` is a `KAlgebra` subclass that is *defined* by an RG flow to a
+  graded auxiliary; its whole API (`RG`, `multiply`, `ρ`, `trace`) is **computed
+  live** from the flow data via the bilinear exact-FS trace — spine-free (no
+  BPS/RG realisation engine). It depends on core/samples and, for some
+  auxiliaries, on cone; see `docs/step3-RGKAlgebra.md`.
 - **iso** (`src/iso/`): `KAlgebraIso` witnesses identifying a sample with its cone
   realisation.
 
@@ -33,20 +39,23 @@ O(𝖖)`. Two layers of algebras sit over one shared contract:
 python3 run_tests.py        # or:  pytest
 ```
 
-`test_samples`, `test_cones`, and `test_sample_cone_iso` must stay green. No
-third-party packages, nothing to install.
+`test_samples`, `test_cones`, `test_sample_cone_iso`, and the eight Step-3 RG
+self-tests (`test_rg_flows`, `test_a1an_chain`, `test_dn_chain`, `test_e_type`,
+`test_flavoured_fork`, `test_over_pure`, `test_su2_gauged_chain`, `test_wild`)
+must stay green. No third-party packages, nothing to install.
 
 ## Layout & import model (read before moving files)
 
 ```
 src/core/      kalgebra.py kalgebra_iso.py            the contract + iso witness
                zplus_ring.py laurent_poly.py          coefficient rings + exact 𝖖-arithmetic
-               tensor_zplus_ring.py snf_kernel.py qpoch.py sun_characters.py flavoured_kalgebra.py
+               tensor_zplus_ring.py tensor_kalgebra.py snf_kernel.py qpoch.py sun_characters.py flavoured_kalgebra.py
 src/samples/   samples.py quantum_torus_kalgebra.py uq_sl2_pbw.py
-src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (118 .py + 8 .pkl)
+src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (120 .py + 8 .pkl)
+src/rg/        rgkalgebra.py grading.py graded_rg_solver.py … + the flow zoo   (24 .py)
 src/iso/       pentagon_/u1square_/u1a1d2_…_sample_cone_iso.py
-tests/         test_samples.py test_cones.py test_sample_cone_iso.py
-docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2}-*.md
+tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py
+docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3}-*.md
 ```
 
 Modules import one another by **bare name** (`from kalgebra import …`), not by
@@ -78,6 +87,9 @@ determine the traces from the single seed `Tr 1`.
   add a case to `tests/test_samples.py`.
 - **New cone realisation:** subclass `ConeKAlgebra` in `src/cone/`, supplying its
   cone data; add a case to `tests/test_cones.py`.
+- **New RG flow:** subclass `RGKAlgebra` in `src/rg/`, supplying its flow data
+  (`auxiliary`, `grading`, the `S_RG` components, `apex`); add a case to one of
+  the `tests/test_*` RG-flow suites.
 - **New isomorphism witness:** add a builder to `src/iso/` and a case to
   `tests/test_sample_cone_iso.py`.
 - **New flavour group:** add a `ZPlusRing` subclass in `src/core/zplus_ring.py`.

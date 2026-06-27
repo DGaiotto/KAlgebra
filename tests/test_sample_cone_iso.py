@@ -25,10 +25,9 @@ directions, the following Sample↔Cone isomorphisms:
   * ``rho_equivariant``    : map(ρ a) = ρ(map a)
   * ``trace_equivariant``  : Tr(a) = Tr(map a)  (truncated)
 
-Run (BOTH packages on the path)::
+Run (from the repository root)::
 
-    PYTHONPATH=/abs/.../export/KAlgebra:/abs/.../export/ConeKAlgebra \\
-        python test_sample_cone_iso.py
+    python3 run_tests.py
 """
 from __future__ import annotations
 
@@ -36,14 +35,15 @@ import os
 import sys
 import traceback
 
-# Make both sibling export packages importable (the documented contract is
-# to set PYTHONPATH to both dirs; this is belt-and-braces for a checkout).
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_EXPORT_ROOT = os.path.dirname(_HERE)
-for _sib in ("KAlgebra", "ConeKAlgebra"):
-    _p = os.path.join(_EXPORT_ROOT, _sib)
-    if os.path.isdir(_p) and _p not in sys.path:
-        sys.path.insert(0, _p)
+# Put every src/<layer>/ directory on sys.path (the project's bare-name import
+# convention) so this file also runs standalone; run_tests.py / conftest.py do
+# the same for the full gate.
+_SRC = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+for _root, _dirs, _ in os.walk(_SRC):
+    _dirs[:] = [_d for _d in _dirs if _d != "__pycache__"]
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from laurent_poly import LaurentPoly
 from kalgebra import Element

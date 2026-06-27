@@ -41,8 +41,8 @@ def A2k(k: int) -> "BPSKAlgebra":
     # (`predicted_lengths_and_shifts`, which is purely combinatorial).  A
     # module-level import here gated the whole spine-free A1A_even character
     # path behind the BPS engine.
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
     n = 2 * k
     B = [[0] * n for _ in range(n)]
     for a in range(n - 1):

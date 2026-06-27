@@ -166,8 +166,8 @@ def _rho_orbit(B, seed, cyc):
     from A1A2k import A1A2k
     A = A1A2k.__new__(A1A2k)
     # Build minimally to get rho
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
     A.A = BPSKAlgebra(pairing=B,
                       node_charges=[tuple(1 if p == a else 0 for p in range(len(B)))
                                     for a in range(len(B))],

@@ -67,8 +67,8 @@ def tr_v_n(n: int, K: int) -> LaurentPoly:
 def _verify_against_bps(K: int = 25, n_range: range = range(0, 3)) -> None:
     """Compute Tr_U1Dec(v^n) via direct gauged-A_8 BPSKAlgebra and
     compare against the closed form."""
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free export
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra export")
+    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
+        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
 
     B = [[0] * 8 for _ in range(8)]
     for i in range(7):

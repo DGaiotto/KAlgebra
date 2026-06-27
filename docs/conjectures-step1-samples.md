@@ -1,7 +1,7 @@
 # Conjectures
 
 This package ships the `K_𝖖`-algebra contract, the coefficient-ring layer, and a
-set of sample algebras. The single conjecture below is the one those exported
+set of sample algebras. The single conjecture below is the one those
 structures directly bear on — it is exactly what the samples and
 `test_samples.py` check.
 

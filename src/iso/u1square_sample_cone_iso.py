@@ -8,7 +8,7 @@ of SQED N_f=1 = the U(1)-gauged ``[A_1, A_1]`` Argyres-Douglas theory:
   * the **cone** presentation  ``U1SquareKAlg`` (a ``ConeKAlgebra``; this
     Step-2 package), as the iso **source**, and
   * the **direct sample** presentation ``SQED1SampleKAlgebra``
-    (the Step-1 ``export/KAlgebra`` package), as the iso **target**.
+    (Step-1, ``src/samples``), as the iso **target**.
 
 This is the SQED1 ↔ U1Square companion to the pentagon
 ``KAlgebraIso`` (``pentagon_sample_cone_iso.py``).  Unlike the pentagon
@@ -30,33 +30,26 @@ particular ``U1SquareKAlg``'s ``m=0`` Schur-index seed is delegated to the
 Step-1 ``SQED1SampleKAlgebra`` (the spine-free Nahm sum), *not* the
 source-repo ``Sqed1KAlg`` (which drags in the quantum-torus engine).
 
-Cross-package import contract
------------------------------
-This module imports ``kalgebra_iso`` and ``samples`` from the **Step-1**
-package (``export/KAlgebra``) and ``u1_square_kalg`` from the **Step-2**
-package (``export/ConeKAlgebra``).  Run everything with BOTH packages on
-the path::
-
-    PYTHONPATH=/abs/.../export/KAlgebra:/abs/.../export/ConeKAlgebra
-
-(As a convenience this module also appends the two sibling ``export/*``
-directories to ``sys.path`` when it can locate them, so ``import`` works
-from a checkout without setting ``PYTHONPATH`` explicitly — but the
-documented ``PYTHONPATH`` above is the contract.)
+Imports
+-------
+This module imports ``kalgebra_iso`` and ``samples`` (Step-1: ``src/core`` /
+``src/samples``) and ``u1_square_kalg`` (Step-2: ``src/cone``) by flat name.
+``run_tests.py`` / ``conftest.py`` put every ``src/<layer>/`` directory on the
+path, and the module bootstraps the path itself so it also imports standalone.
 """
 from __future__ import annotations
 
 import os
 import sys
 
-# --- Make both sibling export packages importable (convenience; the
-#     documented contract is to set PYTHONPATH to both dirs). -----------
-_HERE = os.path.dirname(os.path.abspath(__file__))                 # .../export/ConeKAlgebra
-_EXPORT_ROOT = os.path.dirname(_HERE)                              # .../export
-for _sib in ("KAlgebra", "ConeKAlgebra"):
-    _p = os.path.join(_EXPORT_ROOT, _sib)
-    if os.path.isdir(_p) and _p not in sys.path:
-        sys.path.insert(0, _p)
+# Put every src/<layer>/ directory on sys.path (the project's bare-name import
+# convention) so this module also imports standalone from a checkout;
+# run_tests.py / conftest.py do the same for the full gate.
+_SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _root, _dirs, _ in os.walk(_SRC):
+    _dirs[:] = [_d for _d in _dirs if _d != "__pycache__"]
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from kalgebra_iso import KAlgebraIso                               # Step-1 package
 from samples import SQED1SampleKAlgebra                            # Step-1 package

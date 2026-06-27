@@ -9,7 +9,7 @@ Yang-Lee / M(2,5)):
   * the **cone** presentation  ``FinitePentagonKAlgebra`` (a
     ``ConeKAlgebra``; this Step-2 package), as the iso **source**, and
   * the **direct sample** presentation ``PentagonSampleKAlgebra``
-    (the Step-1 ``export/KAlgebra`` package), as the iso **target**.
+    (Step-1, ``src/samples``), as the iso **target**.
 
 Both presentations are *closed-form* — neither this module nor the two
 algebras it bridges import any realisation-spine engine
@@ -17,23 +17,14 @@ algebras it bridges import any realisation-spine engine
 is built purely from a **mult-gen correspondence** and certified by
 ``KAlgebraIso.verify_all`` (see ``test_sample_cone_iso.py``).
 
-Cross-package import contract
------------------------------
-This module imports ``kalgebra_iso`` and ``samples`` from the **Step-1**
-package (``export/KAlgebra``) and the cone algebra from the **Step-2**
-package (``export/ConeKAlgebra``).  Run everything with BOTH packages on
-the path::
-
-    PYTHONPATH=/abs/.../export/KAlgebra:/abs/.../export/ConeKAlgebra
-
-(The two packages ship byte-identical copies of the shared substrate —
-``kalgebra.py`` / ``laurent_poly.py`` / ``zplus_ring.py`` — so with both
-on ``sys.path`` a single ``kalgebra`` module is imported and ``Element``
-is the *same* class object on both sides; there is no cross-package
-class-identity hazard.)  As a convenience this module also appends the
-two sibling ``export/*`` directories to ``sys.path`` when it can locate
-them, so ``import`` works from a checkout without setting ``PYTHONPATH``
-explicitly — but the documented ``PYTHONPATH`` above is the contract.
+Imports
+-------
+This module imports ``kalgebra_iso`` and ``samples`` (Step-1: ``src/core`` /
+``src/samples``) and the cone algebra (Step-2: ``src/cone``) by flat name.
+``run_tests.py`` / ``conftest.py`` put every ``src/<layer>/`` directory on the
+path, and the module bootstraps the path itself so it also imports standalone.
+The layered repo keeps a single source per module, so ``Element`` is one class
+object throughout (no cross-package class-identity hazard).
 
 The correspondence
 ------------------
@@ -86,14 +77,14 @@ from __future__ import annotations
 import os
 import sys
 
-# --- Make both sibling export packages importable (convenience; the
-#     documented contract is to set PYTHONPATH to both dirs). -----------
-_HERE = os.path.dirname(os.path.abspath(__file__))                 # .../export/ConeKAlgebra
-_EXPORT_ROOT = os.path.dirname(_HERE)                              # .../export
-for _sib in ("KAlgebra", "ConeKAlgebra"):
-    _p = os.path.join(_EXPORT_ROOT, _sib)
-    if os.path.isdir(_p) and _p not in sys.path:
-        sys.path.insert(0, _p)
+# Put every src/<layer>/ directory on sys.path (the project's bare-name import
+# convention) so this module also imports standalone from a checkout;
+# run_tests.py / conftest.py do the same for the full gate.
+_SRC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+for _root, _dirs, _ in os.walk(_SRC):
+    _dirs[:] = [_d for _d in _dirs if _d != "__pycache__"]
+    if _root not in sys.path:
+        sys.path.insert(0, _root)
 
 from laurent_poly import LaurentPoly                               # shared substrate
 from kalgebra import Element                                       # shared substrate

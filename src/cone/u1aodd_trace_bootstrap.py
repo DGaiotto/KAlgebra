@@ -3,8 +3,7 @@ of U1A1AoddKAlg (the u(1)-gauged [A_1, A_{2k+1}] family).
 
 The k<=3 seeds (v-tower / long / diameter) close in u1_pgon_layer2; the
 intermediate odd chords (type a, 2 < a < k+1) have no closed form (their LOG
-b-slopes are an open (1,p)/B_p log-module question -- see
-u1a1aodd_self_contained_findings.md).  This module computes their trace to
+b-slopes are an open (1,p)/B_p log-module question).  This module computes their trace to
 ARBITRARY q-order by the spine-free orthonormality bootstrap on the fast cone:
 impose Tr(non-id canonical)=O(q) + self-norm Tr(rho(a)a)=1+O(q), expand each via
 the exact Layer-1 reduction into Sum_s red_s*Tr(s), substitute the known seeds
@@ -18,8 +17,7 @@ never receives an under-determined (silently wrong) value.
 
 Validated: reproduces u1_pgon_layer2.tr_L_long_v_n / tr_L_diameter_v_n when those
 seeds are forced unknown, and at k=4 the length-5 chord trace is exact-integer
-and matches the conformal-weight closed form (experiments/u1pgon_even_chord_logfit)
-through q=30.
+and matches the conformal-weight closed form through q=30.
 """
 from __future__ import annotations
 
@@ -232,7 +230,7 @@ def solve_intermediate(A, K, *, nmax=3, margin=6, verbose=False,
     # canonical-basis trace coefficient is an integer), this guards against
     # silently-wrong under-determined output.  (External validation: the result
     # matches the conformal-weight closed form `even_chord_full` and passes
-    # orthonormality -- see tests / u1a1aodd_self_contained_findings.md.)
+    # orthonormality.)
     if free_orders:
         ex = sorted(free_orders, key=lambda x: (x[1], repr(x[0])))[:3]
         raise RuntimeError(

@@ -4379,7 +4379,7 @@ class FiniteA7KAlgebra(ConeKAlgebra):
         # NO rho^2-orbit folding: R has unit characters, so the
         # label-level rho^2 differs from the element-level rho^2 by
         # mu-shifts and orbit members do NOT share a trace (see
-        # elem_traces.fold_policy).  Seeds are
+        # finite_kalgebras.elem_traces.fold_policy).  Seeds are
         # served per-mg by the elementary-trace table.
         return label
 

@@ -1,6 +1,6 @@
 """ungauge_kalgebra.py — a general U(1) "ungauger" for gauged KAlgebras.
 
-Sharp definition.  Pick an
+Sharp definition ("Parallel ungauging").  Pick an
 **electric generator** `E` — an element that fq-commutes with everything
 (a quantum-torus / Laurent direction).  Then for any `x`
 

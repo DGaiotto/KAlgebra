@@ -96,8 +96,7 @@ def _regenerate_via_bps():
     """Recompute the frozen charge dicts as ρ-orbits of the universal seeds in
     the gauged-A_8 BPS quiver (offline reproducibility; imports BPS lazily).
     Returns {a: {i: charge}}; asserts they match the frozen literals."""
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
+    from bps_kalgebra import BPSKAlgebra
     n = 8  # 2k+2 nodes = 7 dyn + 1 flavour
     B = [[0] * n for _ in range(n)]
     for i in range(n - 1):
@@ -131,8 +130,7 @@ def _regenerate_via_bps():
 # on attribute access so importing this module stays BPS-free.
 def __getattr__(name):
     if name == "_BPS":
-        raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
-            "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
+        from bps_kalgebra import BPSKAlgebra
         n = 8
         B = [[0] * n for _ in range(n)]
         for i in range(n - 1):

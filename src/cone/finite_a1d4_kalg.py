@@ -20,7 +20,7 @@ now satisfies the contract structure axioms (ρ-automorphism, bar,
 associativity) in place; verified against the BPS ground truth.
 
 TRACE: the su2u1 elementary-trace table is served via
-``elem_traces`` (Layer-1 + bootstrap, the Plan-29 su2u1
+``finite_kalgebras.elem_traces`` (Layer-1 + bootstrap, the Plan-29 su2u1
 trace programme — the same route #520 used for a1d6/a1d8).
 """
 from __future__ import annotations
@@ -233,7 +233,7 @@ class FiniteA1D4KAlgebra(ConeKAlgebra):
         # NO rho^2-orbit folding: R has unit characters, so the
         # label-level rho^2 differs from the element-level rho^2 by
         # mu-shifts and orbit members do NOT share a trace (see
-        # elem_traces.fold_policy).  Seeds are
+        # finite_kalgebras.elem_traces.fold_policy).  Seeds are
         # served per-mg by the elementary-trace table.
         return label
 

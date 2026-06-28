@@ -17,7 +17,8 @@ never receives an under-determined (silently wrong) value.
 
 Validated: reproduces u1_pgon_layer2.tr_L_long_v_n / tr_L_diameter_v_n when those
 seeds are forced unknown, and at k=4 the length-5 chord trace is exact-integer
-and matches the conformal-weight closed form through q=30.
+and matches the conformal-weight closed form
+through q=30.
 """
 from __future__ import annotations
 
@@ -230,7 +231,7 @@ def solve_intermediate(A, K, *, nmax=3, margin=6, verbose=False,
     # canonical-basis trace coefficient is an integer), this guards against
     # silently-wrong under-determined output.  (External validation: the result
     # matches the conformal-weight closed form `even_chord_full` and passes
-    # orthonormality.)
+    # orthonormality -- see the tests.)
     if free_orders:
         ex = sorted(free_orders, key=lambda x: (x[1], repr(x[0])))[:3]
         raise RuntimeError(

@@ -4,7 +4,7 @@ u1a1deven_dodd_build.py
 
 `DevenDoddConeTables` — build the self-contained `U1A1DevenConeKAlgebra` tables
 from the **reliable A1Dodd×QT oracle** `U1A1DevenViaDoddRG(k)` instead of the
-legacy `A1A2k⊗QT⊗SU(2)` oracle (whose deep matter trace is wrong; see repo_audit
+legacy `A1A2k⊗QT⊗SU(2)` oracle (whose deep matter trace is wrong; finding
 A16).  This makes the cone *fully oracle-consistent and legacy-free*: multiply/ρ
 AND the trace freeze all come from the same (correct) oracle, so no cross-oracle
 matching is needed (user, 2026-06-25 "rebuild cone on new oracle").

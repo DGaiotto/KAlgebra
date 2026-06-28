@@ -21,8 +21,9 @@ No BPS / RG / quantum-torus engine is touched.  Everything below uses only
 `zplus_ring.SU3ZPlusRing` (weight diagrams / characters) and the letter
 machinery of `su3_ad_kalg` (cone relations; lazily, no import cycle).
 
-This module is the consolidated, engine-free production version of the
-character/fugacity bootstrap.
+The character/fugacity bootstrap was prototyped separately; this module
+is the consolidated, engine-free production version those prototypes validate
+against.
 """
 from __future__ import annotations
 
@@ -623,7 +624,7 @@ def product_trace(alg, factors, K=8):
     generators, BPS-free.  Fugacity-multiply the whole product (weights, not
     characters), single-label-trace each resulting canonical monomial, and
     Weyl-symmetrize only the *total* — so non-self-dual product content is
-    handled correctly (the `su3ad_flavour_layer1_defect` fix)."""
+    handled correctly (the layer-1 flavour-defect fix)."""
     letters_all = []
     chi_z = {(0, 0): 1}
     qf = 0

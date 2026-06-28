@@ -33,6 +33,44 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from itertools import product as iproduct
 
+_A2K_LS_CACHE: dict = {}
+
+
+def _a2k_lattice_spec(k: int):
+    """`(Lattice, spec)` for the linear `A_{2k}` quiver — the closed-form
+    spectrum generator is the simple roots in node order.  Imports are lazy
+    (lattice/spec_sigma, not the BPS spine) to keep the spine-free character
+    path import-light, matching A2k's lazy-BPS convention."""
+    from lattice import Lattice
+    n = 2 * k
+    B = [[0] * n for _ in range(n)]
+    for a in range(n - 1):
+        B[a][a + 1] = 1
+        B[a + 1][a] = -1
+    nodes = [tuple(1 if p == a else 0 for p in range(n)) for a in range(n)]
+    return Lattice(B), nodes
+
+
+def a2k_rho(k: int, gamma):
+    """Closed-form, **BPS-free** ρ (half-monodromy σ) on the `A_{2k}` lattice
+    — `sigma_forward` on the linear-quiver spec.  Verified identical to
+    `A2k(k).rho` (k=2,3,4).  This is the closed-form ρ the even-family
+    `_rho_orbit` TODO wanted; no `BPSKAlgebra` is built."""
+    from spec_sigma import sigma_forward
+    if k not in _A2K_LS_CACHE:
+        _A2K_LS_CACHE[k] = _a2k_lattice_spec(k)
+    L, spec = _A2K_LS_CACHE[k]
+    return sigma_forward(L, spec, tuple(gamma))
+
+
+def a2k_rho_inverse(k: int, gamma):
+    """Closed-form, BPS-free ρ⁻¹ — `sigma_inverse` on the linear-quiver spec."""
+    from spec_sigma import sigma_inverse
+    if k not in _A2K_LS_CACHE:
+        _A2K_LS_CACHE[k] = _a2k_lattice_spec(k)
+    L, spec = _A2K_LS_CACHE[k]
+    return sigma_inverse(L, spec, tuple(gamma))
+
 
 def A2k(k: int) -> "BPSKAlgebra":
     # Lazy: BPSKAlgebra (the realization spine) is needed ONLY by the
@@ -41,15 +79,18 @@ def A2k(k: int) -> "BPSKAlgebra":
     # (`predicted_lengths_and_shifts`, which is purely combinatorial).  A
     # module-level import here gated the whole spine-free A1A_even character
     # path behind the BPS engine.
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
+    from bps_kalgebra import BPSKAlgebra
     n = 2 * k
     B = [[0] * n for _ in range(n)]
     for a in range(n - 1):
         B[a][a + 1] = 1
         B[a + 1][a] = -1
     nodes = [tuple(1 if p == a else 0 for p in range(n)) for a in range(n)]
-    return BPSKAlgebra(pairing=B, node_charges=nodes, verify="off")
+    # The linear A_n quiver's spectrum generator is closed-form (the simple
+    # roots in node order), so pass it explicitly: this skips BPSKAlgebra's
+    # negating-sequence SEARCH, which was the sole large-k bottleneck
+    # (construction 30 s at k=6 vs 0.00 s here; ρ identical — verified).
+    return BPSKAlgebra(pairing=B, node_charges=nodes, spec=nodes, verify="off")
 
 
 def rho_orbit(A, g):
@@ -235,7 +276,6 @@ def natural_orbit_seeds(k: int) -> dict[int, tuple[int, ...]]:
     orbit and applying ρ^{-S_old} on the lattice, where S_old is the
     legacy shift of that orbit.
     """
-    A = A2k(k)
     old_lengths, old_shifts = predicted_lengths_and_shifts(k)
     # Invert old_lengths: map length → old orbit index.
     old_idx_of_length = {L: i for i, L in old_lengths.items()}
@@ -245,10 +285,11 @@ def natural_orbit_seeds(k: int) -> dict[int, tuple[int, ...]]:
         seed_old = natural_seed(k, old_i)
         shift = old_shifts[old_i]
         # Apply ρ^{-shift} on the lattice (since old seed has chord
-        # starting at vertex shift, we want chord starting at 0).
+        # starting at vertex shift, we want chord starting at 0) — via the
+        # closed-form, BPS-free `a2k_rho_inverse` (= `sigma_inverse`).
         cur = tuple(seed_old)
         for _ in range(shift):
-            cur = tuple(A.rho_inverse(cur))
+            cur = tuple(a2k_rho_inverse(k, cur))
         seeds[a] = cur
     return seeds
 

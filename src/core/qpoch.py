@@ -27,8 +27,9 @@ What lives where
   `nahm_data.py`.  The modern (Habiro-backed, no K_internal) Schur-index
   pipeline.  Prefer these for all new work.
 * `compute_S_ket`, `apply_F_to_state`, `eq_coefficients`, the old
-  `schur_index()` function, and `nahm_inner_product` — retired.  The old
-  PowerSeries-throughout pipeline is known to fail for
+  `schur_index()` function, and `nahm_inner_product` — the old
+  PowerSeries-throughout pipeline, retired.  It was preserved for regression
+  comparisons only; it is known to fail for
   deep-support F_a (pentagon `(-3,2)` etc.).
 
 All arithmetic here is exact integer; results are truncated to a

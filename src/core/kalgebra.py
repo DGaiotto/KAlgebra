@@ -416,8 +416,9 @@ class KAlgebra(ABC):
     # The handling generalises factor-by-factor when `R = R₁ ⊗ ⋯ ⊗ R_k`:
     # peel the *non-unit* (free) factors' characters into the canonical
     # section, keep the *unit* (torus) factors' charges in the labels —
-    # the split is at the unit boundary.  Worked examples: a1d3, all-free;
-    # a1deven, SU(2) free / U(1) in labels.
+    # the split is at the unit boundary.  This is the "Freeness over R" recipe
+    # (worked examples: a1d3, all-free; a1deven, SU(2)
+    # free / U(1) in labels).
 
     # -------- six abstract primitives --------
     # (the flavour-lift coordinate `r_label_decompose` is the seventh
@@ -937,7 +938,7 @@ class KAlgebra(ABC):
     def verify_associativity(self, a: Label, b: Label, c: Label) -> bool:
         """Associativity `(L_a · L_b) · L_c = L_a · (L_b · L_c)` — the
         defining axiom of an *associative* algebra, asserted in the class
-        docstring but not previously checked (repo_audit finding A7).
+        docstring but not previously checked (finding A7).
         Evaluated on basis elements through the bilinear extension
         `multiply_elements` (structure constants are exact in `q`)."""
         ab = self.multiply(a, b)
@@ -1024,7 +1025,8 @@ class KAlgebra(ABC):
         R = self.coefficient_ring()
         # The paper's flavoured orthonormality is on the **identity
         # summand**: I^(1)_{a,b}[q⁰] = δ_{a,b} — the χ₀-component of
-        # the R-valued coefficient, NOT the whole series.  This is exactly
+        # the R-valued coefficient, NOT the whole series
+        # (orthonormality with a non-abelian R).  This is exactly
         # faithful on canonical labels read as pairs (section label,
         # R element): by Schur orthogonality the χ₀-component of
         # r_a⋆ · r_b is δ_{r_a, r_b}, abelian and non-abelian alike.

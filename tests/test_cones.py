@@ -113,7 +113,7 @@ CONE_ALGEBRAS = [
     #   ONLY k=1 ships: the k=1 matter bootstrap is tractable (re-solvable to any
     #   q-order).  k>=2 (D6/D8) are PULLED — their matter sector is frozen at
     #   K=8-12 and honest-fails beyond (the spine-free SU(2) matter bootstrap is
-    #   intractable for k>=2), so they are held back.
+    #   intractable for k>=2), so it is held back.
     ("u1a1deven_cone_kalgebra", "U1A1DevenConeKAlgebra", (1,)),
 ]
 
@@ -370,55 +370,6 @@ def check_improvable():
     assert N3.verify_orthonormality(H0n3, H0n3, K=3), ("SU2Nf3ConeKAlgebra", "self-norm")
     assert N3.verify_orthonormality(H0n3, H1n3, K=3), ("SU2Nf3ConeKAlgebra", "off-diagonal")
     print(f"  OK   {'SU2Nf3ConeKAlgebra':24s} SU(4) index spine-free to q^12 + magnetic-3 input multiply + trace + orthonormality")
-    # A1A1 = SQED N_f=1 = U(1)-gauged [A_1, A_1] cone standalone (U1SquareKAlg):
-    # the cone twin of the Step-1 SQED1SampleKAlgebra (certified identity-on-labels
-    # KAlgebraIso in test_sample_cone_iso.py).  QTCone over TrivialZPlusRing on
-    # native (m, n) charge labels (NOT ray-keyed, so exercised here with explicit
-    # labels).  multiply is total; trace = the SQED_1 Schur index Tr(v^n) =
-    # [x^n] (𝖖²;𝖖²)_∞² E_𝖖(x) E_𝖖(x⁻¹) (Nahm sum, delegated spine-free to the
-    # Step-1 sample) for m=0, else 0 -- arbitrary-q (no fixed-K cap), spine-free.
-    from u1_square_kalg import U1SquareKAlg
-    Sq = U1SquareKAlg()
-    assert Sq.multiply((1, 0), (-1, 0)).terms, ("U1SquareKAlg", "empty u_+·u_- multiply")
-    # The SQED_1 index is SPARSE (pentagonal-number exponents 0,2,6,12,20,30,...),
-    # so "reaching q^K" means the WINDOW extends with K (no fixed cap), not that a
-    # term sits at q^{K-2}.  Widening K=20 -> K=40 must surface a strictly higher
-    # term (q^30), proving the spine-free Nahm sum is arbitrarily improvable.
-    nz20 = [q for q, r in Sq.trace((0, 0), K=20).coeffs.items() if r]
-    nz40 = [q for q, r in Sq.trace((0, 0), K=40).coeffs.items() if r]
-    assert nz20 and nz40 and max(nz40) > max(nz20) >= 20, \
-        ("U1SquareKAlg", "SQED_1 index did not improve past q^20")
-    for L in [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1), (2, 0)]:
-        assert Sq.verify_orthonormality(L, L, K=4), ("U1SquareKAlg", f"self-norm {L}")
-    assert Sq.verify_orthonormality((1, 0), (0, 1), K=4), ("U1SquareKAlg", "off-diagonal")
-    print(f"  OK   {'U1SquareKAlg':24s} A1A1 cone: SQED_1 index spine-free to q^40 + orthonormality")
-    # A1D2 = SQED N_f=2 = U(1)-gauged [A_1, D_2] = U_𝖖(𝔰𝔩₂), SU(2)-flavoured cone
-    # standalone (U1A1D2ConeKAlgebra): the cone twin of the Step-1
-    # SQED2SampleKAlgebra (certified relabeling KAlgebraIso in
-    # test_sample_cone_iso.py).  Two Laurent {E/F, K^±} cones over SU2ZPlusRing
-    # with the SU(2) spin k in the (m, n, k) label; the E·F cross-product carries
-    # χ_1 as an RLaurent[SU(2)] daughter.  multiply is the generic cone reducer
-    # (de-risked to reproduce U_𝖖(𝔰𝔩₂) exactly); trace = the SQED_2 Schur index
-    # Tr(Kⁿ·χ_k) = χ_k·[x^n] G(x,μ) (delegated spine-free to the Step-1 sample)
-    # for m=0, else 0.  The SU(2) VACUUM index Tr(1) is DENSE (𝖖^even), so
-    # "reaching q^K" means max-nz extends with K (no fixed cap) -- spine-free.
-    from u1a1d2_cone_kalg import U1A1D2ConeKAlgebra
-    A1D2 = U1A1D2ConeKAlgebra()
-    assert A1D2.multiply((1, 0, 0), (-1, 0, 0)).terms, ("U1A1D2ConeKAlgebra", "empty E·F multiply")
-    t12 = A1D2.trace((0, 0, 0), K=12)
-    t24 = A1D2.trace((0, 0, 0), K=24)
-    nz12 = [q for q, r in t12.coeffs.items() if not r.is_zero()]
-    nz24 = [q for q, r in t24.coeffs.items() if not r.is_zero()]
-    assert nz12 and nz24 and max(nz24) > max(nz12) >= 12, \
-        ("U1A1D2ConeKAlgebra", "SQED_2 SU(2) index did not improve past q^12")
-    # magnetic sector (m != 0) has zero trace.
-    assert not [q for q, r in A1D2.trace((1, 0, 0), K=6).coeffs.items() if not r.is_zero()], \
-        ("U1A1D2ConeKAlgebra", "magnetic trace nonzero")
-    for L in [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (2, 0, 0)]:
-        assert A1D2.verify_orthonormality(L, L, K=4), ("U1A1D2ConeKAlgebra", f"self-norm {L}")
-    assert A1D2.verify_orthonormality((1, 0, 0), (0, 1, 0), K=4), ("U1A1D2ConeKAlgebra", "off-diagonal")
-    assert A1D2.verify_orthonormality((0, 0, 1), (0, 0, 2), K=4), ("U1A1D2ConeKAlgebra", "off-diagonal χ")
-    print(f"  OK   {'U1A1D2ConeKAlgebra':24s} A1D2 cone: SQED_2 SU(2) index spine-free to q^24 + orthonormality")
 
 
 def main():

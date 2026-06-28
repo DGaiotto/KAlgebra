@@ -36,7 +36,7 @@ returns None there and `seed_trace` honestly raises rather than fabricate.  The
 multiply side of `[A₁, D_{2k+3}]` is closed-form for ALL k (see
 `a1dodd_cone_data`), so this trace residual is the one piece blocking k≥3
 orthonormality; deriving the correct general-k admissible-character combination
-for it is the standing residual.
+for it remains open.
 
 κ machinery (σ_j numerator, verma, sym/anti modules) is identical to
 `a1d5_layer2`; the verma/division helpers are shared with `a1d3_kalg`.
@@ -235,7 +235,7 @@ def vacuum_trace(k: int, K: int) -> dict:
 
 def vacuum_trace_pe(k: int, K: int) -> dict:
     """Tr(1) via the **plethystic-exponential closed form** of Pan–Yang
-    (arXiv:2509.20439, "Exact non-Lagrangian Schur index in closed form", eq. 47):
+    (arXiv, "Exact non-Lagrangian Schur index in closed form", eq. 47):
 
         I_{D_{2k+3}(sl2,[1^2])} = PE[ (q − q^p)/((1−q)(1−q^p)) · χ_adj(z) ],
         p = 2k+3,  χ_adj = z² + 1 + z⁻²  (su(2) spin-1) .

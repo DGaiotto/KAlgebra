@@ -48,14 +48,15 @@ the **exact closed-form character** `exact_characters.deven_gauged_xn_qn` (the
 oracle, no freeze cap).  Cross-verified against the repo's INDEPENDENT
 `sl(3)₋₃/₂` Kac–Wakimoto vacuum character (theta sums, no cone/BPS) for the
 slices `n = 0…4` to `q_d²⁸` — which exposed and replaced the cone oracle's
-fixed-cutoff matter-tower truncation from `q_d²⁴` on.  (That cross-check is `k=1`; for **even k** the odd
+fixed-cutoff matter-tower truncation from `q_d²⁴` on.  (That cross-check is
+`k=1`; for **even k** the odd
 v-powers carry genuine **odd-q_d** terms — the `√Q = -q_d` branch — which the
 closed form now emits with sign `(-1)^{sh}`, verified for `k=2`/D6 against the
 oracle's `Tr(X01ⁿ)`, `n=0…3`.)  The matter-ray seeds serve from the frozen table
 (both `X01` signs — `Tr(X01⁻ᵐ) ≠ Tr(X01⁺ᵐ)` in general, only self-conjugate rays
 are symmetric).  For **k=1** the spine-free SU(2) bootstrap (`matter_seed_trace`)
 extends the freeze; for **k≥2** that bootstrap is intractable (the ~3× cone's
-30-ray deep-label reductions don't scale, repo_audit A15), so it is guarded off
+30-ray deep-label reductions don't scale, finding A15), so it is guarded off
 (`_matter_bootstrap_tractable()`) and matter serves from the shipped freeze
 (`_seed_trace` honest-fails only for seeds *outside* the shipped box).  For
 **D6 (k=2) the freeze is COMPLETE: 221/221 seeds** (10 ρ²-canon rays × the
@@ -75,7 +76,7 @@ carries odd powers of `𝖖` (orbit "E"; `c1 = m`, support `m ∈ {−1,0,1}`):
 each cone ρ-orbit to its oracle matter family by trace tower (`c1 = ±m + β`,
 validated against the 8 non-deep rays) — **NOT** the earlier ρ-transport
 derivation (`ray14·ray18=q·ray24+𝟙`), which gave the wrong deep coefficients and
-is retracted (repo_audit A16).  The oracle trace is exact-converged (K=12≡K=16
+is retracted (finding A16).  The oracle trace is exact-converged (K=12≡K=16
 on `q≤10`), so the deep high-spin terms (e.g. χ₈ at q⁹) are real physics, not
 windowing noise.  **The legacy A1A2k⊗QT⊗SU(2) oracle wrongly zeroed rays 20/24
 entirely.**  Cross-validated by canonical orthonormality (`I_{20,20}=I_{24,24}
@@ -338,7 +339,7 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
             return RPowerSeries(self._R, dict(cached[1].coeffs), K)
         # The SU(2) matter bootstrap is tractable only on the small D4 (k=1) cone;
         # for k>=2 (D6+, ~3x the rays) its 30-ray deep-label reductions don't
-        # scale (repo_audit A15), so honest-fail FAST rather than hang — the
+        # scale (finding A15), so honest-fail FAST rather than hang — the
         # shipped freeze is the matter source there.
         if self._matter_bootstrap_tractable():
             qn = self.matter_seed_trace(K).get(seed)
@@ -359,7 +360,7 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
     def _matter_bootstrap_tractable(self) -> bool:
         """Whether the spine-free SU(2) matter bootstrap is feasible.  Only on
         the small D4 (k=1) cone: k>=2's 30-ray deep-label cone reductions don't
-        scale (repo_audit A15)."""
+        scale (finding A15)."""
         return self.k <= 1
 
     def _qn_to_rps(self, qn, K):

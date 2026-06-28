@@ -968,15 +968,13 @@ class SU3ADKAlg(ConeKAlgebra):
     _DPOS = {0: (0, -1), 1: (-1, -2), 2: (-1, -1), 3: (0, 1)}
 
     def _bps_engine(self):
-        """The `SU3BPSKAlgebra` companion is a cross-check oracle only and is
-        **not shipped** in this spine-free release.  The public surface
-        (`multiply` / `rho` / `trace` / `inner_product` / `trace_word` /
-        `verify_orthonormality`) computes entirely engine-free via
-        `sl3_su3_traces`; this method exists only so the few oracle-comparison
-        helpers below have a definition, and honest-fails if reached."""
-        raise NotImplementedError(
-            "SU3ADKAlg._bps_engine: the BPS oracle is not shipped in the "
-            "spine-free release; the trace path is fully engine-free.")
+        """Memoised companion `SU3BPSKAlgebra` (the analytic-trace
+        oracle).  Built lazily — the zoo's `multiply`/`rho` never touch
+        it; only `trace` / `inner_product` do."""
+        if not hasattr(self, "_bps_eng"):
+            from su3_bps_kalgebra import _user_quiver
+            self._bps_eng = _user_quiver()
+        return self._bps_eng
 
     def _std_to_bps_label(self, label):
         """Transport a standalone canonical label `(tile, a, b, p, q)` to
@@ -1044,8 +1042,7 @@ class SU3ADKAlg(ConeKAlgebra):
         generators (each `factors[i]` a standalone label), **BPS-free**.
 
         The ρ²-twisted trace of a *product* must not symmetrize the
-        intermediate non-self-dual flavour content (the layer-1
-        flavour-defect lesson).  We therefore fugacity-
+        intermediate non-self-dual flavour content.  We therefore fugacity-
         multiply the whole product (`sl3_su3_traces.fug_multiply`: weights,
         not characters), single-label-trace each resulting canonical monomial,
         and Weyl-symmetrize the *total* to SU(3) characters only at the end —

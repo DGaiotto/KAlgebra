@@ -1,7 +1,7 @@
 """su2su2_bifund_over_pure — SU(2)×SU(2) + bifundamental as an `RGKAlgebra`
 wrapping pure SU(2) ⊗ pure SU(2), fully BPS-free.
 
-The two-gauge-factor analogue of `su2_nf_over_pure_rgflow.SU2NfOverPure`: build
+The two-gauge-factor analogue of `su2_nf_over_pure.SU2NfOverPure`: build
 SU(2)×SU(2) with one bifundamental on top of the (decoupled) product of two
 self-contained pure-SU(2) cone K-algebras, by supplying the bifundamental
 spectrum generator in closed form and integrating it out.

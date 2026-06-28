@@ -158,26 +158,15 @@ def _orbit_seed(k: int, i: int) -> tuple[int, ...]:
 
 
 def _rho_orbit(B, seed, cyc):
-    """Reconstruct the ρ-orbit lattice charges without BPSKAlgebra.
-    Uses the analytic ρ-action read off from the BPSKAlgebra empirically;
-    however we don't have a closed form for ρ here, so fall back to
-    BPSKAlgebra if not given the lattice action.  TODO: derive closed-form ρ."""
-    # For now we still need ρ on the lattice; defer to BPSKAlgebra via A1A2k.
-    from A1A2k import A1A2k
-    A = A1A2k.__new__(A1A2k)
-    # Build minimally to get rho
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
-    A.A = BPSKAlgebra(pairing=B,
-                      node_charges=[tuple(1 if p == a else 0 for p in range(len(B)))
-                                    for a in range(len(B))],
-                      verify="off")
-    A.k = (len(B)) // 2
-    A.n = len(B)
-    A.cyc = cyc
+    """Reconstruct the ρ-orbit lattice charges **without BPSKAlgebra**, via the
+    closed-form lattice ρ (`A1A2k_naming_audit.a2k_rho` = `sigma_forward` on the
+    linear `A_{2k}` quiver's simple-root spec).  Verified identical to the BPS ρ
+    (k=2,3,4) — this closes the former "TODO: derive closed-form ρ"."""
+    from A1A2k_naming_audit import a2k_rho
+    k = len(B) // 2
     orbit = [tuple(seed)]
     for _ in range(cyc - 1):
-        orbit.append(tuple(A.A.rho(orbit[-1])))
+        orbit.append(tuple(a2k_rho(k, orbit[-1])))
     return orbit
 
 

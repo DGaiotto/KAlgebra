@@ -11,9 +11,6 @@ canonical-basis orthonormality relation `Tr(ρ(a)·b) = δ_{a,b} + O(𝖖)`.
 import os
 import sys
 
-# Put every src/<layer>/ directory on sys.path (the project's bare-name import
-# convention) so this file also runs standalone; run_tests.py / conftest.py do
-# the same for the full gate.
 _SRC = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
 for _root, _dirs, _ in os.walk(_SRC):

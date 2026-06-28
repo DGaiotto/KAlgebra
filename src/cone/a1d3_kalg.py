@@ -1046,7 +1046,7 @@ class A1D3KAlg(ConeKAlgebra):
         where {κ_0, κ_1^sym, κ_1^anti} are the BPS-Verma-renormalised
         characters of admissible irreducibles {L_{1,0}, D⁺_{1,1},
         D⁻_{1,1}} of affine sl(2)_{−4/3} (the chiral algebra of
-        [A_1, D_3]).  See module-level Layer-2 docstring.
+        [A_1, D_3]).  See the module-level Layer-2 docstring.
 
         Returns dict mapping elementary trace key → RPowerSeries:
             'Tr_1', 'Tr_T', 'Tr_D'.

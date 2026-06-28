@@ -187,7 +187,7 @@ def su2_m43_trace_table(K: int) -> dict:
 #: zoo mg-seed ↔ character dictionary for the a3 entry: per-seed
 #: (combination, z-shift), i.e. ``T_seed = z^c · I_X(q→𝖖², z²→μ)``.
 #: Tied to the current `finite_a3_kalg` mg indexing; re-derived from
-#: leading terms.  ρ²-orbits {0,3,4}
+#: leading terms by the tests.  ρ²-orbits {0,3,4}
 #: and {1,2,5} carry the expected unit-character (μ^δ) twists.
 A3_SEED_DICTIONARY = {
     0: ("I_B", 0),

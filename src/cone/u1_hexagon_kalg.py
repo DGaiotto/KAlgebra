@@ -814,8 +814,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         if cache_key in self._trace_cache:
             return self._trace_cache[cache_key]
         if not hasattr(self, '_bps'):
-            raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
-                "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
+            from bps_kalgebra import BPSKAlgebra
             self._bps = BPSKAlgebra(
                 pairing=B_GAUGED,
                 node_charges=[(1,0,0,0),(0,1,0,0),(0,0,1,0)],
@@ -878,8 +877,7 @@ class U1HexagonKAlg(ConeKAlgebra):
 
 def verify_all_reference_pairs():
     """Verify all 81 reference pairwise products against BPS."""
-    raise NotImplementedError(  # BPS cross-check: not part of the spine-free release
-        "BPS cross-check is unavailable in the spine-free ConeKAlgebra release")
+    from bps_kalgebra import BPSKAlgebra
     A_bps = BPSKAlgebra(pairing=B_GAUGED,
                         node_charges=[(1,0,0,0),(0,1,0,0),(0,0,1,0)])
     A_my = U1HexagonKAlg()

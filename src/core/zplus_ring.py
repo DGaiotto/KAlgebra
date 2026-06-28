@@ -2538,7 +2538,8 @@ class SUNZPlusRing(ZPlusRing):
     `N`, reflect, strip).
 
     `SUNZPlusRing(2)` ≅ `SU2ZPlusRing` under `(n,) ↔ n`;
-    `SUNZPlusRing(3)` ≅ `SU3ZPlusRing` under `(a,b) ↔ Dynkin (a−b, b)`.
+    `SUNZPlusRing(3)` ≅ `SU3ZPlusRing` under `(a,b) ↔ Dynkin (a−b, b)`
+    — both certified in the tests.
     """
 
     def __init__(self, N: int) -> None:
@@ -2708,7 +2709,7 @@ class SUNZPlusRing(ZPlusRing):
     # ----- the merged surface (Plan 30; the sun_characters twin folded
     # in here 2026-06-12 — one ring, two cross-certifying engines: this
     # class's Kostka-DP LR vs sun_characters' Weyl-denominator toolkit,
-    # pinned equal) -------------------
+    # pinned equal in the tests) -------------------
 
     @property
     def m(self) -> int:
@@ -2759,7 +2760,8 @@ def augmentation_hom(source: ZPlusRing) -> RingHom:
     augmentation (the Frobenius–Perron dimension of the Z₊-ring).  For an
     abelian torus every irrep is 1-dimensional, so this is the classic
     `μ^f ↦ 1` "gauge quotient / set μ → 1" specialization — the previous
-    `AbelianZPlusRing`-only signature is exactly that special case.
+    `AbelianZPlusRing`-only signature is exactly that special case.  Aligns
+    with the `CoulombAlgebra.schur_index` output.
 
     Generalised to any `ZPlusRing` for the Plan-32 forgetful map.
     """
@@ -3015,7 +3017,7 @@ def su2_to_u1_hom(
     the adjoint-normalised fugacity is μ = z²).  This is the hom that
     restricts an SU(2)-flavoured KAlgebra to its maximal torus, e.g.
     `a1d3.base_change(su2_to_u1_hom())` = the z-refined μ-flavoured
-    hexagon face."""
+    hexagon face (the hexagon pair)."""
     if source is None:
         source = SU2ZPlusRing()
     if target is None:

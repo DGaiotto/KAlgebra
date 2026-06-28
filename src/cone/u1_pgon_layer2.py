@@ -120,7 +120,8 @@ def _tr_L_long_neg(p: int, n: int, K: int) -> LaurentPoly:
     inferred** (parallel to the confirmed p-1): the gauged-RG oracle's
     two-window convergence is UNRELIABLE beyond ~q^29 at k=3 (it sprouts
     spurious terms / grows coefficients with the window — the documented
-    artifact), so q^33 was matched against an artifact, not real data.
+    artifact in which the gauged-RG oracle is unreliable), so q^33 was
+    matched against an artifact, not real data.
     **OPEN — the whole j>=2 tail is unverified**: the reliable structure is
     the singlet false-theta TOWER (Σ_r false-theta at momentum (2r+1)(p-1),
     unit coeffs — NOT a derivative/growing theta), whose r>=2 components need

@@ -197,8 +197,7 @@ def _multiply_habiro_dicts(
 # ---------------------------------------------------------------------------
 # Helpers for factor_through (extract): invert a spectrum generator, pull a
 # Habiro-coefficient element back through an RG map, truncate by q-order.
-# (Plan 21 PR2; validated against the known S^UV_MS on a 4-node node-deletion
-# chain.)
+# (Validated against the known S^UV_MS on a 4-node node-deletion chain.)
 # ---------------------------------------------------------------------------
 
 
@@ -623,8 +622,29 @@ class RGKAlgebra(KAlgebra):
         Requires `grading()`.  Subclasses with a closed-form `multiply`
         (e.g. `BPSKAlgebra`) bypass this."""
         g = self.grading()
+        # Spec-free cone-degree cap.  In spec-free mode `S` is built only to
+        # cone-degree ≤ cutoff, so `RG(c)` is reliable only inside that cone;
+        # beyond it the canonical basis is incomplete and the apex peel can fail
+        # to close — the residual marches off to ever-higher (and spuriously
+        # negative) cone-degree instead of terminating (an unbounded loop on an
+        # under-built `S`).  The canonical expansion is triangular in the cone,
+        # so dropping out-of-cone terms truncates the result to the built degree
+        # *without* corrupting the in-cone part — graceful degradation instead of
+        # a hang.  Spec mode (and any realisation without `_sf_*`) sets neither
+        # attribute, so `_within` is always True and this path is byte-identical.
+        _cap = getattr(self, "_sf_max_degree", None)
+        _capfn = getattr(self, "_sf_degree_fn", None)
+        if _cap is not None and _capfn is not None:
+            def _within(l, _cap=_cap, _capfn=_capfn):
+                try:
+                    return _capfn(tuple(l)) <= _cap
+                except Exception:
+                    return True
+        else:
+            def _within(l):
+                return True
         x: dict[Label, "LaurentPoly"] = {
-            l: c for l, c in x_ir.terms.items() if not c.is_zero()
+            l: c for l, c in x_ir.terms.items() if not c.is_zero() and _within(l)
         }
         out: dict[Label, "LaurentPoly"] = {}
         while x:
@@ -633,6 +653,8 @@ class RGKAlgebra(KAlgebra):
             coeff = x[delta]                       # apex coeff of RG(c) is 1
             out[c] = (out[c] + coeff) if c in out else coeff
             for d, cc in self.RG(c).terms.items():
+                if not _within(d):
+                    continue                       # out-of-cone: truncate
                 term = coeff * cc
                 if term.is_zero():
                     continue
@@ -660,7 +682,7 @@ class RGKAlgebra(KAlgebra):
         Before 2026-06-10 the pair shape TypeError'd into the non-flat
         branch, silently dropping central flavour shifts from every
         generic matter-flow product (`μ·L_a = L_a` — the pair-label
-        layer).
+        layer of finding A8).
 
         Returns `flav = None` **only** when the difference is genuinely
         undefined — labels with opaque (non-int, non-int-tuple) slots.
@@ -892,7 +914,7 @@ class RGKAlgebra(KAlgebra):
         """`S_RG` as an aux `Element` (expanded to `q^K_expand`), with `cutoff`
         matter levels, cached per `(K_expand, cutoff)`.  `cutoff=None` ⇒ the
         (legacy fixed) `_rg_cutoff()`; the adaptive fallback passes a growing
-        `cutoff` (repo_audit A13)."""
+        `cutoff` (finding A13)."""
         cut = self._rg_cutoff() if cutoff is None else cutoff
         cache = self.__dict__.setdefault("_s_rg_elt_cache", {})
         s = cache.get((K_expand, cut))
@@ -1003,7 +1025,7 @@ class RGKAlgebra(KAlgebra):
         """Fallback FS object `RG(a)·S_RG` to `q^k` with an **adaptive
         matter-level cutoff** (two-cutoff stability), replacing the old fixed
         `_rg_cutoff()` level cap that silently truncated the `S_RG` tower past
-        `~q^{2·cutoff}` (repo_audit A13: matter level `N` first contributes at
+        `~q^{2·cutoff}` (finding A13: matter level `N` first contributes at
         a q-order growing with `N`, so a *fixed* level count drops the tail).
 
         Grows the level count by 2 until the `q^{≤k}` coefficients repeat across

@@ -22,9 +22,16 @@ Step 3 (the live RG-flow engine; each also asserts spine-freeness):
   * ``tests/test_su2_gauged_chain.py`` — the nested SU(2)-gauged chain
   * ``tests/test_wild.py``             — the "wild" formal flows
 
+Step 4 (the BPS-quiver realisation engine — *this* is the spine):
+
+  * ``tests/test_bps_flows.py``        — the BPS realisation + atlas + node-drop RG
+
 Each prints its own ``PASS`` / ``ALL ... PASSED`` line. (``test_samples`` also
 runs under ``pytest`` via ``conftest.py``; the others are runner scripts.)
-``test_cones`` is the slowest (a few minutes).
+``test_cones`` is the slowest (a few minutes). ``test_bps_flows`` is run **last**
+because it imports the BPS spine — so the spine-freeness assertions in the
+Step-3 suites (which require no spine module in ``sys.modules``) hold when they
+run earlier in the same process.
 """
 import pathlib
 import runpy
@@ -41,6 +48,7 @@ for _test in ("tests/test_samples.py", "tests/test_cones.py",
               "tests/test_rg_flows.py", "tests/test_a1an_chain.py",
               "tests/test_dn_chain.py", "tests/test_e_type.py",
               "tests/test_flavoured_fork.py", "tests/test_over_pure.py",
-              "tests/test_su2_gauged_chain.py", "tests/test_wild.py"):
+              "tests/test_su2_gauged_chain.py", "tests/test_wild.py",
+              "tests/test_bps_flows.py"):
     print(f"\n=== {_test} ===")
     runpy.run_path(str(_ROOT / _test), run_name="__main__")

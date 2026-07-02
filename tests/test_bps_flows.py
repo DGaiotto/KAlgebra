@@ -168,11 +168,19 @@ def test_pentagon_spec():
     for ax in ("unital", "multiplicative", "bar_invariant", "orthonormality"):
         assert bat[ax], ("axiom", ax, bat)
 
-    # Orthonormality on a label grid.
+    # Full battery on a label grid: orthonormality, the F·S discovery
+    # relation, bar involution, ρ²-twisted cyclicity, and the two faces of
+    # the pairing (the sharp Schur formula vs multiply-then-trace) — the
+    # last three previously never ran on any BPS instance in this gate.
     sm = [(0, 0), (1, 0), (0, 1), (1, 1), (2, -1)]
     for a in sm:
+        if a != (0, 0):
+            assert B.verify_F_S_leading(a), ("F·S leading", a)
         for b in sm:
             assert B.verify_orthonormality(a, b, 6), ("ortho", a, b)
+            assert B.verify_bar_involution(a, b), ("bar", a, b)
+            assert B.verify_rho_twisted_trace(a, b, 6), ("rho2-cyc", a, b)
+            assert B.verify_inner_product_consistent(a, b, 6), ("ip-faces", a, b)
 
     # Trace truncation-stability: trace(·,6) ≡ trace(·,10) through q^6, no warnings.
     tl = [(0, 0), (1, 0), (0, 1), (1, 1), (2, 0), (2, -1), (1, -1)]
@@ -190,10 +198,16 @@ def test_pentagon_spec_free():
     engine builds `S` directly from the quiver — no spec supplied.
 
     (i) `build_S=True` reproduces the spec-mode multiply / trace / inner_product
-        on the generator sector.
-    (ii) `spec_free_sigma="principled"` installs the axiom-derived σ
+        on the generator sector (spec extraction recovers the finite spec from
+        the recursive S, so this certifies the extraction path).
+    (ii) `spec_free_sigma="principled"` with `build_S=True, extract_spec=False`
+        — the **genuinely spec-free** engine — installs the axiom-derived σ
         (`σ⁻¹(a) = −upper(F_a)`, `σ(a) = −upper(F̃_a)`; the principled spec-free
         half-monodromy) and reproduces the spec-mode ρ / ρ⁻¹ / multiply.
+        (Previously this part passed `spec_free_sigma="principled"` without
+        `build_S=True`, which the constructor silently ignored — the check
+        compared spec mode against itself.  The constructor now refuses the
+        inert combination, asserted in (iii).)
 
     (A demo, not a full grid: the recursive engine is fast on the generator
     sector but not yet across higher charges.)"""
@@ -211,16 +225,30 @@ def test_pentagon_spec_free():
     assert _ser(Bf.inner_product((1, 0), (1, 0), 6), 6) == \
         _ser(B.inner_product((1, 0), (1, 0), 6), 6)
 
-    # (ii) principled spec-free σ.
+    # (ii) principled spec-free σ — the real path (no spec extraction).
     Bp = BPSKAlgebra(pairing=PENTA_PAIRING, node_charges=PENTA_NODES,
+                     build_S=True, extract_spec=False,
                      spec_free_sigma="principled", build_S_cutoff=8)
+    assert Bp._spec_free, "principled-σ instance must be on the spec-free path"
     labs = [(0, 0), (1, 0), (0, 1), (1, 1)]
     for a in labs:
         assert Bp.rho(a) == B.rho(a), ("principled rho", a)
         assert Bp.rho_inverse(a) == B.rho_inverse(a), ("principled rho_inv", a)
         for b in labs:
             assert _nm(Bp.multiply(a, b)) == _nm(B.multiply(a, b)), ("principled mult", a, b)
-    print("  PASS: test_pentagon_spec_free")
+
+    # (iii) the inert combination is refused loudly.
+    for kwargs in (dict(spec_free_sigma="principled"),
+                   dict(spec_free_sigma="principled", build_S=True,
+                        build_S_cutoff=8)):   # extraction recovers the spec
+        try:
+            BPSKAlgebra(pairing=PENTA_PAIRING, node_charges=PENTA_NODES,
+                        **kwargs)
+            raise AssertionError(
+                f"inert spec_free_sigma combination accepted: {kwargs}")
+        except ValueError:
+            pass
+    print("  PASS: test_pentagon_spec_free (incl. genuine principled-σ path)")
 
 
 def test_pentagon_iso():

@@ -38,8 +38,10 @@ from u1a1aodd_kalg import U1A1AoddKAlg
 from a1aeven_to_u1aodd_rgkalgebra import A1AevenToU1AoddRGKAlgebra
 from u1aodd_to_even_qt_rgkalgebra import U1A1AoddToEvenQTRGKAlgebra
 
-_SPINE = ("bps_kalgebra", "rg_flow", "lattice_torus", "nahm_data", "chart_graph",
-          "bps_quiver_tools", "f_solver", "schur_index", "directional_subquiver_rg")
+# Spine-freeness: the module list is shared and filesystem-derived
+# (tests/_spine.py) — the previous hand-copied tuple named modules that no
+# longer exist and omitted real spine modules.
+from _spine import SPINE as _SPINE
 
 
 def _ser(rps, K):

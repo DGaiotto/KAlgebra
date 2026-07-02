@@ -621,6 +621,28 @@ def _adjugate_and_det(M: list[tuple[int, ...]]) -> tuple[list[list[int]], int]:
     return adj, det
 
 
+_WITNESS_CACHE: dict = {}
+
+
+def _strict_witness_box(gens, rank):
+    """A strict cone witness `f` with `<f, g> >= 1` for every generator,
+    by small box search (cached per generator set); `None` if none found
+    in the box (e.g. a non-pointed cone)."""
+    key = tuple(sorted(gens))
+    if key in _WITNESS_CACHE:
+        return _WITNESS_CACHE[key]
+    from itertools import product as _iproduct
+    M = max(max(abs(x) for x in g) for g in gens)
+    bound = max(3, 2 * M)
+    found = None
+    for f in _iproduct(range(-bound, bound + 1), repeat=rank):
+        if all(sum(a * b for a, b in zip(f, g)) >= 1 for g in gens):
+            found = f
+            break
+    _WITNESS_CACHE[key] = found
+    return found
+
+
 def cone_contains(v: Sequence[int], cone_gens: Sequence[Sequence[int]]) -> bool:
     """Return True iff ``v`` is a non-negative integer linear combination of
     ``cone_gens``.
@@ -706,9 +728,23 @@ def cone_contains(v: Sequence[int], cone_gens: Sequence[Sequence[int]]) -> bool:
 
     nf = len(free_vars)
 
-    v_norm = sum(abs(x) for x in v) + 1
-    g_min_norm = min(max(1, sum(abs(x) for x in g)) for g in gens)
-    max_t = max(v_norm // g_min_norm + 2, 10)
+    # Proven enumeration bound (pointed case): a strict witness `f` with
+    # `<f, g_i> >= 1` for every generator gives, for ANY representation
+    # `v = sum λ_i g_i` with `λ_i >= 0`, `sum λ_i <= <f, v>` — so the
+    # free-variable search below is COMPLETE with `max_t = <f, v>`.  Only
+    # when no witness is found in the search box (e.g. a non-pointed cone)
+    # does the earlier norm heuristic remain, which can in principle
+    # under-bound a strongly sheared overcomplete cone.
+    witness = _strict_witness_box(gens, r)
+    if witness is not None:
+        fv = sum(w * x for w, x in zip(witness, v))
+        if fv < 0:
+            return False                    # <f, v> < 0 excludes membership
+        max_t = int(fv)
+    else:
+        v_norm = sum(abs(x) for x in v) + 1
+        g_min_norm = min(max(1, sum(abs(x) for x in g)) for g in gens)
+        max_t = max(v_norm // g_min_norm + 2, 10)
 
     def _search(idx: int, ts: list[int]) -> bool:
         if idx == nf:

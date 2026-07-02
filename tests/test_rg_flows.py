@@ -67,14 +67,26 @@ def test_u1square():
             assert t6 == _ser(S.trace(l, 6), 6), ("trace", l, t6)
             assert t6 == _ser(A.trace(l, 10), 6), ("unstable", l)
         assert len(w) == 0, [str(x.message) for x in w]
-    # axioms + orthonormality
+    # axioms + orthonormality (full contract battery: bar involution,
+    # ρ²-twisted trace cyclicity, and inner-product two-face consistency
+    # were previously exercised only on the Step-1 samples)
     sm = [(0, 0), (1, 0), (-1, 0), (0, 1), (1, 1)]
     assert A.verify_rg_unital()
+    assert A.verify_identity_in_basis()
+    assert A.verify_rho_fixes_identity()
     for a in sm:
+        assert A.verify_rg_discovery(a), ("rg-discovery", a)
         for b in sm:
             assert A.verify_rg_multiplicative(a, b), ("mult", a, b)
             assert A.verify_rho_is_automorphism(a, b), ("rho", a, b)
             assert A.verify_orthonormality(a, b, 6), ("ortho", a, b)
+            assert A.verify_bar_involution(a, b), ("bar", a, b)
+            assert A.verify_rho_twisted_trace(a, b, 6), ("rho2-cyc", a, b)
+            assert A.verify_inner_product_consistent(a, b, 6), ("ip-faces", a, b)
+    for a in sm[:3]:
+        for b in sm[:3]:
+            for c in sm[:3]:
+                assert A.verify_associativity(a, b, c), ("assoc", a, b, c)
     # KAlgebraIso to the direct SQED₁ (identity on labels)
     idm = lambda l: Element({tuple(l): _ONE})
     iso = KAlgebraIso(A, S, idm, idm, name="U1Square ≅ SQED1")
@@ -114,14 +126,24 @@ def test_pentagon():
             assert t6 == _ser(P.trace(l, 6), 6), ("trace", l, t6)
             assert t6 == _ser(A.trace(l, 10), 6), ("unstable", l)
         assert len(w) == 0, [str(x.message) for x in w]
-    # axioms + orthonormality
+    # axioms + orthonormality (full contract battery — see test_u1square)
     sm = [(0, 0, 0), (0, 1, 0), (1, 1, 0), (2, 1, 0), (4, 1, 0)]
     assert A.verify_rg_unital()
+    assert A.verify_identity_in_basis()
+    assert A.verify_rho_fixes_identity()
     for a in sm:
+        assert A.verify_rg_discovery(a), ("rg-discovery", a)
         for b in sm:
             assert A.verify_rg_multiplicative(a, b), ("mult", a, b)
             assert A.verify_rho_is_automorphism(a, b), ("rho", a, b)
             assert A.verify_orthonormality(a, b, 6), ("ortho", a, b)
+            assert A.verify_bar_involution(a, b), ("bar", a, b)
+            assert A.verify_rho_twisted_trace(a, b, 6), ("rho2-cyc", a, b)
+            assert A.verify_inner_product_consistent(a, b, 6), ("ip-faces", a, b)
+    for a in sm[:3]:
+        for b in sm[:3]:
+            for c in sm[:3]:
+                assert A.verify_associativity(a, b, c), ("assoc", a, b, c)
     # KAlgebraIso to the direct pentagon (identity on labels)
     idm = lambda l: Element({tuple(l): _ONE})
     iso = KAlgebraIso(A, P, idm, idm, name="PentagonSquare ≅ Pentagon")
@@ -183,10 +205,20 @@ def test_sqed_nf():
     print("  PASS: test_sqed_nf (N_f = 1, 2, 3)")
 
 
+def test_spine_free():
+    """No BPS realisation-spine module was imported by the whole run
+    (previously this suite had no spine assertion at all — the only
+    Step-3 file without one)."""
+    from _spine import assert_spine_free
+    assert_spine_free("the RG reference-flow suite")
+    print("  PASS: test_spine_free (no spine modules imported)")
+
+
 def main():
     test_u1square()
     test_pentagon()
     test_sqed_nf()
+    test_spine_free()
     print("\nALL RGKAlgebra (Step 3) self-tests passed.")
 
 

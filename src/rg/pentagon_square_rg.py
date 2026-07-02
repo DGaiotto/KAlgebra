@@ -218,14 +218,27 @@ class PentagonSquareSampleRGKAlgebra(RGKAlgebra):
         g = self.grading()
         x = {l: c for l, c in x_ir.terms.items() if not c.is_zero()}
         out: dict = {}
+        # Off-cone labels are not silently discarded: their running residual
+        # is accumulated in `skipped` and must cancel to zero by the end —
+        # the "it must cancel" claim is verified, not assumed.  Guard
+        # exhaustion raises (a partial decomposition is never returned).
+        skipped: dict = {}
         guard = 0
-        while x and guard < 100000:
+        while x:
             guard += 1
+            if guard > 100000:
+                raise ValueError(
+                    f"from_ir_image: apex peel did not terminate "
+                    f"(residual labels {sorted(x)[:5]}…) — refusing to "
+                    f"return a partial decomposition."
+                )
             delta = min(x, key=lambda l: g.height_of(l))
             try:
                 c = self._apex_inverse(delta)
             except ValueError:
-                x.pop(delta)
+                sv = x.pop(delta)
+                skipped[delta] = (skipped[delta] + sv) if delta in skipped \
+                    else sv
                 continue
             coeff = x[delta]                       # apex coeff of RG(c) is 1
             out[c] = (out[c] + coeff) if c in out else coeff
@@ -233,11 +246,22 @@ class PentagonSquareSampleRGKAlgebra(RGKAlgebra):
                 term = coeff * cc
                 if term.is_zero():
                     continue
+                if d in skipped:
+                    nv = skipped[d] - term
+                    skipped[d] = nv
+                    continue
                 nv = (x[d] - term) if d in x else -term
                 if nv.is_zero():
                     x.pop(d, None)
                 else:
                     x[d] = nv
+        bad = {l: c for l, c in skipped.items() if not c.is_zero()}
+        if bad:
+            raise ValueError(
+                f"from_ir_image: off-cone content did not cancel "
+                f"({ {l: str(c) for l, c in list(bad.items())[:4]} }) — the "
+                f"input is not in the image of the pentagon RG peel."
+            )
         return Element({l: c for l, c in out.items() if not c.is_zero()})
 
     def __repr__(self) -> str:

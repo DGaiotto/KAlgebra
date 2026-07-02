@@ -458,6 +458,7 @@ def solve_rg_exact(
     apex: Label,
     *,
     max_labels: int = 100_000,
+    frontier_margin: int = 1,
 ) -> tuple[Element, Label | None]:
     """Solve `RG(a)·S_RG = L_apex + O(q)` with the **per-charge oracle**.
 
@@ -484,9 +485,22 @@ def solve_rg_exact(
     label (the leading, coefficient-`1` term — the mirror's single upper
     element).  Triangularity: charges are walked in increasing height, so when
     a charge `γ` is processed every `c` with `h(deg γ − deg c) > 0` (lower
-    height) is already solved.  Walk grows only from charges that produced a
-    term, so the explored set is the (finite) RG support plus its one-step
-    cone frontier.
+    height) is already solved.  **Walk completeness (frontier sweep).**  The walk grows from charges
+    that produced a term; on its own that is incomplete for a contract-legal
+    flow whose `S_RG` support is reachable only *across* an unproductive
+    intermediate charge (e.g. `S_RG = 1 + [S]_{2g}` with `[S]_g = 0`: the
+    walk seeds `apex+g`, finds nothing, and stops — silently missing the
+    correction at `apex+2g`).  After the productive walk drains, the solver
+    therefore sweeps `frontier_margin` cone-shells beyond *everything* seen
+    and resumes the walk if any swept charge produces, iterating to a
+    fixpoint.  This is exact for support gaps of width ≤ `frontier_margin`
+    cone-steps (default 1); a flow with wider gaps needs a larger margin.
+    (Enqueuing on nonzero-*residual* charges instead would not terminate:
+    `E_𝖖`-type towers give nonzero positive-`q` residuals on the whole
+    cone.)
+
+    **`[S_RG]_0 = 1` is validated** at entry (the windowed `solve_rg`
+    raises on violation; this exact path used to silently assume it).
     """
     g = grading
     if g.cone_gens is None:
@@ -508,6 +522,18 @@ def solve_rg_exact(
             comp_cache[gamma] = c
         return c
 
+    # `[S_RG]_0 = 1` validation (the windowed path raises on violation; the
+    # exact path used to silently assume it — a wrong zero-component makes
+    # every residual, hence RG(a), silently wrong).
+    c0 = comp(zero)
+    ident = aux.identity()
+    c0_nz = {l: h for l, h in c0.items() if not h.is_zero()}
+    if set(c0_nz) != {ident} or not (c0_nz[ident] - 1).is_zero():
+        raise ValueError(
+            f"solve_rg_exact: [S_RG]_0 must be exactly 1·L_identity; got "
+            f"{{{', '.join(f'{l!r}: {h!r}' for l, h in c0_nz.items())}}}."
+        )
+
     heap: list[tuple[int, int, Charge]] = []
     counter = 0
     seen_charge = {apex_charge}
@@ -524,48 +550,77 @@ def solve_rg_exact(
         push_charge(g.charge_sum(apex_charge, tuple(gen)))
 
     n_done = 0
-    while heap:
-        _, _, gamma = heapq.heappop(heap)
-        n_done += 1
-        if n_done > max_labels:
-            raise RuntimeError(
-                f"solve_rg_exact exceeded max_labels={max_labels}; the "
-                f"cone-walk did not terminate (check that `_s_rg_component` is "
-                f"exact / finite / vanishes off the cone, and `[S_RG]_0 = 1_B`)."
-            )
 
-        # Exact residual at charge `gamma`, summed over the current RG terms.
-        R: dict[Label, HabiroElement] = {}
-        for c_lbl, fc in f.items():
-            gs = tuple(x - y for x, y in zip(gamma, g.charge(c_lbl)))
-            if g.h(gs) <= 0 or not g.in_cone(gs):
-                continue                          # identity self-term / off-cone
-            for s_lbl, g_s in comp(gs).items():
-                if g_s.is_zero():
+    def drain_heap() -> bool:
+        """Process queued charges to exhaustion; True iff any produced."""
+        nonlocal n_done
+        any_produced = False
+        while heap:
+            _, _, gamma = heapq.heappop(heap)
+            n_done += 1
+            if n_done > max_labels:
+                raise RuntimeError(
+                    f"solve_rg_exact exceeded max_labels={max_labels}; the "
+                    f"cone-walk did not terminate (check that `_s_rg_component` "
+                    f"is exact / finite / vanishes off the cone, and "
+                    f"`[S_RG]_0 = 1_B`)."
+                )
+
+            # Exact residual at charge `gamma`, summed over the current RG terms.
+            R: dict[Label, HabiroElement] = {}
+            for c_lbl, fc in f.items():
+                gs = tuple(x - y for x, y in zip(gamma, g.charge(c_lbl)))
+                if g.h(gs) <= 0 or not g.in_cone(gs):
+                    continue                      # identity self-term / off-cone
+                for s_lbl, g_s in comp(gs).items():
+                    if g_s.is_zero():
+                        continue
+                    prod = aux.multiply(c_lbl, s_lbl)
+                    for d, c_ts in prod.terms.items():
+                        if c_ts.is_zero():
+                            continue
+                        contrib = g_s * (fc * c_ts)
+                        if contrib.is_zero():
+                            continue
+                        R[d] = (R[d] + contrib) if d in R else contrib
+
+            produced = False
+            for d, r in R.items():
+                if r.is_zero():
                     continue
-                prod = aux.multiply(c_lbl, s_lbl)
-                for d, c_ts in prod.terms.items():
-                    if c_ts.is_zero():
-                        continue
-                    contrib = g_s * (fc * c_ts)
-                    if contrib.is_zero():
-                        continue
-                    R[d] = (R[d] + contrib) if d in R else contrib
+                nonpos = {e: co for e, co in r.expand(0)._coeffs.items() if e <= 0}
+                corr = _peel_nonpositive(nonpos)
+                if not corr:
+                    continue
+                f[d] = LaurentPoly(corr)          # d's charge == gamma (set once)
+                produced = True
 
-        produced = False
-        for d, r in R.items():
-            if r.is_zero():
-                continue
-            nonpos = {e: co for e, co in r.expand(0)._coeffs.items() if e <= 0}
-            corr = _peel_nonpositive(nonpos)
-            if not corr:
-                continue
-            f[d] = LaurentPoly(corr)              # d's charge == gamma (set once)
-            produced = True
+            if produced:
+                any_produced = True
+                for gen in g.cone_gens:
+                    push_charge(g.charge_sum(gamma, tuple(gen)))
+        return any_produced
 
-        if produced:
-            for gen in g.cone_gens:
-                push_charge(g.charge_sum(gamma, tuple(gen)))
+    drain_heap()
+    # Frontier sweep (walk completeness — see the docstring): examine
+    # `frontier_margin` cone-shells beyond everything seen; resume the walk
+    # if anything produces; iterate to a fixpoint.
+    while frontier_margin > 0:
+        base = list(seen_charge)
+        shell: list[Charge] = []
+        for _ in range(frontier_margin):
+            nxt = []
+            for gamma in base:
+                for gen in g.cone_gens:
+                    cand = g.charge_sum(gamma, tuple(gen))
+                    if cand not in seen_charge:
+                        # push_charge marks seen + queues (height-ordered).
+                        push_charge(cand)
+                        nxt.append(cand)
+            shell.extend(nxt)
+            base = nxt
+        if not shell or not drain_heap():
+            break
 
     rg = Element({l: c for l, c in f.items() if not c.is_zero()})
     upper = _mirror_upper_exact(aux, g, comp, f)

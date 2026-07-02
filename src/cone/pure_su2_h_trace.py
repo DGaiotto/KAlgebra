@@ -125,11 +125,21 @@ def tr_W(n: int, q_max: int = _Q_MAX_DEFAULT) -> LaurentPoly:
     return LaurentPoly({e: c for e, c in out.items() if c != 0})
 
 
+# Buffer for the m=1 bridge: the bracket is shifted down by q^{-3}
+# (`/ 2q³(1−q²)`), so the elementary-trace inputs must be known 3 orders
+# past q_max or the TOP THREE orders of every tr_H0 window come out
+# corrupted (at q_max=3 that is q^1..q^3 — caught by the ρ²-cyclicity
+# battery, which found Tr(H) window-UNSTABLE: −q−q³ at K=3 vs the true
+# −q+q⁵−…).  Same discipline as _M2_BRIDGE_BUFFER below.
+_M1_BRIDGE_BUFFER = 4
+
+
 def tr_H0(q_max: int = _Q_MAX_DEFAULT) -> LaurentPoly:
-    """Tr(H_0) via the cyclicity bridge formula."""
-    W0 = tr_W(0, q_max)
-    W2 = tr_W(2, q_max)
-    W4 = tr_W(4, q_max)
+    """Tr(H_0) via the cyclicity bridge formula (inputs buffered)."""
+    qm = q_max + _M1_BRIDGE_BUFFER
+    W0 = tr_W(0, qm)
+    W2 = tr_W(2, qm)
+    W4 = tr_W(4, qm)
     return tr_h0_bridge(W0, W2, W4, q_max=q_max)
 
 

@@ -428,6 +428,20 @@ class BPSKAlgebra(RGKAlgebra):
                 spec = [tuple(g) for g in _ex]   # → fast spec mode below
                 self._spec_free = False
 
+        # A non-default spec-free σ that cannot take effect is a silent
+        # no-op the caller almost certainly did not intend (the shipped
+        # test exercising the principled σ was vacuous for exactly this
+        # reason) — refuse loudly instead.
+        if spec_free_sigma == "principled" and not self._spec_free:
+            raise ValueError(
+                "spec_free_sigma='principled' was requested but the "
+                "instance is not on the spec-free path: "
+                + ("spec extraction recovered a finite spec (pass "
+                   "extract_spec=False to exercise the principled σ)."
+                   if build_S else
+                   "pass build_S=True (and extract_spec=False if the "
+                   "quiver has a recoverable finite spec)."))
+
         # ----- spec / recipe + σ + cone -----
         self._chart = None  # populated in spec mode
         if recipe_mode:

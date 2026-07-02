@@ -43,8 +43,10 @@ from e6_rgkalgebra import E6RGKAlgebra
 from e8_rgkalgebra import E8RGKAlgebra
 from u1a1e7_rgkalgebra import U1A1E7RGKAlgebra
 
-_SPINE = ("bps_kalgebra", "rg_flow", "lattice_torus", "nahm_data", "chart_graph",
-          "bps_quiver_tools", "f_solver", "directional_subquiver_rg")
+# Spine-freeness: the module list is shared and filesystem-derived
+# (tests/_spine.py) — the previous hand-copied tuple named modules that no
+# longer exist and omitted real spine modules.
+from _spine import SPINE as _SPINE
 
 
 def _ser(rps, K):

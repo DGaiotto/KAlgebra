@@ -1323,6 +1323,28 @@ def sigma_inverse(lattice: Lattice, spec: Sequence[Sequence[int]],
 # Internal helper: is  v  a non-negative integer combination of ``gens`` ?
 # Uses rational Gaussian elimination + enumeration over free variables.
 
+_WITNESS_CACHE_CC: dict = {}
+
+
+def _strict_witness_box_cc(gens, rank):
+    """A strict cone witness `f` with `<f, g> >= 1` for every generator,
+    by small box search (cached per generator set); `None` if none found
+    in the box (e.g. a non-pointed cone).  Mirrors `lattice._strict_witness_box`."""
+    key = tuple(sorted(gens))
+    if key in _WITNESS_CACHE_CC:
+        return _WITNESS_CACHE_CC[key]
+    from itertools import product as _iprod
+    M = max(max(abs(x) for x in g) for g in gens)
+    bound = max(3, 2 * M)
+    found = None
+    for f in _iprod(range(-bound, bound + 1), repeat=rank):
+        if all(sum(a * b for a, b in zip(f, g)) >= 1 for g in gens):
+            found = f
+            break
+    _WITNESS_CACHE_CC[key] = found
+    return found
+
+
 def _cone_contains(v: Vec, gens: list[Vec]) -> bool:
     n = len(gens)
     if n == 0:
@@ -1366,9 +1388,21 @@ def _cone_contains(v: Vec, gens: list[Vec]) -> bool:
         pivot_rhs.append(A[idx][n] / d)
         pivot_free_coeff.append([-A[idx][fv] / d for fv in free_vars])
     nf = len(free_vars)
-    v_norm = sum(abs(x) for x in v) + 1
-    g_min_norm = min(max(1, sum(abs(x) for x in g)) for g in gens)
-    max_t = max(v_norm // g_min_norm + 2, 10)
+    # Proven enumeration bound (pointed case): a strict witness `f` with
+    # `<f, g_i> >= 1` gives `sum λ_i <= <f, v>` for any non-negative
+    # representation, so the free-variable search is COMPLETE with
+    # `max_t = <f, v>`.  Heuristic bound kept only when no witness is
+    # found in the search box (e.g. a non-pointed cone).
+    witness = _strict_witness_box_cc(gens, r)
+    if witness is not None:
+        fv = sum(w * x for w, x in zip(witness, v))
+        if fv < 0:
+            return False                    # <f, v> < 0 excludes membership
+        max_t = int(fv)
+    else:
+        v_norm = sum(abs(x) for x in v) + 1
+        g_min_norm = min(max(1, sum(abs(x) for x in g)) for g in gens)
+        max_t = max(v_norm // g_min_norm + 2, 10)
 
     def _search(idx: int, ts: list[int]) -> bool:
         if idx == nf:
@@ -3618,12 +3652,12 @@ def _verify_pointed_cone(
 
     # Exact LP fallback: the box can be too small (a near-antipodal generator
     # pair forces a witness coordinate outside [-bound, bound] -- e.g. a mutated
-    # flavoured chamber needing a -4 entry).  `sigma_iso._lp_feasible_strict`
+    # flavoured chamber needing a -4 entry).  `lp_witness.lp_feasible_strict`
     # is a two-phase rational simplex that finds an integer witness iff the cone
     # is pointed, with no box (sound positive + sound negative by LP duality).
     # Mirrors the same fallback in bps_kalgebra_internals.compute_strict_cone_witness.
-    from sigma_iso import _lp_feasible_strict
-    feasible, w = _lp_feasible_strict(gens, rank)
+    from lp_witness import lp_feasible_strict
+    feasible, w = lp_feasible_strict(gens, rank)
     if feasible and w is not None and _witnesses(w):
         return tuple(int(x) for x in w)
 

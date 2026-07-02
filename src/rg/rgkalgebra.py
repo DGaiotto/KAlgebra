@@ -896,9 +896,19 @@ class RGKAlgebra(KAlgebra):
         terms = [(l, c) for l, c in e.terms.items() if not c.is_zero()]
         if len(terms) == 1 and terms[0][1] == LaurentPoly({0: 1}):
             return terms[0][0]
-        # Fallback: the mirror-derived ρ_UV cached alongside tRG.
+        # Fallback: the mirror-derived ρ_UV cached alongside tRG.  The
+        # mirror value is unreliable through the opposite-algebra wrapper
+        # for flows with a central flavour (see the docstring) — warn when
+        # it is actually served, so a silent wrong ρ cannot propagate.
         ruv = self.__dict__.get("_rho_cache", {}).get(tuple(a))
         if ruv is not None:
+            import warnings
+            warnings.warn(
+                f"RGKAlgebra.rho({a!r}): from_ir_image(ρ_IR(tRG)) was not a "
+                f"single canonical label; serving the mirror-derived ρ_UV "
+                f"fallback, which is unreliable for flows with a central "
+                f"flavour — verify with verify_rg_trg_intertwine.",
+                RuntimeWarning, stacklevel=2)
             return self._apex_inverse(ruv)
         raise ValueError(
             f"rho({a!r}) could not be derived: from_ir_image(ρ_IR(tRG)) "
@@ -1050,6 +1060,12 @@ class RGKAlgebra(KAlgebra):
             if self._fs_trunc_eq(prev, cur, k):
                 return cur
             prev = cur
+        import warnings
+        warnings.warn(
+            f"_rg_times_S_adaptive({a!r}, k={k}): cutoff stability was NOT "
+            f"reached by the cap (cutoff {cap}); returning the last iterate, "
+            f"whose q^<={k} coefficients may still be truncation-corrupted.",
+            RuntimeWarning, stacklevel=2)
         return prev
 
     @staticmethod

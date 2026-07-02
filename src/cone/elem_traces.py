@@ -713,6 +713,30 @@ def _frozen(short_id: str) -> Optional[dict]:
         return None
 
 
+def _flavour_weight(key) -> int:
+    """|μ|-weight of a coefficient key (int weight or tuple of charges)."""
+    if isinstance(key, tuple):
+        return sum(abs(int(x)) for x in key)
+    return abs(int(key))
+
+
+def _wedge_valid_K(data: dict, K_frozen: int) -> int:
+    """Largest q-order through which a *flavoured* frozen series is
+    trapezoid-wedge-valid: at q-order j, weights above `(2/3)(K_frozen − j)`
+    may be clipped or spurious (the TRAPEZOID CAVEAT in the module
+    docstring), so the series is served only on the prefix where every
+    present weight is inside the wedge.  Requests past this order fall
+    through to the bootstrap / closed-form regeneration paths."""
+    good = K_frozen
+    for j, row in data.items():
+        if not row:
+            continue
+        w = max(_flavour_weight(k) for k in row)
+        if 3 * w > 2 * (K_frozen - j):
+            good = min(good, j - 1)
+    return good
+
+
 def _seed_series(short_id: str, kind, K: int) -> dict:
     """Exact coefficient data `{q_exp: entry}` for one seed, valid
     through q-order `K` — from the frozen table (`kind = "identity"` or
@@ -730,7 +754,14 @@ def _seed_series(short_id: str, kind, K: int) -> dict:
     rec = _frozen(short_id)
     if (rec is not None and rec["K"] >= K
             and (kind == "identity" or kind in rec["orbits"])):
-        return rec["identity"] if kind == "identity" else rec["orbits"][kind]
+        data = rec["identity"] if kind == "identity" else rec["orbits"][kind]
+        if (REGEN_SPECS[short_id][2] == "trivial"
+                or K <= _wedge_valid_K(data, rec["K"])):
+            return data
+        # Flavoured tail past the trapezoid wedge (see the module
+        # docstring): the frozen coefficients at these orders may be
+        # clipped — fall through to the bootstrap / closed-form paths,
+        # which regenerate exactly at the requested window.
     cached = _EXT.get((short_id, kind))
     if cached is not None and cached["K"] >= K:
         return cached["data"]

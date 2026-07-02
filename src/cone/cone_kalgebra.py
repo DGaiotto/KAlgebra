@@ -233,7 +233,16 @@ class ConeKAlgebra(KAlgebra):
             mg = cone.mult_gens() if hasattr(cone, "mult_gens") else cone
             g2, p2, _qphase = cd.canonicalize_cone_label(mg, gens_fs, powers)
             return tuple(sorted((i, p2[i]) for i in g2 if p2.get(i)))
-        except Exception:
+        except Exception as exc:
+            # The realisation advertises cone canonicalization but failed on
+            # this label — returning the uncanonicalised `perm` is exactly
+            # what this method exists to prevent, so do it loudly.
+            import warnings
+            warnings.warn(
+                f"_canonicalized_rho_label({label!r}): cone canonicalization "
+                f"failed ({type(exc).__name__}: {exc}); returning the "
+                f"uncanonicalised permuted label.",
+                RuntimeWarning, stacklevel=2)
             return perm
 
     # ρ²-orbit canonicalisation is provided by `KAlgebra` (default:

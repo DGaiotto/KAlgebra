@@ -1033,16 +1033,12 @@ def compute_strict_cone_witness(
     # Exact LP fallback: the strict witness can lie outside the box (a
     # near-antipodal generator pair forces a large coordinate — e.g. a
     # mutated flavoured BPS chamber whose witness needs a −4 entry while the
-    # box stops at ±3).  `_lp_feasible_strict` is a two-phase
+    # box stops at ±3).  `lp_witness.lp_feasible_strict` is a two-phase
     # rational simplex that finds an integer witness iff the cone is pointed,
     # with no box (sound positive: ⟨f, g⟩ ≥ 1 since g, f are integral and
-    # ⟨f, g⟩ > 0; sound negative by LP duality).  It lives in a `sigma_iso`
-    # module that is NOT included in this repository, so this fallback is
-    # unavailable here: reaching this line raises ImportError.  In practice
-    # the cheap candidates and the box search above cover the charts
-    # exercised by the tests in this repository.
-    from sigma_iso import _lp_feasible_strict
-    feasible, w = _lp_feasible_strict(gens, rank)
+    # ⟨f, g⟩ > 0; sound negative by LP duality).
+    from lp_witness import lp_feasible_strict
+    feasible, w = lp_feasible_strict(gens, rank)
     if feasible and w is not None and _witnesses(w):
         return tuple(int(x) for x in w)
 

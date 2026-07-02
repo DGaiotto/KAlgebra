@@ -121,6 +121,13 @@ CONE_ALGEBRAS = [
 K = 3            # q-order window for trace / orthonormality
 MAX_GENS = 2     # generators exercised per algebra
 
+# Per-class q-order override for the battery.  SU2Nf1KAlgebra's shipped
+# H-seed trace recursion is under-determined past q² (`_qmu_to_rl`
+# honest-fails at q³ — a genuine shipped-depth boundary surfaced by the
+# native-label coverage; previously invisible because the class was
+# exercised at unit level only).
+_NATIVE_K = {"SU2Nf1KAlgebra": 2}
+
 # Classes whose trace is correct but whose bootstrap seed-solve is impractically
 # slow for a quick self-test (the 8-node su2×u1 cone reductions are ~exponential
 # in mult-gen power); exercised at the multiply/ρ level only here.  Their trace
@@ -128,11 +135,52 @@ MAX_GENS = 2     # generators exercised per algebra
 # full battery), and Tr(1) itself is fast (≈0.2 s).
 LIGHT_TRACE = {"FiniteA1D8KAlgebra", "FiniteE7KAlgebra"}
 
+# Classes whose PAIRWISE trace battery (off-diagonal orthonormality +
+# ρ²-cyclicity on products) is memory-infeasible at e8 scale — the deep
+# Nahm trace of a two-generator product explodes (it OOM-kills the
+# process, not merely slows it).  The per-label diagonal battery still
+# runs; bar involution (multiply-only) still runs pairwise.
+HEAVY_TRACE_PAIRS = {"FiniteE8KAlgebra"}
 
-def _candidate_labels(A):
+
+# Hand-written native label formats the generic `_candidate_labels`
+# builder cannot guess.  Without these, the four classes below were
+# silently degraded to unit-only coverage via `except Exception:
+# continue` — which is exactly how the `[A_1,D_3]` mixed-tile
+# truncation artifact stayed invisible to this gate.  Each entry lists
+# a few genuine canonical generator labels in the class's own format.
+_NATIVE_LABELS = {
+    "A1D3KAlg": [                       # (tile, a, b, k)
+        (0, 1, 0, 0),                   # T_0
+        (0, 0, 1, 0),                   # D_0
+        (0, 0, 0, 1),                   # χ_1
+        (3, 1, 1, 0),                   # mixed tile: q^{-1}·T_1·D_0
+    ],
+    "PureSU2KAlg": [                    # native H-tower / Wilson words
+        ((0, 1),),                      # H_0
+        ((('W', 1), 1),),               # Wilson W_1
+        ((0, 2),),                      # H_0²
+    ],
+    "SU2Nf1KAlgebra": [                 # (H-word, flavour-charge)
+        (((0, 1),), 0),                 # H_0
+        (((("W", 1), 1),), 0),          # Wilson W_1
+        ((), 1),                        # flavour μ
+    ],
+    "SU3ADKAlg": None,                  # generators via A.T(0) / A.D(0) below
+}
+
+
+def _candidate_labels(A, cls_name=""):
     """Native canonical labels to exercise: the unit plus a few cone
-    generators, discovered through the universal `cone_data()` surface."""
+    generators — hand-listed for the hand-written label formats
+    (`_NATIVE_LABELS`), otherwise discovered through the universal
+    `cone_data()` surface."""
     labels = [A.identity()]
+    if cls_name in _NATIVE_LABELS:
+        native = _NATIVE_LABELS[cls_name]
+        if native is None:              # generator-method classes
+            native = [A.T(0), A.D(0)]
+        return labels + [l for l in native if l != labels[0]]
     cd = A.cone_data()
     seen = set(labels)
     for getter in ("mult_gens", "cones"):
@@ -151,40 +199,121 @@ def _candidate_labels(A):
     return labels
 
 
+def _cyclicity_up_to_flavour_drift(A, a, b, K):
+    """`Tr(ab) == Tr(ρ²(b)·a)`, allowing the two sides to differ by an
+    overall **central flavour monomial** `μ^δ`.
+
+    On the U(1)-charged finite-zoo entries the *label-level* ρ differs
+    from the element-level ρ-twisted automorphism by a flavour-monomial
+    twist (`ρ²` on a U(1)-charged label drops/misassigns a central
+    `μ^δ`), so the literal label-level cyclicity check fails by exactly
+    that unit — e.g. on the u1-flavoured A₃ entry
+    `Tr(ρ²(L)·1) = μ·Tr(L)`.  Element-level cyclicity (the axiom) holds;
+    this check pins it while tolerating the label-level drift, and a
+    *genuine* cyclicity violation (not of the single-monomial form)
+    still fails.  Returns (ok, delta) with `delta = 0` for exact
+    agreement."""
+    lhs = A.trace_element(A.multiply(a, b), K)
+    rhs = A.trace_element(A.multiply(A.rho(A.rho(b)), a), K)
+    if lhs == rhs:
+        return True, 0
+    R = A.coefficient_ring()
+    base = tuple(R.one_basis())
+    if not base:
+        return False, None          # trivial ring: no flavour direction
+    for delta in range(-8, 9):
+        if delta == 0:
+            continue
+        key = base[:-1] + (base[-1] + delta,)
+        try:
+            w = R.basis_element(key)
+        except Exception:
+            continue
+        twisted_coeffs = {e: c * w for e, c in lhs.coeffs.items()}
+        if twisted_coeffs == rhs.coeffs:
+            return True, delta
+    return False, None
+
+
 def exercise(A, cls_name=""):
     """Run the contract surface; return number of (unit+gen) labels that
-    cleanly multiplied / traced / passed orthonormality."""
+    cleanly multiplied / traced / passed the axiom battery.
+
+    The battery per exercised label pair: orthonormality (diagonal AND
+    off-diagonal), the bar involution `C^c_{ab}(q⁻¹) = C^c_{ba}(q)`, and
+    ρ²-twisted trace cyclicity — the two latter were previously never
+    exercised outside the Step-1 samples (the [A₁,D₃] lesson: verifiers
+    that exist but are never called certify nothing)."""
     R = A.coefficient_ring()
-    assert R is not None
-    labels = _candidate_labels(A)
+    K_cls = _NATIVE_K.get(cls_name, K)
+    labels = _candidate_labels(A, cls_name)
     unit = labels[0]
-    # core unit-level paths
+    # core unit-level paths + unit axioms
     assert A.multiply(unit, unit) is not None
     A.rho(unit); A.rho_inverse(unit)
+    assert A.verify_identity_in_basis(), "identity idempotent"
+    assert A.verify_rho_fixes_identity(), "rho fixes identity"
     if cls_name in LIGHT_TRACE:           # multiply/ρ only (trace correct but slow)
         for L in labels[1:3]:
             A.multiply(unit, L)
         return 0
-    A.trace(unit, K=K)
-    assert A.verify_orthonormality(unit, unit, K=K), "unit orthonormality"
-    passed = 1
+    A.trace(unit, K=K_cls)
+    assert A.verify_orthonormality(unit, unit, K=K_cls), "unit orthonormality"
+    exercised = [unit]
     gens_done = 0
     prev = unit
+    hand_listed = cls_name in _NATIVE_LABELS
     for L in labels[1:]:
-        if gens_done >= MAX_GENS:
+        if gens_done >= MAX_GENS and not hand_listed:
             break
         try:
             A.multiply(L, L)
             A.multiply(prev, L)        # cross-product path
-            A.trace(L, K=K)
-            ok = A.verify_orthonormality(L, L, K=K)
+            A.trace(L, K=K_cls)
+            ok = A.verify_orthonormality(L, L, K=K_cls)
         except Exception:
-            continue                    # not a clean single canonical here; skip
+            if hand_listed:
+                raise                  # hand-listed labels must not degrade
+            continue                   # not a clean single canonical here; skip
         assert ok, f"generator orthonormality failed for {L!r}"
-        passed += 1
+        exercised.append(L)
         gens_done += 1
         prev = L
-    return passed
+    # pairwise battery on the exercised labels: off-diagonal
+    # orthonormality + bar involution + ρ²-twisted trace cyclicity.
+    heavy = cls_name in HEAVY_TRACE_PAIRS
+    for a in exercised:
+        for b in exercised:
+            assert A.verify_bar_involution(a, b), \
+                f"{cls_name}: bar involution fails on {a!r}, {b!r}"
+            if heavy:
+                continue        # trace-heavy pair checks skipped (see above)
+            if a != b:
+                try:
+                    od = A.verify_orthonormality(a, b, K=K_cls)
+                except Exception as exc:
+                    # honest-fail from the trace machinery on the widened
+                    # pairing window (e.g. su2_nf1's H-seed recursion is
+                    # under-determined past q^2) — skip loudly.
+                    print(f"       (off-diag orthonormality skipped on "
+                          f"{a!r},{b!r}: {type(exc).__name__})")
+                    od = None
+                if od is not None:
+                    assert od, \
+                        f"{cls_name}: off-diagonal orthonormality {a!r}, {b!r}"
+            try:
+                ok, _delta = _cyclicity_up_to_flavour_drift(A, a, b, K_cls)
+            except Exception as exc:
+                # An honest-fail from the trace (e.g. a bootstrap declining
+                # a widened-window request beyond its certified depth) means
+                # the pair is not checkable here — skip it loudly; bar
+                # involution and orthonormality above still guard the pair.
+                print(f"       (cyclicity skipped on {a!r},{b!r}: "
+                      f"{type(exc).__name__}: {exc})")
+                continue
+            assert ok, \
+                f"{cls_name}: rho2-twisted cyclicity fails on {a!r}, {b!r}"
+    return len(exercised)
 
 
 def check_improvable():
@@ -213,10 +342,17 @@ def check_improvable():
     # Probe a chord generator (dense trace) rather than the sparse vacuum.
     U = importlib.import_module("u1a1aodd_kalg").U1A1AoddKAlg(1)
     cd = U.cone_data()
-    chord = next(g for g in cd.mult_gens() if g not in ((0, 0), (0, 1)))
+    # The (1, i) monopole chords have identically-zero trace (magnetic) —
+    # the earlier "chord" probe picked one, making the check vacuous (a
+    # zero series satisfies any K echo).  Probe the DENSE length-2 chord
+    # (2, 0) instead: its M(1, p) singlet-character trace is lacunary
+    # (…, q^27, q^31 within a q^40 window), so assert the q^27 term is
+    # reached — well past the old frozen windows, genuinely no-cap.
+    chord = (2, 0)
     Lc = cd.from_cone_label(frozenset([chord]), {chord: 1})
     tc = U.trace(Lc, K=40)
-    assert tc is not None and tc.K >= 40, ("U1A1AoddKAlg", "trace to q^40")
+    nzc = [q for q, r in tc.coeffs.items() if not r.is_zero()]
+    assert nzc and max(nzc) >= 27, ("U1A1AoddKAlg", "dense chord trace to q^40")
     print(f"  OK   {'U1A1AoddKAlg':24s} arbitrarily-improvable spine-free to q^40")
     # SU3AD = [A_1,D_4] = SU(3)_{-3/2}: Tr_1 the closed-form KW vacuum char,
     # Tr_T/Tr_D the orthonormality bootstrap -> arbitrary q-order, no engine.

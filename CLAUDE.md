@@ -36,7 +36,8 @@ O(𝖖)`. Four layers of algebras sit over one shared contract:
   via `F·S = X_γ + O(𝖖)`, and the whole API follows. This is the realisation
   **spine** — the engine Steps 1–3 deliberately avoid. Adding it does not weaken
   their spine-free guarantee: no module in the earlier layers imports it at import
-  time, and seven of the eight Step-3 suites assert no spine module is loaded. See
+  time, and every Step-3 suite asserts no spine module is loaded (shared,
+  filesystem-derived list in `tests/_spine.py`). See
   `docs/step4-BPSKAlgebra.md`.
 - **iso** (`src/iso/`): `KAlgebraIso` witnesses identifying a sample with its cone
   realisation.
@@ -51,10 +52,11 @@ python3 run_tests.py
 self-tests (`test_rg_flows`, `test_a1an_chain`, `test_dn_chain`, `test_e_type`,
 `test_flavoured_fork`, `test_over_pure`, `test_su2_gauged_chain`, `test_wild`),
 and the Step-4 BPS self-test (`test_bps_flows`, run last — it imports the spine)
-must stay green. No third-party packages, nothing to install. Note that `pytest`
-does not run the full gate: it skips `test_cones.py` and `test_sample_cone_iso.py`,
-and importing the BPS suite at collection time defeats the spine-freeness
-assertions in the Step-3 suites — use `python3 run_tests.py`.
+must stay green. No third-party packages, nothing to install. `pytest` is not a
+supported entry point and is refused loudly by `conftest.py` (it would skip
+`test_cones.py` and `test_sample_cone_iso.py`, and importing the BPS suite at
+collection time defeats the spine-freeness assertions in the Step-3 suites) —
+use `python3 run_tests.py`.
 
 ## Layout & import model (read before moving files)
 
@@ -73,8 +75,8 @@ docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4}-*.md
 
 Modules import one another by **bare name** (`from kalgebra import …`), not by
 package path. Every `src/<layer>/` directory is placed on `sys.path` by
-`conftest.py` (for `pytest`) and `run_tests.py` (for direct runs), each globbing
-the subdirectories of `src/`. Consequently:
+`run_tests.py` (the gate), which globs the subdirectories of `src/`
+(`conftest.py` exists only to refuse `pytest`). Consequently:
 
 - do not add `__init__.py`, and do not rewrite imports to package-qualified form;
 - a new module goes in the appropriate `src/<layer>/` directory, imported by its

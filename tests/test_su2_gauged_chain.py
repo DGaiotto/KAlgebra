@@ -38,8 +38,10 @@ from su2nf1_pure_su2_rgkalgebra import SU2Nf1PureSU2RGKAlgebra
 from su2gauged_a1d3_rgkalgebra import SU2GaugedA1D3RGKAlgebra
 from su2u1gauged_a1d4_rgkalgebra import SU2U1GaugedA1D4RGKAlgebra
 
-_SPINE = ("bps_kalgebra", "rg_flow", "lattice_torus", "nahm_data", "chart_graph",
-          "bps_quiver_tools", "f_solver", "directional_subquiver_rg", "pure_ade")
+# Spine-freeness: the module list is shared and filesystem-derived
+# (tests/_spine.py) — the previous hand-copied tuple named modules that no
+# longer exist and omitted real spine modules.
+from _spine import SPINE as _SPINE
 
 
 def _ser(rps, K):

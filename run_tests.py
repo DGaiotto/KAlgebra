@@ -11,8 +11,8 @@ Step 1 / Step 2 (core, samples, cones, isomorphism witnesses):
   * ``tests/test_cones.py``            — Step-2 ConeKAlgebra realizations + zoo
   * ``tests/test_sample_cone_iso.py``  — Step-1 ↔ Step-2 KAlgebraIso witnesses
 
-Step 3 (the live RG-flow engine; all but ``test_rg_flows.py`` also assert
-spine-freeness):
+Step 3 (the live RG-flow engine; every suite asserts spine-freeness via the
+shared, filesystem-derived list in ``tests/_spine.py``):
 
   * ``tests/test_rg_flows.py``         — the three reference flows
   * ``tests/test_a1an_chain.py``       — the A-type Argyres-Douglas chain
@@ -27,12 +27,12 @@ Step 4 (the BPS-quiver realisation engine — *this* is the spine):
 
   * ``tests/test_bps_flows.py``        — the BPS realisation + atlas + node-drop RG
 
-Each prints its own ``PASS`` / ``ALL ... PASSED`` line. (``test_samples`` also
-runs under ``pytest`` via ``conftest.py``; the others are runner scripts.)
-``test_cones`` is the slowest (a few minutes). ``test_bps_flows`` is run **last**
-because it imports the BPS spine — so the spine-freeness assertions in the
-Step-3 suites (which require no spine module in ``sys.modules``) hold when they
-run earlier in the same process.
+Each prints its own ``PASS`` / ``ALL ... PASSED`` line.  (``pytest`` is not a
+supported entry point — ``conftest.py`` refuses it loudly; this script is the
+gate.)  ``test_cones`` is the slowest (a few minutes). ``test_bps_flows`` is run
+**last** because it imports the BPS spine — so the spine-freeness assertions in
+the Step-3 suites (which require no spine module in ``sys.modules``) hold when
+they run earlier in the same process.
 """
 import pathlib
 import runpy
@@ -43,6 +43,9 @@ _SRC = _ROOT / "src"
 sys.path[:0] = [
     str(p) for p in _SRC.rglob("*") if p.is_dir() and p.name != "__pycache__"
 ]
+# tests/ itself: the shared spine-freeness helper (tests/_spine.py) is
+# imported by the Step-3 suites.
+sys.path.insert(0, str(_ROOT / "tests"))
 
 for _test in ("tests/test_samples.py", "tests/test_cones.py",
               "tests/test_sample_cone_iso.py",

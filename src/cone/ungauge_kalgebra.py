@@ -190,7 +190,7 @@ class UngaugedKAlgebra(KAlgebra):
         combined with the new U(1) flavour charge `f` (the E-power offset from
         the section).  Key = `(f,)` (trivial base) or `(b, (f,))` (base irrep
         `b` ⊗ the U(1) charge).  Delegates to `_G.r_label_decompose` (raises if
-        `_G` is not yet migrated)."""
+        `_G` does not implement the flavour-lift coordinate)."""
         base_sec, b = self._G.r_label_decompose(label)
         f = self._epow(label) - self._epow(base_sec)
         key = (f,) if self._base_trivial else (b, (f,))

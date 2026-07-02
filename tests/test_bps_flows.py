@@ -1,19 +1,19 @@
 """Self-test for the BPSKAlgebra (Step 4) — the BPS-quiver realization engine.
 
-Unlike Steps 1–3 (deliberately spine-free), Step 4 *ships* the BPS spine: the
+Unlike Steps 1–3 (deliberately spine-free), Step 4 *is* the BPS spine: the
 single-chart `BPSKAlgebra` realization of `A_𝖖[T]` over a BPS quiver + spectrum
 generator, with the F-finder, chart graph, spec shortening, node-deletion RG
-flows, and isomorphism witnesses. Its readiness bar is the playbook's — every
-operation accepts arbitrary inputs, every trace is improvable to any q-order —
-*minus* the spine-free clause: this package is the spine.
+flows, and isomorphism witnesses. Every operation accepts arbitrary inputs and
+every trace is improvable to any q-order; the spine-free guarantee of the
+earlier layers does not apply here — this layer is the spine.
 
 What this exercises:
 
   * `test_pentagon_spec`     — the pentagon `A_𝖖([A₁,A₂])` from its BPS quiver
                                (`pairing=[[0,1],[-1,0]]`, nodes `(1,0),(0,1)`):
                                known multiply / inner_product values, the axiom
-                               battery (`verify_canonical_basis`), orthonormality
-                               (Goal 2.1), and trace truncation-stability with
+                               battery (`verify_canonical_basis`), orthonormality,
+                               and trace truncation-stability with
                                **no RuntimeWarning**.
   * `test_pentagon_spec_free`— the same algebra built **spec-free** (`build_S=True`,
                                the recursive spectrum-generator engine): multiply /
@@ -29,8 +29,8 @@ What this exercises:
   * `test_directional_nodedrop` — a node-deletion RG flow (`DirectionalSingleNodeRG`)
                                certified against an independent UV `BPSKAlgebra`.
 
-Run with ALL THREE packages on the path (Step 4 imports the Step-1 core and the
-Step-3 engine — nothing is duplicated):
+Run with every `src/<layer>/` directory on the path (the BPS layer imports the
+Step-1 core and the Step-3 engine — nothing is duplicated):
 
     python3 run_tests.py
 """
@@ -168,7 +168,7 @@ def test_pentagon_spec():
     for ax in ("unital", "multiplicative", "bar_invariant", "orthonormality"):
         assert bat[ax], ("axiom", ax, bat)
 
-    # Orthonormality on a label grid (Goal 2.1).
+    # Orthonormality on a label grid.
     sm = [(0, 0), (1, 0), (0, 1), (1, 1), (2, -1)]
     for a in sm:
         for b in sm:
@@ -283,10 +283,10 @@ def test_directional_nodedrop():
 
 
 def test_atlas():
-    """The `BPSAtlas` layer (Plan 35): an ensemble of `BPSKAlgebra` charts with
+    """The `BPSAtlas` layer: an ensemble of `BPSKAlgebra` charts with
     automated, certified `KAlgebraIso` transition maps across mutation chains.
 
-    A mutation is cluster necklacing, and the atlas certifies it preserves the
+    Each step is a quiver/cluster mutation, and the atlas certifies it preserves the
     *whole* `K_𝖖` structure (multiply, ρ, **and the Schur index**), with the
     rotation monodromy closing to `ρ²`.  `certificate()` runs, over the pentagon
     rotation chamber chain: the per-edge full battery, `multiply` and

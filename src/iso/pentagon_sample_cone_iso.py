@@ -7,9 +7,9 @@ of the pentagon algebra ``K_𝖖([A_1, A_2])`` (= A_2 Argyres-Douglas /
 Yang-Lee / M(2,5)):
 
   * the **cone** presentation  ``FinitePentagonKAlgebra`` (a
-    ``ConeKAlgebra``; this Step-2 package), as the iso **source**, and
+    ``ConeKAlgebra``; ``src/cone``), as the iso **source**, and
   * the **direct sample** presentation ``PentagonSampleKAlgebra``
-    (Step-1, ``src/samples``), as the iso **target**.
+    (``src/samples``), as the iso **target**.
 
 Both presentations are *closed-form* — neither this module nor the two
 algebras it bridges import any realisation-spine engine
@@ -19,8 +19,8 @@ is built purely from a **mult-gen correspondence** and certified by
 
 Imports
 -------
-This module imports ``kalgebra_iso`` and ``samples`` (Step-1: ``src/core`` /
-``src/samples``) and the cone algebra (Step-2: ``src/cone``) by flat name.
+This module imports ``kalgebra_iso`` and ``samples`` (``src/core`` /
+``src/samples``) and the cone algebra (``src/cone``) by flat name.
 ``run_tests.py`` / ``conftest.py`` put every ``src/<layer>/`` directory on the
 path, and the module bootstraps the path itself so it also imports standalone.
 The layered repo keeps a single source per module, so ``Element`` is one class
@@ -88,9 +88,9 @@ for _root, _dirs, _ in os.walk(_SRC):
 
 from laurent_poly import LaurentPoly                               # shared substrate
 from kalgebra import Element                                       # shared substrate
-from kalgebra_iso import KAlgebraIso, _mul                         # Step-1 package
-from samples import PentagonSampleKAlgebra                         # Step-1 package
-from finite_pentagon_kalg import FinitePentagonKAlgebra            # Step-2 package
+from kalgebra_iso import KAlgebraIso, _mul                         # src/core
+from samples import PentagonSampleKAlgebra                         # src/samples
+from finite_pentagon_kalg import FinitePentagonKAlgebra            # src/cone
 
 _ONE = LaurentPoly.one()
 
@@ -110,8 +110,8 @@ def build_pentagon_sample_cone_iso(name: str | None = None) -> KAlgebraIso:
     The returned iso is **not** verified inside this function (build is
     cheap and side-effect-free); run ``verify_all`` against it — see
     ``test_sample_cone_iso.py`` — to obtain the certificate.  The cone
-    side is ``FinitePentagonKAlgebra``; it certifies, so the
-    ``A1A2kKAlg(1)`` fall-back is not needed.
+    side is ``FinitePentagonKAlgebra``; ``A1A2kKAlg(1)`` is an alternative
+    cone presentation of the same algebra, not used here.
     """
     sample = PentagonSampleKAlgebra()
     cone = FinitePentagonKAlgebra()

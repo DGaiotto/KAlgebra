@@ -3,11 +3,13 @@ a1dodd_kalg.py
 ==============
 
 `A1DoddKAlg(k)` — the **odd** D-type Argyres–Douglas family
-`A_𝖖([A_1, D_{2k+3}])` with **SU(2) flavour symmetry**, as a self-contained
-K-algebra over `R(SU(2))`, in the **RG-flow frame** of the fast, BPS-free
+`A_𝖖([A_1, D_{2k+3}])` with **SU(2) flavour symmetry**, as a K_𝖖-algebra
+over `R(SU(2))`, in the **RG-flow frame** of the fast, BPS-free RG engine
 `A1DoddRGKAlgebra(k)` (whose auxiliary is the stand-alone
 `U1A1AoddKAlg(k).add_flavour(SU2ZPlusRing())`, `S_RG = E_𝖖(μL)·E_𝖖(μ⁻¹L)` an
-SU(2) doublet).
+SU(2) doublet).  The engine module is an RG-flow derivation **not included
+in this repository**; the closed-form cone presentations below
+(`A1DoddConeKAlg` / `A1D{3,5,7}ConeKAlg`) are fully self-contained.
 
 The cracked structure (RG-flow frame == u1a1aodd ⊗ SU(2)-CG)
 -----------------------------------------------------------
@@ -36,15 +38,15 @@ through products of those chord rays and their ρ-images (the κ-CG).  The hard
 cross-cone Plückers ("products between cones and ρ-images of cones") are
 inherited **already-cracked** from `U1A1AoddKAlg`; A1Dodd adds only the κ-CG.
 
-Encoding (cone-data Pattern III, like the hand-written `A1D5KAlg`)
------------------------------------------------------------------
+Encoding (the flavour-in-label cone-data convention)
+----------------------------------------------------
 A canonical label is `((factors, e_E), κ)` — a `U1A1AoddKAlg` cone monomial
 (`factors` a sorted tuple of `(a, i, exp)` chord powers, `e_E ∈ Z` the gauge
 `E`-power) together with the SU(2) χ-index `κ` (highest weight κ, spin κ/2).
-The SU(2) flavour lives in the **label** at the K-algebra surface (Z-form, the
-form the RG finder consumes) and folds onto an `RLaurent[SU2]` **coefficient**
-only via `r_label_decompose` — the single-irrep lift coordinate that *replaces*
-the retired `_label_section_decompose`.
+The SU(2) flavour lives in the **label** at the K_𝖖-algebra surface (Z-form,
+the form the RG finder consumes) and folds onto an `RLaurent[SU2]`
+**coefficient** only via `r_label_decompose` — the single-irrep lift
+coordinate.
 
 trace (SU(2)-refined Schur index)
 ---------------------------------
@@ -59,24 +61,25 @@ The ρ frame (5-fold, the genuine D-type cluster rotation)
 A subtlety worth stating: A1Dodd's ρ is **not** u1a1aodd's.  u1a1aodd's ρ is
 6-fold (`(2k+4)`-gon, drifting in `E`); A1Dodd's is the **finite 5-fold** (for
 k=1) `Z_{2k+3}` rotation of the once-punctured `(2k+3)`-gon — the genuine
-D_{2k+3} cluster symmetry, exactly the frame of the hand-coded
-`a1d5_cone_data`.  (They differ because u1a1aodd is the RG *auxiliary*, not the
+D_{2k+3} cluster symmetry, exactly the frame of the hand-coded D-type arc
+data (`a1dodd_cone_data`).  (They differ because u1a1aodd is the RG *auxiliary*, not the
 UV theory.)  The *algebra* (multiply) still factors through u1a1aodd on the
 clean sector, but ρ is the UV 5-fold rotation, supplied here by the engine.
 
 Self-containment
 ----------------
-Fully self-contained and **BPS-free**.  The complete engine is
+BPS-free throughout.  The complete engine is
 `A1DoddRGKAlgebra(k)` — a standard `RGKAlgebra` over the frozen-table, BPS-free
 `U1A1AoddKAlg(k).add_flavour(SU2)` with `S_RG = E_𝖖(μL)E_𝖖(μ⁻¹L)` — which derives
-*everything* (multiply, ρ, trace) from the RG data.  `A1DoddKAlg` is a
-**closed-form fast path** layered over that engine: it short-circuits the clean
+*everything* (multiply, ρ, trace) from the RG data; that engine module is not
+included in this repository.  The engine presentation of `A1DoddKAlg` is a
+**closed-form fast path** layered over it: it short-circuits the clean
 sector (the bulk — products of chord rays and their cones, `U1A1AoddKAlg ⊗ CG`)
 and defers the rest (the dressed sector = cone × ρ-image-of-cone, ρ, and the
 trace) to the engine.  "Closed-form on the clean sector" is a *speed* property,
 **not** a self-containment boundary — the engine is self-contained on all of it.
-A closed form for the dressed sector would need the genuine D-type arc frame
-(`a1d5_cone_data`).
+A closed form for the dressed sector needs the genuine D-type arc frame — see
+`a1dodd_cone_data` for its closed-form status.
 """
 from __future__ import annotations
 
@@ -89,13 +92,13 @@ from kalgebra import KAlgebra, Element
 from cone_kalgebra import ConeKAlgebra
 from laurent_poly import LaurentPoly
 from zplus_ring import SU2ZPlusRing, RPowerSeries, RLaurent
-# `u1a1aodd_kalg` is imported lazily inside `A1DoddEngineKAlg.__init__` (the only
-# user), so importing this module for the self-contained `A1DoddConeKAlg` /
-# `A1D{3,5,7}ConeKAlg` does NOT pull in the engine auxiliary.
+# `u1a1aodd_kalg` is imported lazily inside `A1DoddEngineKAlg.__init__` (its
+# only consumer), so importing this module for the self-contained
+# `A1DoddConeKAlg` / `A1D{3,5,7}ConeKAlg` does NOT pull in the engine auxiliary.
 
 
 class A1DoddEngineKAlg(KAlgebra):
-    """`[A_1, D_{2k+3}]` (odd-D AD, SU(2) flavour) as a self-contained K-algebra
+    """`[A_1, D_{2k+3}]` (odd-D AD, SU(2) flavour) as a K_𝖖-algebra
     over `R(SU(2))` — the **RG-flow / u1a1aodd-auxiliary frame** `u1a1aodd ⊗
     SU(2)-CG`.  See the module docstring.
 
@@ -149,8 +152,9 @@ class A1DoddEngineKAlg(KAlgebra):
         bound to the low-`E` frame (neither ρ nor the central-looking `E` shift
         recovers it; verified — `(x·y_clean)·E⁻¹` drops a daughter the engine
         keeps), so the product is computed by the BPS-free engine
-        `A1DoddRGKAlgebra`.  This is a *speed* fallback, not a self-containment
-        gap; a closed form here needs the genuine arc frame (module docstring)."""
+        `A1DoddRGKAlgebra` (not included in this repository).  This is a
+        *speed* fallback, not a self-containment gap; a closed form here
+        needs the genuine arc frame (module docstring)."""
         (m_a, ka), (m_b, kb) = a, b
         if self._is_clean(m_a) and self._is_clean(m_b):
             mono = self._U.multiply(m_a, m_b)        # clean ⇒ factorisation exact
@@ -188,8 +192,8 @@ class A1DoddEngineKAlg(KAlgebra):
 
     def rho(self, a):
         """ρ is the genuine **Z_{2k+3} once-punctured-`(2k+3)`-gon cluster
-        rotation** of `[A_1, D_{2k+3}]` (k=1 → the 5-fold rotation of
-        `a1d5_cone_data`), a *finite-order* automorphism — **not**
+        rotation** of `[A_1, D_{2k+3}]` (k=1 → the 5-fold rotation of the
+        a1d5 arc frame), a *finite-order* automorphism — **not**
         u1a1aodd's (6-fold, drifting) ρ.  The two differ because u1a1aodd is the
         RG *auxiliary*, not the UV theory.  Supplied by the engine's UV ρ
         (a quick label map); SU(2) flavour is ρ-fixed (self-dual irreps)."""
@@ -228,7 +232,8 @@ class A1DoddEngineKAlg(KAlgebra):
         **not** factor as `χ_κ · Tr_{u1a1aodd}(m)` (the RG dressing changes it —
         e.g. the identity trace is the `D_5` vacuum character `1 + χ₂q² + …`, the
         `q²` term the SU(2) adjoint flavour current, not u1a1aodd's `1 − q²`).  So
-        it is computed by the self-contained RG engine `A1DoddRGKAlgebra`."""
+        it is computed by the RG engine `A1DoddRGKAlgebra` (not included in
+        this repository)."""
         return self._engine.trace(tuple(a), K)
 
     # ----- convenience builders ------------------------------------------
@@ -247,9 +252,10 @@ class A1DoddEngineKAlg(KAlgebra):
 
     @property
     def _engine(self):
-        """The complete, self-contained, BPS-free RG realisation
+        """The complete, BPS-free RG realisation
         `A1DoddRGKAlgebra(k)` (auxiliary = `U1A1AoddKAlg(k).add_flavour(SU2)`,
-        `S_RG = E_𝖖(μL)E_𝖖(μ⁻¹L)`).  This *is* the algebra; `A1DoddKAlg` is a fast
+        `S_RG = E_𝖖(μL)E_𝖖(μ⁻¹L)`; its module is not included in this
+        repository).  This *is* the algebra; `A1DoddKAlg` is a fast
         closed-form path over it on the clean sector."""
         if self._engine_cache is None:
             from a1dodd_rgkalgebra import A1DoddRGKAlgebra
@@ -375,7 +381,7 @@ class A1DoddConeKAlg(ConeKAlgebra):
     ground truth a1d5 / a1d3; see `a1dodd_cone_data` for the closed-form status
     and the open puncture-crossing rule).
 
-    Native label (Pattern III, like `A1D5KAlg`): `(word, κ)` where
+    Native label (the flavour-in-label convention): `(word, κ)` where
 
       * `word`  = the cone-monomial — a sorted tuple of `((a,p,i), power)` pairs
                   (the χ-stripped canonical-basis g-vector of the genuine frame),
@@ -418,7 +424,7 @@ class A1DoddConeKAlg(ConeKAlgebra):
     def multiply(self, a, b) -> Element:
         """`(word_a, κ_a)·(word_b, κ_b)` — cone-data product ⊗ SU(2) CG.
 
-        Mirrors `A1D5KAlg.multiply`: strip κ at the boundary, run the cone-data
+        The flavour-in-label pattern: strip κ at the boundary, run the cone-data
         `derived_multiply` on the χ-stripped words, fuse `χ_{κ_a}·χ_{κ_b}` by
         SU(2) Clebsch–Gordan, and re-expand into `(word, κ_out)` labels with
         integer q-coefficients."""
@@ -602,17 +608,19 @@ def A1DoddKAlg(k: int = 1, presentation: str = "engine"):
 # ===========================================================================
 #
 # `A1D{3,5,7}ConeKAlg` are the genuine closed-form D-type cone presentations of
-# `[A_1, D_n]` for n = 2k+3 at fixed k = 0, 1, 2 — the **first complete standalone
-# `[A_1, D_n]` with BOTH closed-form multiply AND closed-form trace** (the older
-# `A1D5KAlg`/`A1D7KAlg` lack the trace).  They are *truly self-contained*: the
-# multiply (`a1dodd_cone_data`, frozen i=0 table in `a1dodd_cone_tables`) needs no
-# a1d5_kalg / a1d5_decomposer / finite_a1d7_kalg, and the engine auxiliary
+# `[A_1, D_n]` for n = 2k+3 at fixed k = 0, 1, 2 — complete standalone
+# `[A_1, D_n]` presentations with BOTH closed-form multiply AND closed-form
+# trace.  They are *truly self-contained*: the
+# multiply (`a1dodd_cone_data`, frozen i=0 table in `a1dodd_cone_tables`) needs
+# neither the generated `finite_a1d{5,7}_kalg` tables nor any external
+# decomposer, and the engine auxiliary
 # (u1a1aodd) is never imported on the cone path.  Runtime deps are only the cone
 # framework (`cone_kalgebra`, `cone_data`, `kalgebra`, `zplus_ring`,
 # `laurent_poly`) and the closed-form SU(2) trace (`a1dodd_layer2`, with the
 # shared `a1d3_kalg` Verma/Laurent helpers) — all in `src/cone/`.
 #
-# multiply reproduces the references exactly (a1d3 k=0, a1d5 k=1, FiniteA1D7 k=2);
+# multiply reproduces the references exactly (a1d3 k=0, a1d5 k=1,
+# `FiniteA1D7KAlgebra` k=2);
 # bar-involution + ρ-automorphism pass; `Tr(1)` = the sl(2) vacuum character.
 
 

@@ -69,7 +69,7 @@ E_CHARGE: tuple[int, ...] = (1, 0, 1, 0, 1, 0)
 
 # ---- TRUE primitive L_3 diameter charges (8 generators, mod-E orbit) -------
 #
-# DISCOVERED LATE-SESSION: L_3 IS a primitive chord family — 8 generators
+# L_3 IS a primitive chord family — 8 generators
 # with clean 1- or 2-term BPS multiplies (mirroring L_1 structure).  The
 # "composite L_3" charges below (L_3_COMPOSITE_*) are a SEPARATE set of
 # canonical-basis elements at different lattice charges — not the true
@@ -78,10 +78,10 @@ E_CHARGE: tuple[int, ...] = (1, 0, 1, 0, 1, 0)
 # The true L_3 family is the ρ-orbit of (0, 0, -1, 0, -1, 1), closing
 # mod E at period 8 with -2E cocycle (analogous to L_1's structure).
 #
-# Surfaced by the user via "Plücker by definition should return linear
-# combo of cone monomials only" — when L_1(0)·L_2(1) Plücker produced
-# a term at charge (0, 0, -1, 0, -1, 1) that didn't decompose into
-# q-commuting L_1+L_2+E products, that term IS a primitive L_3.
+# The identifying principle: a Plücker exchange must return a linear
+# combination of cone monomials only — so when the L_1(0)·L_2(1) Plücker
+# produced a term at charge (0, 0, -1, 0, -1, 1) that didn't decompose
+# into q-commuting L_1+L_2+E products, that term IS a primitive L_3.
 
 L_3_CHARGES: dict[int, tuple[int, ...]] = {
     0: (0,  0, -1,  0, -1,  1),

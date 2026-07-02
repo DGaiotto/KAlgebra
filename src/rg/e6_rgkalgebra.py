@@ -2,8 +2,8 @@
 e6_rgkalgebra.py
 ================
 
-`E6RGKAlgebra` — the exceptional Argyres–Douglas theory `A_𝖖([A_1, E_6])` as a
-new-contract `RGKAlgebra` (Plan 20), realised by the RG flow
+`E6RGKAlgebra` — the exceptional Argyres–Douglas theory `A_𝖖([A_1, E_6])` as an
+`RGKAlgebra`, realised by the RG flow
 
     [A_1, E_6]   ──drop the central node──▶   u(1)-gauged [A_1, A_5]
 
@@ -34,8 +34,9 @@ Verified by the UV BPS quiver's **Cartan determinant** (`uv_cartan_determinant`)
 the A₅ chain (the mag-0 type-2 chords forming a 5-path) plus `L`'s attachment is
 the E₆ Dynkin — `det = 3` (E₆) for the central diameter, vs `det = 7` (A₆) for an
 end short chord, `det = 4` (D₆) for a second-from-end chord.  This structural
-witness sidesteps the (work-in-progress) `U1A1AoddKAlg` trace, which the generic
-windowed Schur-index path cannot yet reduce on the high-power diameter labels.
+witness sidesteps the `U1A1AoddKAlg` trace, which is incomplete in the
+deep-power regime: the generic windowed Schur-index path cannot reduce the
+high-power diameter labels.
 
 Spectrum generator
 ------------------
@@ -61,7 +62,7 @@ from a1aeven_to_u1aodd_rgkalgebra import _e_q_coeff       # c_m = (−q)^m/(q²;
 
 
 class E6RGKAlgebra(RGKAlgebra):
-    """`[A_1, E_6]` as a directional new-contract `RGKAlgebra` over the gauged-odd
+    """`[A_1, E_6]` as a directional `RGKAlgebra` over the gauged-odd
     standalone `U1A1AoddKAlg(2) = u(1)-gauged [A_1, A_5]`, with `S_RG = E_𝖖(L)`
     for `L` the **central diameter** mag-1 chord (the centre-of-A₅ attachment that
     distinguishes E₆ from the warm-up's A₆).  See the module docstring."""
@@ -112,7 +113,7 @@ class E6RGKAlgebra(RGKAlgebra):
 
     def _s_rg_component(self, p):
         """`[S_RG]_{(m,)}` — exact, finite, vanishing off the cone.  `S_RG = E_𝖖(X_L)`
-        ⇒ degree-`m` part is the single label `L^m` with Habiro coefficient `c_m`;
+        ⇒ degree-`m` part is the single label `L^m` with coefficient `c_m`;
         degree 0 the identity, negative degree empty."""
         (m,) = p
         if m < 0:

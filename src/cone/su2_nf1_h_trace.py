@@ -4,17 +4,16 @@ Mirrors `pure_su2_h_trace.py` with U(1)_F flavour μ enriching every
 ingredient.  The trace lives in `RPowerSeries[AbelianZPlusRing(rank=1)]`
 — q-series with `μ`-polynomial coefficients.
 
-Ingredients (TBD — bracketed items pending derivation):
+Ingredients:
 
 1.  **Tr(W_n, μ)** — Schur F(v, μ) for the SU(2)+Nf=1 Schur index.
     Pure-SU(2) had
 
         F(v) = (q² v²; q²)_∞² · (q² v^{-2}; q²)_∞² · (q²; q²)_∞²
 
-    For Nf=1 with one fundamental hyper, an extra hypermultiplet
-    Schur factor is needed — TBD which exact form (likely
-    `(μ v; q²)_∞ · (μ v^{-1}; q²)_∞` or its inverse, depending on
-    chirality convention).
+    For Nf=1 with one fundamental hyper, the extra hypermultiplet
+    Schur factor is the four `(q μ^± v^±; q²)_∞` denominator factors
+    (see `_build_F`).
 
 2.  **Tr(H_0, μ)** — cyclicity bridge formula from `ρ²(H_n) = μ^{-2}
     · H_{n-6}` evaluated at small a.
@@ -30,8 +29,9 @@ Ingredients (TBD — bracketed items pending derivation):
 5.  **H-shift symmetry** — `Tr((m, e+6, μ_p)) = Tr((m, e, μ_p + 2m))`
     (cyclicity ρ on the H-tower acts as `e → e+6, μ_p → μ_p + 2m`).
 
-For now this module is a STUB; the cyclicity setup is plumbed but
-the Schur F(v, μ) needs user input on the matter contribution form.
+The Schur `F(v, μ)` and the cyclicity anchor solvers are implemented;
+the standalone `tr_H0` bridge is not derived (it raises) — anchor values
+come from the generic cyclicity solvers instead.
 """
 from __future__ import annotations
 from fractions import Fraction
@@ -208,7 +208,8 @@ def tr_W(n: int, q_max: int = _Q_MAX_DEFAULT) -> RLaurent:
 def tr_H0(q_max: int = _Q_MAX_DEFAULT):
     """Tr(H_0) via cyclicity bridge from `ρ²(H_n) = μ^{-2}·H_{n-6}`.
 
-    PLACEHOLDER pending bridge derivation.
+    The standalone bridge is not derived — this raises; the generic
+    cyclicity solvers below serve the anchors instead.
 
     Note: Z₂ projection is BROKEN in Nf=1 (Tr(W_1) is non-zero: μ + μ^{-1}
     at q^1).  Fundamental matter brings half-integer SU(2) reps back, so
@@ -238,7 +239,7 @@ _V1_V2_CACHE: dict = {}
 def _solve_v1_v2_anchors(q_max: int):
     """Cyclicity-Schur reduction for V1 (period 2) and V2 (raw e) anchors.
 
-    Combines the two user-prescribed tricks over a wide range of (a, b)
+    Combines the two cyclicity tricks over a wide range of (a, b)
     to span all m=2 anchors `(2, e)` that appear (positive AND negative
     e — they're distinct since Tr(L_(2, e)) is sign-asymmetric).
 
@@ -534,10 +535,11 @@ def trace_pSU2nf1_label(m: int, e: int, mu_p: int = 0,
       * m = 0: Tr(W_e) via Schur F(v, μ).
       * m = 1: V1_0 (e even) or V1_1 (e odd) via cyclicity-Schur solve.
       * m = 2: V2_0 (e mod 4=0), V2_2 (e mod 4=2), V2_1 (e odd).
-      * m ≥ 3: TBD (further cyclicity bridges needed).
+      * m ≥ 3: the generic cyclicity solver (`_solve_vm_anchors`; raises
+        if the anchor system is rank-deficient or out of range).
 
     All m ≥ 1 traces are Q(μ, q)-rational combinations of `Tr(W_n)`'s
-    (Schur F closed form), per the user-prescribed two-trick recursion.
+    (Schur F closed form), via the two-trick cyclicity recursion.
     """
     if m == 0:
         # Z₂ is BROKEN in Nf=1 (Tr(W_odd) ≠ 0), no parity-based vanishing.
@@ -707,7 +709,7 @@ def _tr_of_seed(m: int, e: int):
     For m=2: native (2, e) cone monomial.  ρ²(H_a·H_{a+1}) =
     H_{a-6}·H_{a-5}, so ρ²-cyclicity gives period 12 in e: Tr((2, e))
     = Tr((2, e-12)).  Period-2 (`[w_1, H_a H_{a+1}+...]` analogue) may
-    further collapse to a smaller period; for now use period 12.
+    further collapse to a smaller period; period 12 is used.
     """
     if m == 0:
         if e < 0:

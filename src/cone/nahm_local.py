@@ -1,13 +1,12 @@
 """Local Nahm-sum primitives for ``[S|0>]_γ`` and ``[F·S|0>]_γ``.
 
-This module is a self-contained copy of the per-γ Nahm-coefficient
-entry points from ``nahm_data.py`` (``s_gamma_habiro``,
-``c_gamma_habiro``) plus new **n-driven** bulk builders that compute
-``[S|0>]_γ`` for an entire γ-region in a single pass.
-
-Why a copy.  ``restructuring/`` aims to be standalone, and the
-per-γ Nahm code is small and lives entirely in this directory's
-consumers (``BPSKAlgebra``, the F-solver, Schur-index).
+This module provides the per-γ Nahm-coefficient entry points
+(``s_gamma_habiro``, ``c_gamma_habiro``) plus **n-driven** bulk builders
+that compute ``[S|0>]_γ`` for an entire γ-region in a single pass.  It is
+deliberately self-contained (LaurentPoly / lattice / the localised-ring
+arithmetic only), so both the spine-free vacuum path (``vacuum_nahm``)
+and the BPS realisation layer (``BPSKAlgebra``, the F-solver,
+Schur-index) can consume it.
 
 Why n-driven.  The per-γ path inverts ``Σ nᵢ γᵢ = γ`` via
 Gaussian elimination over ``Fraction`` plus a backtracking
@@ -25,10 +24,10 @@ because the cone is pointed and every spec charge is cone-positive,
 once the partial γ overshoots ``upper`` it stays out under further
 cone-positive additions, so pruning is sound.
 
-The pointwise API matches ``nahm_data.py`` so spec-mode and
-recipe-mode code paths in ``BPSKAlgebra`` stay uniform.  In spec
-mode the bulk path pre-fills the per-γ cache, so subsequent
-``s_gamma_habiro`` calls are O(1) lookups.
+The pointwise API is kept uniform so spec-mode and recipe-mode code
+paths in ``BPSKAlgebra`` stay interchangeable.  In spec mode the bulk
+path pre-fills the per-γ cache, so subsequent ``s_gamma_habiro`` calls
+are O(1) lookups.
 """
 
 from __future__ import annotations
@@ -320,7 +319,7 @@ def gammas_to_q_order(
       Nf chambers, …), the negative quadratic part can bring shift
       below `Σ n_a`. The default falls back to
       ``2 * K * (1 + |min_neg|) + 2``, which is empirically
-      sufficient for the mixed-sign theories shipped today; it is
+      sufficient for the mixed-sign theories included here; it is
       *not* mathematically sound in the worst case (a sufficiently
       negative single off-diagonal can produce shift-≤-K tuples
       with arbitrarily large `Σ n_a`). When in doubt, pass
@@ -653,7 +652,7 @@ def c_gamma_habiro(
 ) -> HabiroElement:
     """``[F·S|0>]_γ`` as a HabiroElement (pointwise).
 
-    Single-γ entry point matching ``nahm_data.c_gamma_habiro``.
+    Single-γ entry point.
     Uses the cached per-γ ``s_gamma_habiro``; the bulk path
     ``fs_dict_from_s_table`` is preferred when many γ's are needed.
     """

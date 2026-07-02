@@ -3,9 +3,9 @@ a1deven_rgkalgebra.py
 =====================
 
 `A1DevenRGKAlgebra(k)` — the **even** D-type Argyres–Douglas family
-`A_𝖖([A_1, D_{2k+2}])` as a new-contract `RGKAlgebra` (Plan 20), the
+`A_𝖖([A_1, D_{2k+2}])` as an `RGKAlgebra`, the
 two-fork analogue of `A1AoddToEvenRGKAlgebra` (the single-drop odd
-prototype).  A concrete RG flow supplies only `auxiliary()` +
+flow).  A concrete RG flow supplies only `auxiliary()` +
 `grading()` + `_s_rg_component()` (and the identity `apex`); the whole
 `KAlgebra` API — `RG`, `multiply`, `rho`/`rho_inverse`, `trace` — is
 derived generically.  No slow UV `BPS(D_{2k+2})` cluster graph is built.
@@ -55,10 +55,9 @@ sits at degree 0, so the UV labels coincide with the auxiliary labels and
 `apex` is the identity; the SU(2) χ-structure lives *within* each grade as
 the flavour character (the U(2) doublet's spin content).
 
-Status
-------
-Even-D companion to the odd `A1AoddToEvenRGKAlgebra`; together they are
-the `a1_{A/D} → a1_even` matter-dressing programme over `A1A2kKAlg`.
+This is the even-D companion of the odd `A1AoddToEvenRGKAlgebra`;
+together they cover the `a1_{A/D} → a1_even` matter-dressing flows over
+`A1A2kKAlg`.
 """
 from __future__ import annotations
 
@@ -89,7 +88,7 @@ def _u2_char_coeff(a: int, b: int) -> HabiroElement:
 
 
 class A1DevenRGKAlgebra(RGKAlgebra):
-    """`[A_1, D_{2k+2}]` as a directional new-contract `RGKAlgebra` wrapping the
+    """`[A_1, D_{2k+2}]` as a directional `RGKAlgebra` wrapping the
     U(2)-flavoured even algebra `A1A2kKAlg(k).add_flavour(SU2xU1ZPlusRing())`,
     with `S_RG = E_𝖖(μ_1 L) E_𝖖(μ_2 L)`.  See the module docstring."""
 
@@ -154,10 +153,9 @@ class A1DevenRGKAlgebra(RGKAlgebra):
         return out
 
     # ----- trace: the generic exact-FS U(2)-refined Schur index (no override) -
-    # The hand-rolled U(1)-graded rg_s_graded/inner_product/trace that lived here
-    # predated the nested-aux exact-FS engine (#666); the generic engine's
-    # bilinear exact-FS pairing now reproduces the U(2)-refined index
-    # term-for-term and faster (it pairs all components through the
+    # No hand-rolled U(1)-graded trace override is needed: the generic
+    # nested-aux exact-FS engine's bilinear pairing reproduces the
+    # U(2)-refined index term-for-term (it pairs all components through the
     # add_flavour(SU2×U1) aux's I^aux, keeping the full U(2) character — e.g. the
     # U(2) adjoint flavour current `1 + χ_{(1,±1)} + χ_{(2,0)}` at q² of
     # [A_1, D_4]).  So `trace`/`inner_product` are inherited from RGKAlgebra.

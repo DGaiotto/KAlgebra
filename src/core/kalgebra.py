@@ -1,6 +1,7 @@
-"""K-theoretic Coulomb branch algebras over `Z[q^±]` -- abstract base.
+"""K_𝖖-algebras over `Z[q^±]` -- abstract base.
 
-A `KAlgebra` faithfully encodes A_𝖖[T] for a 4d N=2 SQFT T:
+A `KAlgebra` faithfully encodes the K_𝖖-algebra A_𝖖[T] — the fusion
+algebra of rotation-equivariant BPS line defects — of a 4d N=2 SQFT T:
 
 * An associative algebra over `Z[q, q^{-1}]`.  The canonical basis
   `{L_a}` is a **Z[q, q^{-1}]-basis**: every canonical-basis element
@@ -48,14 +49,13 @@ Concrete subclasses must implement the **six** abstract primitives:
 
 plus the **flavour-lift coordinate** of a canonical label, supplied as
 the single-irrep hook `r_label_decompose` (the `(section, R-basis-label)`
-coordinate, `L_label = χ_w · L_section`).  As of the 2026-06-19 migration
-this is **the** flavour-lift primitive; the older `(section, RElement)`
-form `_label_section_decompose` is now a derived legacy bridge (default =
-lift `r_label_decompose`'s basis label to an `RElement`), retained — not
-deleted — because `to_R_form` reads it and it is the honest fallback for
-the deprecated *emergent* flavour diagnostics (whose `r_label_decompose`
-raises) and the non-contract lattice scaffolds (`coefficient_ring()` is
-`None`).
+coordinate, `L_label = χ_w · L_section`).  This is **the** flavour-lift
+primitive; the more general `(section, RElement)` form
+`_label_section_decompose` is derived from it (default = lift
+`r_label_decompose`'s basis label to an `RElement`) and remains available
+because `to_R_form` reads it and it is the honest fallback for the
+*emergent* flavour diagnostics (whose `r_label_decompose` raises) and
+the non-contract lattice scaffolds (`coefficient_ring()` is `None`).
 
 Everything else (multiplication of linear combinations, the bar map
 on linear combinations, the inner product, axiom verifiers,
@@ -202,7 +202,7 @@ class Element:
                 if c1 != c2:
                     return False
                 continue
-            # Mixed LaurentPoly / RLaurent (#231 widening): compare
+            # Mixed LaurentPoly / RLaurent coefficients: compare
             # semantically by lifting the LaurentPoly into R[q^±].
             rl, lp = (c1, c2) if isinstance(c1, RLaurent) else (c2, c1)
             if not (isinstance(rl, RLaurent) and isinstance(lp, LaurentPoly)):
@@ -251,7 +251,7 @@ class ElementOverR:
 
     Returned by `KAlgebra.to_R_form(z_elem)`.  Index labels are
     section reps of the central quotient; flavour shifts are
-    absorbed into μ-monomial coefficients.  Useful when the user
+    absorbed into μ-monomial coefficients.  Useful when the caller
     wants the smaller R-module-basis presentation (e.g., for
     refined Schur indices, real Schur quantization).
 
@@ -339,7 +339,7 @@ class ElementOverR:
 
 def _coeff_min_exp(c):
     """Minimal q-exponent of an Element coefficient (LaurentPoly or
-    RLaurent — both legal since the #231 widening)."""
+    RLaurent — both are legal Element coefficient types)."""
     d = c.coeffs if isinstance(c, RLaurent) else c._coeffs
     return min(d.keys())
 
@@ -351,8 +351,7 @@ def _laurentpoly_times_rpowerseries(
     L is either a Z[q^±]-Laurent polynomial (each integer q-coefficient
     embedded as `c · 1_R`) or an `RLaurent` over `P.ring` (R-valued
     q-coefficients used directly — `Element` admits RLaurent
-    coefficients since the #231 contract widening, and the derived
-    trace path must follow suit).
+    coefficients, so the derived trace path must handle both).
     """
     R = P.ring
     K = P.K
@@ -392,8 +391,8 @@ def _laurentpoly_to_rlaurent(lp: LaurentPoly, ring: ZPlusRing) -> RLaurent:
 
 
 class KAlgebra(ABC):
-    """A K-theoretic Coulomb branch algebra `A_𝖖[T]` over `Z[q^±]`,
-    with a layered R-module structure for `R` a Z₊-ring."""
+    """A K_𝖖-algebra `A_𝖖[T]` over `Z[q^±]`, with a layered R-module
+    structure for `R` a Z₊-ring."""
 
     # -------- on freeness over R (a convention, NOT a contract) ----------
     #
@@ -423,8 +422,8 @@ class KAlgebra(ABC):
     # -------- six abstract primitives --------
     # (the flavour-lift coordinate `r_label_decompose` is the seventh
     # *primitive* but is optional/derived — not @abstractmethod — and
-    # `_label_section_decompose` is now a derived legacy bridge; see the
-    # module docstring's 2026-06-19 retirement note.)
+    # `_label_section_decompose` is derived from it; see the module
+    # docstring.)
 
     @abstractmethod
     def coefficient_ring(self) -> ZPlusRing:
@@ -475,42 +474,29 @@ class KAlgebra(ABC):
           TrivialZPlusRing()`): return `(label, R.one())`.
         * Abelian-flavoured realisations with SNF section: return
           `(section_label, R.basis_element(tuple(flav_coords)))`.
-        * Non-abelian-flavoured realisations historically could return
-          virtual-character coefficients (a signed sum of irreps).  Per
-          the flavour re-axiomatization (Plan 32) the target is a single
-          irrep `χ_r` (the section ambiguous only up to a 1-dim rep of
-          `G_f`); realisations needing a non-unit cover use the cover
-          instead (SO(3) ⟶ SU(2), where the half-integer sector is the
-          single irrep `χ_{odd}`).
+        * For non-abelian flavour the target is a single irrep `χ_r`
+          (the section is ambiguous only up to a 1-dim rep of `G_f`);
+          realisations needing a non-unit cover use the cover instead
+          (SO(3) ⟶ SU(2), where the half-integer sector is the single
+          irrep `χ_{odd}`).
 
         Used by the default `to_R_form` implementation; realisations
         may override `to_R_form` for performance.
 
-        **Default (the lift-coordinate sharpening).**  This is **no longer
-        abstract**: the default derives it from the optional
-        `r_label_decompose` hook by lifting that hook's `BasisElement`
-        second component to an `RElement` via the canonical
-        `coefficient_ring().basis_element`, i.e.
-        `(s, w) ↦ (s, R.basis_element(w))`.  A realisation supplies the
-        flavour-lift coordinate by implementing **either** this method
-        directly — required for the general / virtual-character `RElement`
-        form — **or** `r_label_decompose` (the single-irrep lift
-        coordinate) and inheriting this default.  Implementing neither
-        raises at call time (via `r_label_decompose`'s default).
-
-        **Retired to a derived legacy bridge (migration complete,
-        2026-06-19).**  `r_label_decompose` is now *the* flavour-lift
-        primitive; this `(section, RElement)` form is **no longer the surface
-        to implement** — new realisations implement `r_label_decompose` and
-        inherit this default.  It is deliberately **not deleted**: it stays
-        structurally load-bearing (`to_R_form` reads its `RElement` second
-        component) and is the honest fallback for the cases that genuinely
-        cannot supply a single-irrep coordinate — the deprecated *emergent*
-        flavour diagnostics (whose `r_label_decompose` raises; their `_lsd`
-        carries the base Cartan coordinate) and the non-contract internal
-        lattice scaffolds (`coefficient_ring()` is `None`).  Any remaining
-        explicit subclass overrides are redundant legacy (each derives
-        identically from `r_label_decompose`) and may be stripped at will."""
+        **Derived by default.**  This is not abstract: the default derives
+        it from the optional `r_label_decompose` hook by lifting that
+        hook's `BasisElement` second component to an `RElement` via the
+        canonical `coefficient_ring().basis_element`, i.e.
+        `(s, w) ↦ (s, R.basis_element(w))`.  New realisations implement
+        `r_label_decompose` (the single-irrep lift coordinate) and inherit
+        this default; implementing this method directly is required only
+        for the general / virtual-character `RElement` form — the
+        *emergent* flavour diagnostics (whose `r_label_decompose` raises;
+        their `_lsd` carries the base Cartan coordinate) and the
+        non-contract internal lattice scaffolds (`coefficient_ring()` is
+        `None`).  Implementing neither raises at call time (via
+        `r_label_decompose`'s default).  The method stays structurally
+        load-bearing: `to_R_form` reads its `RElement` second component."""
         sec, r_basis = self.r_label_decompose(label)
         return sec, self.coefficient_ring().basis_element(r_basis)
 
@@ -565,21 +551,20 @@ class KAlgebra(ABC):
         form is a modelling guarantee of the realisation, not a checked
         gate.
 
-        **End-state reached (migration complete, 2026-06-19).**  This is now
-        *the* flavour-lift primitive: every faithful realisation implements it
-        (directly, or via the trivial-flavour universal default below), the
-        flavour-changing wrappers (`forget` / `lower_flavour` / `base_change`)
-        consume it, and `_label_section_decompose` is demoted to a derived
-        legacy bridge.  `_lsd` is **retained but not to be implemented in new
-        code** — it stays only because it is load-bearing for `to_R_form` and
-        is the honest fallback for the two kinds of object that *cannot* supply
-        a single-irrep coordinate: the deprecated **emergent** flavour
-        diagnostics (`r_label_decompose` raises — a base weight is one weight
-        of a multiplet, not an irrep) and the non-contract lattice scaffolds
+        This is *the* flavour-lift primitive: every faithful realisation
+        implements it (directly, or via the trivial-flavour universal default
+        below), the flavour-changing wrappers (`forget` / `lower_flavour` /
+        `base_change`) consume it, and `_label_section_decompose` derives
+        from it.  `_lsd` is **not to be implemented in new code** — it stays
+        because it is load-bearing for `to_R_form` and is the honest fallback
+        for the two kinds of object that *cannot* supply a single-irrep
+        coordinate: the **emergent** flavour diagnostics
+        (`r_label_decompose` raises — a base weight is one weight of a
+        multiplet, not an irrep) and the non-contract lattice scaffolds
         (`coefficient_ring()` is `None`).  The single-irrep form suffices for
         every genuine realisation precisely because the section is a lift
         canonical up to 1-dim reps, so the general / virtual-character
-        `RElement` second component is no longer needed there.
+        `RElement` second component is not needed there.
 
         **Universal treatment of trivial flavour.**  When `coefficient_ring()`
         is `TrivialZPlusRing` (an *unflavoured* theory) the lift coordinate is
@@ -619,7 +604,7 @@ class KAlgebra(ABC):
         direct construction (e.g. a quantum torus: `section + γ_f`, no
         multiply); that override is the "more natural" method this is
         expected to be implemented by, the default being the bridge (same
-        playbook as `r_label_decompose` vs `_label_section_decompose`).
+        pattern as `r_label_decompose` vs `_label_section_decompose`).
 
         Raises `ValueError` if the product is not a single canonical — i.e.
         `(section, r_basis_label)` is not a valid lift coordinate, or the
@@ -681,14 +666,33 @@ class KAlgebra(ABC):
     def trace_element(self, x: Element, K: int = 20) -> RPowerSeries:
         """Linear extension of `trace`:  `Tr(Σ c_a · L_a) =
         Σ c_a · Tr(L_a)`.  Each Z-coefficient is lifted into R on
-        the fly."""
+        the fly.
+
+        Coefficients with **negative q-valuation** widen the per-label
+        trace request: `q^{-n} · Tr(L_a)` is exact through `q^K` only if
+        `Tr(L_a)` is known through `q^{K+n}`.  Without the widening every
+        order of the sum above `q^{K-n}` is silently corrupted — on deep
+        products (e.g. the `[A_1, D_3]` mixed-tile monomials, whose
+        products carry coefficients down to `q^{-10}`) this produced
+        spurious orthonormality violations."""
         R = self.coefficient_ring()
-        result = RPowerSeries.zero(R, K)
+        coeffs: dict[int, RElement] = {}
         for a, c in x.terms.items():
             if c.is_zero():
                 continue
-            result = result + _laurentpoly_times_rpowerseries(c, self.trace(a, K))
-        return result
+            if isinstance(c, RLaurent):
+                emin = min(c.coeffs.keys())
+            else:
+                emin = min(c._coeffs.keys())
+            wide_K = K - emin if emin < 0 else K
+            tr = self.trace(a, wide_K)
+            contrib = _laurentpoly_times_rpowerseries(c, tr)
+            for e, r in contrib.coeffs.items():
+                if e > K or r.is_zero():
+                    continue
+                coeffs[e] = coeffs[e] + r if e in coeffs else r
+        return RPowerSeries(
+            R, {e: r for e, r in coeffs.items() if not r.is_zero()}, K)
 
     def inner_product(
         self, a: Label, b: Label, K: int = 20,
@@ -700,19 +704,58 @@ class KAlgebra(ABC):
         (the two ways of writing it are ρ²-twisted cyclicity in pairing
         form; see `verify_trace_pairing_faces`).  This is the Schur
         index with line insertions and the inner product of **Schur
-        quantization** (Goal 2.2); orthonormality (Goal 2.1) says the
-        canonical basis is orthonormal to leading order in this pairing.
+        quantization**; orthonormality says the canonical basis is
+        orthonormal to leading order in this pairing.
 
         **Overridable.**  The default computes multiply-then-trace, but
         concrete realisations often have sharper direct methods — e.g.
         `BPSKAlgebra.inner_product` evaluates the single-Habiro-path
-        Schur formula with no Element multiplication, and the urq-torus
-        realisation uses the ρ-free §6b formula.  An override must agree
+        Schur formula with no Element multiplication.  An override must agree
         with this default (`verify_inner_product_consistent`); for an
         overriding realisation that agreement is a genuine cross-check,
         not a tautology.
         """
         return self.trace_element(self.multiply(self.rho(a), b), K)
+
+    def inner_product_element(
+        self, x: Element, y: Element, K: int = 20,
+    ) -> RPowerSeries:
+        """Bilinear extension of `inner_product` to Element × Element:
+
+            I(x, y) = Σ_{a,b} c^x_a · c^y_b · I_{a,b}
+
+        **Preferred over `trace_element(multiply(rho_element(x), y))` for
+        formal sums**: extending the per-pair pairing `I_{a,b}` by
+        bilinearity routes through a realisation's sharp `inner_product`
+        override where one exists and is markedly more window-stable than
+        assembling `Tr(ρ(x)·y)` from a large product Element.  Each
+        per-pair request is widened by the scalar's negative q-valuation
+        before truncating back to `K` (same discipline as
+        `trace_element`)."""
+        R = self.coefficient_ring()
+        coeffs: dict[int, RElement] = {}
+        for a, ca in x.terms.items():
+            if ca.is_zero():
+                continue
+            for b, cb in y.terms.items():
+                if cb.is_zero():
+                    continue
+                scalar = ca * cb
+                if scalar.is_zero():
+                    continue
+                if isinstance(scalar, RLaurent):
+                    emin = min(scalar.coeffs.keys())
+                else:
+                    emin = min(scalar._coeffs.keys())
+                wide_K = K - emin if emin < 0 else K
+                iab = self.inner_product(a, b, wide_K)
+                contrib = _laurentpoly_times_rpowerseries(scalar, iab)
+                for e, r in contrib.coeffs.items():
+                    if e > K or r.is_zero():
+                        continue
+                    coeffs[e] = coeffs[e] + r if e in coeffs else r
+        return RPowerSeries(
+            R, {e: r for e, r in coeffs.items() if not r.is_zero()}, K)
 
     # -------- R-form view --------
 
@@ -770,7 +813,7 @@ class KAlgebra(ABC):
         """The **unflavoured scaffold** `K_𝖖[T]` of this (possibly flavoured)
         algebra: `base_change(ε)` *plus* the collapse of the flavour-in-labels
         onto sections (`ε = coefficient_ring().augmentation()`, the rep-ring
-        augmentation `χ_r ↦ dim r`; Plan 32 T1).  Returns a `KAlgebra` over `Z`
+        augmentation `χ_r ↦ dim r`).  Returns a `KAlgebra` over `Z`
         whose canonical basis is the section image `{M_s}` (the unflavoured
         canonical basis): `forget(L_a) = dim(r_a)·M_{s_a}` for
         `_label_section_decompose(a) = (s_a, χ_{r_a})`.
@@ -937,10 +980,9 @@ class KAlgebra(ABC):
 
     def verify_associativity(self, a: Label, b: Label, c: Label) -> bool:
         """Associativity `(L_a · L_b) · L_c = L_a · (L_b · L_c)` — the
-        defining axiom of an *associative* algebra, asserted in the class
-        docstring but not previously checked (finding A7).
-        Evaluated on basis elements through the bilinear extension
-        `multiply_elements` (structure constants are exact in `q`)."""
+        defining axiom of an *associative* algebra.  Evaluated on basis
+        elements through the bilinear extension `multiply_elements`
+        (structure constants are exact in `q`)."""
         ab = self.multiply(a, b)
         bc = self.multiply(b, c)
         lhs = self.multiply_elements(ab, Element.basis(c))
@@ -977,8 +1019,8 @@ class KAlgebra(ABC):
         )
         return lhs == rhs
 
-    # Backward-compatibility alias for the previous twisted-automorphism
-    # name (Plan 10 dropped the twist since Element is over Z).
+    # Backward-compatibility alias for the twisted-automorphism name
+    # (no twist is needed: Element coefficients are over Z).
     verify_rho_is_twisted_automorphism = verify_rho_is_automorphism
 
     def verify_bar_involution(self, a: Label, b: Label) -> bool:
@@ -1012,7 +1054,7 @@ class KAlgebra(ABC):
         return True
 
     def verify_orthonormality(self, a: Label, b: Label, K: int = 5) -> bool:
-        """`I_{a, b} == δ_{a, b} + O(𝖖)` (Goal 2.1), checked as:
+        """`I_{a, b} == δ_{a, b} + O(𝖖)`, checked as:
         (i) no nonzero coefficient at any negative q-exponent — the
         trace codomain `R((q))` is Laurent, so the negative window is
         part of the claim, not automatic — and (ii) `I_{a, b}[q⁰]`
@@ -1101,7 +1143,7 @@ class KAlgebra(ABC):
         return lhs == rhs
 
     def verify_section_is_single_irrep(self, label: Label) -> bool:
-        """Sharpened flavour contract (Plan 32): `_label_section_decompose(label)`
+        """Sharpened flavour contract: `_label_section_decompose(label)`
         returns `(section, χ)` with `χ` a **single** R-canonical-basis-element —
         exactly one basis term, coefficient `+1` (not a virtual / multi-term
         character).  This `(section, single-irrep)` form is what lets
@@ -1121,8 +1163,9 @@ class KAlgebra(ABC):
         ρ²-canonicalisation is a no-op.  Trace pipelines can use this
         to skip the canonicalisation step entirely.
 
-        Default: False.  Subclasses where ρ has order ≤ 2 (e.g.
-        `TrivialKAlg`, `QuantumTorusZ2KAlg`) should override to True.
+        Default: False.  Subclasses where ρ has order ≤ 2 (e.g. the
+        Z₂ quantum-torus sample `Z2QTorusSampleKAlgebra`) should
+        override to True.
         """
         return False
 
@@ -1188,7 +1231,7 @@ class KAlgebra(ABC):
 
     def cone_data(self) -> "ConeData | None":
         """Optional `ConeData` sidecar describing the q-commuting-cone
-        structure of this K-algebra (multiplicative generators, cones,
+        structure of this K_𝖖-algebra (multiplicative generators, cones,
         cocycle, cross-products, and the bijection to native labels).
 
         Default: `None`, meaning the structure is not exposed.
@@ -1249,18 +1292,18 @@ class KAlgebra(ABC):
         `R.basis_element`.  The base may itself be flavoured (the rings
         tensor).  See `flavoured_kalgebra.py`.
 
-        **Aspirationally obsolete (Plan 32) — prefer the flavour-growing ring
-        homs.**  This construction encodes flavour as an extra *label
-        coordinate* `f` (Clebsch-Gordan in products at the label level).  The
-        Plan-32-canonical encoding instead carries flavour in the *coefficient
-        ring* — "free over `R(G_f)`" — reached functorially by `base_change`
-        through a flavour-growing hom (`zplus_ring.unit_hom(R)` to flavour an
+        **The coefficient-ring encoding is preferred for new code.**  This
+        construction encodes flavour as an extra *label coordinate* `f`
+        (Clebsch-Gordan in products at the label level).  The alternative
+        encoding carries flavour in the *coefficient ring* — "free over
+        `R(G_f)`" — reached functorially by `base_change` through a
+        flavour-growing hom (`zplus_ring.unit_hom(R)` to flavour an
         unflavoured algebra, `tensor_inclusion_hom(R⊗R', slot)` to adjoin a
         factor).  The two present the **same** flavoured algebra under
         `(L_a, f) ↔ χ_f·L_a` (trace-compatible: `Tr(L_{(a,f)}) = χ_f·Tr(L_a)`),
-        and `forget() = base_change(augmentation)` inverts both.  Retained, not
-        retired: matter-dressing RG flows still use `add_flavour` as their
-        auxiliary until they migrate to the coefficient encoding."""
+        and `forget() = base_change(augmentation)` inverts both.  This
+        wrapper is retained because some matter-dressing RG flows use
+        `add_flavour` as their auxiliary."""
         from flavoured_kalgebra import AddFlavourKAlgebra
         return AddFlavourKAlgebra(self, flavour)
 
@@ -1271,18 +1314,16 @@ class KAlgebra(ABC):
 
 
 def _section_split_via_lift(source: "KAlgebra", label):
-    """`(section, source-R coefficient)` of `label`, **consuming the new
+    """`(section, source-R coefficient)` of `label`, **consuming the
     flavour-lift coordinate** `r_label_decompose` (the single-irrep key `w` is
-    lifted to the RElement `R.basis_element(w)`), and **falling back** to the
-    to-be-retired `_label_section_decompose` for sources that do not yet
-    implement the lift coordinate.
+    lifted to the RElement `R.basis_element(w)`), and **falling back** to
+    `_label_section_decompose` for sources that do not implement the lift
+    coordinate.
 
     The flavour-change wrappers (`_BaseChangeKAlgebra` / `_ForgetKAlgebra` /
-    `_LoweredFlavourKAlgebra`) route their per-label section reads through here,
-    so once every source they are applied to implements `r_label_decompose`,
-    `_label_section_decompose` is no longer consumed (only the fallback path
-    touches it).  For an already-migrated source the result is identical to
-    `_label_section_decompose` (the forward bridge guarantees
+    `_LoweredFlavourKAlgebra`) route their per-label section reads through
+    here.  For a source implementing `r_label_decompose` the result is
+    identical to `_label_section_decompose` (the forward bridge guarantees
     `_lsd = (section, R.basis_element(w))`)."""
     try:
         sec, w = source.r_label_decompose(label)
@@ -1357,15 +1398,14 @@ class _BaseChangeKAlgebra(KAlgebra):
         self, label: Label,
     ) -> "tuple[Label, RElement]":
         # Section structure depends on the target R; defer to source for the
-        # section labels — **consuming** the source's r_label_decompose lift
-        # coordinate (falling back to the obsolete-to-be section method for
-        # un-migrated sources) — and apply phi to push the source's RElement
+        # section labels — consuming the source's r_label_decompose lift
+        # coordinate (falling back to _label_section_decompose for sources
+        # without one) — and apply phi to push the source's RElement
         # coefficient through to the target ring.
         #
-        # Obsolete-to-be (Plan 32): superseded by r_label_decompose above; kept
-        # only for the general / virtual-character RElement form (e.g. the
-        # augmentation case, where a dressed label lands on dim(w)·χ₀, which is
-        # not a single irrep).
+        # Kept alongside r_label_decompose above for the general /
+        # virtual-character RElement form (e.g. the augmentation case, where
+        # a dressed label lands on dim(w)·χ₀, which is not a single irrep).
         sec, src_coef = _section_split_via_lift(self._source_alg, label)
         # phi.apply_RElement maps RElement[source_R] -> RElement[target_R].
         target_coef = self._phi.apply_RElement(src_coef)
@@ -1414,8 +1454,8 @@ class _ForgetKAlgebra(_BaseChangeKAlgebra):
         super().__init__(source, source.coefficient_ring().augmentation())
 
     def _section_of(self, label: Label) -> Label:
-        # Consume the source's r_label_decompose lift coordinate (fall back to
-        # the obsolete-to-be section method for un-migrated sources).
+        # Consume the source's r_label_decompose lift coordinate (fall back
+        # to _label_section_decompose for sources without one).
         return _section_split_via_lift(self._source_alg, label)[0]
 
     def identity(self) -> Label:
@@ -1460,8 +1500,8 @@ class _ForgetKAlgebra(_BaseChangeKAlgebra):
     def _label_section_decompose(
         self, label: Label,
     ) -> "tuple[Label, RElement]":
-        # Obsolete-to-be (Plan 32): derivable from r_label_decompose via the
-        # forward bridge (χ₀ ↦ R.one()).  forget() is unflavoured: trivial
+        # Derivable from r_label_decompose via the forward bridge
+        # (χ₀ ↦ R.one()).  forget() is unflavoured: trivial
         # decomposition over Z.
         return label, self._phi.target.one()
 
@@ -1490,8 +1530,8 @@ class _LoweredFlavourKAlgebra(_BaseChangeKAlgebra):
         super().__init__(source, phi)
 
     def _section_of(self, label: Label) -> Label:
-        # Consume the source's r_label_decompose lift coordinate (fall back to
-        # the obsolete-to-be section method for un-migrated sources).
+        # Consume the source's r_label_decompose lift coordinate (fall back
+        # to _label_section_decompose for sources without one).
         return _section_split_via_lift(self._source_alg, label)[0]
 
     def identity(self) -> Label:
@@ -1584,8 +1624,8 @@ class _LoweredFlavourKAlgebra(_BaseChangeKAlgebra):
     def _label_section_decompose(
         self, label: Label,
     ) -> "tuple[Label, RElement]":
-        # Obsolete-to-be (Plan 32): derivable from r_label_decompose via the
-        # forward bridge ((s,w) ↦ ((s,χ₀), R'.basis_element(w))).
+        # Derivable from r_label_decompose via the forward bridge
+        # ((s,w) ↦ ((s,χ₀), R'.basis_element(w))).
         s, w = label
         Rp = self._phi.target
         return (s, Rp.one_basis()), Rp.basis_element(w)

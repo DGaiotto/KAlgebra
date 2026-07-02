@@ -21,9 +21,9 @@ This SKELETON implements:
   - Round-trip verification against `BPSKAlgebra` for all 256
     chord-pair products.
 
-Future work (next session): full cone-monomial multiply (handling
+Not implemented here: full cone-monomial multiply (handling
 compound labels like ((1, 0, 2), (2, 0, 1)) = L_1(0)²·L_2(0)),
-trace via Layer 1 (ρ²-tagged cyclicity), KAlgebraIso to U1A1Aodd_k2.
+trace via Layer 1 (ρ²-tagged cyclicity), and a KAlgebraIso to U1A1Aodd_k2.
 """
 from __future__ import annotations
 
@@ -58,8 +58,8 @@ class U1OctagonKAlg(ConeKAlgebra):
     `_trace_residual` stub below.
 
     Standalone — no BPS dependency at runtime.  The MULT_TABLE was
-    one-time BPS-extracted (see `u1_octagon_table_gen.py`) and is
-    frozen as Python data; the live multiply / trace paths reference
+    one-time BPS-extracted (by a generator not included in this
+    repository) and is frozen as Python data; the live multiply / trace paths reference
     only the static table + cone_data primitives.
     """
 
@@ -313,7 +313,7 @@ class U1OctagonKAlg(ConeKAlgebra):
         The chord branch widens the bootstrap's gauge half-width to cover the
         seed's gauge, so a chord absent from the (certified) result is exactly
         "trace 0 through q^K" → returns 0; only a non-reduced multi-gen physical
-        seed honest-fails."""
+        seed raises (rather than silently degrading)."""
         from u1aodd_trace_bootstrap import _rho2_rep
         if not self._orbit_has_physical(seed_label):
             return RPowerSeries(self._R, {}, K)

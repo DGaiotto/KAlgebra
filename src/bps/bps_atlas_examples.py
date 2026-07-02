@@ -1,14 +1,14 @@
-"""Complete `BPSAtlas` examples — the Argyres–Douglas zoo (Stage 4).
+"""Complete `BPSAtlas` examples — the Argyres–Douglas zoo.
 
-A **self-contained** gallery of *complete* atlases for the prior-stage example
+A **self-contained** gallery of *complete* atlases for the example
 theories: each is built from a hard-coded BPS-chart literal `(pairing,
-node_charges, spec)` — **no `implementations/` dependency**, only the BPS spine
-(`bps_kalgebra` + `bps_atlas`) — so it ships cleanly.
+node_charges, spec)` — self-contained literals, with no dependencies
+beyond the BPS realisation layer (`bps_kalgebra` + `bps_atlas`).
 
 For a **finite-type** `A_𝖖[T]` the cluster exchange graph is finite, so the atlas
 can be *completed*: every chart materialized (`BPSAtlas.complete()`).  All the
 theories here complete in well under a second with a small chart graph
-(`n_charts ≈ 2·rank`), so a complete atlas is cheap to ship.  The unflavoured /
+(`n_charts ≈ 2·rank`), so a complete atlas is cheap.  The unflavoured /
 square-quiver members (A-even, D, E) additionally fold onto a fundamental domain
 (`n_classes`); the flavoured `[A1,A_odd]` and the `sqed1` chart (frozen flavour
 node) complete too but are not folded (the chart-iso recognition needs a
@@ -22,8 +22,8 @@ of the pentagon's BPS quiver is isomorphic to itself), `[A1,A3]` as four charts,
 `[A1,D4]` as ten, `[A1,E6]` as sixty-seven, `[A1,E8]` as one thousand five
 hundred and seventy-four.  Raw charges grow without bound under mutation, but the
 chart-iso classes are finite for these finite-type theories, so the fold
-converges (`closed=True`).  **Every square example closes** (user, 2026-06-28:
-"it should be closable") — the fold runs on the charge-space quiver mutation, so
+converges (`closed=True`).  **Every square example closes**
+— the fold runs on the charge-space quiver mutation, so
 there is no local-move budget to exhaust; only the non-square `sqed1` is
 unfoldable.  Build cost grows with the chart count (sub-second through `[A1,E6]`,
 ~40s for `[A1,E8]`'s 1574 charts) but a built atlas is saved as data, so the
@@ -42,8 +42,8 @@ from bps_atlas import BPSAtlas
 
 
 # AD-zoo example charts: name -> (pairing, node_charges, spec, label).
-# BPS-chart literals (no implementations/ dependency) — the prior-stage
-# example theories whose complete atlas is small enough to ship.
+# Self-contained BPS-chart literals — example theories whose complete
+# atlas is small.
 _DATA = {
     'sqed1': dict(
         label='U(1)+N_f=1 (SQED1)',
@@ -145,8 +145,8 @@ _DATA = {
 
 EXAMPLE_NAMES = list(_DATA)
 
-# Every **square** example mutation-completes (user, 2026-06-28: "it should be
-# closable") — the charge-mutation fold has no local-move budget to exhaust, so
+# Every **square** example mutation-completes
+# — the charge-mutation fold has no local-move budget to exhaust, so
 # it always closes for a finite theory.  Only `sqed1` (a rank-1 gauge node
 # carrying a frozen flavour direction → non-square) is unfoldable: the chart-iso
 # recognizer (node-perm + Γ-automorphism) needs a full-rank square quiver.
@@ -209,8 +209,8 @@ def build_all_complete(*, max_charts: int = 512) -> list[dict]:
 
 
 def mutation_complete_atlas(name: str, *, max_charts: int = 20000):
-    """Build example `name`'s atlas and **mutation-complete** it (user,
-    2026-06-28): fold every node-mutation by chart-isomorphism (node-perm +
+    """Build example `name`'s atlas and **mutation-complete** it:
+    fold every node-mutation by chart-isomorphism (node-perm +
     Γ-automorphism), via the charge-space quiver mutation (always closes for a
     finite theory).  Returns `(atlas, record)` where `record` is the
     `BPSAtlas.mutation_complete()` result (`{n_charts, charts, edges,

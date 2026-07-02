@@ -3,7 +3,7 @@ encoded with BPS-quiver-square geometry (the **A1A1 cone standalone**).
 
 Algebraically identical to `SQED1SampleKAlgebra` (the Step-1 direct
 sample); this class exposes the **cone-monomial presentation** with
-`QTCone` structure, fitting U1SquareKAlg into the `ConeKAlgebra` tier
+quantum-torus cone structure, fitting U1SquareKAlg into the `ConeKAlgebra` tier
 alongside Pentagon, A1A2k, U1A1Aodd.  The certified Step-1↔Step-2
 correspondence is `u1square_sqed1_sample_cone_iso.py`
 (`U1SquareKAlg (cone) ↔ SQED1SampleKAlgebra (sample)`), an
@@ -32,10 +32,8 @@ directly on the native seed:
   * m = 0: Tr(v^n) = [x^n] (𝖖²;𝖖²)_∞² E_𝖖(x) E_𝖖(x⁻¹), the SQED_1
     Schur index — **delegated to the Step-1 `SQED1SampleKAlgebra`**
     (the same algebra, same labels), keeping a single spine-free source
-    of truth for the Nahm-sum closed form.  (The source-repo class
-    delegated this to `kalgebra_samples.Sqed1KAlg`, which drags in the
-    quantum-torus realisation engine; the Step-1 sample computes the
-    identical series with no engine — see `_sqed1_helper`.)
+    of truth for the Nahm-sum closed form.  The Step-1 sample computes
+    the series with no realisation engine — see `_sqed1_helper`.
 """
 
 from __future__ import annotations
@@ -62,8 +60,8 @@ __all__ = ["U1SquareKAlg"]
 
 
 class U1SquareKAlg(ConeKAlgebra):
-    """SQED N_f=1 K-algebra, cone-monomial-presented over `QTCone`
-    (the A1A1 cone standalone).
+    """SQED N_f=1 K_𝖖-algebra, cone-monomial-presented over a
+    quantum-torus cone (the A1A1 cone standalone).
 
     See module docstring for the structure and the spine-free `trace`
     (m ≠ 0 ⇒ 0; m = 0 ⇒ the SQED_1 index via the Step-1 sample).

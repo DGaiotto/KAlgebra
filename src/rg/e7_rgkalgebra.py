@@ -2,13 +2,13 @@
 e7_rgkalgebra.py
 ================
 
-`E7RGKAlgebra` — the exceptional Argyres–Douglas theory `A_𝖖([A_1, E_7])` as a
-new-contract `RGKAlgebra` (Plan 20), realised by the RG flow
+`E7RGKAlgebra` — the exceptional Argyres–Douglas theory `A_𝖖([A_1, E_7])` as an
+`RGKAlgebra`, realised by the RG flow
 
     [A_1, E_7]   ──drop the central node──▶   [A_1, A_6] + U(1) flavour
 
 — the E-series sibling of `E6RGKAlgebra`.  Where E₆ (rank 6) drops onto the
-*gauged*-odd `U1A1AoddKAlg(2)`, E₇ has odd rank 7, so (user's prescription) the
+*gauged*-odd `U1A1AoddKAlg(2)`, E₇ has odd rank 7, so the
 auxiliary is the even algebra `[A_1, A_6]` with a **spectator U(1) flavour**
 adjoined — the odd rank-7 lattice the gauged-odd standalones (even rank `2k+2`)
 cannot supply:
@@ -40,8 +40,8 @@ Grading `Γ_RG = Z` by the μ (flavour) charge; positive cone `Z_{≥0}`, height
 identity apex.  The μ-refined Schur index computes at **low order** (e.g. the
 vacuum index `1 + q² + …`, the `q²` being the adjoined U(1) flavour current) via
 the survivor's closed-form trace; high order is limited by `A1A2kKAlg(3)`'s
-cone trace reducer on the high central-chord powers `(3,0)^N` (the same long-chord
-overflow that makes E₆'s trace WIP) — so validation is structural.
+cone trace reducer on the high central-chord powers `(3,0)^N` (the same
+long-chord overflow that limits E₆'s trace) — so validation is structural.
 
 Validation
 ----------
@@ -69,7 +69,7 @@ from a1aodd_to_even_rgkalgebra import _e_q_coeff       # c_m = (−q)^m/(q²;q²
 
 
 class E7RGKAlgebra(RGKAlgebra):
-    """`[A_1, E_7]` as a directional new-contract `RGKAlgebra` over
+    """`[A_1, E_7]` as a directional `RGKAlgebra` over
     `A1A2kKAlg(3).add_flavour(1)` (= `[A_1, A_6]` ⊕ U(1) flavour), with
     `S_RG = E_𝖖(μL)` for `L` the **central** chord `(3, 0)` (the centre-of-A₆
     attachment that distinguishes E₇ from the end-chord A₇).  See the module
@@ -105,7 +105,7 @@ class E7RGKAlgebra(RGKAlgebra):
 
     def _s_rg_component(self, p):
         """`[S_RG]_{(m,)}` — exact, finite, vanishing off the cone.  `S_RG = E_𝖖(μL)`
-        ⇒ degree-`m` part is the single dressed label `(L^m, (m,))` with Habiro
+        ⇒ degree-`m` part is the single dressed label `(L^m, (m,))` with
         coefficient `c_m`; degree 0 the identity, negative degree empty."""
         (m,) = p
         if m < 0:
@@ -123,12 +123,10 @@ class E7RGKAlgebra(RGKAlgebra):
         return out
 
     # ----- trace: the generic exact-FS μ-refined Schur index (no override) -
-    # The hand-rolled μ-graded rg_s_graded/inner_product/trace that lived here
-    # (mirroring A1AoddToEvenRGKAlgebra) predated the nested-aux exact-FS engine
-    # (#666); the generic engine now reproduces the μ-refined index term-for-term
-    # and ~60x faster, so the override is removed and `trace`/`inner_product` are
-    # inherited from RGKAlgebra (the bilinear exact-FS pairing over the
-    # add_flavour aux, which keeps the μ-character).
+    # No hand-rolled μ-graded trace override is needed: the generic nested-aux
+    # exact-FS engine reproduces the μ-refined index term-for-term, so
+    # `trace`/`inner_product` are inherited from RGKAlgebra (the bilinear
+    # exact-FS pairing over the add_flavour aux, which keeps the μ-character).
 
     # ----- flavour-aware section split -----------------------------------
 

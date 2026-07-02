@@ -1,10 +1,10 @@
 """Runnable self-test for the ConeKAlgebra layer.
 
 Pure Python 3, no third-party dependencies, no realisation-spine
-modules (no BPS / RG / quantum-torus engine).  Each shipped cone
-algebra is a *closed-form* `ConeKAlgebra`: the canonical basis is
+modules (no BPS / RG / quantum-torus engine).  Each cone algebra in
+the catalogue is a *closed-form* `ConeKAlgebra`: the canonical basis is
 organised into cones of multiplicative generators, `multiply` is the
-universal tagged-cycle reducer over the cone cocycle/cross-products,
+generic normal-ordering reduction over the cone cocycle/cross-products,
 and `trace` is the closed-form residual rule `_trace_residual`
 (Nahm-sum / character / q-Pochhammer) — all evaluated here without any
 computed (BPS/RG) backend.
@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import traceback
 
-# (module, class name, constructor args) for each shipped cone algebra.
+# (module, class name, constructor args) for each catalogued cone algebra.
 CONE_ALGEBRAS = [
     # --- all finite-type cone KAlgebras ---
     ("finite_pentagon_kalg", "FinitePentagonKAlgebra", ()),
@@ -55,7 +55,7 @@ CONE_ALGEBRAS = [
     ("a1dodd_kalg",    "A1D3ConeKAlg",  ()),   # = [A_1,D_3] = sl(2)_{-4/3}
     ("a1dodd_kalg",    "A1D5ConeKAlg",  ()),   # = [A_1,D_5] = sl(2)_{-8/5}
     ("a1dodd_kalg",    "A1D7ConeKAlg",  ()),   # = [A_1,D_7] = sl(2)_{-12/7}
-    # --- A1A_even golden standard: geometric cone-ray labels + full Layer-2
+    # --- A1A_even reference family: geometric cone-ray labels + full Layer-2
     #     trace = M(2,2k+3) Andrews-Gordon characters.  Closed-form + spine-free
     #     for ALL k; the entries below are just recognisable samples.
     ("a1a2k_kalg",     "A1A2kKAlg",     (1,)),   # = pentagon, M(2,5)
@@ -63,9 +63,9 @@ CONE_ALGEBRAS = [
     ("a1a2k_kalg",     "A1A2kKAlg",     (3,)),   # = nonagon, M(2,9)
     ("a1a2k_kalg",     "A1A2kKAlg",     (6,)),   # = M(2,15) — general-k witness
     # --- U(1)-gauged A1A_odd.  TWO things differ from A1A2k:
-    #   (1) MULTIPLY: the cone cross-products are computed by the RG-flow oracle
-    #       at construction (no closed form yet), so they are pre-extracted to
-    #       u1a1aodd_tables_k{k}.pkl and loaded here — that is why it ships frozen.
+    #   (1) MULTIPLY: the cone cross-products have no closed form yet; they were
+    #       computed by an RG-flow derivation and are frozen in
+    #       u1a1aodd_tables_k{k}.pkl, loaded here.
     #   (2) TRACE: the v-tower / long-chord (a=2) / diameter (a=k+1) seeds are the
     #       closed-form M(1,p) singlet characters (u1_pgon_layer2), closing every
     #       trace for k<=3.  At k>=4 the intermediate odd chords (2<a<k+1) have no
@@ -90,7 +90,7 @@ CONE_ALGEBRAS = [
     ("su3_ad_kalg",    "SU3ADKAlg",     ()),
     # --- u(1)-gauged E7 = A_q[T] for the u(1)-gauged E7 SCFT.  A QTCone (rank-1
     #   gauge torus on E = X_{(0,1)}).  MULTIPLY: the cone cross-products are
-    #   RG-oracle-computed (no closed form), so they ship frozen as
+    #   computed by an RG-flow derivation (no closed form) and frozen as
     #   u1e7_cone_tables.pkl (cf. u1a1aodd).  TRACE: magnetic (c0) sector
     #   vanishes; Tr(1)/Tr(E^n) is the lazy E7 Nahm-sum vacuum; every other c0=0
     #   ray-word is fixed by the forward-triangular orthonormality bootstrap
@@ -102,18 +102,19 @@ CONE_ALGEBRAS = [
     # --- u(1)-gauged [A_1, D_{2k+2}] = A_q[T] for the u(1)-gauged D-even SCFT.
     #   SU(2) flavour; QTCone (torus on X_{0,1}).  MULTIPLY: closed-form,
     #   general-k — the cocycle q-powers + the cross step phase d_j·c1(i)-d_i·c1(j)
-    #   are DERIVED (ρ-folded from the RG oracle at build, then formulas; cf.
-    #   u1a1aodd, which ships the raw table).  The tables ship frozen
-    #   (u1a1deven_tables_k1.pkl) so construction is oracle-free.  TRACE: c1!=0
+    #   are DERIVED (ρ-folded from an RG-flow derivation, then closed formulas;
+    #   cf. u1a1aodd, which stores the raw table).  The tables are frozen
+    #   (u1a1deven_tables_k1.pkl) so construction needs no external derivation.
+    #   TRACE: c1!=0
     #   vanishes; every c1=0 seed (v-tower + matter) is bootstrapped from Tr(1)
     #   ALONE — the SU(2) per-irrep orthonormality sweep + all-orders monopole
-    #   cyclicity (u1a1deven_matter_bootstrap), no engine on the trace path.  Since
-    #   #615 Tr(1) and the seeds are closed-form characters (arbitrary-q, no cap) —
-    #   see the q^70 improvability witness in check_improvable.
-    #   ONLY k=1 ships: the k=1 matter bootstrap is tractable (re-solvable to any
-    #   q-order).  k>=2 (D6/D8) are PULLED — their matter sector is frozen at
-    #   K=8-12 and honest-fails beyond (the spine-free SU(2) matter bootstrap is
-    #   intractable for k>=2), so it is held back.
+    #   cyclicity (u1a1deven_matter_bootstrap), no engine on the trace path.
+    #   Tr(1) and the seeds are closed-form characters (arbitrary q-order, no
+    #   cap) — see the q^70 improvability witness in check_improvable.
+    #   Only k=1 is included: the k=1 matter bootstrap is tractable (re-solvable
+    #   to any q-order), while the spine-free SU(2) matter bootstrap is not
+    #   tractable at arbitrary order for k>=2 (D6/D8) — frozen tables there
+    #   would be limited to K≈8-12 and raise rather than silently degrade beyond.
     ("u1a1deven_cone_kalgebra", "U1A1DevenConeKAlgebra", (1,)),
 ]
 
@@ -188,20 +189,20 @@ def exercise(A, cls_name=""):
 
 def check_improvable():
     """Theories with a closed-form vacuum character must be arbitrarily
-    q-improvable spine-free: trace past the old frozen window must succeed
+    q-improvable spine-free: trace past the frozen-table window must succeed
     (no BPS, no fixed-K cap)."""
     import importlib
     # (module, class, K beyond the frozen window) — one per flavour family,
     # all spine-free via the Nahm-sum Tr(1) (no BPS, no fixed-K cap)
-    # Fast improvability witnesses past the old frozen window (the slow
+    # Fast improvability witnesses past the frozen-table window (the slow
     # big-node bootstraps at high K — e7/e8/a5 — are correct but unsuited to a
     # quick self-test; one per fast family suffices to prove no fixed-K cap):
     cases = [("finite_pentagon_kalg", "FinitePentagonKAlgebra", 70, ()),  # trivial, frozen 64
              ("finite_a1d4_kalg",     "FiniteA1D4KAlgebra",       8, ()),  # su2u1, NOT frozen
              ("a1a2k_kalg",           "A1A2kKAlg",               60, (2,)),  # M(2,7) char, no cap
-             # U(1)-gauged [A_1,D_4]: gauge-sector Tr(1) is the EXACT closed-form
-             # Creutzig (A1,D_2p) character (exact_characters), arbitrary q past
-             # the old frozen-64 / oracle-q_d^24 cap (cross-verified vs sl(3) KW).
+             # U(1)-gauged [A_1,D_4]: gauge-sector Tr(1) is the exact closed-form
+             # (A1,D_2p) admissible-character formula (exact_characters), arbitrary
+             # q-order, far past the frozen-table window (cross-verified vs sl(3) KW).
              ("u1a1deven_cone_kalgebra", "U1A1DevenConeKAlgebra", 70, (1,))]
     for mod_name, cls_name, K, args in cases:
         A = getattr(importlib.import_module(mod_name), cls_name)(*args)
@@ -244,7 +245,7 @@ def check_improvable():
     # admissible-character Layer-2 (a1d5_layer2 / a1d7_layer2) now serve the
     # elementary traces (overriding the frozen tables, whose upper tails were
     # under-resolved).  Exact to arbitrary q-order -- trace the vacuum far past
-    # the old frozen window, spine-free.
+    # the frozen-table window, spine-free.
     for mod_name, cls_name, Kq in (("finite_a1d5_kalg", "FiniteA1D5KAlgebra", 40),
                                    ("finite_a1d7_kalg", "FiniteA1D7KAlgebra", 24)):
         A = getattr(importlib.import_module(mod_name), cls_name)()
@@ -269,10 +270,10 @@ def check_improvable():
         assert nz and max(nz) >= Kq - 2, (cls_name, "trace did not reach q^Kq")
         assert C.verify_orthonormality(a, a, K=3), (cls_name, "orthonormality")
         print(f"  OK   {cls_name:24s} closed-form sl(2) char trace spine-free to q^{Kq}")
-    # A1D7ConeKAlg completeness regression (#617): the diameter seed (a=k+1=3, p=0)
-    # was the orthonormality hold-out; its closed-form trace must resolve, reach
-    # high q, AND pass orthonormality.  This guards the shipped a1dodd_layer2
-    # diameter recipe against regressions (it must stay synced).
+    # A1D7ConeKAlg completeness regression: the diameter seed (a=k+1=3, p=0) is
+    # the hardest orthonormality case; its closed-form trace must resolve, reach
+    # high q, AND pass orthonormality.  This guards the a1dodd_layer2 diameter
+    # recipe against regressions (it must stay synced).
     D7 = a1dodd.A1D7ConeKAlg()
     dia = ((((3, 0, 0), 1),), 0)
     td = D7.trace(dia, K=30)
@@ -281,15 +282,14 @@ def check_improvable():
     assert D7.verify_orthonormality(dia, dia, K=4), ("A1D7ConeKAlg", "diameter orthonormality")
     print(f"  OK   {'A1D7ConeKAlg':24s} diameter seed (a=3) complete: trace q^30 + orthonormality")
     # Ungauged [A_1, A_odd] polygons: HexagonKAlg / OctagonKAlg / DecagonKAlg /
-    # DodecagonKAlg = [A_1, A_{2k+1}], k=1..4 -- the ungauged twins of the shipped
+    # DodecagonKAlg = [A_1, A_{2k+1}], k=1..4 -- the ungauged twins of the
     # gauged U1A1Aodd family (ungauged = centralizer of the gauge generator E=μ,
     # measure-restored trace).  These are KAlgebra, NOT ConeKAlgebra (the cone lives
     # in the wrapped gauged U1*KAlg), so they are exercised here with explicit labels
     # rather than via the generic CONE_ALGEBRAS loop.  Spine-free: construct +
     # multiply + arbitrary-q vacuum trace, all engine-free.  Orthonormality is
-    # correct but O(minutes) at K>=4 for the larger polygons (the source suite
-    # tests/test_named_ungauged_polygons.py covers it); the fast Hexagon gets a
-    # self-norm spot-check here.
+    # correct but O(minutes) at K>=4 for the larger polygons, so only the fast
+    # Hexagon gets a self-norm spot-check here (below).
     for mod_name, cls_name, Kq in (("hexagon_kalg", "HexagonKAlg", 40),
                                    ("octagon_kalg", "OctagonKAlg", 30),
                                    ("decagon_kalg", "DecagonKAlg", 30),
@@ -322,9 +322,9 @@ def check_improvable():
     assert Dv.verify_orthonormality(dg[0], dg[1], K=3), ("A1DevenKAlg", "off-diagonal")
     print(f"  OK   {'A1DevenKAlg':24s} ungauged [A1,D4] spine-free trace q^30 + orthonormality")
     # SU(2)+N_f=2 (flavour Spin(4)=SU(2)_L×SU(2)_R): spine-free ConeKAlgebra over
-    # SU(2)⊗SU(2).  multiply is total (incl. magnetic monomials); the
-    # flavour-charged-label trace gap was closed (charged labels route to the
-    # Weyl-invariant neutral section), so trace is total — the Spin(4) Schur index,
+    # SU(2)⊗SU(2).  multiply is total (incl. magnetic monomials); trace is total
+    # as well (flavour-charged labels route to the Weyl-invariant neutral
+    # section) — the Spin(4) Schur index,
     # an arbitrary-q orthonormality bootstrap (no fixed-K cap).  cone_data has no
     # generic mult_gens, so exercised here with explicit labels.
     from su2_nf2_cone_standalone import SU2Nf2ConeKAlgebra
@@ -356,7 +356,7 @@ def check_improvable():
     M30n3 = (((0, 3),), (0, 0, 0))                 # M^(3)_0 = H_0^3 (magnetic-3 INPUT)
     assert N3.multiply(H0n3, H1n3).terms, ("SU2Nf3ConeKAlgebra", "empty multiply")
     assert N3.multiply(M0n3, M0n3).terms, ("SU2Nf3ConeKAlgebra", "empty M·M (cone-monomial sector)")
-    # magnetic-3 cone monomials as INPUTS (the completed total multiply):
+    # magnetic-3 cone monomials as INPUTS (the total multiply):
     # M^(3)_0·H_0 = H_0^4 = M^(4)_0, and M^(3)_0·M^(3)_0 = H_0^6 = M^(6)_0.
     assert list(N3.multiply(M30n3, H0n3).terms) == [(((0, 4),), (0, 0, 0))], \
         ("SU2Nf3ConeKAlgebra", "M^(3)_0·H_0 ≠ M^(4)_0")
@@ -370,6 +370,39 @@ def check_improvable():
     assert N3.verify_orthonormality(H0n3, H0n3, K=3), ("SU2Nf3ConeKAlgebra", "self-norm")
     assert N3.verify_orthonormality(H0n3, H1n3, K=3), ("SU2Nf3ConeKAlgebra", "off-diagonal")
     print(f"  OK   {'SU2Nf3ConeKAlgebra':24s} SU(4) index spine-free to q^12 + magnetic-3 input multiply + trace + orthonormality")
+
+
+def check_a1d3_mixed_tiles():
+    """[A_1,D_3] mixed-tile orthonormality — the deep-label battery the
+    generic `exercise` loop cannot reach (it does not speak `A1D3KAlg`'s
+    native `(tile, a, b, k)` labels, so the class is otherwise exercised
+    at unit + generator level only).
+
+    The mixed-tile monomials `q^{-ab}·T_i^a·D_{i-1}^b` at
+    `a, b ≥ 1, a + b ≥ 3` ARE orthonormal.  Apparent violations (a
+    `-χ₃q^{-3}` term in `I_{(3,2,1,0),(0,2,0,0)}`, a q⁰ coefficient of 1
+    against `(0,1,1,0)`) were truncation artifacts of a `trace_element`
+    that did not widen per-label trace requests by the negative valuation
+    of the product's Laurent coefficients; the widened assembly is
+    window-stable and agrees exactly with the BPS Schur-formula pairing
+    at the corresponding charges."""
+    import importlib
+    AD = importlib.import_module("a1d3_kalg").A1D3KAlg()
+    pairs = [
+        ((3, 2, 1, 0), (0, 2, 0, 0)),
+        ((3, 2, 1, 0), (0, 1, 1, 0)),
+        ((5, 1, 2, 0), (3, 2, 1, 0)),
+    ]
+    for a, b in pairs:
+        assert AD.verify_orthonormality(a, b, K=5), \
+            ("A1D3KAlg", "mixed-tile orthonormality", a, b)
+        I = AD.inner_product(a, b, 5)
+        assert not I.coeffs, ("A1D3KAlg", "off-diagonal not exactly 0", a, b, I)
+    d = (3, 2, 1, 0)
+    assert AD.verify_orthonormality(d, d, K=5), ("A1D3KAlg", "diagonal", d)
+    Id = AD.inner_product(d, d, 5)
+    assert not Id[0].is_zero(), ("A1D3KAlg", "diagonal q⁰ vanished", d)
+    print(f"  OK   {'A1D3KAlg':24s} mixed-tile (a+b≥3) orthonormality, K=5")
 
 
 def main():
@@ -395,6 +428,7 @@ def main():
             print(f"\n--- {name} ---\n{tb}")
         raise SystemExit(1)
     check_improvable()
+    check_a1d3_mixed_tiles()
     print(f"ALL {n_ok} CONE CONTRACT TESTS PASSED")
 
 

@@ -3,12 +3,13 @@ u1_decagon_l_long.py — closed form for Tr_U1Decagon(L_long * v^n).
 
 Completes the L_long Layer 2 across the U1Pgon hierarchy:
 
-    U1Hexagon (p=3): u1_hexagon_singlet.tr_L20_v_n   (PR #245)
-    U1Octagon (p=4): u1_octagon_l_long.tr_L_long_v_n (PR #255)
+    U1Hexagon (p=3): u1_hexagon_singlet.tr_L20_v_n
+    U1Octagon (p=4): u1_octagon_l_long.tr_L_long_v_n
     U1Decagon (p=5): tr_L_long_v_n (this module)
 
 Closed form (verified vs direct gauged-A_8 BPSKAlgebra for n in {1, 2}
-through K=30; n=0 verification pending due to BPS memory cost):
+through K=30; n=0 is not cross-checked against the BPS realisation —
+memory cost):
 
     Tr_U1Dec(L_long * v^n)  =  + sum_k fq^{10k^2 + (10n+14)k + (6n+3)}
                               + sum_k fq^{10k^2 + (10n+20)k + (12n+17)}
@@ -41,7 +42,7 @@ from laurent_poly import LaurentPoly
 
 def tr_L_long_v_n(n: int, K: int) -> LaurentPoly:
     """Closed-form Tr_U1Dec(L_long * v^n) as a fq-Laurent polynomial
-    truncated to fq^k for k <= K.  For n < 0 the symmetry is TBD."""
+    truncated to fq^k for k <= K.  The n < 0 case is not implemented."""
     if n < 0:
         raise NotImplementedError("n < 0 case for U1Dec L_long TBD")
     sign = 1  # p=5 odd -> no flip
@@ -66,7 +67,7 @@ def tr_L_long_v_n(n: int, K: int) -> LaurentPoly:
 def _verify_against_observed() -> None:
     """Compare against the K=30 BPSKAlgebra data for n in {1, 2}."""
     observed = {
-        # n=0 pending (BPS OOMs).
+        # n=0 not cross-checked (the BPS realisation runs out of memory).
         1: {5: -1, 9: 1, 27: -1, 29: 1},
         2: {9: -1, 15: 1},
     }

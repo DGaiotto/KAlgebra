@@ -1,7 +1,6 @@
 """Tropical sigma — chart-internal spectrum-generator-induced map on Γ.
 
-Canonical-surface migration of `lattice_canonical.{sigma_forward,
-sigma_inverse}` (Plan 07 Stage A4).  Self-contained: only depends
+Provides `sigma_forward` / `sigma_inverse`.  Self-contained: only depends
 on `lattice.Lattice` for the bracket pairing.
 
 For a spec ``[g_1, …, g_N]`` and a charge γ ∈ Γ:

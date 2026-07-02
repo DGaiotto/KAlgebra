@@ -28,10 +28,10 @@ returns the Z-form `dict {(F_out, μ_out): LaurentPoly}`.
 
 Trace
 -----
-`HexagonKAlg.trace(label, K)` will use `U1HexagonKAlg.trace_layer1` plus
-a Layer 2 evaluation of the two empirically-observed irreducible
-families (`()` and `((2, 0, 1),)`) as M(2, 5)-minimal-model characters.
-[Layer 2 implementation pending.]
+`HexagonKAlg.trace(label, K)` is the μ-flavoured ungauged trace — the
+gauge-charge-graded sum of `U1HexagonKAlg` traces over the restored U(1)
+vector-multiplet measure, delegated to the general `UngaugedKAlgebra`
+ungauger (BPS-free; see the `trace` docstring).
 
 Mult-generators
 ---------------

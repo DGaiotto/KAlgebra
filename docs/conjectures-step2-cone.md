@@ -1,12 +1,13 @@
-# Conjectures
+# Conjectures — Step 2 (the cone realisations)
 
-This package ships closed-form, spine-free `ConeKAlgebra` realisations. The
-single conjecture they directly bear on — exactly what `test_cones.py` checks —
-is the one below.
+The cone layer (`src/cone/`) provides closed-form, spine-free `ConeKAlgebra`
+realisations. The conjecture below is the one they directly bear on.
 
 ## Orthonormality of the canonical basis
 
-For the canonical basis `{L_a}` of a `K_𝖖`-algebra `A_𝖖[T]`, the Schur pairing
+**Conjecture.** The cone realisations presented in `src/cone/` satisfy the
+`K_𝖖`-algebra axioms (`docs/axioms-and-bootstrap.md`); in particular, for the
+canonical basis `{L_a}` the Schur pairing
 
     I_{a,b}(𝖖)  =  Tr( ρ(L_a) · L_b )
 
@@ -28,10 +29,12 @@ vacuum character or the exact Nahm sum on the BPS spec (`vacuum_nahm`). Every
 path is exact and improvable to arbitrary q-order — there is no fixed-K cutoff
 and no realisation engine.
 
-### Where it is checked here
+## Verification scope
 
-- `KAlgebra.verify_orthonormality(a, b, K)` tests `I_{a,b}=δ_{a,b}+O(𝖖)` on a
-  pair of canonical labels.
-- `test_cones.py` runs it across every shipped cone algebra, and additionally
-  verifies the traces extend spine-free past the old frozen window (arbitrary
-  q-improvability).
+What the tests actually certify:
+
+| check | scope |
+|---|---|
+| `tests/test_cones.py` — cone-contract cases (multiply / ρ / trace / orthonormality) | 31 cases; orthonormality at K = 3 on the unit plus up to 2 generators each |
+| `tests/test_cones.py` — the `check_improvable` trace-improvability probes | traces extended to q³⁰–q⁷⁰ |
+| `tests/test_sample_cone_iso.py` — sample ↔ cone isomorphisms | 3 isomorphisms, verified bidirectionally, with trace-equivariance to q¹² |

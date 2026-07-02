@@ -113,10 +113,10 @@ def _tr_L_long_neg(p: int, n: int, K: int) -> LaurentPoly:
 
     Verified exact vs gauged-A_{2k+1} BPSKAlgebra at p = 4 (n = -1..-6,
     full series; at p=4 the b-offsets `2p-4,2p-2` = `4,6`, indistinguishable
-    from the earlier conjecture there).  At p = 5 they DIFFER (`6,8`); the
-    `2p-4` (p-1) offset is **reliable-confirmed** — q^29 is stable across all
-    S_RG windows and the earlier `4` predicts a q^27 term that is *absent* in
-    every window.  The `2p-2` (p+1) offset (q^33) is only **structurally
+    from a constant-offset `4,6` hypothesis there).  At p = 5 they DIFFER
+    (`6,8`); the `2p-4` (p-1) offset is **reliable-confirmed** — q^29 is
+    stable across all S_RG windows, while a constant offset `4` would predict
+    a q^27 term that is *absent* in every window.  The `2p-2` (p+1) offset (q^33) is only **structurally
     inferred** (parallel to the confirmed p-1): the gauged-RG oracle's
     two-window convergence is UNRELIABLE beyond ~q^29 at k=3 (it sprouts
     spurious terms / grows coefficients with the window — the documented
@@ -127,19 +127,20 @@ def _tr_L_long_neg(p: int, n: int, K: int) -> LaurentPoly:
     unit coeffs — NOT a derivative/growing theta), whose r>=2 components need
     the reliable A1A2k bridge, not the oracle.  Consumers that aggregate this
     seed deep (the k=3 `Tr(L_diam^{n>=5})`) are therefore still wrong —
-    `U1A1AoddKAlg` honest-fails them via its provable trace-level guard."""
+    `U1A1AoddKAlg` raises on them via its provable trace-level guard."""
     m = -n  # = |n|
     po = (p % 2 == 1)
     overall = 1 if po else (-1 if (m + 1) % 2 == 1 else 1)
     level = 2 * p
     out: dict[int, int] = {}
-    # Atypical b-offsets `2p-4, 2p-2` CORRECTED 2026-06-23, mirroring the n>=0
-    # form's `2p+4, 2p+2`.  The p-1 offset `2p-4` (q^29 at p=5,n=-1) is
-    # RELIABLE-confirmed (window-stable; the old `4`->q^27 is absent); the p+1
+    # Atypical b-offsets are `2p-4, 2p-2`, mirroring the n>=0 form's
+    # `2p+4, 2p+2`.  The p-1 offset `2p-4` (q^29 at p=5,n=-1) is
+    # RELIABLE-confirmed (window-stable; a `4` offset's q^27 is absent); the p+1
     # offset `2p-2` (q^33) is structurally inferred only (the gauged-RG oracle is
     # unreliable beyond ~q^29 -- see docstring).  The log offsets `12,10` are
     # conjectural; the true structure is the singlet false-theta tower (r>=2
-    # components unpinned), which is why deep diameter powers honest-fail.
+    # components unpinned), which is why deep diameter powers raise rather
+    # than return unreliable values.
     for s_intr, b, c in [
         (+1 if not po else -1, 2 * p * m + (2 * p - 4), (p - 1) * m - 1),  # atyp p-1
         (-1 if not po else +1, 2 * p * m + (2 * p - 2), (p + 1) * m - 1),  # atyp p+1

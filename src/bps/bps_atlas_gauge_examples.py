@@ -1,9 +1,9 @@
 """Gauge-theory `BPSAtlas` examples — mutation-finiteness, Catalan, and wild S's.
 
 A **self-contained** companion to `bps_atlas_examples` (the Argyres–Douglas zoo):
-the *gauge* atlases, as hard-coded BPS-chart / BPS-quiver literals — **no
-`implementations/` dependency**, only the shipped spine (`bps_kalgebra`,
-`bps_atlas`, `bps_quiver_tools`).
+the *gauge* atlases, as hard-coded BPS-chart / BPS-quiver literals —
+self-contained, with no dependencies beyond the BPS realisation layer
+(`bps_kalgebra`, `bps_atlas`, `bps_quiver_tools`).
 
 `BPSAtlas.mutation_complete` folds the quiver mutation orbit by chart-iso — it
 counts **quiver-iso classes**, not a priori physical charts (a quiver is a
@@ -30,7 +30,7 @@ from bps_quiver_tools import BPSQuiver
 
 
 # --- SU(2) / A₁ class-S charts (mutation-finite; every chart has a reasonable S) -
-# name -> (pairing, node_charges, spec).  BPS-chart literals (no implementations/).
+# name -> (pairing, node_charges, spec).  Self-contained BPS-chart literals.
 _SU2 = {
     "pure_SU2": ([[0, 1], [-1, 0]], [(1, 0), (-1, 2)], [(1, 0), (-1, 2)]),
     "SU2_Nf1": ([[0, 1, 0], [-1, 0, 0], [0, 0, 0]],
@@ -221,8 +221,7 @@ def su3_chamber_census(max_depth: int = 2, spec_depth: int = 16) -> dict:
 def su3_finite_spec_atlas(spec_depth: int = 18, max_charts: int = 200) -> dict:
     """The SU(3) atlas restricted to **charts where S-finding works** — the
     finite-spec chambers (a finite negating sequence exists), folded by chart-iso,
-    with the wild chambers as **walls** (user, 2026-06-28: "an SU(3) atlas
-    including only charts where S-finding works").  The infinite, mostly-wild
+    with the wild chambers as **walls**.  The infinite, mostly-wild
     quiver mutation orbit collapses to a finite **2-chart** atlas (2 wild walls):
     the strong-coupling chamber (chart 0, all four mutations finite) and its image
     (chart 1, two finite mutations + two wild walls)."""

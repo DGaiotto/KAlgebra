@@ -9,8 +9,8 @@ the generic engine — no closed-form override, no realisation engine):
                                       `E_𝖖(u₋)` to SQED₁ (the non-torus corner).
 
 For each: RG solved from the discovery relation, `multiply`/`trace` matching the
-direct sample presentation (Step 1), the KAlgebra axioms + orthonormality
-(Goal 2.1), truncation-stability of the trace, and a `KAlgebraIso` to the direct
+direct sample presentation (Step 1), the KAlgebra axioms + orthonormality,
+truncation-stability of the trace, and a `KAlgebraIso` to the direct
 presentation.
 
 Run (from the repository root):

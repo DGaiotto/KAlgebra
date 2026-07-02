@@ -31,8 +31,8 @@ collapses (currently we use the commute moves implicitly via the scan
 order; a more aggressive search would explore the commute orbit).
 
 This is O(|spec| · #collapses) per pass, no BFS — strictly local
-moves. Compare to the previous global approach which used
-`find_mutation_path` BFS and is now superseded.
+moves; a global `find_mutation_path`-style BFS is not needed for
+shortening.
 """
 
 from __future__ import annotations
@@ -52,8 +52,8 @@ def _bracket(g1: Sequence[int], g2: Sequence[int],
 def _bracket_via_cache(g1, g2, B, bg_cache, n):
     """O(rank) lattice pairing via a precomputed `B @ b` cache.
 
-    Mirrors the `bg_cache` trick from #115's `_enumerate_local_moves`
-    speedup: each unique `g2` charge is mapped to its `B @ g2`
+    Mirrors the `bg_cache` trick of `chart_graph._enumerate_local_moves`:
+    each unique `g2` charge is mapped to its `B @ g2`
     column-product once (`O(rank^2)`), and the pairing is then
     a single dot product (`O(rank)`).
 

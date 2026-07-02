@@ -4,9 +4,8 @@ lift-coordinate surface.
 Each class subclasses `KAlgebra` *directly* (no `ConeKAlgebra` /
 `QuantumTorusKAlg` / URQTorus engine), implements the six abstract primitives
 plus the optional lift-coordinate methods `r_label_decompose` /
-`r_label_compose`, and does **not** implement the to-be-retired
-`_label_section_decompose` / `embed_R` (the former is supplied by the base
-default, which bridges to `r_label_decompose`).
+`r_label_compose`, and leaves `_label_section_decompose` / `embed_R` to the
+base-class defaults (the former bridges to `r_label_decompose`).
 
 These are reference examples of "how to write a K_𝖖-algebra" against the
 current contract:
@@ -18,12 +17,13 @@ current contract:
 
 For unflavoured algebras the lift coordinate is trivial:
 `r_label_decompose(a) = (a, ())` and `r_label_compose(a, ()) = a`.  The
-flavoured samples (SQED₂ = U_𝖖(𝔰𝔩₂), [A_1,D_3]) — to follow — carry an SU(2)
-flavour, where the section is the gauge monomial and the R-label is χ_k.
+flavoured samples (SQED₂ = U_𝖖(𝔰𝔩₂) and SQED_{N_f}) — defined below in this
+same module — carry an SU(2) (resp. SU(N_f)) flavour, where the section is the
+gauge monomial and the R-label is the character label (χ_k for SU(2)).
 
-The pentagon's pure reduction / Nahm-sum helpers are shared (imported) with
-`kalgebra_samples`; they are plain module functions (not `ConeKAlgebra`), so the
-sample *class* stays a direct `KAlgebra` subclass.
+The pentagon's pure reduction / Nahm-sum helpers are inlined below; they are
+plain module functions (not `ConeKAlgebra`), so the sample *class* stays a
+direct `KAlgebra` subclass.
 """
 
 from __future__ import annotations
@@ -33,8 +33,7 @@ import os
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_HERE)                       # repo root
-_IMPL = os.path.join(_ROOT, "implementations")       # uq_sl2_pbw lives here
-for _p in (_ROOT, _HERE, _IMPL):
+for _p in (_ROOT, _HERE):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
@@ -487,8 +486,9 @@ def _mu_weyl_to_su2(mud: dict) -> dict:
 
 
 def _sqed2_trK(n: int, K: int) -> RPowerSeries:
-    """`Tr K^n ∈ R(SU(2))((𝖖))` via the paper's `G(x,μ) = (𝖖²;𝖖²)_∞²
-    ∏_{s,t=±1} E_𝖖(μ^s x^t)`, `Tr K^n = [x^n] G` — computed exactly to `𝖖^K`."""
+    """`Tr K^n ∈ R(SU(2))((𝖖))` via the Schur-index generating function
+    `G(x,μ) = (𝖖²;𝖖²)_∞² ∏_{s,t=±1} E_𝖖(μ^s x^t)`, `Tr K^n = [x^n] G` —
+    computed exactly to `𝖖^K`."""
     R = SU2ZPlusRing()
     e = _eq_coeffs(K)
     acc: dict = {}                                # {μ-power: LaurentPoly}
@@ -536,7 +536,7 @@ class SQED2SampleKAlgebra(KAlgebra):
     `χ_1^{⊗j}` fused with the input characters by Clebsch-Gordan — Z-valued, with
     flavour in the label.  `ρ` is Lusztig's braid (`K↦K⁻¹`, `E↦𝖖⁻¹FK⁻¹`,
     `F↦𝖖KE`), χ_k fixed (SU(2) self-dual).  The trace localises to the Cartan
-    sector: `Tr (K^n·χ_k) = χ_k · Tr K^n` with `Tr K^n = [x^n]G(x,μ)` the paper's
+    sector: `Tr (K^n·χ_k) = χ_k · Tr K^n` with `Tr K^n = [x^n]G(x,μ)` the
     Schur index; everything with net E/F charge has zero trace.
 
     The lift coordinate is genuinely flavoured: `r_label_decompose((g,k)) =
@@ -671,8 +671,8 @@ class SQED1SampleKAlgebra(KAlgebra):
     trace localises to the Coulomb sector: `Tr L_{m,n} = 0` for `m ≠ 0`, and
     `Tr v^n = [x^n] (𝖖²;𝖖²)_∞² E_𝖖(x) E_𝖖(x⁻¹)`.
 
-    Isomorphic to `U1SquareKAlg` / `Sqed1KAlg` (the ConeKAlgebra presentations);
-    here a direct brute-force `KAlgebra` on the new optional surface."""
+    Isomorphic to `U1SquareKAlg` (the ConeKAlgebra presentation); here a direct
+    brute-force `KAlgebra`."""
 
     _R = TrivialZPlusRing()
 
@@ -854,8 +854,8 @@ class SQEDNfSampleKAlgebra(KAlgebra):
     """SQED_{N_f}: a U(1) **gauge** theory with `N_f` charged hypers and an
     **SU(N_f) flavour** symmetry — the genuine flavoured generalisation of
     `SQED1SampleKAlgebra`, in the same `u_±/v` presentation.  A **direct**
-    `KAlgebra` subclass (no `RGKAlgebra` / spine machinery): the RG-flow
-    realisation was only the cross-validation oracle.
+    `KAlgebra` subclass (no `RGKAlgebra` / spine machinery), cross-validated
+    against the RG-flow realisation term-by-term.
 
     Canonical basis `(m, n, w)`: `(m, n)` the SQED_1 gauge label, `w` an SU(N_f)
     irrep (a `SUNZPlusRing(N_f)` partition; `()` = trivial).  `multiply` does the

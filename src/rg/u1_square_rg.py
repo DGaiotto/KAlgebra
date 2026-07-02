@@ -1,9 +1,9 @@
 """`U1SquareRGKAlgebra` — SQED₁ / U1Square presented as an **RG flow to its
 quantum torus** (the simplest non-trivial `RGKAlgebra`, the `deg = id` corner).
 
-This is the reference example for **Step 3** of the public release
-(the RG-flow engine).  Unlike the cone layer (Step 2), which ships *frozen
-reductions* with no engine on the path, this ships the **generic `RGKAlgebra`
+This is the reference example for the **RG layer**
+(the RG-flow engine).  Unlike the cone layer, which carries *frozen
+reductions* with no engine on the path, this exercises the **generic `RGKAlgebra`
 machinery itself**: every operation — `RG`, `multiply`, `rho`/`rho_inverse`,
 `trace`, `inner_product` — is *inherited* from `RGKAlgebra` and computed live
 from the flow data.  Nothing is overridden to a closed form.
@@ -14,7 +14,7 @@ Defining data (the whole of it)
   (`⟨(a,b),(c,d)⟩ = ad − bc`, `ρ(γ) = −γ`, `Tr X_γ = (𝖖²;𝖖²)_∞²·δ_{γ,0}`).  Using
   the *sample* torus — not the BPS quantum torus — is the design-critical choice:
   the dependency closure is {core + RG engine}, never the BPS spine
-  (`bps_kalgebra` / `lattice_torus` / `nahm_data` / …).
+  (`bps_kalgebra` and the rest of `src/bps/`).
 * `grading()` = `Γ_RG = Z`, `deg(X_{a,b}) = b` (the magnetic direction the
   spectrum generator lives on), height `h(b) = b` (⇒ a pointed cone, strictly
   positive on the appearing charges).

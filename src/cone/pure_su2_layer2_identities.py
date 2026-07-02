@@ -37,9 +37,9 @@ Identities:
                  + (2q² − 1) · Tr(W_2) / [2q³(1 − q²)]
                  + Tr(W_4) / [2q³(1 − q²)]
 
-   Verified at q ∈ {1/2, 1/3, 1/5, 1/7, 2/5, 3/7} against
-   `pSU2KAlgebra.trace`, residuals < 10^{−9} (Schur-truncation noise at
-   q-cap 30).
+   Verified at q ∈ {1/2, 1/3, 1/5, 1/7, 2/5, 3/7} against a reference
+   pure-SU(2) realisation (not included in this repository), residuals
+   < 10^{−9} (Schur-truncation noise at q-cap 30).
 """
 from __future__ import annotations
 from fractions import Fraction

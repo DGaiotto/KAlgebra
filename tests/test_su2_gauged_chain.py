@@ -15,9 +15,9 @@ SU(2):
 
 All pure exact-FS over the (doubly-)nested aux; the chain demonstrates that an
 `RGKAlgebra`'s auxiliary may itself be an `RGKAlgebra`.  Entry 3's vacuum is
-`1 − q² − q⁴ + q¹² + 2q¹⁴` (a q⁶–q¹⁰ gap), BPS-oracle-validated through q¹⁴ in the
-repo; here we check the leading terms + truncation stability (the deep q¹² check
-is slow over the triple nesting).  Spine-free throughout.
+`1 − q² − q⁴ + q¹² + 2q¹⁴` (a q⁶–q¹⁰ gap), computed with the BPS realisation
+layer to q¹⁴; this self-test checks the leading terms + truncation stability
+(the deep q¹² check is slow over the triple nesting).  Spine-free throughout.
 
 Run (from the repository root):
 

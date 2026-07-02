@@ -3,7 +3,7 @@ a1aeven_to_u1aodd_rgkalgebra.py
 ===============================
 
 `A1AevenToU1AoddRGKAlgebra(k)` — the even Argyres–Douglas family
-`A_𝖖([A_1, A_{2k+2}])` as a **new-contract `RGKAlgebra`** (Plan 20),
+`A_𝖖([A_1, A_{2k+2}])` as an **`RGKAlgebra`**,
 realised by the RG flow
 
     [A_1, A_{2k+2}]   ──drop first node──▶   u(1)-gauged [A_1, A_{2k+1}]
@@ -12,7 +12,7 @@ i.e. the UV is the even AD theory and the IR is the *gauged-odd* theory
 one level down.  This is the gauged-IR companion of the ungauged
 `a1aodd_to_even_rgkalgebra.A1AoddToEvenRGKAlgebra` (odd UV → even IR):
 here the survivor of the single-node drop is itself U(1)-gauged, so the
-auxiliary is the recently built standalone closed-form class
+auxiliary is the standalone closed-form class
 
     auxiliary  =  U1A1AoddKAlg(k)              # u(1)-gauged [A_1, A_{2k+1}]
 
@@ -46,7 +46,7 @@ Spectrum generator
     S_RG  =  E_𝖖(X_L)
 
 with `L` a **short chord ray of magnetic charge 1** in `U1A1AoddKAlg(k)`
-(a length-2 (2k+4)-gon diagonal; user's prescription).  Since `L`
+(a length-2 (2k+4)-gon diagonal).  Since `L`
 q-commutes with itself (`⟨L,L⟩ = 0`), its m-th power is the single cone
 monomial `L^m = (((1, i₀, m),), 0)` (coefficient 1, no E-drift —
 verified), so the exact graded component is
@@ -55,14 +55,14 @@ verified), so the exact graded component is
 
 a single auxiliary label per magnetic degree; degree 0 is the identity.
 
-Status
-------
-Prototype companion to `A1AoddToEvenRGKAlgebra` / `U1A1AoddGaugedRG`.
-Correctness gate: the constructed UV algebra agrees with the standalone
+Validation
+----------
+The constructed UV algebra agrees with the standalone
 even class `A1A2kKAlg(k+1) = A_𝖖([A_1, A_{2k+2}])` (and the genuine BPS
-over the `A_{2k+2}` chain) on structure constants, via the shared
-`A_{2k+2}`-lattice charge map.  The form of the flow (`S_RG`, `RG`)
-cross-checks against the generic `SingleNodeRGKAlgebra` single-node drop.
+realisation over the `A_{2k+2}` chain) on structure constants, via the
+shared `A_{2k+2}`-lattice charge map.  The form of the flow (`S_RG`, `RG`)
+cross-checks against the generic single-node drop (`SingleNodeRG`, in the
+BPS layer).
 """
 from __future__ import annotations
 
@@ -80,7 +80,7 @@ from u1a1aodd_kalg import U1A1AoddKAlg
 
 def _e_q_coeff(m: int) -> HabiroElement:
     """`c_m = (−q)^m / (q²;q²)_m` — the m-th coefficient of `E_𝖖(X)` for a
-    self-pairing-free generator (`⟨L,L⟩ = 0`).  Habiro form: numerator
+    self-pairing-free generator (`⟨L,L⟩ = 0`).  As a `HabiroElement`: numerator
     `(−1)^m q^m`, denominator `∏_{j=1}^{m}(1 − q^{2j})`."""
     num = LaurentPoly({m: (-1) ** m})
     denom = {j: 1 for j in range(1, m + 1)}
@@ -88,7 +88,7 @@ def _e_q_coeff(m: int) -> HabiroElement:
 
 
 class A1AevenToU1AoddRGKAlgebra(RGKAlgebra):
-    """`[A_1, A_{2k+2}]` as a directional new-contract `RGKAlgebra` wrapping
+    """`[A_1, A_{2k+2}]` as a directional `RGKAlgebra` wrapping
     the gauged-odd standalone `U1A1AoddKAlg(k)`, with `RG` from the exact
     per-charge solver.  See the module docstring."""
 
@@ -142,7 +142,7 @@ class A1AevenToU1AoddRGKAlgebra(RGKAlgebra):
         """`[S_RG]_{(m,)}` — exact, finite, vanishing off the cone.
 
         `S_RG = E_𝖖(X_L)` ⇒ degree-`m` part (in magnetic charge) is the
-        single label `L^m` with Habiro coefficient `c_m`; degree 0 is the
+        single label `L^m` with coefficient `c_m`; degree 0 is the
         auxiliary identity, negative degree empty."""
         (m,) = p
         if m < 0:

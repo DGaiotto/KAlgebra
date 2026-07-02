@@ -62,8 +62,8 @@ def _coeffs(c) -> dict[int, int]:
         return dict(c._coeffs)
     raise TypeError(
         f"trace_uniqueness: trivial-R (LaurentPoly) coefficients only "
-        f"for now; got {type(c).__name__} — flavoured entries follow "
-        f"the Plan-18 Z-form regeneration")
+        f"for now; got {type(c).__name__} — flavoured entries need a "
+        f"flavour-in-labels (Z-form) encoding")
 
 
 def window_closure(A, labels):
@@ -106,7 +106,7 @@ def _element_diff_terms(e1, e2):
 
 
 def quartic_bootstrap_rows(A, quadruples, col, K):
-    """The trace-bootstrap channel equations (user, 2026-06-10): for
+    """The trace-bootstrap channel equations: for
     each quadruple `(a, b, c, d)`,
 
         Tr( (L_a·L_b) · (L_c·L_d) )  =  Tr( (ρ²(L_d)·L_a) · (L_b·L_c) )
@@ -490,9 +490,9 @@ def verify_unique_up_to_rescale(A, labels, K_eq, *, K_unknown=None,
 # only through deep C-mixing, and the channels' content dissipates
 # into closure-label unknowns.
 #
-# The bootstrap framing (user, 2026-06-10: "a procedure based on
-# 4pt-functions as in other bootstrap problems may win in generality")
-# makes the 2-POINT data primary instead:
+# The bootstrap framing — a procedure based on 4-point functions, as in
+# other bootstrap problems, chosen for its generality — makes the
+# 2-POINT data primary instead:
 #
 #     G_{ab}(q) = Tr(L_a · L_b)            (the un-normalized Gram),
 #

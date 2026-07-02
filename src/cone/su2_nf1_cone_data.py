@@ -43,11 +43,11 @@ This module sets up the gauge skeleton and leaves the μ-decorated
 ray-product table to `su2_nf1_h_gap_k.h_mul_h` (the W_1-walk cyclicity
 recursion) bootstrapped from a few BPS-determined base cases.
 
-References
-----------
+See also
+--------
 * `pure_su2_h_cone_data` — the unflavoured template.
-* `bps_su2_nf1.build_bps_su2_nf1` — auxiliary BPSKAlgebra for one-time
-  base-case extraction.
+* The auxiliary BPSKAlgebra used for the one-time base-case extraction
+  is a derivation not included in this repository.
 """
 from __future__ import annotations
 

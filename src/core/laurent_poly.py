@@ -1,9 +1,7 @@
 """LaurentPoly — elements of Z[q, q^{-1}].
 
-Canonical-surface migration of `quantum_torus.LaurentPoly` (Plan 07
-Stage A1).  Self-contained: no imports from the preliminary stack.
-This is the universal coefficient ring for K-theoretic Coulomb
-branch algebras.
+Self-contained (stdlib only).  This is the universal coefficient
+ring for K_𝖖-algebras.
 
 A `LaurentPoly` is a finite formal sum `Σ_n c_n q^n` with
 `c_n ∈ Z`, stored as a sparse `dict[int, int]` of non-zero

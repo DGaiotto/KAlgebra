@@ -373,9 +373,8 @@ def _reconstruct_chain(parents, state):
 class BFSExplorer:
     """Lazy forward-BFS expansion of the local-move graph rooted at
     a given spec, designed to be reused across many bidirectional
-    iso checks where the same `(pairing, spec)` recurs (e.g. the
-    pairwise sweep through a same-quiver bucket in
-    `SharpenedBPSQuiverDictionary` or `audit_flags`).
+    iso checks where the same `(pairing, spec)` recurs (e.g. a
+    pairwise sweep through a bucket of charts sharing one quiver).
 
     `parents` maps each visited canonical spec to `(parent_spec, move)`
     or `None` for the root.  `frontier` is the list of states whose
@@ -493,10 +492,9 @@ def _find_local_moves_chain_bidirectional(
     ``fwd[src→m] + [inverse(b) for b in reversed(bwd[dst→m])]``.
 
     `src_explorer` / `dst_explorer`, if provided, are reused (and
-    extended) instead of starting fresh.  This is the bucket-level
-    BFS state caching used by `SharpenedBPSQuiverDictionary` and
-    `audit_flags`: the same `(B, spec)` combination recurs across
-    the pairwise sweep through a same-quiver bucket, and lazy
+    extended) instead of starting fresh.  This is bucket-level
+    BFS state caching: the same `(B, spec)` combination recurs across
+    a pairwise sweep through a same-quiver bucket, and lazy
     persistent expansion lets each pair re-cross only newly needed
     states.  Both explorers must share `pairing_l` and
     `max_extra_length` with the call (the caller is responsible for

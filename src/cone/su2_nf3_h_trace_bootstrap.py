@@ -17,8 +17,8 @@ Anchors `V_{m,e}=Tr(L_{(m,e)})` fold by the gauge period-2m reflective rule
 `e_anc=min(e mod 2m, 2m−e mod 2m)` (the Nf-independent SU(2) cone structure).
 Cartan coefficients are `RLaurent` over `AbelianZPlusRing(rank=3)`
 (μ_1, μ_2, μ_3 Dynkin); converted to SU(4) characters at the boundary via
-`SU4ZPlusRing.from_abelian`.  Validated against the BPS oracle
-(`su2_nf3_kalgebra`).
+`SU4ZPlusRing.from_abelian`.  Validated against a BPS-quiver oracle
+(a derivation not included in this repository).
 """
 from __future__ import annotations
 import sys, os

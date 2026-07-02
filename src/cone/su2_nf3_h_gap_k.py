@@ -2,7 +2,8 @@
 `su2_nf2_h_gap_k` (Spin(4)→SU(4); the matter doublets become the SU(4)
 spinors 4 / 4̄).
 
-Structure (validated against the BPS oracle `su2_nf3_kalgebra`):
+Structure (validated against a BPS-quiver oracle, a derivation not
+included in this repository):
 
 H-tower piecewise map (clean index n → BPS charge), ρ-closed shift 4−N_f=1
 (`ρ(H_n)=H_{n-1}`):

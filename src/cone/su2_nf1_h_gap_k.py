@@ -1,7 +1,8 @@
 """Axiom-derived H_a · H_b for SU(2) + N_f = 1, mirroring
 `pure_su2_h_gap_k` with U(1)_F flavour μ-decorations.
 
-H-tower piecewise structure (in BPS basis, from `bps_su2_nf1`):
+H-tower piecewise structure (in BPS basis, extracted from an auxiliary
+BPS realisation not included in this repository):
 
     n ≤ 0:  H_n = (1, n, 0)
     n = 1:  H_1 = (0, 1, 0)
@@ -11,7 +12,8 @@ Same shape as pure SU(2), with flavour 0 appended.
 
 Wilson fundamental: `w_1 = (0, -1, 0)` (BPS basis).
 
-Nf=1 Clebsch (verified empirically against `SUN_Nf(2, 1).algebra`):
+Nf=1 Clebsch (verified empirically against the auxiliary BPS
+realisation):
 
     w_1 · H_n = q · H_{n-1}  +  q^{-1} · H_{n+1}  +  ε_n
     H_n · w_1 = q^{-1} · H_{n-1}  +  q · H_{n+1}  +  ε_n
@@ -125,7 +127,7 @@ def w1_H_clebsch_right(n: int):
 
 # ---------- H·H base cases (Nf=1, extracted from BPS probes) -------
 #
-# Decoded from `SUN_Nf(2, 1).algebra.multiply(H_a, H_b)` outputs.
+# Decoded from the auxiliary BPS realisation's multiply(H_a, H_b) outputs.
 # The Nf=1 pattern: pure-SU(2) base cases PLUS μ-decorated "matter"
 # corrections.  Specifically:
 #
@@ -326,7 +328,7 @@ def h_mul_h(a: int, b: int) -> dict:
         # canonical basis (bar(H_n)=H_n), so H_a*H_b = bar(H_b*H_a).
         # RLaurent.bar() flips q only (μ-content is bar-invariant).  Verified
         # identical to the within-cone-cocycle / cross-cluster-bar dispatch
-        # for every a>b.  No precondition, no honest-fail.
+        # for every a>b.  No precondition; this branch never raises.
         out: dict = {}
         for seed, coef in h_mul_h(b, a).items():
             bc = coef.bar()

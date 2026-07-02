@@ -2,18 +2,18 @@
 
 *Charts + automated, certified `KAlgebraIso` transition maps across mutation
 chains.*  This is the higher structure that hosts the public chart/mutation
-surface (Plan 35) — deliberately **not** methods on an individual
-`BPSKAlgebra` (whose chart graph stays a private accelerator).  It rides on the Plan-25 object layer
+surface — deliberately **not** methods on an individual
+`BPSKAlgebra` (whose chart graph stays a private accelerator).  It rides on the object layer
 (`KAlgebraObject`) for the certified core and promotes the building blocks in
 `bps_chart_object.py` to a navigable object.
 
 Each chart is a *presentation* of the same abstract `A_𝖖[T]`; a mutation
-(cluster necklacing) is a full `KAlgebraIso` preserving `multiply`, `ρ`, **and
-the Schur index** — so the atlas demonstrates the repo's axiomatics against the
-cluster machinery, and the full rotation monodromy closes to `ρ²` (tested on the
-pentagon, `chart_monodromy_iso`).
+(quiver/cluster mutation) is a full `KAlgebraIso` preserving `multiply`, `ρ`,
+**and the Schur index** — so the atlas demonstrates the repo's axiomatics
+against the cluster machinery, and the full rotation monodromy closes to `ρ²`
+(tested on the pentagon, `chart_monodromy_iso`).
 
-Design (Plan 35):
+Design:
 
 * the atlas owns **one intrinsic label space** (the root chart's labels);
 * a **chart key** is the mutation path from root — a tuple of `(node_index,
@@ -21,12 +21,9 @@ Design (Plan 35):
 * each materialized chart caches its **composed `root → chart` iso**, so any
   transition `iso(src, dst)` is `(root→dst) ∘ (root→src)⁻¹`;
 * `S` is *not* transported by the fragile wall-crossing conjugation — the
-  transition map is the certified `μ_g` label iso (Plan 35 D3).  Direct
-  (spec-free) per-chart `S` and transparent cross-chart cache transport are the
-  next tasks (T3/T4), not in this MVP.
-
-The public surface here is the Plan-35 O1 *recommendation*; trim/rename on the
-user's ruling.
+  transition map is the certified `μ_g` label iso.  Direct (spec-free)
+  per-chart `S` is available via `build_S_charts=True`; cross-chart `F`
+  transport is supported along forward mutation edges only.
 """
 from __future__ import annotations
 
@@ -82,21 +79,21 @@ class BPSAtlas:
         necklaces; positive allows pentagon-collapse / commute rearrangements
         first, all canonical-basis-preserving).
 
-        `build_S_charts=True` (T4) materializes each non-root chart **spec-free**
-        (`build_S=True`, the Upgrade-A direct-`S` engine) instead of via the
+        `build_S_charts=True` materializes each non-root chart **spec-free**
+        (`build_S=True`, the direct-`S` engine) instead of via the
         necklaced spec — the robust path when a chart's necklaced spec is
-        long/fragile (D4).  `spec_free_sigma` (#701) selects the σ source for
+        long/fragile.  `spec_free_sigma` selects the σ source for
         those charts: **`"principled"`** (default) installs the axiom-derived
         `σ⁻¹=−upper(F)` / `σ=−upper(F̃)` (fast, works for **no-finite-spec**
         cyclic-gauge / chamberless charts where extraction can't and the global
         tRG is intractable); `"auto"` extracts a finite spec when one exists (tRG
         fallback); `"trg"` forces tRG.  `build_S_cutoff` is the F-solve cone
-        cutoff: **`None` (default) = auto-stabilize** (#714 — the build engine
+        cutoff: **`None` (default) = auto-stabilize** (the build engine
         grows the cone until the node canonicals are σ-stable, so spec-free
         charts need no user knob; `multiply` truncates gracefully beyond the
         built degree).  Pin an int to fix the cutoff (e.g. for deeper products).
 
-        **Caveat (user, 2026-06-27):** direct-`S` is a *conjecture*; a `build_S`
+        **Caveat:** the direct-`S` construction is a *conjecture*; a `build_S`
         chart's `S` is not ground truth, so a cross-chart index disagreement
         against it (beyond truncation) may be a **conjecture objection**, not a
         truncation error — `cross_validate` reports per-chart provenance for
@@ -117,22 +114,22 @@ class BPSAtlas:
         # whatever the seed is; spec-mode if it has a spec, else build_S.
         self._provenance: dict[ChartKey, str] = {
             (): "spec" if getattr(seed, "spec", None) else "build_S"}
-        # ---- the memoized intrinsic-data layer (Plan 35 D5/D9) ----------
+        # ---- the memoized intrinsic-data layer ---------------------------
         # `multiply`, `ρ`, `ρ⁻¹`, `Tr`, `I_{a,b}` are all chart-independent *by
         # axiom*, so the atlas is their natural owner: each is computed once
         # (at the root chart) and memoized by intrinsic (root) label, reused
         # across every chart and query.  `F` is the root's quantum-torus image
-        # (S-free transport to other charts, T3a); multiply transports by the
+        # (S-free transport to other charts); multiply transports by the
         # certified label iso; `Tr`/`I_{a,b}` are pure invariants (no fragile FS
-        # transport — D3).
+        # transport).
         self._F_root: dict[tuple, dict] = {}
         self._mult_root: dict[tuple, Element] = {}
         self._rho_cache: dict[tuple, tuple] = {}
         self._rho_inv_cache: dict[tuple, tuple] = {}
         self._trace_cache: dict[tuple, object] = {}
         self._ip_cache: dict[tuple, object] = {}
-        # ---- chart-isomorphism classification (user, 2026-06-28) ----------
-        # "iso-checking new bps charts should be done when the charts are added":
+        # ---- chart-isomorphism classification ------------------------------
+        # Iso-checking new BPS charts is done when the charts are added:
         # every chart is classified **at materialization** against the known
         # quiver-iso-class representatives (node-perm + Γ-automorphism).  A chart
         # recognised as an automorphism-image of an earlier representative is
@@ -144,15 +141,15 @@ class BPSAtlas:
         self._iso_class: dict[ChartKey, dict] = {
             (): {"representative": (), "witness": None, "new_class": True}}
         self._representatives: list[ChartKey] = [()]
-        # ---- automorphism-expanded memoization (user, 2026-06-28) ----------
-        # "automorphisms greatly expand power of memoized info" (+ "mult as well",
-        # "and ρ").  A root automorphism φ relates the memoized intrinsic data
+        # ---- automorphism-expanded memoization ------------------------------
+        # Automorphisms greatly expand the power of memoized information.
+        # A root automorphism φ relates the memoized intrinsic data
         # across its orbit of labels, EXACTLY (both sides in root's frame):
         #   Tr(L_{φa})   = Tr(L_a)              (invariant)
         #   I_{φa,φb}    = I_{a,b}              (invariant)
         #   L_{φa}·L_{φb}= φ(L_a·L_b)           (covariant — φ multiplicative)
         #   ρ(L_{φa})    = φ(ρ(L_a))            (covariant — φ ρ-equivariant)
-        # ⚠ but **orbits are infinite** for gauge theories (user), so we must NOT
+        # ⚠ but **orbits are infinite** for gauge theories, so we must NOT
         # enumerate/spray them.  Instead the sharing is **LAZY**: on a cache MISS
         # we run a small bounded BFS from the query label over the automorphism
         # generators; if it lands on an already-cached label we reuse it
@@ -207,9 +204,9 @@ class BPSAtlas:
                 self._root, list(key), max_local_moves=self._mlm)
             prov = "spec"
             if self._build_S_charts and key:
-                # T4: rebuild the chart spec-free (conjectural direct-S).  Same
+                # Rebuild the chart spec-free (conjectural direct-S).  Same
                 # nodes / Γ-labels, so the μ_g label iso retargets cleanly.  The
-                # principled σ (#701, −upper(F)) gives a fast axiom-derived ρ even
+                # principled σ (−upper(F)) gives a fast axiom-derived ρ even
                 # for no-finite-spec charts.
                 end_free = BPSKAlgebra(
                     pairing=[list(r) for r in self._root.lattice.pairing],
@@ -224,7 +221,7 @@ class BPSAtlas:
             self._iso[key] = iso
             self._provenance[key] = prov
             if self._iso_check:
-                self._classify_chart(key)      # iso-check AT ADD TIME (user)
+                self._classify_chart(key)      # iso-check at add time
         return key
 
     def _classify_chart(self, key: ChartKey) -> dict:
@@ -262,7 +259,7 @@ class BPSAtlas:
         Requires a **spec-mode** chart (head-finding reads the spec).  On a
         spec-free chart (`spec_free_sigma="principled"`/`"trg"`, empty `.spec`)
         this raises — use `mutate(key, node_index)` with an explicit node
-        instead; spec-free *navigation* is a follow-on (the chart graph
+        instead; spec-free *navigation* is not supported (the chart-graph
         necklacing is spec-based)."""
         A = self.chart(key)
         if not getattr(A, "spec", None):
@@ -292,11 +289,11 @@ class BPSAtlas:
         """Transport one canonical `label` from chart `src` to chart `dst`."""
         return self.iso(src, dst).map(Element({tuple(label): _ONE}))
 
-    # ---- transparent cross-chart cache transport (T3a, S-free) ----------
+    # ---- transparent cross-chart cache transport (S-free) ---------------
     def _fwd_edge_charges(self, key: ChartKey) -> list:
         """The consumed charges of the forward necklace edges along `key`'s
-        path from root (for quantum-torus `F` transport).  Forward-only in the
-        MVP; raises on an `inv` step."""
+        path from root (for quantum-torus `F` transport).  Forward-only;
+        raises on an `inv` step."""
         from bps_chart_object import _graph_of
         g = _graph_of(self._root)
         cur = g.root_id
@@ -304,7 +301,7 @@ class BPSAtlas:
         for k, d in self._norm_key(key):
             if d != "fwd":
                 raise NotImplementedError(
-                    "BPSAtlas.F transport: forward edges only (MVP T3a)")
+                    "BPSAtlas.F transport: forward edges only")
             dst = g.mutate(cur, k, direction="fwd", max_local_moves=self._mlm)
             if dst is None:
                 raise ValueError(f"F transport: step ({k}, fwd) does not cooperate")
@@ -331,17 +328,17 @@ class BPSAtlas:
             cur = _lm_solve(cur, c)
         return dict(cur._terms)
 
-    # ---- automorphism-expanded memoization (user, 2026-06-28) ------------
+    # ---- automorphism-expanded memoization -------------------------------
     def register_automorphisms(self, isos=None, *, depth: int = 2,
                                verify: bool = True, trace_K: int = 6) -> dict:
         """Register root automorphisms so the memoized intrinsic data
         (`trace` / `inner_product` / `multiply` / `ρ` / `ρ⁻¹`) is **shared across
-        automorphism orbits** (user: *"automorphisms greatly expand power of
-        memoized info"*, *"mult as well"*, *"and ρ"*).  With `isos=None`,
+        automorphism orbits** — automorphisms greatly expand the power of the
+        memoized information, for products and ρ as well.  With `isos=None`,
         discovers them from the **folded-graph self-loops** (the chart-graph
         automorphisms); otherwise pass explicit `root → root` `KAlgebraIso`s.
 
-        **⚠ orbits are infinite** for gauge theories (user, 2026-06-28), so they
+        **⚠ orbits are infinite** for gauge theories, so they
         are **never enumerated**.  The sharing is **lazy** (`depth`-bounded BFS on
         a cache miss — see the field comment in `__init__`); only the generators
         (and inverses) are stored, **no closure**.  `verify=True` runs the full
@@ -418,7 +415,7 @@ class BPSAtlas:
         key = self._norm_key(key)
         return res if not key else self.iso((), key).map(res)
 
-    # ---- intrinsic Schur index (T3b) ------------------------------------
+    # ---- intrinsic Schur index -------------------------------------------
     def provenance(self, key: ChartKey = ()) -> str:
         """How chart `key`'s `S` was built: `'spec'` (necklaced finite spec —
         verified construction) or `'build_S'` (conjectural direct-`S`)."""
@@ -499,12 +496,12 @@ class BPSAtlas:
                                   else self._root.inner_product(a, b, K))
         return self._ip_cache[ck]
 
-    # ---- cone-presentation cross-validation (user, 2026-06-28) -----------
+    # ---- cone-presentation cross-validation ------------------------------
     def test_cone_presentation(self, cone, iso, *, gens=None,
                                check_multiply=True, check_rho=True) -> dict:
         """**Efficiently test an isomorphic `ConeKAlgebra`'s ray-multiplication
-        and ρ** against the atlas's BPS root, via `iso : cone → root` (user,
-        2026-06-28).  The cone presentation is the fast closed-form one; this
+        and ρ** against the atlas's BPS root, via `iso : cone → root`.
+        The cone presentation is the fast closed-form one; this
         validates its two error-prone operations — the cocycle **ray product**
         (`cross_product` / `derived_multiply` on the multiplicative generators,
         i.e. the cone **rays**) and **ρ** — against the certified BPS ground
@@ -518,8 +515,8 @@ class BPSAtlas:
         the atlas's **memoized** root multiply / ρ — so repeated calls reuse one
         BPS solve.  The `iso` is typically obtained by composing the BPS↔RG
         identity iso with an RG↔cone (or directly an object-layer cone↔bps)
-        witness — *"use the iso to RGKAlgebras to get an iso to coneKAlgebras
-        too"*.
+        witness — an iso to an `RGKAlgebra` yields an iso to the corresponding
+        `ConeKAlgebra` too.
 
         **Flavour (R-form vs Z-form, the section change).**  The cone carries
         flavour in its `RLaurent` cross-product *coefficients* (R-form) while the
@@ -543,7 +540,7 @@ class BPSAtlas:
         Delegates to the module-level `verify_cone_presentation`, which works
         against **any** BPS-backed root — including a gauge theory presented as an
         **RG flow to an IR that has a BPS chart** (flow composition fixes a BPS
-        chart immediately; user, 2026-06-28), e.g. U1E7 over the nonagon."""
+        chart immediately), e.g. U1E7 over the nonagon."""
         return verify_cone_presentation(
             self._root, cone, iso, gens=gens,
             check_multiply=check_multiply, check_rho=check_rho)
@@ -553,8 +550,7 @@ class BPSAtlas:
         `I_{a,b}`) **natively in several charts** and check agreement.
 
         `Tr` / `I_{a,b}` are chart-independent *by axiom*, so a disagreement is
-        diagnostic — and its meaning **depends on provenance** (user,
-        2026-06-27):
+        diagnostic — and its meaning **depends on provenance**:
 
         * between **spec** (verified) charts ⟹ a **truncation error** (the
           per-chart finite-`K` cone window differs);
@@ -586,14 +582,14 @@ class BPSAtlas:
         return {"agree": all(v == vals[0] for v in vals[1:]),
                 "values": values, "provenance": prov}
 
-    # ---- demonstrations (Plan 35 D6 / T5) -------------------------------
+    # ---- demonstrations --------------------------------------------------
     def monodromy(self) -> KAlgebraIso:
         """The full rotation-loop automorphism of the root chart.  On every
         tested case this is **`ρ²`** — the same `ρ²` that twists the trace
         cyclicity axiom (the headline axiomatics-vs-cluster statement)."""
         return chart_monodromy_iso(self._root)
 
-    # ---- loop-aware atlas / automorphisms from loops (T9) ---------------
+    # ---- loop-aware atlas / automorphisms from loops ---------------------
     def _chart_id(self, key: ChartKey) -> tuple:
         """Canonical identity of a chart — its `(nodes, spec)` data.  Two
         mutation paths reaching the same `_chart_id` are the **same chart**;
@@ -602,8 +598,8 @@ class BPSAtlas:
         return (tuple(map(tuple, ch.node_charges)), tuple(map(tuple, ch.spec)))
 
     def discover_automorphisms(self, *, max_depth: int = 6, window=None):
-        """Discover chart-graph **loops** and the **automorphisms** they carry
-        (Plan 35 T9).  BFS the chart graph from root (forward necklaces),
+        """Discover chart-graph **loops** and the **automorphisms** they carry.
+        BFS the chart graph from root (forward necklaces),
         deduping charts by `_chart_id`; when a second path reaches an
         already-seen chart, the two paths close a **loop** and the composed
         transition iso between them is an **automorphism** of the abstract
@@ -612,8 +608,8 @@ class BPSAtlas:
         `KAlgebraIso`s, deduped by their action on `window`.
 
         The rotation loop appears here as **`ρ²`** — so even the pentagon's
-        atlas is non-trivial: its chart graph carries the `ρ²` loop (Goal 1.3 /
-        3.6; the cluster-modular structure).  Each returned iso is a genuine
+        atlas is non-trivial: its chart graph carries the `ρ²` loop
+        (the cluster-modular structure).  Each returned iso is a genuine
         automorphism — run the `verify_all` battery to certify it.
         """
         from collections import deque
@@ -675,13 +671,13 @@ class BPSAtlas:
                            max_window: int = 96):
         """Close the discovered loop automorphisms (`discover_automorphisms`)
         into the **group** they generate — the chart graph's *cluster-modular*
-        action on the canonical basis (Plan 35 T9).
+        action on the canonical basis.
 
         Each generator is a `root → root` `KAlgebraIso`; the closure walks the
         subgroup they generate (left-multiplication BFS from the identity),
         deduplicating elements by their action on a **growing label window**
         seeded from the node charges.  Two **regimes**, and the result reports
-        which (user, 2026-06-28):
+        which:
 
         * **finite type** (Argyres–Douglas, e.g. the pentagon) — the cluster
           modular group is **finite**; the window and the group both close.
@@ -774,8 +770,8 @@ class BPSAtlas:
             "note": note,
         }
 
-    # ---- chart isomorphism / automorphism-image recognition (T9-bis) -----
-    # The practical use of "automorphisms" in an atlas (user, 2026-06-28): an
+    # ---- chart isomorphism / automorphism-image recognition ---------------
+    # The practical use of "automorphisms" in an atlas: an
     # atlas is usually *infinite*, so while building it we want to be **alert
     # that a new chart is an automorphism-image of an old one** — then its work
     # is already done (transport from the representative), and the infinite atlas
@@ -991,8 +987,8 @@ class BPSAtlas:
         return None
 
     def iso_class(self, key: ChartKey = ()) -> dict:
-        """The quiver-iso classification of chart `key`, computed **at add time**
-        (user, 2026-06-28): `{'representative', 'witness', 'new_class'}` — whether
+        """The quiver-iso classification of chart `key`, computed **at add
+        time**: `{'representative', 'witness', 'new_class'}` — whether
         `key` opened a new class or is an automorphism-image of an earlier
         representative (and the witness iso `representative → key`).  If eager
         checking was off (`iso_check=False`) the chart is classified lazily here."""
@@ -1017,9 +1013,9 @@ class BPSAtlas:
 
     def complete(self, *, max_charts: int = 4096,
                  directions=("fwd", "inv")) -> dict:
-        """**Complete the atlas — materialize *every* chart** (user, 2026-06-28:
-        "for finite-type KAlgebras one could in principle complete the atlas by
-        including all charts").  BFS over all node mutations in both directions
+        """**Complete the atlas — materialize *every* chart** (for finite-type
+        KAlgebras the atlas can be completed by including all
+        charts).  BFS over all node mutations in both directions
         (at the atlas's `max_local_moves`), deduplicating charts by their data
         (`_chart_id`), until the reachable chart graph **closes** — every distinct
         chart materialized, each classified into its quiver-iso class at add time.
@@ -1096,7 +1092,7 @@ class BPSAtlas:
         }
 
     def mutation_complete(self, *, max_charts: int = 20000, keep=None) -> dict:
-        """The **mutation-complete folded atlas** (user, 2026-06-28): every chart
+        """The **mutation-complete folded atlas**: every chart
         reachable by mutating **any** node, folded by **chart-isomorphism**
         (node-permutation + Γ-automorphism — the atlas's defining identification).
 
@@ -1106,8 +1102,7 @@ class BPSAtlas:
         grow without bound under iterated mutation.  The **pentagon (A₂) is a
         single chart with two outgoing mutations back to itself**; A₃ is four
         charts; … [A1,E6] sixty-seven; [A1,E8] one thousand five hundred and
-        seventy-four — the whole Argyres–Douglas zoo closes (user, 2026-06-28:
-        "it should be closable").
+        seventy-four — the whole Argyres–Douglas zoo closes.
 
         Runs on the **quiver mutation in charge space** directly — `γ_i ↦ −γ_i`,
         `γ_j ↦ γ_j + max(⟨γ_j,γ_i⟩,0)·γ_i` — not the chart graph's necklace.  The
@@ -1128,8 +1123,8 @@ class BPSAtlas:
         `classified=False`, `closed=False`.
 
         Pass **`keep`** — a predicate `keep(charges) -> bool` on the mutated node
-        charges — to restrict the fold to a **sub-class of charts** (user,
-        2026-06-28: "an SU(3) atlas including only charts where S-finding works").
+        charges — to restrict the fold to a **sub-class of charts** (e.g. an
+        SU(3) atlas including only charts where S-finding works).
         A mutation whose target fails `keep` is a **wall**: not added, not
         expanded, counted in `walls`.  The result is then the connected component
         of `keep`-charts reachable from the root through `keep`-charts — e.g. with
@@ -1202,11 +1197,11 @@ class BPSAtlas:
     def folded_graph(self, *, max_steps: int = 256, max_classes=None,
                      directions=("fwd", "inv")) -> dict:
         """Build the **quotient of the chart graph by quiver-isomorphism** — the
-        atlas's fundamental domain (user, 2026-06-28).  BFS expands **only class
+        atlas's fundamental domain.  BFS expands **only class
         representatives**; when a neighbour is an automorphism-image of a known
         representative it is **folded back via its witness `(g, σ)`**, with the
         mutation edge **carefully transported into the representative's frame**
-        (the directive: don't drop/mislabel an adjacency on merge).
+        (no adjacency is dropped or mislabelled on merge).
 
         Concretely, an edge `rep --(i,d)--> N` where `N` folds to representative
         `R` (witness `w : R → N`) becomes a quotient edge `rep --(i,d)--> R`
@@ -1285,7 +1280,8 @@ class BPSAtlas:
     @staticmethod
     def _agree_order(r, d) -> int:
         """Largest `n` with two trace series agreeing on every `q`-power `< n`
-        (capped at the shorter truncation) — the D8 leading-order measure."""
+        (capped at the shorter truncation) — the leading-order agreement
+        measure."""
         n = 0
         while n <= min(r.K, d.K):
             if r[n] != d[n]:
@@ -1297,14 +1293,14 @@ class BPSAtlas:
                                 *, K: int = 8, window=None,
                                 vs_recursive: bool = False) -> dict:
         """**Test that two chart-isomorphic charts have equivalent specs** — i.e.
-        their (conjectural canonical) `S` agree (user, 2026-06-28).  The canonical
+        their (conjectural canonical) `S` agree.  The canonical
         spec/`S` existence is itself conjectural, so this is a *verifier*, not an
         assumption.
 
         Given the quiver isomorphism `g : src → dst` (`chart_isomorphism`), the
         specs are equivalent iff `g` carries `src`'s Schur index to `dst`'s — i.e.
         `I_src(a) == I_dst(g·a)` for all `a`.  Because a deep chamber's large
-        charge makes the finite-`K` index window lag (catalogue B / D8), this is
+        charge makes the finite-`K` index window lag, this is
         measured **leading-order** (`_agree_order`): full agreement = order `K+1`;
         a partial order that **deepens with `K`** is truncation, a fixed-order
         disagreement is a genuine objection to the canonical-`S` conjecture.
@@ -1331,7 +1327,7 @@ class BPSAtlas:
         exact_ok = (batt["unit"] and batt["round_trip"]
                     and batt["multiplicative"] and batt["rho_equivariant"])
 
-        # leading-order Schur-index agreement = equivalent S (D8 measure)
+        # leading-order Schur-index agreement = equivalent S
         orders = {}
         for a in window:
             ga = next(iter(iso.map(Element({a: _ONE})).terms))
@@ -1342,7 +1338,7 @@ class BPSAtlas:
         note = ("specs equivalent (same S): exact structure + full index "
                 "agreement" if (exact_ok and full) else
                 "partial index agreement — raise K; if it deepens it is "
-                "truncation (D8), if it sticks at a fixed order it is an "
+                "truncation, if it sticks at a fixed order it is an "
                 "objection to the canonical-S conjecture")
         out = {
             "isomorphic": True,
@@ -1360,8 +1356,8 @@ class BPSAtlas:
     def _spec_vs_recursive(self, dst: ChartKey, window, K: int) -> dict:
         """Test `dst`'s spec-`S` index against the chamber's **recursive
         (direct `build_S`) `S`** — the conjectural canonical-`S` coincidence,
-        leading-order.  Built on demand; honest-fails (`built=False`) if the
-        direct-`S` engine cannot build this quiver."""
+        leading-order.  Built on demand; reports `built=False` (rather than
+        raising) if the direct-`S` engine cannot build this quiver."""
         dst = self._ensure(dst)
         ch = self.chart(dst)
         try:
@@ -1427,7 +1423,7 @@ class BPSAtlas:
     def certificate(self, *, labels=None, trace_K: int = 8,
                     max_steps: int = 64) -> dict:
         """The one-call **axiomatics-vs-cluster certificate** over the rotation
-        chamber chain (Plan 35 T5).  Demonstrates that a cluster mutation
+        chamber chain.  Demonstrates that a cluster mutation
         preserves the *whole* `K_𝖖` structure and that the **Schur index is a
         wall-crossing invariant**:
 
@@ -1485,7 +1481,7 @@ class BPSAtlas:
         }
 
     def summary(self, *, trace_K: int = 8, max_depth: int = 6) -> dict:
-        """One-call **catalogue record** for this atlas (T13 helper): the
+        """One-call **catalogue record** for this atlas: the
         rotation certificate (`period`, per-edge battery, `multiply` /
         Schur-index chart-invariance, monodromy `= ρ²`) plus the **loop
         automorphisms** discovered from the chart graph.  Returns a flat dict
@@ -1495,11 +1491,12 @@ class BPSAtlas:
              monodromy_is_rho2, all_ok, n_loop_automorphisms,
              automorphism_signatures}
 
-        A `*_chart_invariant=False` is **diagnostic** (D8): for a verified
+        A `*_chart_invariant=False` is **diagnostic**: for a verified
         (`spec`) chart it is a truncation — re-run at higher `trace_K`; for a
         `build_S` chart it may be a direct-`S` conjecture objection (check
-        `cross_validate`).  Honest-fails (raises) when the rotation does not
-        close (chamberless theories — use a bounded mutation window instead).
+        `cross_validate`).  Raises, rather than silently degrading, when the
+        rotation does not close (chamberless theories — use a bounded mutation
+        window instead).
         """
         cert = self.certificate(trace_K=trace_K)
         # Ensure the BFS is deep enough to close the rotation loop (period),
@@ -1522,7 +1519,7 @@ class BPSAtlas:
 
     def as_object(self, name: str = "bps-atlas") -> KAlgebraObject:
         """A `KAlgebraObject` of the materialized charts (a star of certified
-        `root → chart` witnesses), for the Plan-25 battery + coherence."""
+        `root → chart` witnesses), for the object-layer battery + coherence."""
         obj = KAlgebraObject(name)
         for key, alg in self._charts.items():
             obj.add_realization(self._key_str(key), alg,
@@ -1534,10 +1531,10 @@ class BPSAtlas:
             obj.add_iso(root_s, self._key_str(key), self._iso[key])
         return obj
 
-    # ---- visualization seam (Plan 35 T10; ClusterApplet tie-in = Stage 5) --
+    # ---- visualization seam ----------------------------------------------
     def applet_url(self, key: ChartKey = (), name: str | None = None) -> str:
         """A ClusterApplet share-URL for chart `key` (a thin seam over
-        `clusterapplet_url`; the interactive round-trip is a separate stage)."""
+        `clusterapplet_url`)."""
         from clusterapplet_url import bpskalgebra_applet_url
         return bpskalgebra_applet_url(
             self.chart(key), name=name or f"atlas[{self._key_str(key)}]")
@@ -1547,7 +1544,7 @@ class BPSAtlas:
 
 
 # ---------------------------------------------------------------------------
-# cone-presentation cross-validation against any BPS-backed root (user, 2026-06-28)
+# cone-presentation cross-validation against any BPS-backed root
 # ---------------------------------------------------------------------------
 def verify_cone_presentation(root, cone, iso, *, gens=None,
                              check_multiply=True, check_rho=True) -> dict:
@@ -1557,12 +1554,12 @@ def verify_cone_presentation(root, cone, iso, *, gens=None,
     `root` need not be a `BPSKAlgebra`: any presentation whose structure
     constants are BPS-backed works — in particular a **gauge theory presented as
     an RG flow to an IR that has a BPS chart** (flow composition fixes a BPS
-    chart immediately; user, 2026-06-28), e.g. `U1A1E7RGKAlgebra` (u(1)-gauged
+    chart immediately), e.g. `U1A1E7RGKAlgebra` (u(1)-gauged
     E₇) flowing to `A1A2kKAlg(3)` = the nonagon BPS chart.  This is why the
     routine takes a bare `root` rather than `self`/an atlas.
 
     The comparison is flavour-aware (canonical R-form / the section change): every
-    label is pushed through `root.r_label_decompose` (the #555 flavour-lift
+    label is pushed through `root.r_label_decompose` (the flavour-lift
     primitive), folding flavour-in-label (Z-form) and flavour-in-coefficient
     (R-form) into one `dict[section, RLaurent]`; ρ on the root is `σ` on the
     section plus the `⋆` conjugation, so for flavoured cones ρ may match only up
@@ -1574,9 +1571,9 @@ def verify_cone_presentation(root, cone, iso, *, gens=None,
     R = root.coefficient_ring()
 
     def _sec(label):
-        # (section, R-coefficient) via the current-contract flavour-lift primitive
-        # r_label_decompose (#555); the RElement is rebuilt by the canonical
-        # BasisElement -> RElement lift (what the legacy bridge does internally).
+        # (section, R-coefficient) via the flavour-lift primitive
+        # r_label_decompose; the RElement is rebuilt by the canonical
+        # BasisElement -> RElement lift.
         s, fk = root.r_label_decompose(tuple(label))
         return s, R.basis_element(fk)
 

@@ -3,9 +3,9 @@ minimal_model_characters.py — Characters of the M(2, 2k+3) Virasoro
 minimal models (the chiral algebras of the [A_1, A_{2k}] Argyres-Douglas
 theories).
 
-By Andrews-Gordon (1974), the bare character (no q^{h-c/24} prefactor)
-of the s-th irreducible module of M(2, 2k+3), with s in {1, ..., k+1},
-admits two equivalent forms:
+By the Andrews-Gordon identities, the bare character (no q^{h-c/24}
+prefactor) of the s-th irreducible module of M(2, 2k+3), with s in
+{1, ..., k+1}, admits two equivalent forms:
 
     chi_s^{(k)}(q)
         =  prod_{n >= 1,  n mod (2k+3) not in {0, s, -s}}  1/(1 - q^n)        (product side)

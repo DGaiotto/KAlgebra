@@ -1,5 +1,5 @@
 """BPS-free su2u1 elementary-trace bootstrap — the deep-relation engine for the
-[A₁,D_even] entries, on the now-ρ-clean standalones (a1d6/a1d8).
+[A₁,D_even] entries, on the ρ-clean standalones (a1d6/a1d8).
 
 The su2 sibling (`su2_bootstrap`) handles the SU(2) fusion; the u1 sibling
 (`u1_bootstrap`) handles the U(1) charge.  su2u1 is their product: the seed
@@ -13,13 +13,13 @@ Deep relations: the **single-mult-gen power reductions** `Tr(((i,a),)) = O(𝖖)
 reach negative 𝖖 — they pin the leading seeds.  The remaining seeds are
 completed by the general orthonormality pairs `I_{La,Lb}=δ+O(𝖖)`, whose ρ
 carries the U(1) shift `μ^{δ}` (the `_rho_delta` table) + the ⋆ (U(1) charge
-negation).  `Tr(1)` (one BPS call) is the only BPS input.
+negation).  `Tr(1)` (the vacuum character, served spine-free by the exact
+Nahm sum) is the only external input.
 
-This is the "then the rest" after the ρ repair: the pairs use the bare
-standalone's `rho_element`, which is an honest `⋆+μ^δ` automorphism since
-`#519` (framework-level flavoured-ConeKAlgebra ρ) — so `I=Tr(ρ·)=δ+O(𝖖)` is a
-true constraint and the bootstrap closes, with **no flavour-in-labels Z-form
-wrapper** (`finite_su2u1_zform`, now superseded for this engine).
+The pairs use the bare standalone's `rho_element`, which the framework-level
+flavoured-ConeKAlgebra ρ (`ConeKAlgebra.rho_element`) makes an honest `⋆+μ^δ`
+automorphism — so `I=Tr(ρ·)=δ+O(𝖖)` is a true constraint and the bootstrap
+closes, with **no flavour-in-labels (Z-form) wrapper**.
 """
 from __future__ import annotations
 
@@ -131,13 +131,13 @@ def _to_pool(pool, reduction, delta, dw2, ident, pos):
 
 def _pair_native(A, a_word, b_word):
     """`I_{La,Lb} = Tr(ρ(L_a)·L_b)` as `{native_seed: {𝖖: {(n,w2): int}}}`,
-    computed through the **framework-native honest ρ** — `#519`'s
+    computed through the **framework-native honest ρ** —
     `ConeKAlgebra.rho_element`, `ρ(c·L_w) = ⋆(c)·μ^{δ(w)}·L_{ρ(w)}`.
 
-    No flavour-in-labels rewrite is needed: `#519` makes the bare su2u1
-    standalone's `rho_element` an honest automorphism *in place* (verified:
-    0 fails on the single-gen pair sweep, a1d6/a1d8), superseding the Plan-18
-    Z-form wrapper this engine used to route through.  The whole pairing then
+    No flavour-in-labels rewrite is needed: the framework ρ makes the bare
+    su2u1 standalone's `rho_element` an honest automorphism *in place*
+    (verified: 0 fails on the single-gen pair sweep, a1d6/a1d8), so no
+    Z-form wrapper is required.  The whole pairing then
     lives in the native SU(2)×U(1) coefficient ring, whose own multiplication
     does the Clebsch–Gordan ⊗ U(1)-charge fusion — no manual `_fuse2`.
 
@@ -146,8 +146,9 @@ def _pair_native(A, a_word, b_word):
     is `Σ_c C_c·red_{c,s}` — an `RLaurent`, read off by `_coeff_to_qnw`.
 
     Scope: pairs **single canonical generators**.  Powered cone words
-    `((i,a),)` (a≥2) are not the canonical power (product-and-peel; the
-    ABSOLUTE RULE) — see the audit."""
+    `((i,a),)` (a≥2) are not the canonical power — canonical powers must
+    be constructed by product-and-peel — so pairing them would not be
+    the orthonormality constraint."""
     from trace_uniqueness_proofs import seed_reduction
     rho_a = A.rho_element(Element.basis(a_word))
     prod = A.multiply_elements(rho_a, Element.basis(b_word))
@@ -289,30 +290,30 @@ def generate_su2u1_trace(short_id, K, *, margin=2, bps_fallback=False,
                          verbose=False, **_legacy):
     """su2u1 elementary-trace record on the **framework-native honest ρ**.
 
-    `Tr(1)` is the only mandatory BPS call.  Seeds are pinned BPS-free from
-    two honest sources: (i) the single-mult-gen power reductions
-    `Tr(((i,a),)) = O(𝖖)` (pure cone arithmetic, the now-memoised reducer),
+    `Tr(1)` (the exact Nahm-sum vacuum character) is the only external
+    input.  Seeds are pinned BPS-free from two honest sources: (i) the
+    single-mult-gen power reductions
+    `Tr(((i,a),)) = O(𝖖)` (pure cone arithmetic, the memoised reducer),
     and (ii) the orthonormality pairs `I_{La,Lb} = δ + O(𝖖)` between
     **single canonical generators**, computed through the bare standalone's
-    `rho_element` — an honest `⋆+μ^δ` automorphism since `#519` (which
-    superseded the Plan-18 Z-form wrapper this engine used to route through;
-    `_pair_native`).
+    `rho_element` — an honest `⋆+μ^δ` automorphism via the framework
+    flavoured ρ (`_pair_native`); no Z-form wrapper is needed.
 
     Powered pairs (`a≥2`) are deliberately NOT used: the cone monomial
     `((i,a),)` is not the canonical power, so its pairing is not the
     orthonormality constraint and injects a genuine contradiction (k=3
     inconsistent).  Reaching the seeds the single-gen pairs leave free
     therefore needs either constructed canonical powers (product-and-peel) or,
-    when `bps_fallback=True`, a per-seed BPS trace (opt-in, since it is a BPS
-    call).  Default returns the BPS-free partial record (`free` lists the
-    unpinned seeds)."""
+    when `bps_fallback=True`, a per-seed BPS trace (opt-in; requires the BPS
+    realisation layer, not available in this configuration).  Default returns
+    the BPS-free partial record (`free` lists the unpinned seeds)."""
     if REGEN_SPECS[short_id][2] != "su2u1":
         raise _BootstrapUnavailable(f"{short_id}: not su2u1")
     from trace_uniqueness_proofs import seed_set, seed_reduction
     mod, pfx = _load_standalone(short_id)
 
     A = _standalone_algebra(short_id)
-    # `#519`'s framework ρ applies the honest `⋆+μ^δ` twist only when the
+    # The framework ρ applies the honest `⋆+μ^δ` twist only when the
     # standalone carries a `_rho_delta` table (else `rho_element` is the bare
     # permutation, the broken ρ); require it.
     if not getattr(A, "_rho_delta", None):
@@ -335,8 +336,8 @@ def generate_su2u1_trace(short_id, K, *, margin=2, bps_fallback=False,
     # (i) single-mult-gen power reductions (honest, ρ-free cone arithmetic;
     # some standalones reject the powered cone label — skip those, not fatal).
     # Capped at a≤4: the cone reducer is ~exponential in the power on these
-    # single-gen words (a1d6 gen-0: a=4 ≈ 1 s, a=5 ≈ 10 s, a=6 ≈ 100 s — the
-    # A10 memoisation does not help, the reduction tree of a pure power does not
+    # single-gen words (a1d6 gen-0: a=4 ≈ 1 s, a=5 ≈ 10 s, a=6 ≈ 100 s —
+    # memoisation does not help, the reduction tree of a pure power does not
     # re-converge), and the orthonormality pairs (shallow degree-2 products,
     # fast) already pin the full seed set without the deeper powers.
     pool = []
@@ -348,7 +349,7 @@ def generate_su2u1_trace(short_id, K, *, margin=2, bps_fallback=False,
             except Exception:
                 break
 
-    # (ii) single-generator orthonormality pairs via the native honest ρ (#519)
+    # (ii) single-generator orthonormality pairs via the native honest ρ
     for idx in idxs:
         for jj in idxs:
             try:

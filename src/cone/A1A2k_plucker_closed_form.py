@@ -161,7 +161,7 @@ def _rho_orbit(B, seed, cyc):
     """Reconstruct the ρ-orbit lattice charges **without BPSKAlgebra**, via the
     closed-form lattice ρ (`A1A2k_naming_audit.a2k_rho` = `sigma_forward` on the
     linear `A_{2k}` quiver's simple-root spec).  Verified identical to the BPS ρ
-    (k=2,3,4) — this closes the former "TODO: derive closed-form ρ"."""
+    (k=2,3,4)."""
     from A1A2k_naming_audit import a2k_rho
     k = len(B) // 2
     orbit = [tuple(seed)]
@@ -174,10 +174,9 @@ def base_table_predict(k: int) -> dict[tuple[int, int, int], list]:
     """Closed-form base table for [A_1, A_{2k}].
 
     Returns `{(k_a, k_b, d): [(kind, q_exp), ...]}` matching
-    `A1A2k(k).base_table()`'s format, computed purely from the
-    closed-form rules above (no BPSKAlgebra at runtime apart from the
-    one-time ρ-orbit reconstruction; TODO: replace that too with a
-    closed-form ρ-action on the lattice)."""
+    the BPS-reference base-table format, computed purely from the
+    closed-form rules above (no BPSKAlgebra at runtime; the one-time
+    ρ-orbit reconstruction is closed-form as well, via `_rho_orbit`)."""
     cyc = 2 * k + 3
     # Natural labeling: orbit a has length a+1 and shift 0.
     lengths = {a: a + 1 for a in range(1, k + 1)}

@@ -28,8 +28,8 @@ BPSKAlgebra runtime dependency.
 Coefficient ring
 ----------------
 Z[q^±] (μ tracked as a label-level integer power, not as a coefficient).
-This keeps the implementation simple; a future revision can promote μ
-to a proper torus generator in `AbelianZPlusRing(rank=1)`.
+This keeps the implementation simple; μ could equally be promoted to a
+proper torus generator in `AbelianZPlusRing(rank=1)`.
 """
 from __future__ import annotations
 
@@ -306,7 +306,7 @@ def _normalize_letter(letter: tuple[int, int]) -> tuple[tuple[int, int], int]:
 # ----------------------------------------------------------------------
 # Term representation: (q_power: int, mu_power: int, factors: tuple[(a, i), ...])
 # Element: dict from sorted factors tuple to (mu_power_total, LaurentPoly)
-# Simplified: keep as a list of (q, mu, factors) for now.
+# Simplified representation: a list of (q, mu, factors).
 # ----------------------------------------------------------------------
 
 
@@ -349,9 +349,10 @@ class U1HexagonKAlg(ConeKAlgebra):
       * `trace_layer1(label)` — closed-form Layer 1 ρ²-tagged cyclicity
         reduction to a dict of irreducible canonical labels with
         LaurentPoly coefficients
-      * `trace(label, K)` — Layer-2 evaluation (currently BPS-backed
-        for irreducible labels; closed-form Layer 2 is future work)
-      * `elementary_traces()` — provisional list of elementary trace
+      * `trace(label, K)` — BPS-free two-layer evaluation: the exact
+        M(1,3) singlet character + the certified orthonormality
+        bootstrap (see `trace`)
+      * `elementary_traces()` — partial list of elementary trace
         symbols (T_0, T_long)
     """
 
@@ -436,7 +437,7 @@ class U1HexagonKAlg(ConeKAlgebra):
             delta_w += e * mu_add
         return (tuple(new_factors), delta_w - mu_p)
 
-    # -- Multiplication (single-letter for now) --
+    # -- Multiplication (single-letter) --
 
     def multiply_single(self, letter1, letter2):
         """Multiply two single-letter labels `(a, i)`.  Returns a dict
@@ -650,7 +651,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         The chord branch widens the bootstrap's gauge half-width to cover the
         seed's gauge, so a chord absent from the (certified) result is exactly
         "trace 0 through q^K" → returns 0; only a non-reduced multi-gen seed
-        honest-fails."""
+        raises (rather than silently degrading)."""
         from u1aodd_trace_bootstrap import _rho2_rep
         if not self._orbit_has_physical(seed_label):
             return RPowerSeries(self._R, {}, K)
@@ -842,12 +843,13 @@ class U1HexagonKAlg(ConeKAlgebra):
         return min(orbit)
 
     def elementary_traces(self):
-        """Provisional elementary trace labels.
+        """Elementary trace labels (partial).
 
         For U1HexagonKAlg (gauged hexagon, NO flavour μ):
           T_0 = Tr(1)
           T_long = Tr(L_{2, 0})  (and ρ²-images Tr(L_{2, j}))
-          (L_{1, j} traces are constrained by ρ²-drift; structure TBD)
+          (L_{1, j} traces are constrained by ρ²-drift; their reduction
+          is not derived here)
         """
         return [
             ('T_0', ((), 0)),

@@ -2,9 +2,9 @@
 a1a2k_kalg.py
 =============
 
-The standalone K-algebra subclass for the [A_1, A_{2k}] Argyres-Douglas
-family, analogous to `kalgebra_samples.PentagonKAlg` and the upcoming
-`HeptagonKAlg` (claude/heptagon-wrapper-continue branch).
+The standalone K_𝖖-algebra subclass for the [A_1, A_{2k}] Argyres-Douglas
+family; at k = 1 it presents the same algebra as the pentagon sample
+`K_𝖖([A_1, A_2])` in `samples.py`.
 
 Generators `L((k_letter, i))` with `k_letter ∈ {1, ..., k}` (orbit
 index) and `i ∈ Z/(2k+3)` (within-orbit ρ-index).  Canonical basis
@@ -15,10 +15,10 @@ labels are sorted tuples
 of (letter, positive exponent) entries with pairwise q-commuting
 letters; the empty tuple is the identity.
 
-Multiplication is driven by a per-k base table extracted ONCE at
-construction time via the `A1A2k` wrapper.  After construction the
-class has no `BPSKAlgebra` runtime dependency; the wrapper is the
-helper that supplies the per-k structural data.
+Multiplication is driven by a per-k base table computed once at
+construction time from closed-form chord geometry
+(`A1A2k_plucker_closed_form.base_table_predict`); the class has no
+`BPSKAlgebra` runtime dependency.
 
 Scope:
   * `coefficient_ring`, `identity`, `multiply`, `rho`, `rho_inverse`,
@@ -34,8 +34,8 @@ Scope:
         with χ_s the M(2, 2k+3) Andrews-Gordon character
         (`minimal_model_characters.char_product`).
 
-Verified against `A1A2k(k).A.trace(...)` for all canonical labels with
-total exponent ≤ 3 at k = 2 (heptagon, 43 labels) and k = 3
+Verified against a BPS-quiver reference realisation for all canonical
+labels with total exponent ≤ 3 at k = 2 (heptagon, 43 labels) and k = 3
 (nonagon).  Multiplication is closed under canonicalisation;
 ρ-equivariance verified.
 """
@@ -61,12 +61,11 @@ class A1A2kKAlg(ConeKAlgebra):
     """`A_𝖖([A_1, A_{2k}])` as a `KAlgebra` subclass, parameterised by k.
 
     Generators `L((k_letter, i))` with `k_letter ∈ {1, ..., k}` and
-    `i ∈ Z/(2k+3)`.  ρ-orbit indexing matches
-    `heptagon_kalg.HeptagonKAlg` at k = 2 and the verified
-    `A1A2k_naming_audit.predicted_lengths_and_shifts(k)` table for
-    k ≥ 3.  Multiplication is driven by a per-k base product table
-    `self._base_table` extracted at construction from the
-    `A1A2k` wrapper.
+    `i ∈ Z/(2k+3)`.  ρ-orbit indexing follows the verified
+    `A1A2k_naming_audit.predicted_lengths_and_shifts(k)` table.
+    Multiplication is driven by a per-k base product table
+    `self._base_table` computed at construction from closed-form
+    chord geometry (`A1A2k_plucker_closed_form`).
 
     Canonical-basis labels are sorted tuples
     `((k_1, i_1, e_1), ..., (k_m, i_m, e_m))` with `e_r ≥ 1` and the
@@ -84,9 +83,8 @@ class A1A2kKAlg(ConeKAlgebra):
         # L_{a, j} has chord endpoints (j, j+a+1) on the (2k+3)-gon.
         self.lengths = {a: a + 1 for a in range(1, k + 1)}
         self.shifts = {a: 0 for a in range(1, k + 1)}
-        # Closed-form base table from chord geometry — no BPSKAlgebra call.
-        # (Was: A1A2k(k).base_table() which built a BPSKAlgebra at construction;
-        # at k=4 that took ~90s.  The closed-form is < 1s at any k.)
+        # Closed-form base table from chord geometry — no BPSKAlgebra call;
+        # fast (< 1 s) at any k.
         from A1A2k_plucker_closed_form import base_table_predict
         self._base_table = base_table_predict(k)
         # Cache q-commute factors among all (k_letter, i) pairs for fast lookup.
@@ -210,7 +208,7 @@ class A1A2kKAlg(ConeKAlgebra):
     # `_compute_T_series(K)`:
     #     T_0  =  χ_1(q²)
     #     T_a  =  (-1)^{m+1} q^{-m} (χ_m − χ_{m+1})(q²),  m = k − a + 1
-    # Verified for k = 1..6 against BPS reference (PR #188).
+    # Verified for k = 1..6 against a BPS-quiver reference realisation.
     #
     # `multiply` and `trace` are inherited from `ConeKAlgebra`.  ρ²-
     # invariance on the (2k+3) single-mult-gen seeds per orbit is

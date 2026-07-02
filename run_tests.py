@@ -1,7 +1,7 @@
 """Validation gate — pure Python 3, no third-party dependencies.
 
 Puts every ``src/<layer>/`` directory on ``sys.path`` (the project's bare-name
-import convention), then runs the contract self-tests for all three layers:
+import convention), then runs the contract self-tests for all four layers:
 
     python3 run_tests.py
 
@@ -11,7 +11,8 @@ Step 1 / Step 2 (core, samples, cones, isomorphism witnesses):
   * ``tests/test_cones.py``            — Step-2 ConeKAlgebra realizations + zoo
   * ``tests/test_sample_cone_iso.py``  — Step-1 ↔ Step-2 KAlgebraIso witnesses
 
-Step 3 (the live RG-flow engine; each also asserts spine-freeness):
+Step 3 (the live RG-flow engine; all but ``test_rg_flows.py`` also assert
+spine-freeness):
 
   * ``tests/test_rg_flows.py``         — the three reference flows
   * ``tests/test_a1an_chain.py``       — the A-type Argyres-Douglas chain

@@ -1,7 +1,8 @@
 """Closed-form `H_a · H_b` for SU(2)+N_f=2, the spine-free analogue of
 `su2_nf1_h_gap_k` lifted from U(1)_F to **Spin(4) = SU(2)_L × SU(2)_R**.
 
-Structure (validated against the BPS oracle `su2_nf2_kalgebra`):
+Structure (validated against a BPS-quiver oracle, a derivation not
+included in this repository):
 
 H-tower piecewise map (clean index n -> BPS charge), rho-closed shift 4-N_f=2:
     H_n = (1,  n,   0, 0)   for n <= 0

@@ -4,8 +4,7 @@ matter hyper `S_RG = E_𝖖(X₀₁v)·E_𝖖(X₀₁v⁻¹)`.
 
 The **even rung** of the SU(2)-gauged chain (entry 3 → entry 2) — the
 `+QT[Z²]` matter rung one rank above the base `SU2Nf1PureSU2RGKAlgebra` (entry 1),
-gauging the flavour SU(2) of the A1Dodd–U1A1Deven chain throughout (user,
-2026-06-27):
+gauging the flavour SU(2) of the A1Dodd–U1A1Deven chain throughout:
 
     SU(2)-flavoured  :  …  ← A1D3        ← U1A1D4            ← A1D5 ← …
     SU(2)-gauged     :  …  ← SU(2)·A1D3  ← SU(2)×U(1)·A1D4   ← …
@@ -34,9 +33,10 @@ Defining data (a **pure** `RGKAlgebra` — generic exact-FS engine, no override)
 * `apex` = identity.
 
 Validation: `Tr(1) = 1 − q² − q⁴ +
-q¹² + 2q¹⁴ + …`, truncation-stable, matching the **BPS oracle** — the U(1)-Haar
-of the SU(2)-gauged A1D4 BPSKAlgebra, `(q²;q²)_∞² · μ⁰[su2a1d3_gauged.su2a1d4_det1(μ)]`
-(the N=2\*-paper gauging trick).  `w₁² = 1 + w₂`, orthonormal, spine-free.
+q¹² + 2q¹⁴ + …`, truncation-stable, matching an independent BPS-quiver
+cross-check — the U(1)-Haar projection `(q²;q²)_∞² · μ⁰[…]` of the μ-refined
+SU(2)-gauged A1D4 index (the standard U(1)-gauging projection; that derivation
+is not included in this repository).  `w₁² = 1 + w₂`, orthonormal, spine-free.
 """
 from __future__ import annotations
 

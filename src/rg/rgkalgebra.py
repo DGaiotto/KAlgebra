@@ -1,7 +1,7 @@
 """`RGKAlgebra` — a `KAlgebra` presented via an RG flow to a graded auxiliary.
 
 `RGKAlgebra(KAlgebra)` is the canonical "RG presentation" of a K_𝖖
-algebra (Plan 20).  A concrete `RGKAlgebra` is *defined* by wrapping an
+algebra.  A concrete `RGKAlgebra` is *defined* by wrapping an
 auxiliary (IR) `KAlgebra` together with RG-flow data, and **inherits the
 full `KAlgebra` API generically** from that data.
 
@@ -10,7 +10,8 @@ The defining data (subclass-supplied)
   * `auxiliary()` — the IR `KAlgebra` (the flow target).
   * `grading()` — a `Grading` of the auxiliary (`grading.py`): a charge
     `deg(L) ∈ Γ_RG` on each auxiliary label, additive under `multiply`,
-    plus a height functional `h` (the physical central charge).  The
+    plus an integral height functional `h` (a linearized proxy for
+    `Im Z_γ`, the physical central charge).  The
     quantum torus is *not* required — any graded auxiliary with a
     pointed cone works (`BPSKAlgebra`'s aux is the quantum torus, the
     `deg = id` corner).
@@ -84,7 +85,7 @@ endpoints compose into a single `RGKAlgebra UV → IR` via `ComposedRG`
 (`then`): `RG^UV_IR = RG^MS_IR ∘ RG^UV_MS` and
 `S^UV_IR = RG^MS_IR(S^UV_MS) · S^MS_IR`.
 
-Factorization (the inverse — Plan 21).  Given a known `UV → IR` flow and an
+Factorization (the inverse of composition).  Given a known `UV → IR` flow and an
 `MS → IR` flow over a lattice-compatible auxiliary, `factor_through`
 recovers the `UV → MS` flow (`ExtractedRG`): `S^UV_MS` is solved from
 `S^UV_IR = RG^MS_IR(S^UV_MS) · S^MS_IR` (invert `S^MS_IR`, multiply by
@@ -121,16 +122,18 @@ Charge = tuple   # a Γ_RG grading charge (see grading.Grading)
 
 
 # ---------------------------------------------------------------------------
-# Helpers for ComposedRG.rg_generator (Habiro-coefficient arithmetic in an aux)
+# Helpers for ComposedRG.rg_generator: `HabiroElement`-coefficient arithmetic
+# in an auxiliary.  `HabiroElement` (habiro.py) is exact arithmetic in the
+# localization Z[q^±][(1−q^{2k})^{-1}, k ≥ 1]; the class name is historical.
 # ---------------------------------------------------------------------------
 
 
 def _laurentpoly_to_habiro(c) -> "HabiroElement":
-    """Lift a `LaurentPoly` (Plan 10 Z-form Element coefficient) to a
-    `HabiroElement` for use inside Habiro-arithmetic helpers.
+    """Lift a `LaurentPoly` (a Z-form `Element` coefficient) to a
+    `HabiroElement` for use inside the localized-ring arithmetic helpers.
 
-    Renamed from `_rlaurent_to_habiro` post-Plan-10: Element
-    coefficients are LaurentPoly over Z[q^±], not RLaurent over R.
+    `Element` coefficients are `LaurentPoly` over Z[q^±], not `RLaurent`
+    over `R` — hence the lift starts from `LaurentPoly`.
     """
     from habiro import HabiroElement
     from laurent_poly import LaurentPoly
@@ -146,10 +149,11 @@ def _apply_rg_to_habiro_dict(
     rg: "RGKAlgebra",
     mid_dict: dict[Label, "HabiroElement"],
 ) -> dict[Label, "HabiroElement"]:
-    """Apply `rg.RG` to a Habiro-coefficient dict at `rg`'s source side,
-    accumulating in `rg.auxiliary()`'s labels with Habiro coefficients.
+    """Apply `rg.RG` to a `HabiroElement`-coefficient dict at `rg`'s source
+    side, accumulating in `rg.auxiliary()`'s labels with `HabiroElement`
+    coefficients.
 
-    `mid_dict[a] = h_a` (Habiro), labels in `rg.starting_algebra()`.
+    `mid_dict[a] = h_a` (a `HabiroElement`), labels in `rg.starting_algebra()`.
     Returns `dict[label_aux, HabiroElement]` with each entry
         `out[b] = Σ_a h_a · _lift(c^a_b)`
     where `rg.RG(a) = Σ_b c^a_b L_b^aux`.
@@ -174,7 +178,7 @@ def _multiply_habiro_dicts(
     right: dict[Label, "HabiroElement"],
     aux: KAlgebra,
 ) -> dict[Label, "HabiroElement"]:
-    """Multiply two Habiro-coefficient dicts in `aux`'s K-algebra:
+    """Multiply two `HabiroElement`-coefficient dicts in `aux`'s K-algebra:
         left = Σ_a h_a L_a,  right = Σ_b h'_b L_b
         result[c] = Σ_{a, b} h_a · h'_b · _lift(C^c_{ab}(q))
     where `C^c_{ab}` is `aux.multiply(a, b)`'s coefficient at `L_c`."""
@@ -196,7 +200,8 @@ def _multiply_habiro_dicts(
 
 # ---------------------------------------------------------------------------
 # Helpers for factor_through (extract): invert a spectrum generator, pull a
-# Habiro-coefficient element back through an RG map, truncate by q-order.
+# `HabiroElement`-coefficient element back through an RG map, truncate by
+# q-order.
 # (Validated against the known S^UV_MS on a 4-node node-deletion chain.)
 # ---------------------------------------------------------------------------
 
@@ -235,16 +240,16 @@ def _habiro_from_ir_image(
     flow: "RGKAlgebra",
     height_grading: "Grading",
 ) -> dict[Label, "HabiroElement"]:
-    """Pull a Habiro-coefficient auxiliary element `x_dict` back through
-    `flow.RG`: express it as `Σ_c h_c · RG^flow(L_c)` and return
+    """Pull a `HabiroElement`-coefficient auxiliary element `x_dict` back
+    through `flow.RG`: express it as `Σ_c h_c · RG^flow(L_c)` and return
     `{flow source label: h_c}`.
 
     Cone-minimal apex peel ordered by `height_grading.height_of`.  The
     height **must** be the UV→IR grading (total on every appearing charge);
     a sub-flow's own grading is only partial (it cannot score charges
     outside its integrated-out directions — the very charges this pullback
-    walks).  Habiro generalization of `RGKAlgebra.from_ir_image`; the
-    step-3 pullback of `factor_through`.
+    walks).  The `HabiroElement` generalization of
+    `RGKAlgebra.from_ir_image`; the step-3 pullback of `factor_through`.
     """
     x = {l: c for l, c in x_dict.items() if not c.is_zero()}
     out: dict[Label, "HabiroElement"] = {}
@@ -266,7 +271,7 @@ def _habiro_from_ir_image(
 def _truncate_habiro_dict_by_qorder(
     d: dict[Label, "HabiroElement"], K: int,
 ) -> dict[Label, "HabiroElement"]:
-    """Keep only labels whose Habiro coefficient has leading q-order ≤ K
+    """Keep only labels whose `HabiroElement` coefficient has leading q-order ≤ K
     (the `rg_generator(K)` cutoff).  Drops the beyond-cutoff residue a
     truncated inverse leaves behind: the leading q-order equals the
     numerator's lowest exponent (every denominator factor `(1−q^{2k})` has
@@ -310,9 +315,9 @@ def _canon_shift(t):
     `((0,0,0),)` for a 1-chord label, …).  Collapsing it to `()` lets the
     same shift apply to output labels of *any* chord-arity (`_label_add`
     treats `()` as the additive identity, keeping the label's own slot).
-    Without this the central (e.g. `μ`) part was silently dropped whenever
-    the operand arities differed — the `(chords, μ)`-label instance of
-    finding A8 (pre-fix `multiply(1, L_{(c, μ)})` lost `μ`)."""
+    Without this the central (e.g. `μ`) part would be silently dropped
+    whenever the operand arities differed (`multiply(1, L_{(c, μ)})` would
+    lose `μ`)."""
     if isinstance(t, tuple):
         if t and _label_is_zero(t):
             return ()
@@ -362,7 +367,7 @@ def _label_translate(lbl, total):
 class RGKAlgebra(KAlgebra):
     """A `KAlgebra` presented via an **RG flow to a graded auxiliary**.
 
-    This is the canonical "RG presentation" of a K_𝖖 algebra (Plan 20).
+    This is the canonical "RG presentation" of a K_𝖖 algebra.
     A concrete `RGKAlgebra` is *defined* by wrapping an auxiliary (IR)
     `KAlgebra` together with RG-flow data, and **inherits the full
     `KAlgebra` API generically** from that data — it does not
@@ -372,15 +377,15 @@ class RGKAlgebra(KAlgebra):
     ------------------------
     * `auxiliary()` — the IR `KAlgebra` (the target of the flow).
     * `grading()` — a `Grading` of the auxiliary: a charge `deg(L) ∈ Γ_RG`
-      on each auxiliary label (additive under `multiply`) plus a height
-      functional `h` (the physical central charge).  See `grading.py`.
+      on each auxiliary label (additive under `multiply`) plus an integral
+      height functional `h` (a linearized proxy for `Im Z_γ`, the physical
+      central charge).  See `grading.py`.
     * `rg_generator(cutoff)` — the spectrum generator `S_RG` as a dict
       `{aux label: HabiroElement}`, with `[S_RG]_0 = 1_B`.
     * `apex(a)` — the tropical identification of a UV canonical label `a`
       with its apex IR label (default: identity).  **This UV labelling is
       specific to the RG flow** and must be reconciled with other
-      presentations of the same abstract algebra via a `KAlgebraIso`
-      (decisions A9).
+      presentations of the same abstract algebra via a `KAlgebraIso`.
 
     Full `KAlgebra` API derived generically (all overridable)
     --------------------------------------------------------
@@ -395,8 +400,12 @@ class RGKAlgebra(KAlgebra):
       exposed in its own right, with `RG ∘ ρ_UV = ρ_IR ∘ tRG` as the
       intertwining (verifier `verify_rg_trg_intertwine`).  MAY be
       overridden by subclasses with a combinatorial `σ` (e.g.
-      `BPSKAlgebra`); see A5.
-    * `trace(a, K)` — RG transport `Tr_aux(ρ(S_RG)·RG(a)·S_RG)`.
+      `BPSKAlgebra`).
+    * `trace(a, K)` / `inner_product(a, b, K)` — the bilinear trace
+      pairing (see `_inner_product_uncached`):
+
+          I_{a,b} = Σ_{c,d} [RG(a)·S_RG]_c · [RG(b)·S_RG]_d · I^aux_{c,d},
+          Tr(a)   = I(1, a)  (with `RG(1)·S_RG = S_RG`).
     * `coefficient_ring` / `identity` / `_label_section_decompose` — from
       the auxiliary.
 
@@ -426,7 +435,7 @@ class RGKAlgebra(KAlgebra):
     def apex(self, a: Label):
         """Tropical map: the auxiliary apex label identified with UV label
         `a`.  Default: identity (UV labels are IR apex labels).  This
-        labelling is RG-flow-specific (A9)."""
+        labelling is RG-flow-specific."""
         return tuple(a)
 
     def _rg_cutoff(self) -> int:
@@ -525,13 +534,13 @@ class RGKAlgebra(KAlgebra):
 
     def _s_rg_component(self, p: "Charge") -> dict[Label, "HabiroElement"]:
         """The exact `Γ_RG`-graded component of the spectrum generator:
-        `[S_RG]_p`, returned as the **Habiro dictionary**
+        `[S_RG]_p`, returned as the dictionary
         `{aux label (deg = p): exact HabiroElement}`.  This is the
         contractual meaning of "knowing `S_RG`" — a per-charge exact oracle.
 
         Contract (RGKAlgebra primitive):
 
-        * **EXACT** — full Habiro-ring coefficients, never q-truncated.
+        * **EXACT** — full localized-ring coefficients, never q-truncated.
         * **FINITE** — `[S_RG]_p` has finitely many labels.  This is a
           structural *axiom*: a valid RG grading is height-positive
           (`h(γ) ≥ 1` on every appearing charge), so a degree-`p` term is a
@@ -679,18 +688,17 @@ class RGKAlgebra(KAlgebra):
         `_label_translate`): flat integer vectors subtract elementwise,
         and pair-shaped labels — `(base_label, k_vec)`, the standard
         `add_flavour` matter-flow auxiliary — subtract slot-by-slot.
-        Before 2026-06-10 the pair shape TypeError'd into the non-flat
-        branch, silently dropping central flavour shifts from every
-        generic matter-flow product (`μ·L_a = L_a` — the pair-label
-        layer of finding A8).
+        Without nested awareness the pair shape would fall through to the
+        non-flat branch, silently dropping central flavour shifts from
+        every generic matter-flow product (`μ·L_a = L_a`).
 
         Returns `flav = None` **only** when the difference is genuinely
         undefined — labels with opaque (non-int, non-int-tuple) slots.
         A label that *is* its own section rep returns the **zero
-        vector**, not `None`: conflating the two made `multiply` skip
+        vector**, not `None`: conflating the two would make `multiply` skip
         the output flavour translation whenever either operand was a
         section rep, silently dropping the other operand's shift
-        (`L_κ·L_a = L_a` — the flat-label layer of finding A8)."""
+        (`L_κ·L_a = L_a`)."""
         label = tuple(label)
         sec, _ = self.auxiliary()._label_section_decompose(label)
         sec = tuple(sec)
@@ -764,14 +772,11 @@ class RGKAlgebra(KAlgebra):
         """Default: the auxiliary's section decomposition at the apex
         label (unflavoured: `(label, R.one())`).
 
-        **Aspirationally obsolete** — superseded by `r_label_decompose` (the
-        single-irrep lift coordinate, which delegates the same way).  Kept,
-        not retired: while it delegates to the auxiliary's
-        `_label_section_decompose` it works for *every* flow, whereas
-        `r_label_decompose` is available only where the auxiliary implements it.
-        It becomes retirable on the RG tier (derived from `r_label_decompose`
-        by the `KAlgebra` forward bridge) as the auxiliaries acquire the lift
-        coordinate."""
+        `r_label_decompose` (the single-irrep lift coordinate) delegates
+        the same way and is the preferred coordinate for new code; this
+        method is kept because it works for *every* flow, whereas
+        `r_label_decompose` is available only where the auxiliary
+        implements it."""
         return self.auxiliary()._label_section_decompose(self.apex(label))
 
     def r_label_decompose(self, label):
@@ -785,10 +790,8 @@ class RGKAlgebra(KAlgebra):
 
         With delegation in place, `_label_section_decompose` is derivable from
         this by the `KAlgebra` forward bridge wherever the auxiliary implements
-        `r_label_decompose` — i.e. it becomes retirable on the RG tier as the
-        auxiliaries acquire the lift coordinate (no migration of *all*
-        auxiliaries required up front — each flow gets it exactly when its
-        auxiliary does)."""
+        `r_label_decompose`; each flow acquires the lift coordinate exactly
+        when its auxiliary does."""
         return self.auxiliary().r_label_decompose(self.apex(label))
 
     def r_label_compose(self, section, r_basis_label):
@@ -913,8 +916,8 @@ class RGKAlgebra(KAlgebra):
     def _s_rg_element_cached(self, K_expand: int, cutoff: int = None) -> Element:
         """`S_RG` as an aux `Element` (expanded to `q^K_expand`), with `cutoff`
         matter levels, cached per `(K_expand, cutoff)`.  `cutoff=None` ⇒ the
-        (legacy fixed) `_rg_cutoff()`; the adaptive fallback passes a growing
-        `cutoff` (finding A13)."""
+        fixed `_rg_cutoff()`; the adaptive fallback passes a growing
+        `cutoff`."""
         cut = self._rg_cutoff() if cutoff is None else cutoff
         cache = self.__dict__.setdefault("_s_rg_elt_cache", {})
         s = cache.get((K_expand, cut))
@@ -958,7 +961,7 @@ class RGKAlgebra(KAlgebra):
         height-positivity).  **Soft contract**, presentation-specific
         (the generic contract cannot enumerate a cone it cannot see):
         `BPSKAlgebra` supplies the cone-witness L-shell BFS; the default
-        raises, and `rg_times_s_rg` falls back to its legacy heuristic."""
+        raises, and `rg_times_s_rg` falls back to its windowed heuristic."""
         raise NotImplementedError(
             f"{type(self).__name__}._s_rg_charges_to_height(B) is not "
             f"implemented; supply the finite charge window "
@@ -968,13 +971,15 @@ class RGKAlgebra(KAlgebra):
     def rg_times_s_rg(self, a, k: int) -> Element:
         """The **FS object** `RG(a)·S_RG` *to q-order `k`* (as an auxiliary
         `Element`) — the safe object a `trace` / `inner_product` to `q^k`
-        consumes (the trace is `Tr_aux(ρ(S_RG)·RG(a)·S_RG)`).
+        consumes: these components enter the bilinear trace pairing
+        `I_{a,b} = Σ_{c,d} [RG(a)·S_RG]_c·[RG(b)·S_RG]_d·I^aux_{c,d}`,
+        `Tr(a) = I(1, a)` (see `_inner_product_uncached`).
 
         This is the real trace-side contract: **not** `S_RG` to q-order `k`,
         but the *product* `RG(a)·S_RG` to q-order `k`.  q-order is non-additive
         across the product (the pairing phase `q^{⟨γ,γ'⟩}` can be negative — the
         binding quadratic form), so windowing `S_RG` by q-order cannot certify
-        the product (the truncation family behind #309).  The sharper point:
+        the product.  The sharper point:
         windowing each `s_g` by a *fixed* q-order **before** the cocycle shift
         breaks the exact cancellations — deep output charges `η` keep a spurious
         low-order remainder where two partition-series contributions should
@@ -984,7 +989,7 @@ class RGKAlgebra(KAlgebra):
         orders on the dictionary.)
 
         **Exact path (generic).**  Active when the realisation supplies
-        `_s_rg_component` (the exact per-component Habiro oracle) and the
+        `_s_rg_component` (the exact per-component `[S_RG]_γ` oracle) and the
         auxiliary is cone-capable (`_fs_exact_available`).  We bound the
         **output charge η**, never the S-charge `γ`: by grading additivity the
         S-charge feeding `η` through `δ ∈ supp RG(a)` is *determined*,
@@ -992,7 +997,7 @@ class RGKAlgebra(KAlgebra):
 
             [RG(a)·S_RG]_η = Σ_δ Σ_{g ∈ [S_RG]_γ} [RG(a)]_δ · s_g · ⟨η | δ·g⟩
 
-        is a **finite, exact** Habiro sum — each `[S_RG]_γ` fetched *complete*
+        is a **finite, exact** sum in the localized ring — each `[S_RG]_γ` fetched *complete*
         from `_s_rg_component(γ)` (no S-window, so no broken cancellation),
         expanded to `q^k` only at the very end (`_rg_times_s_rg_exact` /
         `_fs_eta`).  Output labels are enumerated by walking outward from
@@ -1003,7 +1008,7 @@ class RGKAlgebra(KAlgebra):
         support is finite and a finite shell captures it.  The result is exact
         through `q^k`.
 
-        **Fallback (legacy heuristic).**  When the oracle/aux are missing:
+        **Fallback (windowed heuristic).**  When the oracle/aux are missing:
         `RG(a) × S_RG` with `S_RG` windowed at the fixed `_rg_cutoff()`
         (expanded to `q^{k + _rg_cutoff()}`) — sound only in the small-`k` /
         shallow-`η` regime, NOT a certified bound (see above).  A subclass with
@@ -1025,14 +1030,14 @@ class RGKAlgebra(KAlgebra):
         """Fallback FS object `RG(a)·S_RG` to `q^k` with an **adaptive
         matter-level cutoff** (two-cutoff stability), replacing the old fixed
         `_rg_cutoff()` level cap that silently truncated the `S_RG` tower past
-        `~q^{2·cutoff}` (finding A13: matter level `N` first contributes at
+        `~q^{2·cutoff}` (matter level `N` first contributes at
         a q-order growing with `N`, so a *fixed* level count drops the tail).
 
         Grows the level count by 2 until the `q^{≤k}` coefficients repeat across
         two successive cutoffs — truncation artifacts move with the cutoff, so a
         repeat certifies the result.  Sound because the true FS support to `q^k`
-        is finite (a finite level shell captures it; A9/A10 idiom on the **level**
-        axis, the dual of the BPS q-order shell).  A strict no-op where the fixed
+        is finite (a finite level shell captures it — the shell-stability idiom
+        on the **level** axis, the dual of the BPS q-order shell).  A strict no-op where the fixed
         cutoff was already adequate (the first two cutoffs agree immediately)."""
         def _fs_at(cut):
             return self.rg_times_S(a, k + cut, cutoff=cut)
@@ -1065,7 +1070,7 @@ class RGKAlgebra(KAlgebra):
         `cone_gens` and `_s_rg_component` (the exact `[S_RG]_γ` oracle) is
         implemented (`_exact_window_available()`).
 
-        **No flat-integer-label requirement** (since #664).  The exact-FS support
+        **No flat-integer-label requirement.**  The exact-FS support
         walk (`_rg_times_s_rg_exact`) now enumerates its frontier by *multiplying*
         a support label by the `S_RG` ray-unit labels in the auxiliary
         (`aux.multiply(η, g_unit)`), never by vector-adding label tuples — so it
@@ -1079,7 +1084,7 @@ class RGKAlgebra(KAlgebra):
         is gone.)
 
         A subclass MAY still override to force the windowed fallback (return
-        `False`) — e.g. a test pinning the legacy path."""
+        `False`) — e.g. a test pinning the windowed path."""
         return self._exact_window_available()
 
     def _fs_ray_unit_labels(self) -> list:
@@ -1121,14 +1126,14 @@ class RGKAlgebra(KAlgebra):
         **Complete per η — never windows the S-charge.**  Grading additivity
         forces, for each `δ ∈ seeds`, the *unique* S-charge `γ = deg(η) − deg(δ)`
         feeding `η`; `[S_RG]_γ` is fetched *whole* from `_s_rg_component(γ)`
-        (`{}` off-cone) and summed exactly in the Habiro ring:
+        (`{}` off-cone) and summed exactly in the localized ring:
 
             [RG(a)·S_RG]_η = Σ_δ Σ_{g ∈ [S_RG]_γ} [RG(a)]_δ · s_g · ⟨η | δ·_aux g⟩.
 
         Expanding to `q^k` is deferred to the caller, so the exact
         cancellations between contributions survive (a *fixed-q-order* window
         on `s_g` before the cocycle shift destroys them — the spurious-remainder
-        bug behind the legacy heuristic; see `rg_times_s_rg`).  This is the
+        failure of the windowed heuristic; see `rg_times_s_rg`).  This is the
         generic analogue of `bps_kalgebra_internals.c_gamma_via_s` (the
         `deg = id` quantum-torus corner, where `γ = η − δ`)."""
         from habiro import HabiroElement
@@ -1176,7 +1181,7 @@ class RGKAlgebra(KAlgebra):
         """`RG(a)·S_RG` to q-order `k`, computed exactly per output charge η and
         enumerated by walking the **tame actual support**.
 
-        Each `[RG(a)·S_RG]_η` is the *complete* exact-Habiro sum (`_fs_eta` — the
+        Each `[RG(a)·S_RG]_η` is the *complete* exact localized-ring sum (`_fs_eta` — the
         S-charge is never windowed, so cancellations survive).  The support is
         enumerated by walking outward from the seeds `supp RG(a)`, generating each
         frontier node's neighbours by **multiplying** it by the `S_RG` ray-unit
@@ -1195,7 +1200,7 @@ class RGKAlgebra(KAlgebra):
         Completeness is certified by **slack stability**: the support is
         recomputed at `slack` and `slack + step` and must agree (widening the
         collar adds nothing).  Raises `NotImplementedError` when the oracle/aux
-        are unavailable, so `rg_times_s_rg` falls back to the legacy heuristic."""
+        are unavailable, so `rg_times_s_rg` falls back to the windowed heuristic."""
         if not self._fs_exact_available():
             raise NotImplementedError(
                 "exact per-η FS oracle needs `_s_rg_component` and a "
@@ -1212,7 +1217,7 @@ class RGKAlgebra(KAlgebra):
         ray_units = self._fs_ray_unit_labels()
         seed_keys = [tuple(d) for d in seeds]
 
-        # Cross-call per-η Habiro cache (k-independent): the vacuum FS object is
+        # Cross-call per-η HabiroElement cache (k-independent): the vacuum FS object is
         # reused by every trace; `RG(a)·S_RG`'s coefficients across `k` / a Gram
         # matrix.  Also shared between the two slack passes below.
         xcache = self.__dict__.setdefault("_fs_eta_xcache", {})
@@ -1322,7 +1327,7 @@ class RGKAlgebra(KAlgebra):
     # ---- inner-product computation route (selectable, see
     # `set_inner_product_route`) -------------------------------------------
     #   "direct"         — the `_inner_product_uncached` hook: the BPS
-    #                      single-Habiro Schur formula (no Element
+    #                      single-HabiroElement Schur formula (no Element
     #                      multiplication), or the generic RG-transport
     #                      pairing.  Sharp for an isolated `(a, b)`.
     #   "multiply_trace" — the universal product route
@@ -1369,7 +1374,7 @@ class RGKAlgebra(KAlgebra):
 
         The pairing is computed either by `_inner_product_uncached` (the
         overridable ``"direct"`` hook — subclass accelerators like the BPS
-        single-Habiro Schur formula override the *hook*, not this wrapper,
+        single-`HabiroElement` Schur formula override the *hook*, not this wrapper,
         so they inherit the cache) or by the ``"multiply_trace"`` product
         route `Tr(ρ(a)·b) = Σ_c N^c·Tr(L_c)`.  Computing `I_{a,b}` is the
         dominant cost of every trace (`trace(a) = inner_product(1, a)`)
@@ -1384,7 +1389,7 @@ class RGKAlgebra(KAlgebra):
         shell widenings relies on).  Per-instance, lazily created;
         immutable algebra ⇒ no invalidation.  `**kwargs` (e.g. BPS
         `cone_cutoff`) are forwarded to the direct hook but are NOT part
-        of the cache key (perf hints, correctness-invariant post-#462).
+        of the cache key (perf hints; they do not affect the value).
         Labels pass through unchanged; caching is bypassed for unhashable
         labels.
 
@@ -1501,9 +1506,10 @@ class RGKAlgebra(KAlgebra):
                     # pair whose FS coefficients already exceed `q^K` contributes
                     # 0 to `I_{a,b}` through `q^K`.  Skip it — both a perf win and
                     # the thing that keeps the deep tail of the exact-FS walk from
-                    # querying `aux.inner_product` on labels an *incomplete-trace*
-                    # auxiliary honest-fails on (e.g. `U1A1AoddKAlg`'s conjectural
-                    # deep-power regime), which never affect the `q^K` answer.
+                    # querying `aux.inner_product` on labels where an
+                    # *incomplete-trace* auxiliary raises (e.g. `U1A1AoddKAlg`'s
+                    # conjectural deep-power regime) — labels which never affect
+                    # the `q^K` answer.
                     if lc + min(yd._coeffs) > K:
                         continue
                     iab = _iaux(c, d, M)
@@ -1538,7 +1544,7 @@ class RGKAlgebra(KAlgebra):
         Default **False**: use the full cross-pairing, correct for ANY
         grading — including a **flavour** `Γ_RG`, where the trace keeps the
         `μ`-refinement and a grade-0 projection would wrongly integrate `μ`
-        out (the gauge-vs-flavour distinction of #327).  A flow whose `Γ_RG`
+        out (the gauge-vs-flavour distinction).  A flow whose `Γ_RG`
         is a gauge grading (e.g. BPS node-deletion, which drops gauge nodes)
         overrides to True; `verify_inner_product_grade_pruned` cross-checks
         the prune against the full pairing."""
@@ -1577,7 +1583,7 @@ class RGKAlgebra(KAlgebra):
         """Cross-check the grade-0-block prune against the full cross-pairing
         `Tr_aux(ρ(a_S)·b_S)`.  Must hold whenever
         `_trace_is_grade_concentrated()` is True (the soundness gate for the
-        gauge-grading prune; it fails on a flavour `Γ_RG` — the #327 case)."""
+        gauge-grading prune; it fails on a flavour `Γ_RG`)."""
         aux = self.auxiliary()
         a_S = self.rg_times_s_rg(a, K)
         b_S = self.rg_times_s_rg(b, K)
@@ -1640,7 +1646,7 @@ class RGKAlgebra(KAlgebra):
         (`{(sec_a, sec_b): Element}`).
 
         The RG·S_RG cache is *not* persisted (it is `q`-cutoff-dependent —
-        a session memo).  Subclasses with a richer presentation-specific
+        a per-run memo).  Subclasses with a richer presentation-specific
         cache (e.g. `BPSKAlgebra`'s `_F_cache`/`_FS_cache`) override this."""
         import json
         rg = self.__dict__.get("_rg_cache", {})
@@ -1689,8 +1695,8 @@ class RGKAlgebra(KAlgebra):
     def RG_element(self, x: Element) -> Element:
         """Linear extension of `RG`: `RG(Σ c_a · L_a) = Σ c_a · RG(L_a)`.
 
-        Plan 10: Element is over Z[q^±] universally, so no
-        coefficient-ring matching needed."""
+        `Element` is over Z[q^±] universally, so no coefficient-ring
+        matching is needed."""
         out: dict[Label, "LaurentPoly"] = {}
         for a, c in x.terms.items():
             if c.is_zero():
@@ -1708,7 +1714,7 @@ class RGKAlgebra(KAlgebra):
     def _s_rg_as_aux_element(
         self, cutoff: int, K_expand: int,
     ) -> Element:
-        """Truncated `S_RG` as an auxiliary `Element`: each Habiro
+        """Truncated `S_RG` as an auxiliary `Element`: each `HabiroElement`
         coefficient expanded to `q^K_expand` (LaurentPoly)."""
         from laurent_poly import LaurentPoly
         s_rg = self.rg_generator(cutoff)
@@ -1747,8 +1753,7 @@ class RGKAlgebra(KAlgebra):
         `RG(L_a)·S_RG = X_{γ(a)} + O(q)`: the `q⁰` part of the FS object
         `RG(a)·S_RG` is a **single** auxiliary basis element with coefficient
         `1` (its lower-tropical / apex charge).  This is the generic analogue
-        of `BPSKAlgebra.verify_F_S_leading`, which previously lived only on the
-        BPS subclass (audit gap G2).
+        of `BPSKAlgebra.verify_F_S_leading`.
 
         Leading-order **exact**: it reads the `q⁰` coefficient of
         `rg_times_s_rg(a, K)`, which is complete at any `K ≥ 0` (truncation
@@ -1778,7 +1783,7 @@ class RGKAlgebra(KAlgebra):
 
         Best-effort: the truncated form fails strict-equality at the
         boundary (filtration cutoff and q-expansion both introduce
-        residuals).  Proper boundary-aware verifier is a follow-up.
+        residuals), so this does not certify the axiom at the window edge.
         """
         if K_expand is None:
             K_expand = max(4 * cutoff, 4)
@@ -1821,7 +1826,7 @@ class RGKAlgebra(KAlgebra):
         uv_ms_flow=None,
     ) -> "ExtractedRG":
         """Factor this UV→IR flow through a given MS→IR flow, recovering the
-        UV→MS flow (Plan 21 — the inverse of `then`).
+        UV→MS flow (the inverse of `then`).
 
         `mid_to_ir` must be an `RGKAlgebra` to the IR whose `auxiliary()` is
         **lattice-compatible** with `self.auxiliary()` (same pairing).  The
@@ -1830,7 +1835,7 @@ class RGKAlgebra(KAlgebra):
         * `auxiliary()` = the MS algebra (`mid_to_ir.starting_algebra()`),
         * `RG(a)` = the composition-inverse `mid_to_ir⁻¹ ∘ self.RG` — i.e.
           `self.RG(a)` decomposed into `{RG^MS_IR(L_b)}`, the embedding
-          `A^UV ↪ A^MS` (Goal 1.4),
+          `A^UV ↪ A^MS`,
         * `rg_generator(K)` = `S^UV_MS` from
           `S^UV_IR = RG^MS_IR(S^UV_MS) · S^MS_IR`.
 
@@ -1839,7 +1844,7 @@ class RGKAlgebra(KAlgebra):
         ground truth).  The BPS subquiver convenience
         (`rg_flow.factor_through_subquiver`) supplies the one-shot
         `SubquiverRG(A, outside)`, whose `rg_generator` enumerates `S^UV_MS`
-        by **dropped-node multiplicity** with exact Habiro coefficients — the
+        by **dropped-node multiplicity** with exact `HabiroElement` coefficients — the
         correct truncation measure for the quotient grading `Γ^UV_MS`, so
         outside bound states survive.  When omitted, the general pullback
         extraction runs (invert `S^MS_IR`, multiply by `S^UV_IR`, pull back
@@ -1917,27 +1922,27 @@ class ComposedRG(RGKAlgebra):
         return self._second.RG_element(intermediate)
 
     def rg_generator(self, cutoff) -> dict[Label, "HabiroElement"]:
-        """Squashed `S_total = inner_RG(S_outer) · S_inner` (per the
-        user's recipe), where `outer = self._first` is the source step
-        and `inner = self._second` is the second step.
+        """Squashed `S_total = inner_RG(S_outer) · S_inner`, where
+        `outer = self._first` is the source step and
+        `inner = self._second` is the second step.
 
         Computes:
-          1. `S_outer_in_mid = first.rg_generator(cutoff)` (Habiro in
-             the middle algebra);
+          1. `S_outer_in_mid = first.rg_generator(cutoff)` (`HabiroElement`
+             coefficients in the middle algebra);
           2. `S_outer_in_aux = inner_RG(S_outer_in_mid)` -- apply
-             `second.RG` label-by-label, accumulating Habiro coefficients
-             in the final auxiliary;
-          3. `S_inner_in_aux = second.rg_generator(cutoff)` (Habiro in
-             the final aux);
+             `second.RG` label-by-label, accumulating `HabiroElement`
+             coefficients in the final auxiliary;
+          3. `S_inner_in_aux = second.rg_generator(cutoff)` (`HabiroElement`
+             coefficients in the final aux);
           4. multiply `S_outer_in_aux · S_inner_in_aux` in the final
              auxiliary, using `aux.multiply` to get structure constants
-             and lifting RLaurent coefficients into the Habiro ring.
+             and lifting the coefficients into the localized ring.
 
-        Flavour-agnostic: per Plan 10 the structure constants are integer
+        Flavour-agnostic: the structure constants are integer
         `LaurentPoly` (flavour rides in the *labels*, not the coefficients),
-        so the Habiro arithmetic stays over `Z` — no `RHabiro` ring needed.
-        Validated on the flavoured hexagon (matches the one-shot
-        `SubquiverRG`).
+        so the localized-ring arithmetic stays over `Z` — no `R`-coefficient
+        variant is needed.  Validated on the flavoured hexagon (matches the
+        one-shot `SubquiverRG`).
         """
         aux = self._second.auxiliary()
         s_outer_mid = self._first.rg_generator(cutoff)
@@ -1955,7 +1960,7 @@ class ComposedRG(RGKAlgebra):
 
 
 # ---------------------------------------------------------------------------
-# ExtractedRG: factor a UV→IR flow through a given MS→IR flow (Plan 21)
+# ExtractedRG: factor a UV→IR flow through a given MS→IR flow
 # ---------------------------------------------------------------------------
 
 
@@ -2023,15 +2028,14 @@ def _pullback_laurent_image(
 
 
 class ExtractedRG(RGKAlgebra):
-    """The UV→MS flow recovered by `uv_ir.factor_through(mid_to_ir)`
-    (Plan 21).
+    """The UV→MS flow recovered by `uv_ir.factor_through(mid_to_ir)`.
 
     KAlgebra ops delegate to the **UV** algebra
     (`uv_ir.starting_algebra()`); `auxiliary()` is the **MS** algebra
     (`mid_to_ir.starting_algebra()`).  `RG` is the composition-inverse
     `mid_to_ir⁻¹ ∘ uv_ir.RG` (the embedding `A^UV ↪ A^MS`); `rg_generator`
     is the extracted `S^UV_MS`.  `grading()` (the quotient
-    `Γ^UV_MS = Γ^UV_IR / Γ^MS_IR`) is a follow-up — the core
+    `Γ^UV_MS = Γ^UV_IR / Γ^MS_IR`) requires `gamma_inclusion` — the core
     `RG`/`rg_generator`/embedding do not need it.
     """
 
@@ -2053,9 +2057,9 @@ class ExtractedRG(RGKAlgebra):
         # subquiver convenience this is the one-shot `SubquiverRG(A, outside)`,
         # which computes `S^UV_MS` exactly — enumerated by dropped-node
         # multiplicity, so outside bound states `γ_a+γ_b` survive regardless of
-        # their q-order (no q-order truncation, the onboarding "compute exact,
-        # truncate last by the right measure" discipline).  `None` ⟹ run the
-        # general pullback extraction below.
+        # their q-order (no q-order truncation — compute exact, truncate last
+        # by the right measure).  `None` ⟹ run the general pullback
+        # extraction below.
         self._uv_ms_flow = uv_ms_flow
 
     def _uv(self) -> KAlgebra:
@@ -2131,19 +2135,20 @@ class ExtractedRG(RGKAlgebra):
         return _truncate_habiro_dict_by_qorder(s_uv_ms, cutoff)
 
     def _s_rg_component(self, p):
-        """`[S^UV_MS]_p` — exact graded component (Plan 21).
+        """`[S^UV_MS]_p` — exact graded component.
 
         When an authoritative direct UV→MS flow is supplied (the BPS subquiver
         convenience), delegate to its oracle; that is the exact `S^UV_MS`
         enumerated by the quotient `Γ^UV_MS` grading.  The general (pullback)
-        case is the grading-height extract path (Step 2) — not yet wired, so it
-        falls through to the soft-contract `NotImplementedError`."""
+        case would use the grading-height extract path, which is not
+        implemented, so it falls through to the soft-contract
+        `NotImplementedError`."""
         if self._uv_ms_flow is not None:
             return self._uv_ms_flow._s_rg_component(p)
         return super()._s_rg_component(p)
 
     def grading(self):
-        """The quotient grading `Γ^UV_MS = Γ^UV_IR / Γ^MS_IR` (Plan 21).
+        """The quotient grading `Γ^UV_MS = Γ^UV_IR / Γ^MS_IR`.
 
         `gamma_inclusion` (passed to `factor_through`) gives `Γ^MS_IR` as a
         list of **coordinate indices** into `self._uv_ir.grading()` (the
@@ -2151,9 +2156,9 @@ class ExtractedRG(RGKAlgebra):
         BPS case).  `deg^UV_MS(b) = deg^UV_IR(b)` with those coordinates
         dropped (the quotient); the height restricts to the complementary
         coordinates (`h^UV_IR` on a complement of `Γ^MS_IR` — the UV→MS
-        central charge, D7).  Both are total and additive (a coordinate
+        height).  Both are total and additive (a coordinate
         projection of the additive `deg^UV_IR`).  A general (non-coordinate)
-        `Γ^MS_IR ↪ Γ^UV_IR` via SNF is a follow-up.
+        `Γ^MS_IR ↪ Γ^UV_IR` (via SNF) is not implemented.
         """
         if self._iota is None:
             raise NotImplementedError(
@@ -2181,7 +2186,7 @@ class ExtractedRG(RGKAlgebra):
         )
 
     def verify_round_trip(self, cutoff: int) -> bool:
-        """`extract ∘ combine = id` (the R2 factorization): recombining the
+        """`extract ∘ combine = id`: recombining the
         recovered `UV→MS` flow with the `MS→IR` flow reproduces the original
         `UV→IR` spectrum generator to leading q-order ≤ cutoff —
         `(self.then(mid)).rg_generator ≡ uv_ir.rg_generator (mod q^{>cutoff})`.
@@ -2223,8 +2228,9 @@ def _bpskalgebra_data(A) -> dict:
 
 
 def _bpskalgebra_from_data(data: dict):
-    raise NotImplementedError(  # despined for the spine-free release
-        "BPS/rg_flow (de)serialization is not part of the spine-free RGKAlgebra release")
+    raise NotImplementedError(  # requires the BPS realisation layer
+        "BPS/rg_flow (de)serialization requires the BPS realisation layer; "
+        "not available in this configuration")
     return BPSKAlgebra(
         pairing=data["pairing"],
         node_charges=data["node_charges"],
@@ -2236,8 +2242,9 @@ def _bpskalgebra_from_data(data: dict):
 def _flatten_chain(rg) -> list[dict]:
     """Flatten a `RGKAlgebra` (possibly a nested `ComposedRG`) into a
     linear list of single-step descriptors, root step first."""
-    raise NotImplementedError(  # despined for the spine-free release
-        "BPS/rg_flow (de)serialization is not part of the spine-free RGKAlgebra release")
+    raise NotImplementedError(  # requires the BPS realisation layer
+        "BPS/rg_flow (de)serialization requires the BPS realisation layer; "
+        "not available in this configuration")
     if isinstance(rg, ComposedRG):
         return _flatten_chain(rg.first) + _flatten_chain(rg.second)
     # SingleNodeRG is a subclass of SubquiverRG, so check it first.
@@ -2262,8 +2269,9 @@ def to_json(rg: RGKAlgebra) -> dict:
     derived on `from_json` by chaining each step's `auxiliary()`
     into the next step's UV.
     """
-    raise NotImplementedError(  # despined for the spine-free release
-        "BPS/rg_flow (de)serialization is not part of the spine-free RGKAlgebra release")
+    raise NotImplementedError(  # requires the BPS realisation layer
+        "BPS/rg_flow (de)serialization requires the BPS realisation layer; "
+        "not available in this configuration")
     if isinstance(rg, (SingleNodeRG, SubquiverRG, ComposedRG)):
         # Walk to the leftmost UV.
         cur = rg
@@ -2291,8 +2299,9 @@ def from_json(data: dict) -> RGKAlgebra:
     satisfied.  Returns the single-step `RGKAlgebra` for length-1
     chains, else a left-leaning `ComposedRG` for longer ones.
     """
-    raise NotImplementedError(  # despined for the spine-free release
-        "BPS/rg_flow (de)serialization is not part of the spine-free RGKAlgebra release")
+    raise NotImplementedError(  # requires the BPS realisation layer
+        "BPS/rg_flow (de)serialization requires the BPS realisation layer; "
+        "not available in this configuration")
     if "root_uv" not in data or "steps" not in data:
         raise ValueError(
             "from_json: data must have 'root_uv' and 'steps' keys"

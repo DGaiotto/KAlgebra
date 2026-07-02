@@ -12,8 +12,8 @@ spectrum generator in closed form and integrating it out.
     the per-factor analytic Schur traces `trace_series`) with the bifundamental's
     **baryonic U(1)** adjoined as a genuine coefficient-ring flavour `μ` (so the
     trace can keep the μ-character — this is what makes the μ-refined index
-    well-defined; the previous central-"level" encoding could not, and its trace
-    honest-failed on charged states).
+    well-defined; a central-"level" encoding cannot, and its trace has to raise
+    on charged states rather than silently degrade).
   * S_RG = the bifundamental `(2,2)` spectrum
 
         Ψ = ∏_{ε₁,ε₂ ∈ {±1}} E_𝔮(μ · v₁^{ε₁} v₂^{ε₂}),
@@ -27,7 +27,7 @@ spectrum generator in closed form and integrating it out.
     and a μ-refined Schur index in `R(U(1))`.
 
 Fully BPS-free and **pure exact-FS** (no trace override): the E_𝔮 coefficients are
-Habiro-exact, the auxiliary multiply routes through `PureSU2KAlg` (Wilson CG +
+exact `HabiroElement`s, the auxiliary multiply routes through `PureSU2KAlg` (Wilson CG +
 the `w_1`-recursion sectors), and the trace is the generic bilinear exact-FS
 pairing over the `add_flavour(U(1))` auxiliary (keeping the μ-character).
 """
@@ -59,14 +59,15 @@ from sunf_dilog import eq_coeff as _a             # a_n = (-1)^n q^n/(q^2;q^2)_n
 def su2su2_bifund_matter_spectrum(cutoff: int) -> dict[tuple, HabiroElement]:
     """`S_RG = Ψ` truncated to bifundamental level `k ≤ cutoff`.
 
-    Returns `{(0, w₁, 0, w₂, k): c_{k,(w₁,w₂)}}` — the exact Habiro coefficient
+    Returns `{(0, w₁, 0, w₂, k): c_{k,(w₁,w₂)}}` — the exact `HabiroElement`
+    coefficient
     of `F⁽¹⁾_{w₁} F⁽²⁾_{w₂}` (Wilson line of each pure SU(2)) at bifundamental
     level `k`.  `c` is the 2-D Weyl peel
     `D_k(w₁,w₂) − D_k(w₁+2,w₂) − D_k(w₁,w₂+2) + D_k(w₁+2,w₂+2)` of the scalar
     `(v₁,v₂)`-weight polynomial `D_k(W₁,W₂) = Σ ∏ a_{n_ε}` over
     `Σ_ε n_ε = k`, `W₁ = (n₊₊+n₊₋)−(n₋₊+n₋₋)`, `W₂ = (n₊₊+n₋₊)−(n₊₋+n₋₋)`.
 
-    (The label here keeps the historical flat `(0,w₁,0,w₂,k)` form — used by the
+    (The label here keeps the flat `(0,w₁,0,w₂,k)` form — used by the
     linear-quiver merge test and `SU2xSU2BifundOverPure._s_rg_component`, which
     relabels it onto the `add_flavour` auxiliary.)
     """

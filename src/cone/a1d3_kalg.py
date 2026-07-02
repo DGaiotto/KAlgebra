@@ -1,15 +1,16 @@
-"""`A1D3KAlg` -- the [A_1, D_3] Argyres-Douglas K-algebra,
+"""`A1D3KAlg` -- the [A_1, D_3] Argyres-Douglas K_𝖖-algebra,
 fully standalone SU(2)-flavoured realisation with manifest Z_3
 cyclic symmetry.
 
-This is the *truly autonomous* hard-coded version: no SU2BPSKAlgebra
-or BPSKAlgebra runtime dependency.  The algebra is presented by 6
+This is the *truly autonomous* hard-coded version: no BPS-quiver
+realisation (`BPSKAlgebra`) runtime dependency.  The algebra is presented by 6
 multiplicative generators {T_0, T_1, T_2, D_0, D_1, D_2} and the
 8 Z_3-symmetric defining relations, plus the q-commutation rules
 that hold within each q-commuting tile.  Multiplication is computed
 by a recursive reduction algorithm using only this base data.
 
-PentagonKAlg / HeptagonKAlg lineage.
+It follows the same reduction-algorithm design as the `[A_1, A_{2k}]`
+polygon algebras (`a1a2k_kalg.py`).
 
 Canonical label structure
 -------------------------
@@ -31,7 +32,9 @@ Tile catalog:
     tile 5:  T_2 · D_1   (q^{+1})
 
 The basis element corresponding to label (tile, a, b, k) is
-    M(tile, a, b, k)  :=  q^{a*b*twist}  ·  T_{tile_T}^a  ·  D_{tile_D}^b  ·  χ_k.
+    M(tile, a, b, k)  :=  q^{-a*b*twist}  ·  T_{tile_T}^a  ·  D_{tile_D}^b  ·  χ_k
+(the Weyl-symmetric normalization — bar-invariant since T^a·D^b picks up
+exactly q^{+a*b*twist} relative to the symmetric-ordered atom).
 
 ρ (cyclic monodromy) is a permutation of canonical labels:
     ρ-shift on tiles:  0→2, 1→3, 2→4, 3→5, 4→0, 5→1.
@@ -46,7 +49,14 @@ Defining relations (each line is a Z_3-orbit of 3 concrete relations):
     T_i · D_{i+1}    =  χ_1  +  q^{-1}·D_i  +  q·D_{i-1}
     D_{i+1} · T_i    =  χ_1  +  q     ·D_i  +  q^{-1}·D_{i-1}
 
-Trace: Tr(M(tile, a, b, k)) = δ_{a=0, b=0} · χ_k · (q²; q²)_∞^{gauge_rank}.
+Trace: two-layer pipeline.  Layer 1 (pure algebra) reduces Tr(label) via
+ρ²-twisted cyclicity + the Plücker relations to the elementary basis
+{Tr(1), Tr(T_i), Tr(D_i)} over R(SU(2))[q^±]; Layer 2 substitutes the
+closed-form affine sl(2)_{−4/3} characters
+    Tr 1 = κ_0,   Tr D = −q⁻¹·κ_1^anti,
+    Tr T = +q⁻¹·(κ_0 − κ_1^sym − χ_1·κ_1^anti)
+(so Tr(T_i), Tr(D_i) are nonzero; only the q⁰ coefficient is δ-supported
+on the identity gauge cell).  See the Layer-2 section below.
 """
 
 from __future__ import annotations
@@ -451,7 +461,7 @@ def _trace_reduce_word(alg, word, chi_idx, q_factor, depth=0, max_depth=40):
     cyclicity contract Tr(a · b) = Tr(ρ²(b) · a) applied to a SINGLE
     TAGGED FACTOR.
 
-    Algorithm (per user clarification — PentagonKAlg / a1a2k style):
+    Algorithm (the same tagged-letter style as `a1a2k_kalg`):
       1. Tag the LAST letter of the word.  Keep this same tagged
          factor across all cycles.
       2. Cycle: apply ρ² to the tagged factor and move it to the
@@ -541,8 +551,8 @@ def _trace_reduce_word(alg, word, chi_idx, q_factor, depth=0, max_depth=40):
 # Layer-2 chiral-algebra characters
 # ---------------------------------------------------------------------------
 #
-# Closed form for the three elementary traces (verified against
-# SU2BPSKAlgebra at K=30 to every probed q-order):
+# Closed form for the three elementary traces (verified against a
+# BPS-quiver reference realisation at K=30 to every probed q-order):
 #
 #     Tr_1  =        κ_0
 #     Tr_D  =  −q⁻¹·                                  κ_1^anti
@@ -555,9 +565,9 @@ def _trace_reduce_word(alg, word, chi_idx, q_factor, depth=0, max_depth=40):
 #     κ_1^anti = (ch(D⁺_{1,1}) − ch(D⁻_{1,1})) / (μ − μ⁻¹).
 #
 # Construction: each character = BPS-Verma denominator × an explicit
-# numerator constructed from the Creutzig–Ridout Σ_j formulas
-# (arXiv:1306.4388, Prop. 3.10), with BPS Schur convention q_CR = q²
-# and z = μ.
+# numerator constructed from the Creutzig–Ridout Σ_j formulas (known
+# closed forms for admissible-level sl(2) characters), with BPS Schur
+# convention q_CR = q² and z = μ.
 
 
 def _laurent_clean(d):
@@ -952,19 +962,22 @@ class A1D3KAlg(ConeKAlgebra):
 
     # -- two-layer trace ------------------------------------------------
     #
-    # Layer 1 (pure algebra):  Tr(M(tile, a, b, k)) = q_coef · χ_k · Tr(1)
-    # where q_coef = δ_{a=0, b=0} (= 1 if (a,b)=(0,0), else 0).  This
-    # follows from the ρ²-twisted cyclic trace functional on the gauge-
-    # sublattice quantum torus: only labels in ker(B_gauge) = {0} survive.
+    # Layer 1 (pure algebra): reduce Tr(label) to the elementary basis
+    # {Tr(1), Tr_T, Tr_D} over R(SU(2))[q^±] via the tag-move-cycle-
+    # Plücker algorithm (ρ²-twisted cyclicity + the interaction
+    # relations).  Only the q⁰ coefficient is δ-supported on the
+    # identity gauge cell (the vacuum_only=True shortcut).
     #
-    # Layer 2 (analytic plug-in):  Tr(1) = (q²;q²)_∞^{gauge_rank}  ∈ ℤ[[q]].
+    # Layer 2 (analytic plug-in): the affine sl(2)_{−4/3} admissible
+    # characters — Tr_1 = κ_0, Tr_D = −q⁻¹·κ_1^anti,
+    # Tr_T = +q⁻¹·(κ_0 − κ_1^sym − χ_1·κ_1^anti).
 
     def trace_layer1(
         self, label: Label,
     ) -> dict:
         """Layer-1 trace reduction via tag-move-cycle-Plücker algorithm.
 
-        Algorithm (per user spec):
+        Algorithm:
           1. Tag a letter in the monomial; χ_n factors are pulled out
              (they're in the coefficient ring R(SU(2))).
           2. Move the tagged letter right via q-commute (collecting
@@ -1036,8 +1049,8 @@ class A1D3KAlg(ConeKAlgebra):
     ) -> dict[str, RPowerSeries]:
         """Layer-2 elementary traces as R(SU(2))[[q]] series truncated at q^K.
 
-        Closed form (verified against SU2BPSKAlgebra at K=30 at every
-        odd q-power up to q^17):
+        Closed form (verified against a BPS-quiver reference realisation
+        at K=30 at every odd q-power up to q^17):
 
             Tr_1  =        κ_0
             Tr_D  =  −q⁻¹·                                  κ_1^anti
@@ -1140,9 +1153,9 @@ class A1D3KAlg(ConeKAlgebra):
         return out
 
     def r_label_decompose(self, label):
-        """The single-irrep flavour-lift coordinate (replaces the retired
-        `_label_section_decompose`): peel the SU(2) spin index `k` (the
-        R-basis-label) off the gauge monomial `(tile, a, b)`."""
+        """The single-irrep flavour-lift coordinate: peel the SU(2) spin
+        index `k` (the R-basis-label) off the gauge monomial
+        `(tile, a, b)`."""
         tile, a, b, k = self.canonicalise(label)
         return (tile, a, b, 0), k
 

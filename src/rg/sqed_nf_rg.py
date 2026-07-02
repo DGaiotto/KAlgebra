@@ -1,7 +1,7 @@
 """`SQEDNfRGKAlgebra` — `SQED_{N_f}` (U(1) gauge + `N_f` charged hypers, **SU(N_f)
 flavour**) presented as an RG flow to the Z² quantum torus.  The general
-`N_f` flavoured analogue of `U1SquareRGKAlgebra` (N_f=1) and `U1A1D2RGKAlgebra`
-(N_f=2), and a **pure** `RGKAlgebra`: `RG`, `multiply`, `ρ`, `trace` are all the
+`N_f` flavoured analogue of `U1SquareRGKAlgebra` (N_f = 1), and a **pure**
+`RGKAlgebra`: `RG`, `multiply`, `ρ`, `trace` are all the
 generic engine — no closed-form override.
 
 Defining data
@@ -16,23 +16,22 @@ Defining data
 * `S_RG = ∏_{i=1}^{N_f} E_𝖖(μ_i·X_{0,1})` pushed through the Weyl-symmetric
   `μ → χ_{SU(N_f)}` map — the `N_f` collinear hypers form an SU(N_f) fundamental.
   The exact per-level SU(N_f)-character content is `sunf_dilog.sunf_components`
-  (the bialternant Weyl peel, Habiro-exact); `_s_rg_component((N,))` wraps it at
-  the carrier label `X_{0,N} = (0, N)`.
+  (the bialternant Weyl peel, with exact `HabiroElement` coefficients);
+  `_s_rg_component((N,))` wraps it at the carrier label `X_{0,N} = (0, N)`.
 * `apex` = identity (UV canonical labels are the auxiliary cone labels).
 
 Why it is fully generic
 -----------------------
 The trace is the engine's **bilinear pairing** over the SU(N_f)-flavoured
 auxiliary (the per-charge `RG(a)·S_RG` components are exact via the nested-aux
-exact-FS walk, #666; the flavour is handled by `aux.inner_product`).  `multiply`
+exact-FS walk; the flavour is handled by `aux.inner_product`).  `multiply`
 is the generic `from_ir_image(RG(a)·RG(b))`: the SU(N_f) flavour is **non-additive**
 (it fuses by Clebsch–Gordan, not by a central shift), so the generic `multiply`
 takes its non-additive-flavour branch and lets `aux.multiply` do the fusion — no
-subclass `multiply`/`trace` override is needed (unlike the `A1Dodd`-derived
-`U1A1D2`, which carries a heavier closure).
+subclass `multiply`/`trace` override is needed.
 
 `SQEDNfRGKAlgebra(1)` reproduces SQED₁ (= `U1SquareRGKAlgebra`);
-`SQEDNfRGKAlgebra(2)` reproduces SQED₂ (= `U1A1D2RGKAlgebra`).  Certified by a
+`SQEDNfRGKAlgebra(2)` reproduces SQED₂.  Certified by a
 `KAlgebraIso` to `SQEDNfSampleKAlgebra(N_f)` (the same `u_±/v` presentation),
 relabelling `((a,b), w) ↔ (a, b, w)` — both sides over `SUNZPlusRing(N_f)`.
 """

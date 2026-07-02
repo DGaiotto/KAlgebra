@@ -1,8 +1,8 @@
-"""Directional node-drop RG presentations (Plan 20 T6 / decisions A8).
+"""Directional node-drop RG presentations.
 
 `DirectionalSubquiverRG` is the **directional** counterpart of the
 UV-wrapping extractors `rg_flow.SingleNodeRG` / `rg_flow.SubquiverRG`:
-it *defines* the UV K-algebra of a BPS node-deletion RG flow purely from
+it *defines* the UV K_𝖖-algebra of a BPS node-deletion RG flow purely from
 IR + RG data, inheriting the complete generic `RGKAlgebra` API
 (`multiply` via the apex peel, `rho`/`rho_inverse` via the `tRG` mirror,
 `trace` via RG transport).  No UV `BPSKAlgebra` appears anywhere in the
@@ -11,8 +11,8 @@ derived path — so a `KAlgebraIso` between an independently built UV
 certificate, not a delegation tautology (the circularity that made
 "iso" checks against the wrap-UV extractors vacuous).
 
-The spectrum generator `S_RG` — three ways (the user's a/b/c)
---------------------------------------------------------------
+The spectrum generator `S_RG` — three ways (a/b/c)
+--------------------------------------------------
 * **(a) Closed form (default).**  When the UV spec is arranged
   **stuff-first** — `spec = [stuff_1, …, stuff_k, ir_1, …, ir_m]`, the
   `stuff_i` carrying the dropped node(s) in their node-basis
@@ -22,7 +22,7 @@ The spectrum generator `S_RG` — three ways (the user's a/b/c)
       S_UV  =  S_RG · S_IR,      S_RG  =  ∏_{i=1..k} E_𝖖(X_{stuff_i}),
 
   the literal head of the UV spec product.  Its **dict representation
-  over the IR auxiliary** (Habiro coefficients on IR *canonical*
+  over the IR auxiliary** (`HabiroElement` coefficients on IR *canonical*
   labels, the form the `RGKAlgebra` contract consumes) is computed
   chart-free from constructor data: the Nahm kets `[S_UV|0⟩]_δ` of the
   stuff-first spec (`nahm_local.s_gamma_habiro` — a closed form in
@@ -561,8 +561,8 @@ class DirectionalSubquiverRG(RGKAlgebra):
             # is *guaranteed* only for a genuinely (stuff)(ir)-ordered
             # spec; whether the order-by-order ket factorization always
             # yields a valid flow on interleaved specs is an OPEN
-            # question (the machinery has so far been robust well beyond
-            # physical expectation — user, 2026-06-10).  Certify the
+            # question (in practice the machinery has been robust well
+            # beyond physical expectation).  Certify the
             # result (`certify_directional_vs_bps`) before trusting it.
             stuff, ir_spec = classify_split(node_charges, spec, drop_indices)
         if not stuff:
@@ -717,7 +717,7 @@ class DirectionalSubquiverRG(RGKAlgebra):
         """`Γ_RG` here is **dropped gauge-node multiplicity** — a gauge
         grading: the dropped nodes are integrated out, so `Tr_aux` is
         supported on grade 0 and the `_pair_grade_blocks` prune of the trace
-        pairing is exact (no flavour μ-refinement to lose — the #327
+        pairing is exact (no flavour μ-refinement to lose — the
         gauge-vs-flavour distinction).  Cross-checked by
         `verify_inner_product_grade_pruned`."""
         return True
@@ -944,12 +944,12 @@ class DirectionalSubquiverRG(RGKAlgebra):
     def _kernel_corrected_rho_inverse(self, a: Vec, b: Vec) -> Vec:
         """Tripwire pinning the mirror's `ρ_UV⁻¹(a)` candidate `b` to the
         right flavour coset.  The root cause — the chart-level σ applied
-        to full labels without the section rectification, which let the
-        mirror upper land a `ker B` shift off — was fixed at the source
-        by PR #415's A8 flavour seam (`BPSKAlgebra._sec_rectified_map`:
-        ρ acts on the *multiplicative* pair `(section canonical,
-        R element)`, with ⋆ on the R part); after it, the flavoured
-        n_003 dictionary certifies 33/33 in pure-derived mode and this
+        to full labels without the section rectification, which would let the
+        mirror upper land a `ker B` shift off — is fixed at the source
+        by the flavour seam `BPSKAlgebra._sec_rectified_map`
+        (ρ acts on the *multiplicative* pair `(section canonical,
+        R element)`, with ⋆ on the R part); with it, the flavoured
+        dictionaries certify fully in pure-derived mode and this
         correction never fires.  Kept as defence-in-depth: ρ negates
         central charges (`ρ(b + w) = ρ(b) − w` for `w ∈ ker B`), so a
         residual coset error is corrected in one linear step
@@ -1058,14 +1058,14 @@ class DirectionalSingleNodeRG(DirectionalSubquiverRG):
 
 
 # ---------------------------------------------------------------------------
-# F-oracle from a UV BPSKAlgebra (the speed route, decisions A8 + user 2026-06-10)
+# F-oracle from a UV BPSKAlgebra (the speed route)
 # ---------------------------------------------------------------------------
 
 
 def uv_f_oracle(uv_bps, ir: KAlgebra) -> Callable[[Vec], Element]:
     """RG-image oracle backed by a UV `BPSKAlgebra`'s F-solver: `F(a)`
-    peeled into `ir`'s canonical basis (the historical extraction,
-    inlined — `rg_flow._decompose_qt_in_ir_basis`).  `ir` is the
+    peeled into `ir`'s canonical basis
+    (via `rg_flow._decompose_qt_in_ir_basis`).  `ir` is the
     directional flow's `auxiliary()` (any instance with the same
     lattice / surviving-node data works — labels are shared tuples).
     The directional class cross-checks oracle images against the

@@ -14,12 +14,13 @@ is keyed by its highest weight `2j ∈ {0,1,2,…}` (matching `SU2ZPlusRing`), s
 Currently implemented
 ---------------------
 * `deven_gauged_Tr1_qn` — the U(1)-gauged `[A1, D_{2k+2}]` vacuum index `Tr(1)`
-  (Creutzig 1701.05926 `(A1, D_{2p})` formula, `x⁰` slice).  Cross-verified
-  against the repo's INDEPENDENT `sl(3)₋₃/₂` Kac–Wakimoto vacuum character
-  (theta sums, no cone/BPS) at every order to `q_d²⁸`; this exposed a defect in
-  the cone oracle from `q_d²⁴` on.
-* `creutzig_Aodd_Tr1_z` — `(A1, A_{2p-3})` ↔ `B_p` vacuum index (eq. (5.14)
-  of Beem–Nair as written in Creutzig l.284), as a `z`-Laurent q-series.
+  (the `x⁰` slice of a known closed form for the `(A1, D_{2p})` index).
+  Cross-verified against the repo's INDEPENDENT `sl(3)₋₃/₂` Kac–Wakimoto vacuum
+  character (theta sums, no cone/BPS) at every order to `q_d²⁸`; this exposed a
+  defect in the cone oracle from `q_d²⁴` on.
+* `creutzig_Aodd_Tr1_z` — `(A1, A_{2p-3})` ↔ `B_p` vacuum index (a known
+  closed form from standard results on admissible-level sl(2) characters),
+  as a `z`-Laurent q-series.
 """
 from __future__ import annotations
 
@@ -52,7 +53,7 @@ def _ch_rho(m):
 
 
 # --------------------------------------------------------------------------
-# (A1, D_{2p}) — the deven character  (Creutzig 1701.05926, l.300-324)
+# (A1, D_{2p}) — the deven character  (a known closed form)
 # --------------------------------------------------------------------------
 def _deven_zz_product(MQ):
     """`P[Qpow] = {zpow:int}` :  ∏_{n≥1} (1-z² Qⁿ)⁻¹ (1-z⁻² Qⁿ)⁻¹  up to `Q^MQ`."""
@@ -76,7 +77,8 @@ def _deven_zz_product(MQ):
 def deven_gauged_xn_qn(k, n, K):
     """U(1)-gauged `[A1, D_{2k+2}]` v-tower trace `Tr(X_{0,1}ⁿ)`, **arbitrary q**.
 
-    The `[xⁿ]` slice of the Creutzig `(A1, D_{2p})` index times the `U(1)` vector
+    The `[xⁿ]` slice of the known `(A1, D_{2p})` index closed form times the
+    `U(1)` vector
     factor `(q;q)_∞²` (`p = k+1`).  `Tr(X01ⁿ) = (Q;Q)²·[xⁿ]ℐ`, and since
     `[xⁿ]f̃ᵖ_{ρ_m}` picks the weight `h=n` of `ρ_m` (present iff `m ≥ |n|+1` and
     `m ≡ n+1 mod 2`):
@@ -103,8 +105,8 @@ def deven_gauged_xn_qn(k, n, K):
     # whole v-tower at k≥2; k=1 has even p=2 so 2·(even) is always ÷4, which is
     # why it was latent).  `m ≡ n+1 (2)` ⇒ `m²-1-n²` is even, so `p(m²-1-n²)/2` is
     # an exact integer.
-    # Sign: importing the Creutzig character means choosing the branch
-    # `q_paper^{1/2} = -𝖖` (user, 2026-06-24).  The m-prefactor `q_paper^{p(m²-1-n²)/4}`
+    # Sign: importing the closed-form character means choosing the branch
+    # `q_paper^{1/2} = -𝖖`.  The m-prefactor `q_paper^{p(m²-1-n²)/4}`
     # is a *half-integer* q_paper power exactly when `sh = p(m²-1-n²)/2` is odd
     # (⟺ `n·p` odd ⟺ odd q_d), and a half-integer power picks up one factor of
     # `q_paper^{1/2} = -𝖖`, i.e. a `(-1)` on those (odd-q_d) terms.  P and ch carry
@@ -172,7 +174,7 @@ def eisenstein_E2k(kk, K):
 def deven_gauged_Tr1_qn(k, K):
     """U(1)-gauged `[A1, D_{2k+2}]` vacuum Schur index `Tr(1)` = `Tr(X01⁰)`
     (`deven_gauged_xn_qn(k, 0, K)`).  Closed form, **arbitrary q**; the `x⁰`
-    slice of Creutzig's `(A1, D_{2p})` index (`p=k+1`):
+    slice of the `(A1, D_{2p})` index closed form (`p=k+1`):
 
         Tr(1)(z; Q) = Σ_{m odd ≥ 1}  Q^{p(m²-1)/4} · ch[ρ_m](z)
                       · ∏_{n≥1} (1 - z² Qⁿ)⁻¹ (1 - z⁻² Qⁿ)⁻¹
@@ -181,7 +183,7 @@ def deven_gauged_Tr1_qn(k, K):
 
 
 # --------------------------------------------------------------------------
-# (A1, A_{2p-3}) — the B_p character  (Creutzig 1701.05926, l.284)
+# (A1, A_{2p-3}) — the B_p character  (a known closed form)
 # --------------------------------------------------------------------------
 def creutzig_Aodd_Tr1_z(p, K, zpow_max=None):
     """`(A1, A_{2p-3})` ↔ `B_p` vacuum Schur index, **arbitrary q**.
@@ -190,7 +192,7 @@ def creutzig_Aodd_Tr1_z(p, K, zpow_max=None):
     `q^K`, with half-integer `q`-powers cleared by working in `q^{1/?}` — here we
     return integer `q`-powers only when `p | …`; otherwise powers are rationals.
 
-    Formula (Creutzig l.284, domain `|z^{±1} q^{(p-1)/2}| < 1`):
+    Formula (domain `|z^{±1} q^{(p-1)/2}| < 1`):
 
         q^{-c_p/24} ℐ = 1/η(q)² Σ_{n∈ℤ}
             [ q^{p(n+½-1/2p)²}/(1 - z q^{p(n+½-1/2p)})

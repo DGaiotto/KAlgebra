@@ -40,8 +40,9 @@ from pure_su2_layer2_identities import (
 #     B_n = Σ_{0 ≤ 2j < n} q^{2j(j+1)},
 #     A_n = 1 − Σ_{0 ≤ 2j < n} q^{2j(j+1)} + 2 Σ_{0 ≤ 2j+1 < n} q^{2j(j+2)+2}.
 #
-# (A_n, B_n are exact Laurent polynomials; see `pure_su2_wilson_uniqueness`
-# for the derivation and the n→∞ stabilisation `B_n→Tr 1`, `A_n→−Tr W_2`.)
+# (A_n, B_n are exact Laurent polynomials; the derivation — not included
+# in this repository — also gives the n→∞ stabilisation `B_n→Tr 1`,
+# `A_n→−Tr W_2`.)
 
 _two_seed_cache: dict = {}
 

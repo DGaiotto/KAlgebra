@@ -17,7 +17,7 @@ gauge period-2m reflective rule `e_anc=min(e mod 2m, 2m−e mod 2m)` (the
 Nf-independent SU(2) cone structure).  Cartan coefficients are `RLaurent`
 over `AbelianZPlusRing(rank=2)` (μ_L, μ_R); converted to Spin(4) characters
 at the boundary.  Validated anchor-for-anchor and via orthonormality against
-the BPS oracle (`su2_nf2_kalgebra`).
+a BPS-quiver oracle (a derivation not included in this repository).
 """
 from __future__ import annotations
 import sys, os

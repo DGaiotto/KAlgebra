@@ -14,11 +14,13 @@ Standalone hard-coded Z_4-symmetric realisation, analogous to
     nodes) and an order-2 reflection that lives in R(SU(3)) (= the
     "complex conjugation" ⋆ : (p, q) ↔ (q, p)).
 
-Companion to `SU3BPSKAlgebra`: the two are isomorphic on their canonical
-bases (success criterion = a `KAlgebraIso`).  Distinguished from the
-forthcoming `A1D2kSU2KAlg` family (k = 1, 2, …) which carries SU(2)
-flavour + gauged U(1) for general D_{2k}; D_4 is exceptional precisely
-because of triality, lifting the SU(2) ↪ SU(3) enhancement.
+Companion to a BPS-quiver realisation (`SU3BPSKAlgebra`, from a
+derivation not included in this repository): the two are isomorphic on
+their canonical bases (a `KAlgebraIso`).  Distinguished from the
+`[A_1, D_{2k}]` SU(2)-flavoured family (`u1a1deven_cone_kalgebra` /
+`a1deven_kalg`), which carries SU(2) flavour + gauged U(1) for general
+D_{2k}; D_4 is exceptional precisely because of triality, lifting the
+SU(2) ↪ SU(3) enhancement.
 
 BPS quiver
 ----------
@@ -85,20 +87,20 @@ Defining relations (each line is a single Z_4 ρ-orbit; indices mod 4)
     T_i · D_{i+2}      =  q^{-1}·D_i  +  χ_{(1,0)}  +  q^{+1}·χ_{(0,1)}·D_{i-1}  +  q^{+2}·D_{i-1}^2
     D_{i+2} · T_i      =  q^{-2}·D_{i-1}^2  +  q^{-1}·χ_{(0,1)}·D_{i-1}  +  χ_{(1,0)}  +  q^{+1}·D_i
 
-These were obtained from `SU3BPSKAlgebra` by pattern matching (no
-runtime bootstrap); the standalone class encodes them as static
+These were obtained from the BPS-quiver realisation by pattern matching
+(no runtime bootstrap); the standalone class encodes them as static
 Python data, parametrised by the ρ-orbit index i and exploiting Z_4
 cyclic symmetry + q ↔ q^{-1} bar palindromy.
 
-**ρ-orbit χ-parity (2026-06-13 fix).**  ρ = (tile shift) ∘ ⋆ where
-⋆ = the rep-ring duality χ_(p,q) ↦ χ_(q,p) (= 3 ↔ 3̄, which
-`SU3BPSKAlgebra` confirms ρ performs), so the relation at tile i is ρ^i
+**ρ-orbit χ-parity.**  ρ = (tile shift) ∘ ⋆ where
+⋆ = the rep-ring duality χ_(p,q) ↦ χ_(q,p) (= 3 ↔ 3̄, which the BPS
+realisation confirms ρ performs), so the relation at tile i is ρ^i
 of the base (i ≡ 0) relation and its χ-labels are ⋆^i-conjugated —
 UNCHANGED for even i, SWAPPED for odd i.  The base χ-labels above are
-the i ≡ 0 form; `_chi_parity` supplies the per-position ⋆.  (The earlier
-tables emitted the same χ for every i, which broke ρ-equivariance of
-`multiply` on the 32 odd-position generator pairs — now certified
-product-for-product against `SU3BPSKAlgebra`, `test_su3_ad_kalg`.)
+the i ≡ 0 form; `_chi_parity` supplies the per-position ⋆.  (A table
+emitting the same χ for every i would break ρ-equivariance of
+`multiply` on the 32 odd-position generator pairs; the parity-⋆ tables
+are certified product-for-product against the BPS realisation.)
 
 Canonical labels
 ----------------
@@ -124,8 +126,8 @@ orthonormality bootstrap seeded by `Tr_1`.  All work is carried in
 Cartan fugacities (weights, not characters) and Weyl-symmetrized to
 SU(3) characters only on the *total*, so genuinely non-self-dual product
 content (e.g. `T₀·T₂`'s `3+3̄`) is handled correctly.  Arbitrary q-order;
-no BPS / RG engine on the trace path — `SU3BPSKAlgebra` is retained
-lazily only as a cross-check oracle for the isomorphism tests.
+no BPS / RG engine on the trace path — the BPS realisation is consulted
+lazily only as a cross-check oracle (where that derivation is available).
 `trace_layer1` (the character-level Layer-1 reduction) is retained for
 inspection.
 """
@@ -298,9 +300,9 @@ def _chi_parity(terms, base_i):
     `_tt_*` / `_dd_*` / `_td_*` families below encode the base (`i ≡ 0`)
     χ-labels and the correct `i`-shifted letter words; this wrapper
     supplies the missing parity-⋆ that makes ρ a genuine algebra
-    automorphism (verified against `SU3BPSKAlgebra` — the previous
-    static tables emitted the *same* χ for every `i`, which broke
-    ρ-equivariance of multiply; see `test_su3_ad_kalg`).
+    automorphism (verified against the BPS realisation; a static table
+    emitting the *same* χ for every `i` would break ρ-equivariance of
+    multiply).
     """
     if base_i % 2 == 0:
         return terms
@@ -699,19 +701,18 @@ class SU3ADKAlg(ConeKAlgebra):
 
     * **Freeness fusion** — `multiply` (Z-valued), `rho`, `identity`,
       `section_decompose`, `embed_R` are derived from the section engine
-      below.  **Plan 32 step 1:** this used to inherit that fusion from
-      `RKAlgebra` (first in a dual MRO `(RKAlgebra, ConeKAlgebra)`); the
-      fusion is now **copied in** (fully-free / trivial-`R_lab` case) so
-      `RKAlgebra` can be redesigned without constraining this class.
+      below.  The character-fusion logic is implemented in place
+      (fully-free / trivial-`R_lab` case) rather than inherited from a
+      shared base class, keeping this class self-contained.
     * `ConeKAlgebra` keeps the cone-data presentation (`cone_data` →
       `SU3ADConeData`) — which the section engine `section_multiply`
       drives — and the `isinstance(·, ConeKAlgebra)` identity used by
       the cone registry.
 
     The section engine is the cone-data product on `(p,q)`-stripped
-    labels; `RKAlgebra` fuses the input `χ_{(p,q)}` characters (SU(3)
-    Clebsch–Gordan) and re-expands to 5-tuples.  ρ on the centre is the
-    rep-ring `⋆` `(p,q) ↔ (q,p)`; the section ρ permutes tiles.
+    labels; the fusion wrapper fuses the input `χ_{(p,q)}` characters
+    (SU(3) Clebsch–Gordan) and re-expands to 5-tuples.  ρ on the centre
+    is the rep-ring `⋆` `(p,q) ↔ (q,p)`; the section ρ permutes tiles.
 
     Layer-1 / Layer-2 trace pipeline (`trace_layer1`, `trace`) is
     preserved verbatim — it has its own tag-move-cycle-Plücker
@@ -869,10 +870,9 @@ class SU3ADKAlg(ConeKAlgebra):
                                 self.section_rho_inverse(s))
 
     def r_label_decompose(self, label):
-        """The single-irrep flavour-lift coordinate (replaces the retired
-        `_label_section_decompose`): peel the SU(3) flavour character
-        `χ_{(p,q)}` off the gauge section, preserving the free/label split of
-        the coefficient ring.  `r_label_compose` is inherited (the central
+        """The single-irrep flavour-lift coordinate: peel the SU(3)
+        flavour character `χ_{(p,q)}` off the gauge section, preserving
+        the free/label split of the coefficient ring.  `r_label_compose` is inherited (the central
         `embed_R` rebuilds the canonical, since the section is
         flavour-trivial)."""
         w, s = self._unpack_label(label)
@@ -951,26 +951,28 @@ class SU3ADKAlg(ConeKAlgebra):
             word += [L] * letters[L]
         return _trace_reduce_word(self, word, chi_pq, q_factor)
 
-    # -- real trace: delegate to the BPS engine via the certified iso ----
+    # -- cross-check trace via the BPS oracle -----------------------------
     #
-    # The standalone ↔ `SU3BPSKAlgebra` correspondence (gauge charge =
+    # The standalone ↔ BPS-realisation correspondence (gauge charge =
     # the (tile, a, b) letter-monomial position; SU(3) character carried
     # in the flavour direction) is certified product-for-product against
-    # the BPS engine (`test_su3_ad_kalg.test_iso_matches_bps_products`,
-    # exact coefficients on all 64 generator pairs).  The Layer-2 chiral
-    # characters of [A_1, D_4] have no closed form here, so the *real*
-    # ρ²-twisted trace / Schur index is obtained by transporting the
-    # canonical label to the BPS chart and reading off its analytic
-    # trace there.  `trace_layer1` (the algebraic Layer-1 reduction) is
-    # retained for the elementary-trace tag-move-cycle-Plücker pipeline.
+    # the BPS engine (exact coefficients on all 64 generator pairs).
+    # The `_bps_*` helpers below transport a canonical label to the BPS
+    # chart and read off its analytic trace there; they serve only as a
+    # cross-check oracle (the derivation module is not included in this
+    # repository) — the production `trace` is the BPS-free
+    # `sl3_su3_traces` route.  `trace_layer1` (the algebraic Layer-1
+    # reduction) is retained for the elementary-trace
+    # tag-move-cycle-Plücker pipeline.
 
     _TPOS = {0: (1, 0), 1: (-1, -3), 2: (-2, -3), 3: (-1, 0)}
     _DPOS = {0: (0, -1), 1: (-1, -2), 2: (-1, -1), 3: (0, 1)}
 
     def _bps_engine(self):
-        """Memoised companion `SU3BPSKAlgebra` (the analytic-trace
-        oracle).  Built lazily — the zoo's `multiply`/`rho` never touch
-        it; only `trace` / `inner_product` do."""
+        """Memoised companion BPS-quiver realisation (the analytic-trace
+        cross-check oracle; its module `su3_bps_kalgebra` is not included
+        in this repository).  Built lazily — `multiply`/`rho` and the
+        production trace path never touch it."""
         if not hasattr(self, "_bps_eng"):
             from su3_bps_kalgebra import _user_quiver
             self._bps_eng = _user_quiver()
@@ -978,7 +980,7 @@ class SU3ADKAlg(ConeKAlgebra):
 
     def _std_to_bps_label(self, label):
         """Transport a standalone canonical label `(tile, a, b, p, q)` to
-        its `SU3BPSKAlgebra` canonical label: gauge charge from the
+        its BPS-oracle canonical label: gauge charge from the
         letter-monomial position, SU(3) character `χ_(p,q)` carried by
         its highest weight `(-(p+q), -p)` in the BPS flavour basis (the
         Weyl orbit rep — the trace is Weyl-invariant, so any orbit
@@ -998,7 +1000,7 @@ class SU3ADKAlg(ConeKAlgebra):
         flavoured-trace "trapezoid": the χ-content near the window top is
         clipped and momentarily non-Weyl-symmetric), so we compute with a
         growing internal margin and truncate back.  If even a generous
-        margin leaves the q^≤K content clipped, we honest-fail (rather
+        margin leaves the q^≤K content clipped, we raise (rather
         than return a silently wrong / non-symmetric character) — that
         regime is what the exact closed-form Layer-2 (the SU(3)_{−3/2}
         chiral characters) is for."""
@@ -1047,9 +1049,9 @@ class SU3ADKAlg(ConeKAlgebra):
         not characters), single-label-trace each resulting canonical monomial,
         and Weyl-symmetrize the *total* to SU(3) characters only at the end —
         so genuinely non-self-dual content (e.g. `T₀·T₂`'s `3+3̄`) is handled
-        correctly.  Supersedes the earlier U(1)²-substrate route through
-        `SU3BPSKAlgebra` (verified equal; `margin` is accepted for back-compat
-        and ignored — the route computes its own q-depth)."""
+        correctly.  An alternative U(1)²-substrate route through the BPS
+        oracle gives equal results (verified); `margin` is accepted for
+        back-compat and ignored — the route computes its own q-depth."""
         from sl3_su3_traces import product_trace as _pt
         return _pt(self, factors, K)
 

@@ -1,21 +1,23 @@
 # BPSKAlgebra — the BPS-quiver realisation engine for `A_𝖖[T]`
 
-**Step 4** of the modular release. Given a BPS quiver (an antisymmetric Dirac
-pairing + node charges) and, optionally, a chamber spectrum generator, this layer
-realises the full `KAlgebra` contract — `multiply`, `ρ`/`ρ⁻¹`, `trace`,
-`inner_product`, the axiom verifiers, `to_R_form`, `base_change` — exactly and
-improvably to any q-order. Pure Python 3, no third-party dependencies.
+**Step 4**, the BPS layer of this repository (`src/bps/`). Given a BPS quiver
+(an antisymmetric Dirac pairing + node charges) and, optionally, a chamber
+spectrum generator, this layer realises the full `KAlgebra` contract —
+`multiply`, `ρ`/`ρ⁻¹`, `trace`, `inner_product`, the axiom verifiers,
+`to_R_form`, `base_change` — exact and improvable to any q-order. Pure Python 3,
+no third-party dependencies.
 
-## This is the layer that ships the *spine*
+## This layer is the *spine*
 
 Steps 1–3 are deliberately **spine-free**: they compute structure constants and
 Schur indices with no realisation engine (Step 2 from frozen cone reductions,
 Step 3 from a live RG flow to a graded auxiliary). **Step 4 is the spine itself** —
 the BPS realisation that *discovers* the canonical basis from an IR chart. The
-spine-free guarantee of the release therefore applies to Steps 1–3 only; this
-layer is where the BPS engine lives. (The Step-1/2/3 self-tests continue to assert
-that no spine module is imported, so adding this layer does not weaken that
-guarantee — nothing in the earlier layers imports `src/bps/`.)
+spine-free guarantee therefore applies to Steps 1–3 only; this layer is where
+the BPS engine lives. (Seven of the eight Step-3 self-tests assert that no spine
+module is imported, so adding this layer does not weaken that guarantee — no
+module in the earlier layers imports `src/bps/` at import time; a handful of
+cone modules contain lazy, verify-only imports.)
 
 ## What `BPSKAlgebra` does
 
@@ -24,15 +26,17 @@ A single BPS chart determines `A_𝖖[T]`:
 - **Discovery.** Each canonical-basis element `L_a` is the unique `F_γ` whose image
   in the auxiliary quantum torus satisfies `F_γ · S = X_γ + O(𝖖)` with
   bar-invariant coefficients (`S = ∏_i E_𝖖(X_{γ_i})` the Kontsevich–Soibelman
-  spectrum generator). The F-finder solves this exactly in the Habiro ring over
-  the doubly-tropical charge interval.
+  spectrum generator, with `E_𝖖(x) = (−𝖖x; 𝖖²)_∞^{−1}`). The F-finder solves
+  this exactly in the localization `Z[𝖖^±][(1−𝖖^{2n})^{−1}, n≥1]` over the
+  doubly-tropical charge interval — the finite charge window `[γ₋(a), γ⁺(a)]`
+  between a label's two tropical images, which bounds the support of `F_γ`.
 - **Multiply.** `F` is an algebra map to the quantum torus, so
   `F(L_a · L_b) = F(L_a) · F(L_b)`: structure constants are read off the easy torus
   product and recognised back on the canonical basis.
 - **ρ.** The closed-form piecewise-linear half-monodromy `σ` from the spectrum.
 - **Trace / Schur index.** The central-direction residue of the Schur measure,
   exact and arbitrarily q-improvable; a two-cutoff-stability shell makes it
-  frame-sound and truncation-stable.
+  frame-sound (independent of the presenting chart) and truncation-stable.
 - **Spec-free.** The spectrum generator can be **built recursively from the quiver
   alone** (`build_S=True`) — no chamber spectrum required. The half-monodromy `σ`
   then also has an axiom-derived spec-free form (`spec_free_sigma="principled"`),
@@ -66,7 +70,7 @@ H.trace((0, 0, 0), K=4)                # RPowerSeries over R((q))
 
 ## Layering — Step 4 builds on Steps 1, 2, 3 (additive; nothing duplicated)
 
-This layer ships **only** the BPS-spine modules and imports the rest from the
+This layer contains **only** the BPS-spine modules and imports the rest from the
 earlier layers by flat name:
 
 - the **Step-1 core** (`kalgebra`, `zplus_ring`, `laurent_poly`, `qpoch`,
@@ -80,7 +84,7 @@ earlier layers by flat name:
 `conftest.py` / `run_tests.py` put every `src/<layer>/` directory on `sys.path`,
 so the flat imports resolve across layers without any `PYTHONPATH` wrangling.
 
-## The shipped modules (`src/bps/`)
+## The modules (`src/bps/`)
 
 Realisation core — `bps_kalgebra` (the `KAlgebra` realisation),
 `bps_kalgebra_internals` (F-solve, Schur-index accumulator), `bps_quiver_tools`,
@@ -97,7 +101,8 @@ mutations: `bps_atlas` (`BPSAtlas` — an ensemble of `BPSKAlgebra` charts with
 automated, certified `KAlgebraIso` transition maps across mutation chains),
 `bps_chart_object` (the per-mutation `KAlgebraIso` witnesses + the `ρ²` rotation
 monodromy), and `kalgebra_object` (the certified-presentations holder). A BPS-quiver
-mutation is cluster necklacing, and the atlas certifies it preserves the whole
+mutation is a cluster (Fomin–Zelevinsky) mutation, and the atlas certifies it
+preserves the whole
 `K_𝖖` structure (multiply, `ρ`, and the Schur index), with the rotation monodromy
 closing to `ρ²`. `BPSAtlas.mutation_complete()` folds the whole quiver-mutation
 orbit by chart-iso, so it closes for any *finite* theory regardless of spectrum
@@ -122,8 +127,9 @@ truncation-stability, a `KAlgebraIso` to the Step-1 `PentagonSampleKAlgebra`, a
 flavoured hexagon, a node-deletion RG flow certified against an independent UV
 realisation, the `BPSAtlas` demonstration (the pentagon rotation chamber chain:
 per-edge battery, Schur-index chart-invariance, and the `ρ² = monodromy` closure),
-and the example galleries (the AD-zoo `mutation_complete` fold and the gauge
-mutation-finiteness / Catalan / wild-spectrum results).
+and, from the example galleries, the pentagon and `[A₁,A₃]` `mutation_complete`
+folds, the SU(2)-gauged `[A₁,Dₙ]` (n = 3–6) mutation-finiteness / Catalan chart
+counts, and the SU(3) mutation-infinite / wild-chamber probes.
 
 ## Tests
 

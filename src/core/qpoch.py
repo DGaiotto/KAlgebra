@@ -1,36 +1,14 @@
 """PowerSeries (truncated Z[[q]] / Z((q))) and q-Pochhammer utilities.
 
-Canonical-surface migration of `schur_index.PowerSeries` and the
-q-Pochhammer helpers (Plan 07 Stage A5).  Self-contained: only
-depends on stdlib.
+Self-contained: only depends on stdlib.
 
-This module is the *boundary layer* for Nahm / Schur-index
-computations: the `(q^2;q^2)_inf^r` prefactor and the final Schur
-output are held as PowerSeries, but intermediate state and overlap
-arithmetic lives in exact `HabiroElement` form.
-
-Originally:
-Truncated power series in q with integer coefficients, plus q-Pochhammer
-utilities.
-
-This module is the *boundary layer* for Nahm / Schur-index computations:
-the `(q^2;q^2)_inf^r` prefactor and the final Schur-index output are held
-as `PowerSeries`, but the intermediate state and overlap arithmetic lives
-in exact `HabiroElement` form (see `habiro.py` and `nahm_data.py`).
-
-What lives where
-----------------
-
-* `PowerSeries`, `qpoch_finite`, `qpoch_infty`, `inv_qpoch_finite` — here
-  (used by both the Habiro pipeline and downstream consumers).
-* `schur_index_nahm`, `schur_gram`, `s_gamma_habiro`, `c_gamma_habiro` —
-  `nahm_data.py`.  The modern (Habiro-backed, no K_internal) Schur-index
-  pipeline.  Prefer these for all new work.
-* `compute_S_ket`, `apply_F_to_state`, `eq_coefficients`, the old
-  `schur_index()` function, and `nahm_inner_product` — the old
-  PowerSeries-throughout pipeline, retired.  It was preserved for regression
-  comparisons only; it is known to fail for
-  deep-support F_a (pentagon `(-3,2)` etc.).
+This module provides `PowerSeries` — truncated power series in q with
+integer coefficients — and the q-Pochhammer helpers `qpoch_finite`,
+`qpoch_infty`, and `inv_qpoch_finite` (in the `(q²; q²)` convention).
+It is the *boundary layer* for Nahm / Schur-index computations: the
+`(q^2;q^2)_inf^r` prefactor and the final Schur-index output are held
+as `PowerSeries`, while exact intermediate state and overlap arithmetic
+lives in `HabiroElement` form (see `habiro.py` in the cone layer).
 
 All arithmetic here is exact integer; results are truncated to a
 prescribed order K in q.

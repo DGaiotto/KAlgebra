@@ -20,7 +20,9 @@ The final relation — orthonormality of the canonical basis to leading order in
 (`docs/axioms-and-bootstrap.md` explains how). The abstract contract is the
 `KAlgebra` class; the examples implemented here include the quantum torus
 `Q_𝖖(Γ)`, the pentagon `K_𝖖([A_1,A_2])`, the SU(2)-flavoured `U_𝖖(𝔰𝔩₂)` (the
-algebra of SQED₂), a range of K-theoretic Coulomb-branch algebras, a live RG-flow
+algebra of SQED₂), the abelian gauge theories SQED₁/₂/_{N_f}_, the U(1)-gauged
+Argyres–Douglas families, and SU(2) gauge-theory cone algebras (the K-theoretic
+Coulomb branch algebras of those conventional gauge theories), a live RG-flow
 engine (`RGKAlgebra`) that computes a theory's algebra from its flow to a graded
 auxiliary, and a BPS-quiver realisation engine (`BPSKAlgebra`) that builds a
 theory's algebra directly from its BPS quiver.
@@ -48,9 +50,13 @@ traces).
 ## Tests
 
 ```
-python3 run_tests.py        # or: pytest
+python3 run_tests.py
 ```
 
+is the validation gate. (`pytest` also runs, but does not cover the full gate:
+it skips `test_cones.py` and `test_sample_cone_iso.py`, and importing the BPS
+suite at collection time defeats the spine-freeness assertions of the Step-3
+suites — use `python3 run_tests.py` to certify everything.) The gate
 runs `tests/test_samples.py`, `tests/test_cones.py`,
 `tests/test_sample_cone_iso.py`, the eight Step-3 RG self-tests
 (`tests/test_rg_flows.py`, `test_a1an_chain.py`, `test_dn_chain.py`,
@@ -60,8 +66,8 @@ runs `tests/test_samples.py`, `tests/test_cones.py`,
 involution, the unit law, associativity, the `ρ`-automorphism property,
 `ρ²`-twisted trace cyclicity, and orthonormality — on the sample algebras, the
 cone realisations, the sample-to-cone isomorphisms, the live RG flows, and the BPS
-realisation. The Step-3 RG self-tests additionally assert that no realisation-spine
-module is imported, so a green run certifies those layers are spine-free;
+realisation. Seven of the eight Step-3 RG self-tests (all but `test_rg_flows.py`)
+additionally assert that no realisation-spine module is imported;
 `test_bps_flows.py` is run last, because Step 4 *is* the spine.
 
 The modules import one another by unqualified name; `conftest.py` and

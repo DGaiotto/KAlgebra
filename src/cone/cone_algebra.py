@@ -25,7 +25,8 @@ Multiplication table
 --------------------
 `MULT_TABLE_LL[(L_a, L_b)] = [(fq_pow, sign, factors, e_E), ...]` gives the
 cone-monomial expansion of the algebra product `L_a · L_b`.  Derived once by
-exhaustively multiplying via BPS, then frozen as a Python literal.
+exhaustive multiplication in a BPS-quiver realisation (a derivation not
+included in this repository), then frozen as a Python literal.
 
 Recursive multiply
 ------------------
@@ -37,8 +38,9 @@ flattening both inputs:
   - collect when the word is in cone-canonical form (all adjacent pairs are
     sorted, single-term, canonical-shape).
 
-Verified against BPS: 81/81 single-letter, 729/729 + 729/729 left/right-assoc
-3-letter, 300/300 4-letter sample.
+Verified against the BPS-quiver realisation (author-side): 81/81
+single-letter, 729/729 + 729/729 left/right-assoc 3-letter, 300/300
+4-letter sample.
 """
 from __future__ import annotations
 
@@ -104,8 +106,9 @@ CONES: list[tuple[tuple[int, int], tuple[int, int], tuple[int, int]]] = [
 
 # ----------------------------------------------------------------------
 # Frozen MULT_TABLE_LL: 81 entries L_a · L_b → Σ fq^c · cone_monomial.
-# Each entry: (fq_pow, sign_coef, factors, e_E).  Derived one-time from BPS
-# on the gauged-hexagon quiver, then frozen here.  No runtime BPS dep.
+# Each entry: (fq_pow, sign_coef, factors, e_E).  Derived one-time from a
+# BPS-quiver realisation of the gauged hexagon (not included in this
+# repository), then frozen here.  No runtime BPS dependency.
 # ----------------------------------------------------------------------
 
 MULT_TABLE_LL: dict = {

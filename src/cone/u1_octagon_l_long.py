@@ -47,7 +47,7 @@ def tr_L_long_v_n(n: int, K: int) -> LaurentPoly:
     truncated to coefficients of fq^k for k <= K.
 
     Args:
-        n: U(1) charge (non-negative; n < 0 case TBD).
+        n: U(1) charge (non-negative; the n < 0 case is not implemented).
         K: maximum fq-power to retain.
     """
     if n < 0:

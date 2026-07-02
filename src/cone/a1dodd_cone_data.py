@@ -78,7 +78,7 @@ Closed-form backbone (all VERIFIED against a1d5 / a1d3):
   fork is a genuinely NEW phenomenon at k≥1 — NOT an a1d3 relation — and does
   NOT reduce to per-crossing skein smoothings).
 
-Native label convention (cone-data, Pattern III, like a1d5):
+Native label convention (flavour-in-label cone-data, like a1d5):
   the χ-content is **stripped** at the `A1DoddKAlg.multiply` boundary and
   threaded as an `RLaurent[SU(2)]` coefficient; cone-data labels and the
   cross_product daughters are pure `(a,p,i)` cone monomials.  The native label
@@ -826,7 +826,7 @@ class A1DoddConeData(FiniteConeData):
         """Integer c with `L_g L_h = q^{c} L_{g+h}` for q-commuting (g,h).
 
         Stores the *full* q-exponent of the single canonical-basis daughter
-        (the a1d5 convention; cf. `a1d5_cone_data.cocycle`).  The universal
+        (the a1d5 convention).  The universal
         `cone_label_phase` derives consistently from this."""
         if g == h:
             return 0

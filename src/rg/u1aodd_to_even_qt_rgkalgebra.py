@@ -1,5 +1,5 @@
 """`U1A1AoddToEvenQTRGKAlgebra(k)` — the **second leg** of the A-type
-`A1Aeven / U1A1Aodd` chain, as a **pure** new-contract `RGKAlgebra`:
+`A1Aeven / U1A1Aodd` chain, as a **pure** `RGKAlgebra`:
 
     u(1)-gauged [A₁, A_{2k+1}]   ──drop a node──▶   [A₁, A_{2k}] ⊗ QT[Z²]
 
@@ -11,8 +11,8 @@ flow used throughout the ConeKAlgebra explorations; the partner of the
 **first leg** `A1AevenToU1AoddRGKAlgebra(k)`
 (`[A₁,A_{2k+2}] → U1A1AoddKAlg(k)`).
 
-Principled `S_RG` (user, this session)
---------------------------------------
+Principled `S_RG`
+-----------------
     S_RG  =  E_𝖖(X_{0,1} · L)
 
 a **single** quantum-dilogarithm tower whose carrier is one **short chord
@@ -23,10 +23,9 @@ so `carrier^n` is a single auxiliary monomial and
 
     [S_RG]_{(n,)}  =  c_n · carrier^n,   c_n = (−q)^n / (q²;q²)_n,
 
-with the auxiliary `TensorKAlgebra` cocycle absorbing all phases.  This
-**replaces** the BPS-derived hard-coded `RG_GENERATORS` of the
-`u1a1aodd_irgkalg` family (`U1HexagonPentagonRGKAlg` k=1, `U1OctaHeptaRGKAlg`
-k=2, …): here `RG` is **solved** generically from the discovery relation
+with the auxiliary `TensorKAlgebra` cocycle absorbing all phases.  No
+BPS-derived hard-coded `RG` tables are needed: here `RG` is **solved**
+generically from the discovery relation
 `RG(a)·S_RG = L_a + O(q)` over the cone-graded auxiliary — no spine, no
 per-k extraction, uniform in k.
 

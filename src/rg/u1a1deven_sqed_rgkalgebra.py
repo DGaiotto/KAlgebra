@@ -1,10 +1,11 @@
 """`U1A1DevenSqedRGKAlgebra(k)` — the u(1)-gauged `[A₁, D_{2k+2}]` as the RG flow
 **to `A1Dodd(k-1) ⊗ QT[Z²]`** dropping a single gauge-dressed doublet hyper
 `S_RG = E_𝖖(X_{(0,1)}·L)`.  The even-rung companion of `A1D3Sqed2RGKAlgebra`
-(#675) in the A1Dodd–U1A1Deven chain.
+in the A1Dodd–U1A1Deven chain.
 
     …  ←  D2 (SQED2)  ←  D3 (A1D3)  ←  D4 (U1A1D4)  ←  D5 (A1D5)  ← …
-                          ↑ #675          ↑ this (k=1)
+                          ↑ A1D3Sqed2RGKAlgebra
+                                           ↑ this (k=1)
 
 The ladder alternates: the **odd** rungs `A1Dodd(k)` are SU(2)-flavoured AD
 theories (each a single SU(2)-singlet monopole drop, `A1D3Sqed2RGKAlgebra`); the
@@ -22,23 +23,26 @@ no closed-form override)
   Labels `(dodd_label, (c0, c1))`: `dodd_label = (word, κ)` an A1Dodd cone
   label, `(c0, c1)` the QT charge.  Since the SU(2) is in the survivor, the
   dropped hyper carries it intrinsically — **no `add_flavour` spectator, no
-  doublet `S_RG`** (contrast the legacy `A1DevenRGKAlgebra`, whose
-  `add_flavour(SU2×U1)` + `E(μ₁L)E(μ₂L)` double-counts the flavour).
+  doublet `S_RG`** (an external `add_flavour(SU2×U1)` doublet `E(μ₁L)E(μ₂L)`
+  would double-count the flavour *here*; `A1DevenRGKAlgebra` uses that
+  encoding for a different UV theory — the ungauged U(2) fork — where it is
+  the correct one).
 * `grading()` = `Γ_RG = Z` = the **gauge** `c1`-leg charge `X_{(0,1)}` (the
   monopole power being integrated out; height 1, positive cone `Z_{≥0}`).
-* `S_RG = E_𝖖(X_{(0,1)}·L)` — degree-`N` part `(L^N, (0, N))` with the Habiro
+* `S_RG = E_𝖖(X_{(0,1)}·L)` — degree-`N` part `(L^N, (0, N))` with the exact
   `E_𝖖` coefficient, `L = (k, 1, i)` the **length-`k` doublet** (p=1, χ₁) chord
   of `A1Dodd(k-1)`: its A1Dodd trace carries the half-integer spins, so the
-  single-letter `E_𝖖(X₀₁·L)` reproduces the legacy doublet
-  `E(μX₀₁L)E(μ⁻¹X₀₁L)` folding intrinsically (the `u1a1deven_via_dodd_rg`
-  validation: length-`k` is exact, shorter doublets over-count from q^{2k+2}).
+  single-letter `E_𝖖(X₀₁·L)` folds the explicit two-weight doublet
+  `E(μX₀₁L)E(μ⁻¹X₀₁L)` intrinsically (validated against an explicit-doublet
+  derivation not included in this repository: length-`k` is exact, shorter
+  doublets over-count from q^{2k+2}).
 * `apex` = identity (UV canonical labels are the auxiliary cone labels).
 
-This is the spine-free / generic-engine finalisation of
-`u1a1deven_via_dodd_rg.U1A1DevenViaDoddRG` (which carries a legacy *windowed*
-trace override): here `_fs_exact_available()` is `True` (post-#666 the exact-FS
-bilinear trace fires over the nested tensor aux), so the trace is the generic
-**truncation-safe bilinear** pairing with **no override**.
+The flow is spine-free and fully generic: `_fs_exact_available()` is `True`
+(the exact-FS bilinear trace fires over the nested tensor aux), so the trace
+is the generic **truncation-safe bilinear** pairing with **no override**.
+(An earlier derivation of the same flow carrying a *windowed* trace override
+is not included in this repository.)
 """
 from __future__ import annotations
 
@@ -95,7 +99,8 @@ class U1A1DevenSqedRGKAlgebra(RGKAlgebra):
 
     def _s_rg_component(self, p) -> dict:
         """`[S_RG]_{(N,)} = {(L^N, (0, N)): E_𝖖-coeff(N)}` — the single
-        gauge-dressed doublet monopole tower `E_𝖖(X_{(0,1)}·L)` (Habiro-exact);
+        gauge-dressed doublet monopole tower `E_𝖖(X_{(0,1)}·L)` (exact
+        `HabiroElement` coefficients);
         `{}` off the positive cone (`N < 0`), the auxiliary identity at `N = 0`."""
         (N,) = p
         if N < 0:

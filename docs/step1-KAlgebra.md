@@ -1,15 +1,19 @@
-# KAlgebra — K_𝖖-algebras of 4d N=2 K-theoretic Coulomb branches
+# KAlgebra — the K_𝖖-algebra contract and sample algebras
 
-A contract-first, dependency-free (pure Python 3) implementation of the
-**K-theoretic Coulomb branch algebras** `A_𝖖[T]` of 4d N=2 gauge theories.
+A contract-first, dependency-free (pure Python 3) implementation of
+**K_𝖖-algebras** `A_𝖖[T]` — the fusion algebras of rotation-equivariant BPS
+line defects in 4d N=2 theories, Lagrangian gauge theories and non-Lagrangian
+(Argyres–Douglas) theories alike.
 
-This package is **Step 1** of a modular release: the abstract `KAlgebra`
-contract, the coefficient-ring ("Z₊-ring") layer it is defined over, a set of
-worked **sample algebras**, the **quantum torus over an arbitrary lattice Γ**
-(`QuantumTorusKAlg`, the canonical realisation), and the **isomorphism-witness**
-machinery `KAlgebraIso` (certifying that two presentations are the same abstract
-algebra). It deliberately omits the heavier *realisation engines* (RG-flow /
-BPS-quiver constructions), which are a later step.
+This is **Step 1**, the core layer of this repository (`src/core/` +
+`src/samples/`): the abstract `KAlgebra` contract, the coefficient-ring
+("Z₊-ring") layer it is defined over, a set of worked **sample algebras**, the
+**quantum torus over an arbitrary lattice Γ** (`QuantumTorusKAlg`, the
+canonical realisation), and the **isomorphism-witness** machinery `KAlgebraIso`
+(certifying that two presentations are the same abstract algebra). The heavier
+*realisation engines* (the cone reductions, the RG-flow engine, the BPS-quiver
+engine) live in the other layers of this repository — `src/cone/`, `src/rg/`,
+`src/bps/` — and nothing in this layer depends on them.
 
 ## The contract — `kalgebra.py`
 
@@ -80,7 +84,7 @@ SQED₂; `SQED1`/`SQED2` are kept as named samples.
 Γ-monomials `L_γ`, with `L_γ · L_δ = 𝖖^{⟨γ,δ⟩} L_{γ+δ}` and `ρ(γ) = −γ`. The
 constructor splits `Γ` by `B` into a **gauge** part (the non-degenerate
 quotient `Γ_g = Γ/ker B`) and a **flavour** part `Γ_f = ker B`; flavour lands in
-the coefficient ring `R(U(1)^{rk Γ_f})` and surfaces at the trace boundary
+the coefficient ring `R(U(1)^{rk Γ_f})` and shows up where the trace is read out
 (`Tr(L_γ) ≠ 0` exactly when `γ ∈ Γ_f`). This is the general form of the
 `Z2QTorusSampleKAlgebra` sample: `QuantumTorusKAlg([[0,1],[-1,0]])` *is* the
 symplectic Z² torus.
@@ -98,7 +102,11 @@ automorphism of the Z² torus.)
 ## Quick start
 
 ```python
-import sys; sys.path.insert(0, ".")     # the modules import by flat name
+# from the repo root, with the src/ layer dirs on sys.path (run_tests.py and
+# conftest.py do this automatically; the modules import by flat name):
+import sys, pathlib
+sys.path[:0] = [str(p) for p in pathlib.Path("src").rglob("*")
+                if p.is_dir() and p.name != "__pycache__"]
 
 from samples import (
     Z2QTorusSampleKAlgebra, PentagonSampleKAlgebra, SQEDNfSampleKAlgebra,
@@ -139,12 +147,13 @@ in truncated series from the start destroys the exact cancellations.
 ## Tests
 
 ```bash
-python test_samples.py
+python3 run_tests.py                 # the full gate, from the repo root
+python3 tests/test_samples.py        # the Step-1 suite alone, from the repo root
 ```
 
-exercises the contract verifiers and the orthonormality relation on every
-sample, on `QuantumTorusKAlg` (non-degenerate and flavoured `Γ`), and the
-`KAlgebraIso` verifiers on a frame-change automorphism.
+`tests/test_samples.py` exercises the contract verifiers and the orthonormality
+relation on every sample, on `QuantumTorusKAlg` (non-degenerate and flavoured
+`Γ`), and the `KAlgebraIso` verifiers on a frame-change automorphism.
 
 ## License
 
@@ -154,7 +163,7 @@ GPL-3.0-or-later (see `LICENSE`).
 
 The central conjecture these structures bear on — **orthonormality of the
 canonical basis**, `I_{a,b}(𝖖) = δ_{a,b} + O(𝖖)`, which the samples and
-`test_samples.py` verify — is stated in `CONJECTURES.md`.
+`test_samples.py` verify — is stated in `docs/conjectures-step1-samples.md`.
 
 ## Reference
 

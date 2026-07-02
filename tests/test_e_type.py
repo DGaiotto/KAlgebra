@@ -11,15 +11,15 @@ is dropped is the whole A/E distinction.  Flavourless (`[A₁, E₆]`/`[A₁, E�
 no flavour symmetry; rank 6/8 = `U1A1AoddKAlg(2/3)`'s rank `2k+2`), so the
 auxiliary is the gauged-odd cone directly — no `add_flavour`, no quantum torus.
 
-This package depends on Step 1 (KAlgebra) + Step 2 (ConeKAlgebra: the cone
-auxiliary `U1A1AoddKAlg`, with its prebuilt `.pkl` tables — which is what makes
-these flows **spine-free** at runtime; the repo cone bootstraps its tables via
-the BPS spine, they ship frozen here).
+This suite depends on Step 1 (KAlgebra) + Step 2 (ConeKAlgebra: the cone
+auxiliary `U1A1AoddKAlg`, whose frozen `.pkl` tables are what make these flows
+**spine-free** at runtime — the tables come from a derivation that is not run,
+or needed, here).
 
 For each: exact-FS, truncation-stable vacuum Schur index, the KAlgebra axioms +
 orthonormality, and a no-spine-imported assertion.
 
-`[A₁, E₇]` is shipped via its **u(1)-gauged** form `U1A1E7RGKAlgebra` (aux
+`[A₁, E₇]` enters this suite via its **u(1)-gauged** form `U1A1E7RGKAlgebra` (aux
 `A1A2kKAlg(3) ⊗ QT(Z²)`, `S_RG = E_𝖖(X_{(0,1)}·L_{(2,2)})`): gauging the U(1)
 turns the ungauged E₇'s slow `add_flavour(1)` spectator into a clean
 quantum-torus leg, putting it on the same pure exact-FS engine as E₆/E₈.

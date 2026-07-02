@@ -47,9 +47,10 @@ MU_LETTER_QPOWER = {}
 for i in range(8):
     MU_LETTER_QPOWER[(1, i)] = -1 if i % 2 == 0 else +1
     MU_LETTER_QPOWER[(2, i)] = 0
-    # L_3 magnetic cocycle with E — extract from BPS, store explicitly later
-    # For now, derive same as L_1 (also magnetic-charged)
-    MU_LETTER_QPOWER[(3, i)] = -1 if i % 2 == 0 else +1  # TODO verify
+    # L_3 magnetic cocycle with E: assumed to follow the same alternating
+    # pattern as L_1 (both are magnetic-charged); not independently
+    # extracted from the BPS realisation.
+    MU_LETTER_QPOWER[(3, i)] = -1 if i % 2 == 0 else +1
 
 
 def _native_label_to_word(native_label):

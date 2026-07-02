@@ -6,14 +6,14 @@ kalgebra_iso.py
 between two concrete `KAlgebra` instances.  Standalone — does not
 modify the `KAlgebra` ABC.
 
-Motivation.  K-algebras with canonical bases admit relatively few
+Motivation.  K_𝖖-algebras with canonical bases admit relatively few
 canonical-basis-respecting homomorphisms; in practice the relevant
 maps are *isomorphisms* identifying two distinct presentations of
 the same algebra (e.g. the chord-polygon presentation
 `A1A2kKAlg(k)` and the BPS-quiver presentation `BPSKAlgebra(A_{2k}-quiver)`,
 which are isomorphic by a non-trivial chord ↔ F-element identification).
 `KAlgebraIso` is the place to record such an iso and to verify that
-it preserves every piece of the K-algebra structure.
+it preserves every piece of the K_𝖖-algebra structure.
 
 Construction
 ------------
@@ -29,7 +29,7 @@ is extended `𝖖`-linearly over Elements by `.map` / `.inverse`.
 Structure preservation
 ----------------------
 A genuine `KAlgebra` isomorphism preserves every primitive of the
-K-algebra contract:
+K_𝖖-algebra contract:
 
   * unit                 map(1_source) = 1_target
   * multiplication       map(a · b)    = map(a) · map(b)
@@ -41,8 +41,8 @@ a finite sample, in *both* directions (forward and inverse).
 `verify_all(samples, pairs)` runs the full battery.
 
 The verifications are necessary but not sufficient on any finite
-sample; the user is responsible for picking samples adequate for
-their use case (typically: generators, generator-times-generator,
+sample; the caller is responsible for picking samples adequate for
+the use case (typically: generators, generator-times-generator,
 length-2 canonical labels, and a handful of length-3 cases).
 
 Caveat
@@ -70,7 +70,7 @@ class KAlgebraIso:
     Parameters
     ----------
     source, target : KAlgebra
-        The two K-algebras (presented in possibly different ways).
+        The two K_𝖖-algebras (presented in possibly different ways).
     forward_label_map : Callable[[tuple], Element]
         Sends each canonical source label to its image as a target
         `Element`.
@@ -298,7 +298,7 @@ class KAlgebraIso:
         """The identity-on-labels iso between two *presentations sharing a
         canonical label set* (e.g. a `BPSKAlgebra` and a directional
         RG presentation of the same theory, whose UV labels are the same
-        `Γ`-tuples by the apex labelling — decisions A9).  Each label maps
+        `Γ`-tuples by the apex labelling).  Each label maps
         to itself with coefficient `1`; the mathematical content lives
         entirely in the `verify_*` battery run against it."""
         from laurent_poly import LaurentPoly
@@ -483,8 +483,7 @@ class KAlgebraIso:
         name: str | None = None,
     ) -> "KAlgebraIso":
         """Build a flavoured iso from its action on **sections** alone —
-        instead of hand-threading flavour through full labels ("the clumsy
-        flavour route").
+        instead of hand-threading flavour through full labels.
 
         `section_map` sends a source section `s` (a `forget()`-basis label) to
         a pair `(s', f)`: the target section `s'` and a 1d-rep `f ∈ Λ` — a
@@ -566,7 +565,7 @@ def canonical_iso_samples(
     samples = [Element({alg.identity(): one})]
     gen_elements = []
     for g in mult_gens:
-        # Map the cone-data mult-gen `g` to its native K-algebra label
+        # Map the cone-data mult-gen `g` to its native K_𝖖-algebra label
         # via `from_cone_label({g}, {g: 1})`, then wrap as Element.
         cd = alg.cone_data()
         native = cd.from_cone_label(frozenset({g}), {g: 1})
@@ -620,8 +619,8 @@ def _trace_dict(algebra: KAlgebra, a: Element, K: int) -> dict:
         # `coef` is the Element's coefficient: a `LaurentPoly` (`_coeffs`,
         # int q-coefficients) in the common case, or an `RLaurent`
         # (`coeffs`, `RElement` q-coefficients) when the source algebra
-        # carries flavour directly in the coefficient ring (e.g. the
-        # BPS-chart `SU2Nf1BpsRForm`, μ ∈ R).  Both multiply cleanly into the
+        # carries flavour directly in the coefficient ring (an R-form
+        # presentation with μ ∈ R).  Both multiply cleanly into the
         # R-valued trace.
         coef_coeffs = coef._coeffs if hasattr(coef, "_coeffs") else coef.coeffs
         for e, v in sub_coeffs.items():
@@ -646,8 +645,8 @@ def _rho_conjugate_coef(coef):
     `RElement.star`) on the R-side, leaving the q-grading untouched (ρ is
     *not* the bar involution).  For a plain `LaurentPoly` (q-only, no
     flavour) this is the identity, so the common case is unchanged; for
-    an `RLaurent` (flavour carried in `R`, e.g. the BPS-chart
-    `SU2Nf1BpsRForm`) it conjugates each q-coefficient's `RElement`."""
+    an `RLaurent` (flavour carried in `R`, as in an R-form BPS-chart
+    presentation) it conjugates each q-coefficient's `RElement`."""
     if hasattr(coef, "coeffs") and not hasattr(coef, "_coeffs"):  # RLaurent
         from zplus_ring import RLaurent
         return RLaurent(coef.ring,
@@ -661,8 +660,8 @@ def _rho(algebra: KAlgebra, a: Element) -> Element:
     `algebra.rho(label)` may return a bare `Label` (the common case —
     flavour carried in a label slot, e.g. cone's `μ_p`) or an `Element`
     (when ρ shifts a coefficient-ring fugacity and the labels are
-    flavour-free, e.g. the BPS-chart `SU2Nf1BpsRForm`, ρ μ-shifting into
-    `R`).  Coefficients are conjugated by `_rho_conjugate_coef` (ρ acts
+    flavour-free, as in an R-form BPS-chart presentation with ρ μ-shifting
+    into `R`).  Coefficients are conjugated by `_rho_conjugate_coef` (ρ acts
     on `R` by `μ^f ↦ μ^{-f}`); for q-only coefficients this is the
     identity, so label-slot-flavour algebras are unaffected."""
     out = Element.zero()

@@ -3,8 +3,8 @@
 monopole** `S_RG = E_𝖖(X_{(1,0)})`.
 
 The **odd rung** of the SU(2)-gauged chain (entry 2 → entry 1) — the SU(2)-gauge
-analog of #675's `A1D3Sqed2RGKAlgebra` (`[A₁,D₃] → SQED₂`) and the structural
-twin of `A1DoddU1A1DevenRGKAlgebra`, gauging the flavour SU(2) of the
+analog of `A1D3Sqed2RGKAlgebra` (`[A₁,D₃] → SQED₂`) and the structural
+twin of the odd flavoured rung, gauging the flavour SU(2) of the
 A1Dodd–U1A1Deven chain throughout:
 
     SU(2)-flavoured  :  torus    ← SQED₂(=A1D2)      ← A1D3            ← U1A1D4          ← …
@@ -28,15 +28,16 @@ Defining data (a **pure** `RGKAlgebra` — generic exact-FS engine, no override)
   as in `A1Dodd`.)
 * `S_RG = E_𝖖(X_{(1,0)})` — `[S_RG]_{(N,)} = {((), X_{(N,0)}): E_𝖖-coeff(N)}`,
   a single **gauge-SU(2)-singlet** monopole tower (the pure-SU(2) Wilson part is
-  the trivial rep `w₀ = ()`); Habiro-exact via `sunf_dilog.eq_coeff`.  No
+  the trivial rep `w₀ = ()`); exact `HabiroElement` coefficients via
+  `sunf_dilog.eq_coeff`.  No
   χ-expansion (contrast the even-rung doublet `E(X₀₁v)E(X₀₁/v)`): the dropped
-  hyper is a gauge singlet, the #675 single-dilog link "as usual".
+  hyper is a gauge singlet, the usual single-dilog link.
 * `apex` = identity (UV canonical labels are the auxiliary labels).
 
 Validation: the vacuum trace
-reproduces the SU(2)-gauged [A₁,D₃] Schur index `1 + q⁸` (matching the BPS
-realisation `su2a1d3_gauged.su2a1d3_det1`), truncation-stable (K10 ≡ K14),
-orthonormal, spine-free.
+reproduces the SU(2)-gauged [A₁,D₃] Schur index `1 + q⁸` (matching an
+independent BPS-quiver computation of the same index), truncation-stable
+(K10 ≡ K14), orthonormal, spine-free.
 """
 from __future__ import annotations
 

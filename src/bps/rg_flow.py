@@ -8,7 +8,7 @@ BPS-quiver node from the root chart.  Conceptually this is the
 analogue of "freezing out" / integrating out the matter direction
 labelled by `γ_j`.
 
-The recipe (per the user's design):
+The recipe:
 
   * Γ is unchanged; pairing `B` is unchanged.
   * `node_charges_new = [γ_i : i ≠ j]`.
@@ -28,12 +28,13 @@ combinations of node charges, but the offsets `δ - γ_a` always are
 -- this is the doubly-tropical interval property of the canonical
 basis.
 
-The mathematically promised "RG flow map" (an algebra morphism
+The "RG flow map" itself (an algebra morphism
 `A → A_new` whose values can be read off by grouping the dropped
 pieces of each `F_a` by the power of `γ_j`) and the "RG generator"
 (the `(stuff)` factor with `S_old = (stuff) · S_new`) are not
-produced by this function.  Those are follow-ups, naturally housed
-in a future `KAlgebraHom` formalism.
+produced by this plain node-drop function; they are supplied by the
+flow classes below (`SubquiverRG` / `SingleNodeRG`), which derive the
+whole `RGKAlgebra` API from the flow data.
 """
 
 from __future__ import annotations
@@ -471,7 +472,7 @@ def subquiver_rg_flow_raw(
 
     # Bulk-decompose the entire spec (and any F-cache offsets) against
     # the old node basis in a single Gauss-Jordan pass -- amortising
-    # the per-target rational solve, same trick as #125 in
+    # the per-target rational solve, the same trick as in
     # `_restandardize`.
     spec_t: list[tuple] = [tuple(g) for g in spec]
     decomps = decompose_nonneg_in_node_basis_bulk(old_nodes, spec_t)
@@ -712,25 +713,24 @@ class SubquiverRG(DirectionalSubquiverRG):
     """`RGKAlgebra` for the deletion of a subset of BPS-quiver nodes at
     once, constructed from an existing UV `BPSKAlgebra`.
 
-    **Replaced 2026-06-10 (Plan 20 T6 / decisions A8).**  Previously a
-    UV-wrapping data-extractor whose KAlgebra ops (`multiply`/`rho`/
-    `trace`) delegated to the UV instance — making any cross-check
-    against the UV circular.  Now a thin constructor over
+    A thin constructor over
     `DirectionalSubquiverRG`: the whole KAlgebra API is *derived* from
-    IR + RG data (apex-peel multiply, tRG-mirror ρ, transported trace).
+    IR + RG data (apex-peel multiply, tRG-mirror ρ, transported trace),
+    rather than delegating `multiply`/`rho`/`trace` to the UV instance
+    (which would make any cross-check against the UV circular).
     The UV instance is retained only as
 
       * `starting_algebra()` — composition endpoints (`ComposedRG`
         validates `first.auxiliary() is second.starting_algebra()`),
       * the default **F-oracle** — `RG(a)` = the UV `F(a)` peeled into
-        the IR canonical basis (the historical extraction, at parity),
+        the IR canonical basis,
         cross-checked against the generic exact solve whenever the
         ρ⁻¹ mirror runs.
 
-    `rg_generator(cutoff)` keeps the historical window semantics
-    (**total dropped-node multiplicity** `Σ_{i∈S} n_i(δ) ≤ cutoff`) and
-    its values (closed-form ket-peel ≡ the old UV-state extraction —
-    validated term-by-term).  `grading()` is now **total** (off-cone
+    `rg_generator(cutoff)` uses the window semantics
+    (**total dropped-node multiplicity** `Σ_{i∈S} n_i(δ) ≤ cutoff`),
+    with values given by the closed-form ket-peel (validated
+    term-by-term against direct UV-state extraction).  `grading()` is **total** (off-cone
     labels score negative charges instead of raising — the generic
     machinery needs to score ρ-mirror images; off-cone-ness is
     `grading().in_cone`).  Any spec ordering is accepted, as before
@@ -783,7 +783,7 @@ class SubquiverRG(DirectionalSubquiverRG):
     def rho_inverse(self, a):
         return self._uv_ref.rho_inverse(a)
 
-    # ----- historical introspection surface -------------------------------
+    # ----- UV/IR introspection surface ------------------------------------
 
     @property
     def uv_algebra(self):
@@ -804,9 +804,10 @@ class SubquiverRG(DirectionalSubquiverRG):
 class SingleNodeRG(SubquiverRG):
     """`RGKAlgebra` for the deletion of a single BPS-quiver node — the
     `|S| = 1` case of `SubquiverRG` (kept for the naming + the `int`
-    argument).  Directional since 2026-06-10; see `SubquiverRG`.
+    argument); see `SubquiverRG`.
 
-    Exposes `_j` and `_gamma_j` for legacy callers."""
+    Exposes `_j` and `_gamma_j` for callers that address the dropped
+    node directly."""
 
     def __init__(self, A_uv: "BPSKAlgebra", node_index: int):
         super().__init__(A_uv, [node_index])
@@ -819,13 +820,13 @@ class SingleNodeRG(SubquiverRG):
 
 # ---------------------------------------------------------------------------
 # Subquiver convenience: factor a BPS UV->IR flow through a subquiver's
-# sub-flow (Plan 21; the driving class total spec = (outside)(subquiver spec)).
+# sub-flow (the driving identity: total spec = (outside)(subquiver spec)).
 # ---------------------------------------------------------------------------
 
 
 def factor_through_subquiver(A: "BPSKAlgebra", subquiver_node_indices):
     """Recover the UV->MS flow of a BPS theory by factoring its UV->IR flow
-    through the sub-flow generated by a **subquiver** (Plan 21).
+    through the sub-flow generated by a **subquiver**.
 
     Requires the total spec to factor as
 
@@ -891,7 +892,7 @@ def factor_through_subquiver(A: "BPSKAlgebra", subquiver_node_indices):
     # the subquiver theory (same pairing, same subquiver node_charges, same
     # subquiver spec as `mid`), and its `rg_generator` computes `S^UV_MS` —
     # the outside factors — enumerated by **dropped-node multiplicity** with
-    # exact Habiro coefficients.  That is the right truncation measure for the
+    # exact HabiroElement coefficients.  That is the right truncation measure for the
     # quotient grading `Γ^UV_MS` (outside bound states `γ_a+γ_b` are kept even
     # when their q-order exceeds the cutoff), so we hand it to `factor_through`
     # as the authoritative UV→MS flow (`uv_ms_flow`) rather than re-deriving
@@ -901,7 +902,7 @@ def factor_through_subquiver(A: "BPSKAlgebra", subquiver_node_indices):
 
     # gamma_inclusion = the Gamma-coordinate each subquiver node occupies
     # (standard-basis nodes; the deg=id grading's Gamma^MS_IR coords).  For
-    # non-standard-basis nodes a general SNF inclusion is a follow-up; pass
+    # non-standard-basis nodes no general SNF inclusion is implemented; pass
     # None so the core RG/rg_generator still work (grading() then defers).
     gamma_inclusion: list[int] | None = []
     for g in sub_nodes:

@@ -2,16 +2,17 @@
 (U(1) gauge + N_f=2, intrinsic SU(2) flavour), dropping a **single
 SU(2)-singlet monopole hyper**.
 
-This is the SQED₂ companion of `A1D3SqedRGKAlgebra` (which flows the *same*
-UV theory `[A₁, D₃]` to **SQED₁ ⊗ SU(2)**).  One UV theory, two distinct RG
+The *same* UV theory `[A₁, D₃]` also admits an RG flow to
+**SQED₁ ⊗ SU(2)**.  One UV theory, two distinct RG
 flows — they differ entirely in what `S_RG` drops and where the SU(2) lives:
 
-    A1D3SqedRGKAlgebra : aux = SQED₁ ⊗ SU(2)_spectator
+    flow to SQED₁ ⊗ SU(2)_spectator :
                          S_RG = E_𝖖(μL) · E_𝖖(μ⁻¹L)        (an SU(2) DOUBLET
                          of magnetically-charged fork hypers; the SU(2) is the
                          flavour symmetry OF THE DROPPED matter — a spectator).
 
-    A1D3Sqed2RGKAlgebra: aux = SQED₂  (SU(2) intrinsic, on the electric hypers)
+    A1D3Sqed2RGKAlgebra (this flow, to SQED₂; SU(2) intrinsic, on the
+                         electric hypers):
                          S_RG = E_𝖖(u₊)                     (a SINGLE SU(2)-
                          SINGLET monopole hyper; the SU(2) is already the
                          flavour symmetry of SQED₂ — no spectator).
@@ -40,14 +41,15 @@ no closed-form override)
   the bare Z² torus; this one grades by the **magnetic** direction and lands on
   SQED₂.)
 * `S_RG = E_𝖖(u₊)` — `[S_RG]_{(N,)} = {(N, 0, ()): E_𝖖-coeff(N)}`, a single
-  SU(2)-singlet monopole tower (Habiro-exact via `sunf_dilog.eq_coeff`).
+  SU(2)-singlet monopole tower (exact `HabiroElement` coefficients via
+  `sunf_dilog.eq_coeff`).
 * `apex` = identity (UV canonical labels are the auxiliary cone labels).
 
 Validation
 ----------
 The vacuum trace reproduces the `[A₁, D₃]` Schur index **exactly** against
 `A1D3KAlg` (q⁰ = singlet, q² = the SU(2) adjoint current χ₂, …) — identical to
-`A1D3SqedRGKAlgebra`'s vacuum, as it must be (same UV theory), and
+the SQED₁ ⊗ SU(2) flow's vacuum, as it must be (same UV theory), and
 truncation-stable.  The intrinsic K-algebra axioms (bar-invariance,
 RG-multiplicativity, orthonormality) pass on the generic engine.
 """
@@ -58,7 +60,7 @@ import os
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_HERE)
-for _p in (_ROOT, _HERE, os.path.join(_ROOT, "sample_kalgebras")):
+for _p in (_ROOT, _HERE):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
@@ -94,7 +96,7 @@ class A1D3Sqed2RGKAlgebra(RGKAlgebra):
     def _s_rg_component(self, p) -> dict:
         """`[S_RG]_{(N,)} = {(N, 0, ()): E_𝖖-coeff(N)}` — the single SU(2)-singlet
         monopole tower `E_𝖖(u₊) = Σ_N E_𝖖-coeff(N)·u₊^N`, `u₊^N = (N, 0, ())`
-        (Habiro-exact); `{}` off the positive cone (`N < 0`)."""
+        (exact in the localized ring); `{}` off the positive cone (`N < 0`)."""
         (N,) = p
         if N < 0:
             return {}

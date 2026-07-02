@@ -3,7 +3,9 @@ u1a1aodd_mult_table.py
 ======================
 
 Ray-generator multiplication structure for the gauged `[A_1, A_{2k+1}]`
-family, read off the validated oracle `U1A1AoddGaugedRG`.
+family, read off a validated RG-flow oracle (`U1A1AoddGaugedRG`, a
+derivation not included in this repository; the frozen tables in
+`u1a1aodd_tables_k{k}.pkl` were produced with it).
 
 Verified structure: with the gauged algebra `≅ BPS` over the `A_{2k+2}`
 linear chain,
@@ -21,12 +23,12 @@ linear chain,
 `k1_true_rays` are the hand-verified 9 rays at k=1 (3 long @ mag 0 +
 6 short @ mag ±1), giving a clean ≤2-term table.
 
-TODO (remaining for the closed-form `ConeKAlgebra`): the general-k
-*true-ray* generator. Rays = single-term-`RG` seeds swept by ρ_UV, with
-a **judicious `X_{(±1,0)}`** (gauge shift) on the even-length chords to
-balance them; a naive scan over `c0` over-generates (picks up dressed /
-cluster-monomial elements → spurious ≥3-term products). The clean
-per-parity gauge shift is the open piece.
+Open piece (the general-k *true-ray* generator): rays = single-term-`RG`
+seeds swept by ρ_UV, with a **judicious `X_{(±1,0)}`** (gauge shift) on
+the even-length chords to balance them; a naive scan over `c0`
+over-generates (picks up dressed / cluster-monomial elements → spurious
+≥3-term products).  The clean per-parity gauge shift is not implemented;
+`k1_true_rays` covers k = 1.
 """
 from __future__ import annotations
 
@@ -35,9 +37,11 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 
-# NOTE: the RG-flow spine (`u1a1aodd_gauged_rg`) and `a1a2k_bps_iso` are imported
-# LAZILY inside `select_chords` / `bijection_charge` (the construction-only
-# extractors), so `chain_pairing` (the per-cocycle arithmetic) imports spine-free.
+# NOTE: the derivation modules `u1a1aodd_gauged_rg` and `a1a2k_bps_iso` (not
+# included in this repository) are imported LAZILY inside `select_chords` /
+# `bijection_charge` (the construction-only extractors, which run only where
+# those derivations are available), so `chain_pairing` (the per-cocycle
+# arithmetic) imports spine-free.
 
 
 def bijection_charge(k):

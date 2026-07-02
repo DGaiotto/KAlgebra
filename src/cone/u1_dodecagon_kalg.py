@@ -242,7 +242,7 @@ class U1DodecagonKAlg(ConeKAlgebra):
         The chord branch widens the bootstrap's gauge half-width to cover the
         seed's gauge, so a chord absent from the (certified) result is "trace 0
         through q^K" → returns 0; only a non-reduced multi-gen physical seed
-        honest-fails."""
+        raises (rather than silently degrading)."""
         from u1aodd_trace_bootstrap import _rho2_rep
         if not self._orbit_has_physical(seed_label):
             return RPowerSeries(self._R, {}, K)

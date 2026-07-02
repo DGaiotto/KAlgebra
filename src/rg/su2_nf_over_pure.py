@@ -50,7 +50,8 @@ def _multi_levels(Nf: int, cutoff: int):
 def su2_nf_matter_spectrum(Nf: int, cutoff: int) -> dict[tuple, HabiroElement]:
     """`S_RG = Ψ` truncated to total flavour number `Σ_i k_i ≤ cutoff`.
 
-    Returns `{(0, w, k_1,…,k_{N_f}): c_{k,w}}` — the exact Habiro coefficient of
+    Returns `{(0, w, k_1,…,k_{N_f}): c_{k,w}}` — the exact `HabiroElement`
+    coefficient of
     the pure-SU(2) Wilson line `χ_w = (0, w)` at flavour multilevel `k`.
     `c_{k,w} = D_k(w) − D_k(w+2)`, the Weyl peel of the scalar v-weight
     polynomial `D_k(W) = Σ ∏_i a_{m_i} a_{n_i}` (`m_i+n_i=k_i`,

@@ -9,14 +9,15 @@ hypermultiplets in the **fundamental** of `SU(N_f)`: the image of
 The level-`N` coefficient `[x^N]` is `Σ_{a_1+…+a_{N_f}=N} (∏_i c_{a_i}) μ^{(a_1,…)}`
 (`c_m = [x^m]E_𝖖(x)`); the `SU(N_f)`-irrep content is read off by the
 **bialternant / Weyl peel** (`I·δ = Σ_λ c_λ N_λ`, `c_λ = [x^{λ+ρ}](I·δ)`),
-carried with **exact Habiro coefficients** and normalised to `SU(N_f)` partition
-labels.  General-purpose: this is the `S_RG` of any RG flow dropping an `SU(N_f)`
-fundamental of collinear hypers over a gauged U(1) — `SQED_{N_f}`
+carried with **exact `HabiroElement` coefficients** and normalised to `SU(N_f)`
+partition labels.  General-purpose: this is the `S_RG` of any RG flow dropping an
+`SU(N_f)` fundamental of collinear hypers over a gauged U(1) — `SQED_{N_f}`
 (`SQEDNfRGKAlgebra`).
 
-`N_f = 2` reduces **exactly** to `su2_doublet_dilog` (the two fundamental weights
-`μ^{±1}`); `N_f = 1` is the bare `E_𝖖(x)` (trivial flavour).  Built on
-`sun_characters` (the type-A Weyl/Schur machinery) + the Habiro ring.
+`N_f = 2` reduces **exactly** to the SU(2)-doublet dilogarithm (the two
+fundamental weights `μ^{±1}`); `N_f = 1` is the bare `E_𝖖(x)` (trivial flavour).
+Built on `sun_characters` (the type-A Weyl/Schur machinery) + exact arithmetic
+in the localization `Z[𝖖^±][(1−𝖖^{2n})^{-1}, n ≥ 1]` (`HabiroElement`).
 """
 
 from __future__ import annotations
@@ -40,7 +41,7 @@ __all__ = ["eq_coeff", "sunf_components"]
 def eq_coeff(m: int) -> HabiroElement:
     """`c_m = [x^m] E_𝖖(x) = (−𝖖)^m / (𝖖²;𝖖²)_m` — the m-th quantum-dilogarithm
     coefficient for a **self-pairing-free** generator (a single unit-coefficient
-    label per `x^m`).  Habiro form: numerator `(−1)^m 𝖖^m`, denominator
+    label per `x^m`).  As a `HabiroElement`: numerator `(−1)^m 𝖖^m`, denominator
     `∏_{j=1}^{m}(1 − 𝖖^{2j})`."""
     if m < 0:
         raise ValueError(f"eq_coeff requires m >= 0, got {m}")
@@ -100,7 +101,7 @@ def sunf_components(Nf: int, N: int) -> dict:
         I[comp] = I.get(comp, HabiroElement.zero()) + coeff
 
     # I·δ, then read c_λ at each strictly-decreasing β = λ+ρ (Weyl bialternant),
-    # carrying Habiro coefficients exactly.
+    # carrying the HabiroElement coefficients exactly.
     delta = _sun.weyl_denominator(Nf)               # {exp-tuple: int}
     prod: dict = {}
     for we, hc in I.items():

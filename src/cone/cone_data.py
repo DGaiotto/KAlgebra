@@ -1,6 +1,6 @@
-"""Cone-filtration data for K-algebras.
+"""Cone-filtration data for K_𝖖-algebras.
 
-Many K-algebras carry a *cone-filtration* structure: the canonical basis
+Many K_𝖖-algebras carry a *cone-filtration* structure: the canonical basis
 splits into "cones" — maximal collections of pairwise q-commuting basis
 elements — and within each cone the basis is a q-normal-ordered
 monomial in a finite set of "multiplicative generators."  This module
@@ -19,15 +19,14 @@ The word *cone* names two different convex cones in the charge lattice
   * **Monomial cone** (this module's "cone") — chart-*local*: the
     charges whose `F_γ` is a pure cluster monomial in a given chart,
     equivalently a maximal pairwise-q-commuting (PBW) block of the
-    canonical basis.  Built by `cluster_cone_builder` (`base_monomial_
-    rays`); organised here as `ConeData`'s cones.
+    canonical basis.  Organised here as `ConeData`'s cones.
 
 They are related (the cluster fan of monomial cones tiles a
 neighbourhood of `Γ₊`) but distinct objects.  In prose/docstrings
 always qualify — "positive cone" vs "monomial cone" — never bare "cone".
 
-The `Cone` class (added 2026-05-25; re-founded composable 2026-06-25)
-factors the *change of basis* between PBW monomials in mult-gens and the
+The `Cone` class factors the *change of basis* between PBW monomials in
+mult-gens and the
 canonical basis of A_q[T] inside each cone.  `Cone` is **one concrete
 class parameterized by a partition of its mult-gens** into orthogonal,
 composable kinds:
@@ -41,14 +40,13 @@ composable kinds:
   * **torus** gens — invertible directions (`v · v_inv = 1`), so the cone
     subalgebra carries a quantum-torus factor; distinct ρ-semantics (ρ can
     shear the torus directions).  **In use**: `U1A1AoddKAlg(k)` (its
-    `iter_cones` yields torus cones); `abe_pure_un` builds on them.
+    `iter_cones` yields torus cones).
 
-  * **character** gens (**implemented** 2026-06-22) — the change of basis
-    is a Chebyshev / Weyl-character relation `χ_k = U_k(χ_1)`: the
-    canonical basis on a marked `char_gen` IS the SU(2) irreducible
-    characters `{χ_k}` (a fundamental `χ_1`).  In use:
-    `SU2A1D3GammaConeData`'s gauge-Wilson `W` direction,
-    `pure_su2_h_wilson`.  The natural home for any SU(2)-Wilson-line /
+  * **character** gens — the change of basis is a Chebyshev /
+    Weyl-character relation `χ_k = U_k(χ_1)`: the canonical basis on a
+    marked `char_gen` IS the SU(2) irreducible characters `{χ_k}` (a
+    fundamental `χ_1`).  In use: the pure-SU(2) gauge-Wilson direction
+    (`pure_su2_h_wilson`).  The natural home for any SU(2)-Wilson-line /
     character-ray cone (e.g. the skein Wilson lines).
 
 The three kinds are **partitions of the one `Cone` class**, not distinct
@@ -58,8 +56,9 @@ and the kinds compose orthogonally, so **mixed cones** (e.g. torus +
 character together) are constructible directly via
 `Cone(parent, mult_gens, torus_gens=…, char_gens=…)`.  The partition is
 carried as data and queried with `is_monomial()` / `is_quantum_torus()` /
-`is_character()`.  (The historical thin partition-fixing subclasses
-`MonomialCone` / `QTCone` / `CharacterCone` were removed in #640.)
+`is_character()`.  (The former thin partition-fixing subclasses
+`MonomialCone` / `QTCone` / `CharacterCone` were folded into the single
+parameterized class.)
 
 The companion abstract `ConeKAlgebra` (in `cone_kalgebra.py`) is the
 "closed-form" presentation tier: a `KAlgebra` defined by a `ConeData`
@@ -97,8 +96,8 @@ The generic `derived_multiply(a, b)` reduces the concatenated word
 past each other (paying cocycle phases), (ii) substituting
 `cross_product` at non-q-commuting collisions, (iii) terminating when
 each surviving word lies in a single cone, then reading off the native
-labels via `from_cone_label`.  The algorithm is validated against
-PentagonKAlg's full ordered-pair multiplication table.
+labels via `from_cone_label`.  The algorithm is validated against the
+pentagon algebra's full ordered-pair multiplication table.
 
 Flavour in the cone presentation
 --------------------------------
@@ -111,11 +110,11 @@ different places**.  Always check `coefficient_ring()` *and*
 
   **I. Unflavoured / U(1) folded into the labels** (`R =
   TrivialZPlusRing`).  The U(1) gauge/flavour torus direction is a
-  *lattice/label* coordinate (a `QTCone` torus gen, or an exponent in
+  *lattice/label* coordinate (a torus gen, or an exponent in
   the cone label) — there is no R-side content.
   `_label_section_decompose(label) = (label, R.one())`.  *Examples:*
-  `PentagonKAlg`, `U1SquareKAlg`, `U1OctagonKAlg`, `U1DecagonKAlg`,
-  `U1A1AoddKAlg`, `U1HexagonKAlg`.  ⚠ In `U1HexagonKAlg` the central `E`
+  `FinitePentagonKAlgebra`, `U1SquareKAlg`, `U1OctagonKAlg`,
+  `U1DecagonKAlg`, `U1A1AoddKAlg`, `U1HexagonKAlg`.  ⚠ In `U1HexagonKAlg` the central `E`
   exponent is a **dynamical algebra generator, not a flavour fugacity**
   — so `R` stays `Trivial` even though the label carries a μ-looking
   integer.
@@ -125,18 +124,18 @@ different places**.  Always check `coefficient_ring()` *and*
   `RLaurent` coefficients of `cross_product`
   (`RLaurent(R, {q_exp: RElement(R, {(μ,): c})})`).
   `_label_section_decompose(label) = (gauge_section,
-  R.basis_element((μ,)))`.  *Examples:* `AbeU2Nf1KAlgebra`,
-  `SU2Nf1KAlgebra`, `FiniteA3/A5/A7/E7KAlgebra`.
+  R.basis_element((μ,)))`.  *Examples:* `SU2Nf1KAlgebra`,
+  `FiniteA3/A5/A7/E7KAlgebra`.
 
   **III. Non-abelian character folded into a label component** (`R =
   SU2 / SO3 / SU3ZPlusRing`).  A χ-index is a dedicated coordinate of
   the label; `_label_section_decompose` peels it onto R:
   `(tile, a, b, k) ↦ ((tile, a, b, 0), R.basis_element(k))`
   (SU(3): `(…, p, q) ↦ ((…, 0, 0), χ_{(p,q)})`).  *Examples
-  (hand-written):* `A1D3KAlg`, `A1D5KAlg`, `A1D7KAlg`, `SU3ADKAlg`,
-  `FiniteA1D3/5/7KAlgebra`.
+  (hand-written):* `A1D3KAlg`, the `A1Dodd` family (`A1D5ConeKAlg`,
+  `A1D7ConeKAlg`), `SU3ADKAlg`, `FiniteA1D3/5/7KAlgebra`.
 
-  **IV. Character cone** (`CharacterCone`, **implemented** 2026-06-22).  The
+  **IV. Character cone** (a `Cone` with non-empty `char_gens`).  The
   canonical basis *is* the irreducible characters `{χ_k}` of an SU(2) acting on a
   marked subset of the mult-gens (`char_gens`); the change of variables on each
   char-gen is the SU(2) Chebyshev/Weyl relation `χ_k = U_k(χ_1)`
@@ -144,10 +143,8 @@ different places**.  Always check `coefficient_ring()` *and*
   (`su2_monomial_to_chars`), with the remaining gens monomial.  A subclass routes
   `derived_multiply` through `canonical_to_pbw → monomial reduce → pbw_to_canonical`
   so the Wilson Clebsch–Gordan (`χ_1·χ_1 = χ_0+χ_2`) is genuinely cone-derived
-  (no hard-coding, no BPS).  *Example:* `SU2A1D3GammaConeData` (the gauge Wilson
-  `W` direction; the special-sector multiply is exact == BPS, 289/289).  Earlier
-  ad-hoc bypasses (`PureSU2ConeKAlgebra`, `AbePureUNKAlgebra`) predate this and can
-  migrate onto it.
+  (no hard-coding, no BPS).  *Example:* the pure-SU(2) gauge-Wilson direction
+  (`pure_su2_h_wilson`).
 
   **V. Mixed SU(2)×U(1)** (`R = SU2xU1ZPlusRing`).  Like II, **both** the
   χ *and* the μ live in the `RLaurent` cross-product coefficients
@@ -175,8 +172,7 @@ Pitfalls
     RElement(R, {char_key: c})})`; the character key is *not* part of
     the label.
 
-  * **`CharacterCone` is implemented** (2026-06-22; SU(2) Chebyshev).  First
-    use: `SU2A1D3GammaConeData`'s Wilson `W` direction (IV).  III still realises
+  * **Character cones are implemented** (SU(2) Chebyshev).  III still realises
     the *flavour-in-a-label-slot* character idea informally (cheaper when no CG is
     needed); IV is the genuine cone-derived character multiply.
 
@@ -190,28 +186,26 @@ Pitfalls
   * **A μ-looking label exponent may not be flavour** (`U1Hexagon`'s
     `E`) — check `coefficient_ring()`.
 
-Migration to the lift coordinate (2026-06-18)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The lift coordinate
+~~~~~~~~~~~~~~~~~~~
 
-The `_label_section_decompose` patterns above are **slated for retirement**
-in favour of `KAlgebra.r_label_decompose` — the single-irrep
-`(section, R-basis-label)` flavour-lift coordinate.  Across these five
-patterns `_label_section_decompose` only ever takes **two shapes**: the
-*trivial lift* `(label, R.one())` (gauge-only / flavour-in-coefficients —
-patterns I, II-generated, V) and the *peel-a-slot*
-`((…, 0), R.basis_element(slot))` (flavour weight in a label coordinate —
-pattern III, and the hand-written pattern-II `SU2Nf1`).  `ConeKAlgebra`
-now **defaults `r_label_decompose`**, reading the single irrep off whichever
-shape a subclass currently supplies (a *reverse* bridge to the to-be-retired
-method — see `ConeKAlgebra.r_label_decompose`), so no cone theory needs an
-edit during the transition.  New cone theories supply `r_label_decompose`
-directly and skip `_label_section_decompose`; its **inverse**
-`r_label_compose` (`(section, R-basis-label) → label`) is the
-label-producing partner (used by `forget` / `lower_flavour` /
-`KAlgebraIso.from_section_map`).  Only `_label_section_decompose` is
-retired — `embed_R` is **not**: it remains the central embedding
-`ι : R ↪ A_𝖖` (with its faithfulness / ρ-compatibility axioms), the default
-mechanism behind `r_label_compose`, and the backing of `from_R_form`.
+The preferred surface for the section split is `KAlgebra.r_label_decompose`
+— the single-irrep `(section, R-basis-label)` flavour-lift coordinate.
+Across the five patterns above `_label_section_decompose` only ever takes
+**two shapes**: the *trivial lift* `(label, R.one())` (gauge-only /
+flavour-in-coefficients — patterns I, II-generated, V) and the
+*peel-a-slot* `((…, 0), R.basis_element(slot))` (flavour weight in a label
+coordinate — pattern III, and the hand-written pattern-II `SU2Nf1`).
+`ConeKAlgebra` **defaults `r_label_decompose`**, reading the single irrep
+off whichever shape a subclass supplies (a *reverse* bridge — see
+`ConeKAlgebra.r_label_decompose`), so no cone theory needs a per-theory
+edit.  New cone theories supply `r_label_decompose` directly and skip
+`_label_section_decompose`; its **inverse** `r_label_compose`
+(`(section, R-basis-label) → label`) is the label-producing partner (used
+by `forget` / `lower_flavour` / `KAlgebraIso.from_section_map`).
+`embed_R` is the central embedding `ι : R ↪ A_𝖖` (with its faithfulness /
+ρ-compatibility axioms), the default mechanism behind `r_label_compose`,
+and the backing of `from_R_form`.
 """
 
 from __future__ import annotations
@@ -310,10 +304,10 @@ class ConeData(ABC):
     # -- coefficient ring + qpoly factory ---------------------------------
 
     def coefficient_ring(self) -> ZPlusRing:
-        """The Z+-ring R over which the parent K-algebra is defined.
+        """The Z+-ring R over which the parent K_𝖖-algebra is defined.
         Default `TrivialZPlusRing()` ⇒ Z[q, q⁻¹] coefficients
         (`LaurentPoly` everywhere in the cone pipeline).  Subclasses
-        backing a flavoured / character-ring K-algebra override.
+        backing a flavoured / character-ring K_𝖖-algebra override.
 
         When wired into a `ConeKAlgebra`, must agree with
         `parent.coefficient_ring()`.
@@ -339,24 +333,24 @@ class ConeData(ABC):
 
     def _rho2_twist_unit(self, alg, tag_native, sign: int):
         """Central-unit correction for ELEMENT-level `ρ^{±2}` on the
-        single-mult-gen label `tag_native` — the δ-honest Layer 1
-        (2026-06-11, user-chartered; closes the Plan-18 μ^δ leak at
-        the reducer).
+        single-mult-gen label `tag_native`.  The Layer-1 reducer must
+        account for the central μ^δ shift here, or the ρ²-cyclicity
+        slide would silently drop a unit on flavoured entries.
 
         ρ inverts central flavour characters (`ρ(μ·x) = μ⁻¹·ρ(x)`),
         and on unit-character entries each letter carries a μ-shift
-        under ρ (`ρ(L_w) = μ^{δ(w)}·L_{Pw}`, the standalone's
-        `_rho_delta` table, validated operationally in the Plan-29
-        z-form work).  Composing:
+        under ρ (`ρ(L_w) = μ^{δ(w)}·L_{Pw}`, the algebra's
+        `_rho_delta` table, validated operationally by exhaustive
+        ρ-automorphism sweeps).  Composing:
 
             ρ²(L_t)  = μ^{δ(Pt) − δ(t)}   · L_{P²t}
             ρ⁻²(L_u) = μ^{δ(P⁻²u) − δ(P⁻¹u)} · L_{P⁻²u}
 
         Returns the μ-unit as a coefficient multiplier (`RLaurent` at
         q⁰), or `None` when the algebra carries no δ-table or the net
-        shift vanishes — in which case callers skip the multiply and
-        the historical behaviour (trivial/su2 entries, where label-ρ
-        IS element-ρ) is byte-identical."""
+        shift vanishes — in which case callers skip the multiply
+        (on trivial/su2 entries label-ρ IS element-ρ and no correction
+        arises)."""
         delta = getattr(alg, "_rho_delta", None)
         if not delta:
             return None
@@ -668,22 +662,23 @@ class ConeData(ABC):
         the algebra's *trace seeds* (= identity + single mult-gens), with
         the same trace as the input.
 
-        Scope — **applicable only to MonomialCone-backed ConeData**
+        Scope — **applicable only to monomial-cone ConeData**
         (Pentagon, Heptagon, U1Hexagon, A1A2k, …).  The tagged-cyclicity
         algorithm relies on the following structural property: for the
         tagged mult-gen `g_1` and the remaining factors `g_2, …, g_n`,
         **some power of ρ² applied to `g_1` lands outside the cone of
         the remaining factors** (= fails to q-commute with at least
         one of them), exposing a cross-cone Plücker that triggers the
-        reduction.  For `QTCone`-backed ConeData (e.g.
+        reduction.  For quantum-torus ConeData (e.g.
         `U1SquareConeData`), ρ² applied to any cone-mult-gen stays
         inside the cone of the remaining factors (it just shifts torus
         exponents within the same cone), so no Plücker ever fires;
-        tagged-cyclicity is **inapplicable by design** for QTCones.
-        Trace handling for QTCone-using algebras is per-theory at
-        Layer 2 (e.g. `U1SquareKAlg.trace` delegates to a Sqed1KAlg
-        closed-form path; the general QTCone trace requires cyclicity
-        recursions of the form `Tr(v²) = q Tr(1) + q(q−1) Tr(v)`).
+        tagged-cyclicity is **inapplicable by design** for quantum-torus
+        cones.  Trace handling for quantum-torus algebras is per-theory
+        at Layer 2 (e.g. `U1SquareKAlg.trace` delegates to an SQED₁
+        closed-form path; the general quantum-torus trace requires
+        cyclicity recursions of the form
+        `Tr(v²) = q Tr(1) + q(q−1) Tr(v)`).
 
         Algorithm — **tagged cyclicity**.  In an L-product word `[g_1, ...,
         g_n]` of mult-gens:
@@ -949,18 +944,18 @@ class ConeData(ABC):
         `n_cycles` is the 1-based cycle on which the Plücker fired — the
         cost signal the bilateral driver races on.
 
-        QTCone generalisation.  In a quantum-torus cone `ρ∓²` of a single
-        conventional mult-gen is **torus-dressed**: `ρ⁻²(L_g) = L_{g'·E^d}`
-        for a conventional gen `g'` and a torus drift `E^d` (e.g.
-        `U1A1Aodd`'s wrap chords).  The image is then a *multi-letter*
-        canonical label `(g', E, …, E)`.  Rather than bail (the old
-        MonomialCone-only behaviour), we:
+        Quantum-torus generalisation.  In a quantum-torus cone `ρ∓²` of a
+        single conventional mult-gen is **torus-dressed**:
+        `ρ⁻²(L_g) = L_{g'·E^d}` for a conventional gen `g'` and a torus
+        drift `E^d` (e.g. `U1A1Aodd`'s wrap chords).  The image is then a
+        *multi-letter* canonical label `(g', E, …, E)`.  Rather than bail
+        (the monomial-only behaviour), we:
 
           * convert that canonical label to its literal word via
             `cone_label_phase` — `L_{g'·E^d} = q^{phase}·ℓ(g', E,…,E)` —
             and fold `q^{phase}` into the running coefficient (the
-            previously-omitted canonical→literal factor; **zero** for a
-            single-gen MonomialCone image, so MonomialCones are untouched);
+            canonical→literal factor; **zero** for a single-gen
+            monomial-cone image, so monomial cones are untouched);
           * splice the whole literal block in, and slide the *conventional*
             letter `g'` (located by the torus test — torus letters
             q-commute with everything and never Plücker) toward its
@@ -1170,6 +1165,11 @@ class ConeData(ABC):
                        =  Tr(O · g)                       (g is ρ²-fixed)
                        =  q^{-2 · net_c(g)} · Tr(g · O)   (q-commute slide)
 
+        (The general ρ²-twisted-cyclicity axiom twists the other way;
+        the first line is valid here precisely because `g` is ρ²-fixed,
+        so `ρ^{±2}(g) = g` and the direction of the twist is
+        immaterial.)
+
         where ``net_c(g) = Σ_{h ≠ g} powers[h] · cocycle(g, h)``.
         Hence ``(1 - q^{-2 net_c}) Tr(g · O) = 0``, forcing ``Tr = 0``
         whenever ``net_c ≠ 0``.
@@ -1207,19 +1207,18 @@ class ConeData(ABC):
 
         Used by `simplify_trace_via_cone_data` to skip the tagged-
         cyclicity round entirely when no Plücker is achievable —
-        saving wasted cycle budget on QTCone-using algebras where ρ²
+        saving wasted cycle budget on quantum-torus algebras where ρ²
         preserves the cone-of-others for every factor.
 
-        Default: True (try cyclicity).  Matches the MonomialCone-style
+        Default: True (try cyclicity).  Matches the monomial-cone
         behaviour of Pentagon / Heptagon / A1A2k where ρ² has finite
         order on mult-gens and can push them across cones.
 
-        Subclasses with QT structure (U1SquareConeData, future QTCone-
-        refactored U1HexagonConeData, ...) should override to False
-        when no ρ² power moves any factor out of the cone of the
-        others.  Concretely, for U1SquareConeData all factors live in
-        ρ²-fixed cones with torus-direction drift, so the trigger is
-        unconditionally False.
+        Subclasses with quantum-torus structure (e.g. `U1SquareConeData`)
+        should override to False when no ρ² power moves any factor out
+        of the cone of the others.  Concretely, for U1SquareConeData all
+        factors live in ρ²-fixed cones with torus-direction drift, so
+        the trigger is unconditionally False.
         """
         return True
 
@@ -1307,7 +1306,7 @@ class ConeData(ABC):
     ) -> tuple[frozenset[Label], dict[Label, int]]:
         """Convert a word to (gens, powers).  Assumes word is single-cone.
 
-        For `QTCone`-backed ConeData with `_torus_inverse_letter`
+        For quantum-torus ConeData with `_torus_inverse_letter`
         overridden, paired torus letters `v_p^a · v_n^b` collapse to
         the net `v_p^{a-b}` (or `v_n^{b-a}` if negative), since
         `v_p · v_n = 1` in the algebra.  This implements the Laurent-
@@ -1344,10 +1343,10 @@ class ConeData(ABC):
         """If `g` is a torus mult-gen with an inverse letter in this
         cone-data's mult-gen set, return the inverse letter; else None.
 
-        Default: None for all gens (= no torus structure, MonomialCone
-        / Pentagon-style behaviour preserved).
+        Default: None for all gens (= no torus structure, the monomial /
+        Pentagon-style behaviour).
 
-        QTCone-backed `ConeData` subclasses (e.g. `U1SquareConeData`)
+        Quantum-torus `ConeData` subclasses (e.g. `U1SquareConeData`)
         override to declare the v / v_inv pairing.  When set, the
         `_word_to_gens_powers` step collapses paired letters according
         to `v_p · v_n = 1` (Laurent-cone cancellation).
@@ -1407,7 +1406,7 @@ class ConeData(ABC):
 
 
 class FiniteConeData(ConeData):
-    """`ConeData` specialization for K-algebras with a finite, enumerable
+    """`ConeData` specialization for K_𝖖-algebras with a finite, enumerable
     multiplicative-generator set and finitely many cones.
 
     Subclasses supply `mult_gens()` (the global mult-gen set) and
@@ -1452,7 +1451,7 @@ class FiniteConeData(ConeData):
 #     the change of variables is still the identity, but a marked subset
 #     of mult-gens is invertible (`v · v_inv = 1`), so the cone carries
 #     a quantum-torus factor and ρ can shear the torus directions.
-#     In use: U1A1Aodd(k); abe_pure_un.
+#     In use: U1A1Aodd(k).
 #
 #   * For "character cones" (a `Cone` with `char_gens` non-empty) the
 #     canonical basis coincides with the irreducible characters χ_k of a
@@ -1460,10 +1459,9 @@ class FiniteConeData(ConeData):
 #     gen χ_1.  The two bases are related by a Chebyshev / Weyl-character-
 #     formula change of variables.  Use case: SU(2)-flavoured A1D3..A1D7,
 #     U1A1D2/4, pure-SU(2) Wilson-line cones, SU(N) Schur-poly cones.
-#     IMPLEMENTED for SU(2) (2026-06-22): the `char_gens` partition
-#     (Chebyshev `su2_*_to_*`); first use SU2A1D3GammaConeData's gauge
-#     Wilson direction.  (SU(N) Schur wires a different change-of-basis
-#     pair.)
+#     Implemented for SU(2): the `char_gens` partition (Chebyshev
+#     `su2_*_to_*`); in use for the pure-SU(2) gauge-Wilson direction.
+#     (SU(N) Schur wires a different change-of-basis pair.)
 
 ConePolynomial = dict[tuple[Label, ...], LaurentPoly]
 """A Z[q^±]-linear combination of canonical-ordered PBW words (words
@@ -1505,8 +1503,8 @@ class Cone:
     `Cone(parent, mult_gens, torus_gens=…, char_gens=…)`.  The partition
     is carried as data and queried with `is_monomial()` /
     `is_quantum_torus()` / `is_character()`; there are no per-kind
-    subclasses (the historical `MonomialCone` / `QTCone` / `CharacterCone`
-    were thin partition-fixers, removed in #640).
+    subclasses (the former `MonomialCone` / `QTCone` / `CharacterCone`
+    were thin partition-fixers, folded into this class).
 
     The PBW ↔ canonical change of variables dispatches on the
     partition: an empty `char_gens` gives the identity (monomial) change
@@ -1590,7 +1588,7 @@ class Cone:
 
     def conventional_gens(self) -> frozenset[Label]:
         """`mult_gens() - torus_gens()`.  Powers in canonical labels are
-        strictly positive for these.  (QTCone compatibility.)"""
+        strictly positive for these.  (Quantum-torus compatibility.)"""
         return self._mult_gens - self._torus_gens
 
     def monomial_gens(self) -> frozenset[Label]:

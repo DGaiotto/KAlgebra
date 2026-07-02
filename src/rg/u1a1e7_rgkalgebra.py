@@ -1,5 +1,5 @@
 """`U1A1E7RGKAlgebra` — the **u(1)-gauged `[A₁, E₇]`** Argyres–Douglas algebra
-as a **pure** new-contract `RGKAlgebra` over `A1A2kKAlg(3) ⊗ QT(Z²)`
+as a **pure** `RGKAlgebra` over `A1A2kKAlg(3) ⊗ QT(Z²)`
 (= `[A₁,A₆]` ⊗ a symplectic quantum torus).
 
 The E-type sibling of the A-chain's second leg `U1A1AoddToEvenQTRGKAlgebra` and
@@ -40,15 +40,13 @@ Grading (Γ_RG = Z = the gauged-U(1) leg charge)
 cone `Z_{≥0}`, height 1. `apex` is the identity (UV labels = auxiliary labels;
 `RG` solved generically).
 
-Status
+Engine
 ------
 A **pure** `RGKAlgebra` — `RG` solved, `multiply`/`ρ`/`trace` all the generic
 engine, no override. The exact-FS bilinear trace is truncation-safe and fast
 (vacuum `1 − q² + q⁶ + q⁸ + … ` to q¹⁰ in a few seconds; the `q²` coefficient is
 `−1`, the gauged-U(1) current subtraction). The spine-free auxiliary draws
-`A1A2kKAlg(3)` from the cone tier. The previous `u1e7_gauged_rg.U1E7GaugedRG`
-(whose docstring flagged a slow windowed trace — a concern predating the
-nested-aux exact-FS engine) is kept as a back-compat alias of this class.
+`A1A2kKAlg(3)` from the cone tier.
 """
 from __future__ import annotations
 
@@ -118,7 +116,7 @@ class U1A1E7RGKAlgebra(RGKAlgebra):
 
     def _s_rg_component(self, p):
         """`[S_RG]_{(m,)}` — degree-`m` part (in the dressed leg (0,1)) is the
-        single label `(L^m, (0,m))` with Habiro coefficient `c_m`."""
+        single label `(L^m, (0,m))` with coefficient `c_m`."""
         (m,) = p
         if m < 0:
             return {}

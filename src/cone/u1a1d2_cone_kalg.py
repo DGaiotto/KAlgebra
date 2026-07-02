@@ -148,7 +148,7 @@ class U1A1D2ConeKAlgebra(ConeKAlgebra):
             "SQED2SampleKAlgebra); cone-data trace seeds are not routed here."
         )
 
-    # -- multiply (A1D3-style Pattern III) --------------------------------
+    # -- multiply (A1D3-style flavour-in-label) ----------------------------
 
     def multiply(self, a: Label, b: Label) -> Element:
         """Cone-data multiplication with χ-index folding at the

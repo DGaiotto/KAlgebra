@@ -14,10 +14,11 @@ q^{≤0}-coefficient-wise AND μ-charge-wise.  Two ideas make it scale:
     frontier system; the deep single-mult-gen identity-pairings pin most reps,
     the few free reps get the δ-honest orthonormality pairs.
 
-Tr(1) (one BPS call) is the only BPS input — the per-seed BPS engine is
-infeasible on the E-series.  Validated BPS-free vs the frozen tables: a3 6/6,
-a5 24/24; e7 (no frozen oracle exists, BPS can't make one) generated with all
-90 seeds pinned and an over-determined-consistent certificate.
+Tr(1) (the vacuum character, served spine-free) is the only external input —
+a per-seed BPS engine would in any case be infeasible on the E-series.
+Validated BPS-free vs the frozen tables: a3 6/6, a5 24/24; e7 (for which no
+frozen reference table exists) generated with all 90 seeds pinned and an
+over-determined-consistent certificate.
 
 `generate_u1(short_id, K)` returns the standard frozen-table record; it is the
 u1 path of `elem_traces.generate`.

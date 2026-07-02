@@ -1,15 +1,15 @@
 """`AddFlavourKAlgebra` — adjoin a spectator flavour symmetry to any KAlgebra.
 
-⚠ **ASPIRATIONALLY OBSOLETE (Plan 32) — obsolete-to-be, not retired.**  This
-wrapper encodes flavour as an extra *label coordinate* `f`.  The
-Plan-32-canonical encoding carries flavour in the *coefficient ring* instead
-("free over `R(G_f)`", D1), grown functorially by `base_change` through a
-flavour-growing ring hom (`zplus_ring.unit_hom` / `tensor_inclusion_hom`) and
-forgotten by `base_change(augmentation)` (`KAlgebra.forget()`).  The two
-present the **same** flavoured algebra under `(L_a, f) ↔ χ_f·L_a` (see
-`KAlgebra.add_flavour`).  Kept because matter-dressing `RGKAlgebra` flows still
-use this as their auxiliary; migrate those to the coefficient encoding before
-retiring it.
+**An alternative label-coordinate encoding of flavour.**  This wrapper
+encodes flavour as an extra *label coordinate* `f`.  The other encoding
+carries flavour in the *coefficient ring* instead ("free over `R(G_f)`"),
+grown functorially by `base_change` through a flavour-growing ring hom
+(`zplus_ring.unit_hom` / `tensor_inclusion_hom`) and forgotten by
+`base_change(augmentation)` (`KAlgebra.forget()`); that coefficient-ring
+encoding is preferred for new code.  The two present the **same** flavoured
+algebra under `(L_a, f) ↔ χ_f·L_a` (see `KAlgebra.add_flavour`).  This
+wrapper is retained because some matter-dressing `RGKAlgebra` flows use it
+as their auxiliary.
 
 Given any `KAlgebra` `B` and any `ZPlusRing` `R` (the representation ring of
 the flavour symmetry), this wrapper produces a new `KAlgebra`
@@ -40,16 +40,15 @@ Relation to `base_change` (the preferred path)
 `KAlgebra.base_change(phi)` is a **coefficient-only pushforward**: it keeps the
 same labels and the same Z-form `multiply`, and only re-homes the trace's
 R-coefficients through `phi`.  This wrapper instead adds the flavour irrep as
-**new label coordinates**.  Historically these looked like genuinely different
-constructions, but under Plan 32 they present the **same** flavoured algebra:
+**new label coordinates**.  Though they look like genuinely different
+constructions, they present the **same** flavoured algebra:
 `base_change` through a flavour-growing hom (`unit_hom` / `tensor_inclusion_hom`,
 `zplus_ring`) makes the algebra free over `R(G_f)` with the *unflavoured* basis,
 and the label-coordinate basis here maps to it by `(L_a, f) ↦ χ_f·L_a`
-(trace-compatible).  The coefficient-ring encoding is the Plan-32-canonical one
-(it composes cleanly with `forget = base_change(augmentation)` and
+(trace-compatible).  The coefficient-ring encoding is the preferred one for
+new code (it composes cleanly with `forget = base_change(augmentation)` and
 `lower_flavour = base_change(restriction)`); this label-coordinate wrapper is
-the obsolete-to-be alternative, retained only as an existing matter-flow
-auxiliary.
+the alternative, retained as the auxiliary of some matter-dressing RG flows.
 
 Z-form = tensor with a flavour rep ring
 ---------------------------------------
@@ -57,12 +56,11 @@ In the Z-form this *is* `B ⊗ R(flavour)` with the flavour factor central
 (q-commuting, group-like, ρ-dualized).  But unlike a bare `TensorKAlgebra`, the
 result is presented as a genuine *flavoured* KAlgebra
 (`_label_section_decompose` / `embed_R` fold the flavour charge onto the
-character `R.basis_element(f)` in the R-form view), which sidesteps the
-`TensorKAlgebra` "both factors over Z[q^±]" constraint.
+character `R.basis_element(f)` in the R-form view).
 
 Primary use
 -----------
-The auxiliary of a matter-dressing `RGKAlgebra` (`AbeRGKAlgebra`): the IR
+The auxiliary of a matter-dressing `RGKAlgebra` flow: the IR
 pure-gauge algebra `B` acquires the matter flavour symmetry, the RG grading
 `Γ_RG` is read straight off the flavour-charge label coordinate, and the
 matter–gauge coupling lives entirely in `S_RG = ∏_R ∏_{w∈R} E_𝖖(μ_R v^w)`.

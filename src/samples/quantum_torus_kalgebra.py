@@ -9,7 +9,7 @@ relations:
 Conventions:
 
 * Canonical-basis labels are **full Γ-tuples** of length `n` -- matching
-  the convention of `QuantumTorusZ2KAlg` and `BPSKAlgebra`.  This means
+  the convention of `Z2QTorusSampleKAlgebra` and `BPSKAlgebra`.  This means
   two labels `γ` and `γ + γ_f` for `γ_f ∈ Γ_f := ker(B)` are *distinct*
   basis elements that differ by a μ-monomial coefficient under the
   trace.
@@ -50,8 +50,8 @@ Flavour-lift coordinate and forget:
   section copy into `Γ_g`; the forget map `L_γ ↦ M_{gauge_class(γ)}` is a
   trace-preserving homomorphism.
 
-`QuantumTorusZ2KAlg(KAlgebra)` from `kalgebra_samples.py` is the special
-case of this class at `pairing=[[0, 1], [-1, 0]]`.
+The special case `pairing=[[0, 1], [-1, 0]]` is implemented directly (as a
+standalone `KAlgebra` subclass) by `Z2QTorusSampleKAlgebra` in `samples.py`.
 """
 
 from __future__ import annotations
@@ -171,8 +171,7 @@ class QuantumTorusKAlg(KAlgebra):
         return Element({target: coeff})
 
     def r_label_decompose(self, label):
-        """The flavour-lift coordinate `(section, flavour_key)` (replaces the
-        retired `_label_section_decompose`).
+        """The flavour-lift coordinate `(section, flavour_key)`.
 
         **Before forgetting**, the section is a *section of the projection*
         `π : Γ ↠ Γ_g = Γ/Γ_f`: the ρ-equivariant Z-linear lift `s : Γ_g → Γ`
@@ -224,8 +223,8 @@ class QuantumTorusKAlg(KAlgebra):
         `embed_R(μ^f)·L_{section} = L_{γ_f + section}` with no q-phase — exactly
         the faithfulness axiom `embed_R(r_coeff(a))·L_{section(a)} == L_a`.
 
-        (The base default only embeds `1_R`; without this override
-        `from_R_form` and `verify_embed_section_roundtrip` failed for any
+        (The base default only embeds `1_R`; this override is what makes
+        `from_R_form` and `verify_embed_section_roundtrip` work for
         non-trivial flavour.)"""
         R = self._R
         if not isinstance(r, RElement) or r.ring != R:

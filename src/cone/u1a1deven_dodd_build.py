@@ -3,16 +3,16 @@ u1a1deven_dodd_build.py
 =======================
 
 `DevenDoddConeTables` — build the self-contained `U1A1DevenConeKAlgebra` tables
-from the **reliable A1Dodd×QT oracle** `U1A1DevenViaDoddRG(k)` instead of the
-legacy `A1A2k⊗QT⊗SU(2)` oracle (whose deep matter trace is wrong; finding
-A16).  This makes the cone *fully oracle-consistent and legacy-free*: multiply/ρ
-AND the trace freeze all come from the same (correct) oracle, so no cross-oracle
-matching is needed (user, 2026-06-25 "rebuild cone on new oracle").
+from the **reliable A1Dodd×QT oracle** (`U1A1DevenViaDoddRG(k)`, a derivation
+not included in this repository) instead of the `A1A2k⊗QT⊗SU(2)` oracle
+(whose deep matter trace is wrong).  This makes the cone *fully
+oracle-consistent*: multiply/ρ AND the trace freeze all come from the same
+(correct) oracle, so no cross-oracle matching is needed.
 
 Strategy (subclass `DevenConeTables`, override only the oracle-touching pieces;
 reuse the generic ρ-closure / cliques / cocycle / cross / decode machinery):
 
-  * **Sections** are kept in the legacy-compatible nesting
+  * **Sections** are kept in the base-class nesting
     `((dodd_word, (c0, c1)), kappa)` — `c0` = magnetic ('t Hooft, the trace
     selection charge), `c1` = X_{0,1} matter tower — so the module-level
     `_modT` / `_c2_of` / `_is_pure_x01` and the cone-class section readers work
@@ -24,7 +24,7 @@ reuse the generic ρ-closure / cliques / cocycle / cross / decode machinery):
   * Seeds are the **A1Dodd chords** `(a, p, i)` made clean (RG-monomial, dressed
     by one X_{1,0}=c0 if the bare RG is not monomial), plus the clean QT gens.
   * `_monomial_section` multiplies the ray sections through the oracle (the new
-    multiply is fast) instead of the legacy fast-`_B` chord product.
+    multiply is fast) instead of the base class's fast-`_B` chord product.
 """
 from __future__ import annotations
 import sys, os
@@ -55,7 +55,7 @@ class DevenDoddConeTables(DevenConeTables):
         self.aux = oracle.auxiliary()
         self.k = oracle.k
         self.H = 2 * oracle.k + 3          # dodd position period (unused by build)
-        self._B = None                     # no legacy gauge factor
+        self._B = None                     # no A1A2k gauge factor
         self._decode_degree = decode_degree
         self._build(decode_degree)
         self._precompute_torus_cocycles()
@@ -74,7 +74,7 @@ class DevenDoddConeTables(DevenConeTables):
     @staticmethod
     def _fmt_section(label):
         """oracle label `((word, kappa), (c0, c1))` -> section
-        `((word, (c0, c1)), kappa)` (legacy-compatible nesting)."""
+        `((word, (c0, c1)), kappa)` (the base-class nesting)."""
         (word, kappa), (c0, c1) = label
         return ((word, (c0, c1)), kappa)
 
@@ -176,8 +176,8 @@ class DevenDoddConeTables(DevenConeTables):
     # -- monomial section via the fast (cached) A1Dodd chord product ------
     def _monomial_section(self, ray_ids):
         """Section of a q-commuting ray monomial via the **fast A1Dodd chord
-        product** (the gauge factor of the aux; the dodd analog of the legacy
-        `_B`) + QT-charge addition — no slow full-oracle/RG call.  Clean-frame
+        product** (the gauge factor of the aux; the dodd analog of the base
+        class's `_B`) + QT-charge addition — no slow full-oracle/RG call.  Clean-frame
         rays multiply monomially on the chord skeleton; SU(2) CG only varies the
         kappa (same section), so q-commute ⟺ a single chord-WORD survives.
         None if more than one word appears (rays don't all q-commute).

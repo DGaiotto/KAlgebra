@@ -2,14 +2,13 @@
 pure_su2_h_cone_data.py
 =======================
 
-Pure SU(2) BPS K-algebra as a `ConeKAlgebra` with **H-tower cones**:
+Pure SU(2) K_𝖖-algebra (from its BPS quiver) as a `ConeKAlgebra` with **H-tower cones**:
 rank-3 q-commuting cones `C_k = {H_{2k}, H_{2k+1}, H_{2k+2}}` for k ∈ ℤ,
-where `H_n` corresponds to the `pSU2KAlgebra` canonical-basis label
-`(1, n)`.
+where `H_n` corresponds to the pure-SU(2) canonical-basis label
+`(1, n)` in the `(m, e)` convention below.
 
-This is the ρ-closed cone framework for pure SU(2) — see the docstring
-of `pure_su2_cone_data.py` for the contrast with the (non-ρ-closed)
-Markov cluster mutation tower.
+This is the ρ-closed cone framework for pure SU(2) — as opposed to a
+(non-ρ-closed) Markov cluster-mutation tower of cones.
 
 Lattice picture
 ---------------
@@ -82,8 +81,10 @@ skip-1 pair** `(H_{2k+1}, H_{2k+3})`, which sits across cones
 Test surface
 ------------
 At the bottom of this module, a `__main__` smoke test verifies the
-cone-data primitives by comparing `derived_multiply` outputs against
-`pSU2KAlgebra.multiply` for a basket of (a, b, c) cone monomials.
+cone-data primitives by comparing `derived_multiply` outputs against a
+reference pure-SU(2) implementation for a basket of (a, b, c) cone
+monomials (it imports `psu2_kalgebra`, which is not included in this
+repository; the in-repo coverage is `tests/test_cones.py`).
 """
 from __future__ import annotations
 
@@ -384,7 +385,7 @@ def _psu2_to_native(m: int, e: int) -> tuple:
 
 
 # ---------------------------------------------------------------------------
-# K-algebra wrapper
+# K_𝖖-algebra wrapper
 # ---------------------------------------------------------------------------
 
 def _is_me(x) -> bool:
@@ -396,7 +397,7 @@ def _is_me(x) -> bool:
 
 
 class PureSU2KAlg(ConeKAlgebra):
-    """Pure SU(2) K-algebra with the H-tower rank-3 cone data."""
+    """Pure SU(2) K_𝖖-algebra with the H-tower rank-3 cone data."""
 
     _R = TrivialZPlusRing()
 
@@ -458,10 +459,16 @@ class PureSU2KAlg(ConeKAlgebra):
         for pure SU(2) on Wilson-producing cross-cone Plückers);
         H-shift + Z₂ + anchor selection do the canonicalisation
         directly on the pSU2 seed level for all m.
+
+        Accepts both conventions, like `multiply` / `rho`: native
+        H-tower labels and the `(m, e)` BPS labels.  (`multiply` on
+        `(m, e)` inputs *returns* `(m, e)`-labelled Elements, so
+        `trace_element` on such a product lands here with `(m, e)` —
+        accepting only the native form would make that a `TypeError`.)
         """
         from pure_su2_h_trace import trace_pSU2_label
         from zplus_ring import RPowerSeries
-        m, e = _native_to_psu2(label)
+        m, e = label if _is_me(label) else _native_to_psu2(label)
         trace_lp = trace_pSU2_label(m, e, q_max=K)
         R = self.coefficient_ring()
         return RPowerSeries(R, dict(trace_lp._coeffs), K)
@@ -505,7 +512,8 @@ class PureSU2KAlg(ConeKAlgebra):
         """
         from pure_su2_h_trace import trace_pSU2_label
         from zplus_ring import RPowerSeries
-        m, e = _native_to_psu2(seed_label)
+        m, e = (seed_label if _is_me(seed_label)
+                else _native_to_psu2(seed_label))
         trace_lp = trace_pSU2_label(m, e, q_max=K)
         R = self.coefficient_ring()
         return RPowerSeries(R, dict(trace_lp._coeffs), K)
@@ -513,7 +521,8 @@ class PureSU2KAlg(ConeKAlgebra):
 
 # ---------------------------------------------------------------------------
 # Smoke test: verify cone_data q_commute / cocycle / cross_product against
-# pSU2KAlgebra for a basket of products.
+# a reference pure-SU(2) implementation for a basket of products (requires
+# psu2_kalgebra, not included in this repository).
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":

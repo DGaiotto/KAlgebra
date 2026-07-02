@@ -1,12 +1,15 @@
-"""Regeneration + isomorphism tools for the ``finite_kalgebras`` package.
+"""Regeneration + isomorphism tools for the frozen finite zoo.
 
 The frozen standalones (``finite_pentagon_kalg.py``, …) embed the
 multiplication data for one specific finite ConeKAlgebra.  This module
-provides the safety net Phase 0:
+is regeneration tooling whose generator driver
+(``generate_finite_kalg``) is **not included in this repository** —
+the standalones were frozen with it externally.  What is provided here:
 
-* :func:`rebuild_data(short_id)` — re-runs the FiniteBPSKAlgebra build
-  pipeline from the BPS pairing + node-charges literals embedded in the
-  standalone, and returns the resulting cone-algebra data dict.
+* :func:`rebuild_data(short_id)` — re-runs the quiver build pipeline
+  from the BPS pairing + node-charges literals embedded in the
+  standalone, and returns the resulting cone-algebra data dict
+  (requires the external generator module; unavailable here).
 * :func:`native_data(short_id)` — reads the same data dict directly from
   the frozen standalone (no rebuild).
 * :func:`kalgebra_isomorphism(data_a, data_b)` — searches for a
@@ -14,9 +17,9 @@ provides the safety net Phase 0:
   and cross-table.  Returns the permutation as a dict if one exists,
   ``None`` otherwise.
 
-This is what we call when we want to verify that a freshly-rebuilt
-algebra is the same KAlgebra (up to canonical-basis relabeling) as the
-frozen standalone.
+The isomorphism search verifies that a freshly-rebuilt algebra is the
+same K_𝖖-algebra (up to canonical-basis relabeling) as the frozen
+standalone.
 """
 from __future__ import annotations
 
@@ -80,16 +83,16 @@ def _normalize_cross_entry(entry):
     return out
 
 
-# Standalones not currently covered by the regen check:
+# Standalones not covered by the regen check:
 # - "e8":  cross-table is ρ-orbit-reduced (``CROSS_TABLE_REDUCED``),
-#          which we don't yet expand.
-# (a1d4 was here: the cluster BFS gives only 3 gauge cone rays — the D_4
-#  gauge cone is not ρ-closed, since R = SU(2)×U(1) is the Z_2 that D_4's
-#  S_3 triality extends.  RESOLVED by the ρ-orbit completion in
-#  `cluster_cone_builder.to_cone_kalgebra` (complete gens + cones under ρ
-#  → the two length-4 σ-orbits = the honest 8 mg's; cross-products
-#  decomposed over the completed cones).  a1d4 now regenerates in the
-#  standard expanded form like its A1D_even siblings.)
+#          which the regen path does not expand.
+# (a1d4 needs the ρ-orbit completion in the external builder: the bare
+#  cluster BFS gives only 3 gauge cone rays — the D_4 gauge cone is not
+#  ρ-closed, since R = SU(2)×U(1) is the Z_2 that D_4's S_3 triality
+#  extends.  Completing gens + cones under ρ yields the two length-4
+#  σ-orbits = the honest 8 mg's, with cross-products decomposed over the
+#  completed cones, so a1d4 regenerates in the standard expanded form
+#  like its A1D_even siblings.)
 REGEN_UNSUPPORTED: set[str] = {"e8"}
 
 
@@ -115,13 +118,15 @@ def native_data(short_id: str) -> dict:
 
 
 def rebuild_data(short_id: str, *, verbose: bool = False) -> dict:
-    """Re-run the FiniteBPSKAlgebra build pipeline for ``short_id`` and
+    """Re-run the quiver build pipeline for ``short_id`` and
     return its cone-algebra data dict (same shape as :func:`native_data`,
     minus the ``cone_canon`` field which is internal to the build).
 
     Uses the BPS pairing + node-charges embedded in the standalone as
     the input spec — so a successful round-trip ``native_data ↔
-    rebuild_data`` is a true regression check.
+    rebuild_data`` is a true regression check.  Requires the external
+    generator module ``generate_finite_kalg``, which is not included in
+    this repository.
     """
     mod, prefix = _load_standalone(short_id)
     _, _, flavor, max_charts = _spec(short_id)
@@ -154,10 +159,10 @@ def _validate_rho_bijection(rho_perm: dict[int, int], n: int) -> None:
     be a bijection on ``range(n)`` (missing keys = fixed points).
     Raise ``ValueError`` with a precise message if not.
 
-    Known offender: ``finite_a1d4_kalg.py`` stores ``{0: 2}`` only,
-    which yields ρ(0)=2 and ρ(2)=2 — not a permutation.  Root cause
-    is in ``cluster_cone_builder.py`` (BPS step 4 silently skips
-    mg's whose ρ-image isn't found in the canonical-lift lookup).
+    Example failure mode: a truncated table storing ``{0: 2}`` only,
+    which yields ρ(0)=2 and ρ(2)=2 — not a permutation.  A builder
+    pipeline can produce this by silently skipping mg's whose ρ-image
+    isn't found in its canonical-lift lookup.
     """
     images = [rho_perm.get(i, i) for i in range(n)]
     if sorted(images) != list(range(n)):
@@ -166,8 +171,8 @@ def _validate_rho_bijection(rho_perm: dict[int, int], n: int) -> None:
         raise ValueError(
             f"rho_perm is not a bijection on range({n}): "
             f"images={images}, collisions at {sorted(set(bad))}. "
-            f"This indicates a bug in the BPS-pipeline rho_perm "
-            f"computation; see cluster_cone_builder.py step 4."
+            f"This indicates a bug in the rho_perm computation of the "
+            f"builder pipeline that produced this table."
         )
 
 

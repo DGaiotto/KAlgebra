@@ -9,18 +9,17 @@ u1a1deven_cone_kalgebra.py
 Self-contained `multiply` (no oracle fallback)
 ----------------------------------------------
 Built from the *complete* cone tables of `u1a1deven_cone_build.DevenConeTables`,
-which extract — once, from the fast BPS-free RG oracle `U1A1DevenRGKAlgebra`
-(auxiliary `A1A2k(k) ⊗ QT(Z²) ⊗ SU(2)`) — the full ray set via the
-construction (user, 2026-06-21):
+which extract — once, from a fast BPS-free RG oracle (`U1A1DevenRGKAlgebra`,
+auxiliary `A1A2k(k) ⊗ QT(Z²) ⊗ SU(2)`; a derivation not included in this
+repository) — the full ray set via the construction:
 
     rays = monomial-RG canonical elements (seeds);
     cones = q-commuting cliques of rays;
     **ρ-images of the seed cones are new cones**;
     mult-gens = the union of all cones' rays.
 
-This *replaces* the earlier under-counting `atomic_gens` heuristic (which left
-`multiply` falling back to the oracle on ρ-image labels) and the A1A2k-letter
-`to_cone_label` (its self-described "blind alley").  Native labels are now
+The ρ-completion matters: an under-counting generator heuristic would leave
+`multiply` falling back to the oracle on ρ-image labels.  Native labels are
 **ray-keyed** like `U1A1AoddKAlg`: `(factors, e_X01)` with `factors` a sorted
 tuple of `(ray_id, exp)` and `e_X01 ∈ Z` the `X_{0,1}` torus power — so
 `to_cone_label`/`from_cone_label` are trivial bijections, the factoring is done
@@ -44,11 +43,11 @@ Trace — exact closed-form gauge sector (oracle-free, arbitrary 𝖖)
 quantum-torus trace annihilates exactly (`c₁ ≠ 0 ⇒ Tr = 0`).  The surviving
 `c₁ = 0` **gauge sector** — `Tr(1)` and the whole v-tower `Tr(X_{0,1}ⁿ)` — is
 the **exact closed-form character** `exact_characters.deven_gauged_xn_qn` (the
-`xⁿ` slice of Creutzig's `(A_1, D_{2p})` index, `p = k+1`; arbitrary 𝖖, no
-oracle, no freeze cap).  Cross-verified against the repo's INDEPENDENT
+`xⁿ` slice of the known `(A_1, D_{2p})` index, `p = k+1`; arbitrary 𝖖, no
+oracle, no freeze cap).  Cross-verified against this repository's INDEPENDENT
 `sl(3)₋₃/₂` Kac–Wakimoto vacuum character (theta sums, no cone/BPS) for the
-slices `n = 0…4` to `q_d²⁸` — which exposed and replaced the cone oracle's
-fixed-cutoff matter-tower truncation from `q_d²⁴` on.  (That cross-check is
+slices `n = 0…4` to `q_d²⁸` — a check sharp enough to expose any fixed-cutoff
+truncation of the matter tower.  (That cross-check is
 `k=1`; for **even k** the odd
 v-powers carry genuine **odd-q_d** terms — the `√Q = -q_d` branch — which the
 closed form now emits with sign `(-1)^{sh}`, verified for `k=2`/D6 against the
@@ -56,38 +55,41 @@ oracle's `Tr(X01ⁿ)`, `n=0…3`.)  The matter-ray seeds serve from the frozen t
 (both `X01` signs — `Tr(X01⁻ᵐ) ≠ Tr(X01⁺ᵐ)` in general, only self-conjugate rays
 are symmetric).  For **k=1** the spine-free SU(2) bootstrap (`matter_seed_trace`)
 extends the freeze; for **k≥2** that bootstrap is intractable (the ~3× cone's
-30-ray deep-label reductions don't scale, finding A15), so it is guarded off
-(`_matter_bootstrap_tractable()`) and matter serves from the shipped freeze
-(`_seed_trace` honest-fails only for seeds *outside* the shipped box).  For
+30-ray deep-label reductions don't scale), so it is guarded off
+(`_matter_bootstrap_tractable()`) and matter serves from the frozen table
+(`_seed_trace` raises, rather than silently degrading, only for seeds
+*outside* the frozen box).  For
 **D6 (k=2) the freeze is COMPLETE: 221/221 seeds** (10 ρ²-canon rays × the
-`|m|≤10` box + v-tower), and now **fully derived from the reliable A1Dodd×QT
-oracle** `U1A1DevenViaDoddRG` (#632) — legacy-free (the whole freeze is
-oracle-read, not just the hard rays; the 8 non-deep rays were independently
-re-verified to agree with the new oracle through q⁸, then extended to q¹⁰).
+`|m|≤10` box + v-tower), **fully derived from the reliable A1Dodd×QT
+oracle** (`U1A1DevenViaDoddRG`, a derivation not included in this repository)
+— the whole freeze is oracle-read, not just the hard rays; the 8 non-deep
+rays were independently re-verified to agree with that oracle through q⁸,
+then extended to q¹⁰.
 The two deepest **composite** rays 20/24 (3-chord / multiplicity-2 sections,
 vs the lights' 1–2 chord) are mag-0 matter, so their trace is **nonzero** (the
 magnetic-charge selection rule's converse — `Tr(E⁻¹L_aE) = 𝖖^{c₁}Tr(L_a)` forces
-`Tr=0` *only* for `c₁≠0`; user 2026-06-24).  They are the cone image of the
+`Tr=0` *only* for `c₁≠0`).  They are the cone image of the
 oracle's **`(1,0,·)` odd-`𝖖` matter family** — the *unique* family whose trace
 carries odd powers of `𝖖` (orbit "E"; `c1 = m`, support `m ∈ {−1,0,1}`):
 `Tr(ray20@0)=Tr(ray24@0)= −q+(2−χ₂)q³+(−1+χ₂−χ₄)q⁵+(χ₄−χ₆)q⁷
 +(−χ₂−χ₄+χ₆−χ₈)q⁹+…` (onset q¹) and `Tr(ray·@±1)= χ₁q⁶+(−χ₁+χ₃)q⁸+χ₅q¹⁰+…`
 (onset q⁶); `|m|≥2` vanish (QT support bound).  The values are read by matching
 each cone ρ-orbit to its oracle matter family by trace tower (`c1 = ±m + β`,
-validated against the 8 non-deep rays) — **NOT** the earlier ρ-transport
-derivation (`ray14·ray18=q·ray24+𝟙`), which gave the wrong deep coefficients and
-is retracted (finding A16).  The oracle trace is exact-converged (K=12≡K=16
+validated against the 8 non-deep rays) — **NOT** by ρ-transport
+(`ray14·ray18=q·ray24+𝟙`), which gives the wrong deep coefficients.  The
+oracle trace is exact-converged (K=12≡K=16
 on `q≤10`), so the deep high-spin terms (e.g. χ₈ at q⁹) are real physics, not
-windowing noise.  **The legacy A1A2k⊗QT⊗SU(2) oracle wrongly zeroed rays 20/24
-entirely.**  Cross-validated by canonical orthonormality (`I_{20,20}=I_{24,24}
+windowing noise.  (The alternative `A1A2k⊗QT⊗SU(2)` oracle wrongly zeroes rays
+20/24 entirely and is not used for the freeze.)  Cross-validated by canonical
+orthonormality (`I_{20,20}=I_{24,24}
 =1+O(𝖖)`, off-diagonals `O(𝖖)`).  `_seed_trace` is oracle-free at runtime (the
 oracle is only a build-time table learner; verified with it blocked).
 
-D8 (k=3) — built on the **reliable A1Dodd×QT oracle**, legacy-free (user, 2026-06-25)
-------------------------------------------------------------------------------------
+D8 (k=3) — built on the **reliable A1Dodd×QT oracle**
+-----------------------------------------------------
 For **D8 (k=3)** the cone tables AND the trace freeze are built on the fast,
 correct `U1A1DevenViaDoddRG` (A1Dodd(k-1)⊗QT) oracle via `DevenDoddConeTables`
-(`u1a1deven_dodd_build.py`) — *not* the legacy `A1A2k⊗QT⊗SU(2)` oracle.  This
+(`u1a1deven_dodd_build.py`) — *not* the `A1A2k⊗QT⊗SU(2)` oracle.  This
 makes k=3 **fully oracle-consistent**: `multiply`/`ρ` AND the matter freeze come
 from the *same* (correct) oracle, so the cross-oracle matching that k=2 needed is
 **not required** — the freeze is read directly off the build oracle (the section
@@ -112,9 +114,10 @@ from cone_data import FiniteConeData, Cone
 from cone_kalgebra import ConeKAlgebra
 from u1a1deven_cone_build import (
     DevenConeTables, build_tables, E_GEN, E_INV, _gen_sort_key)
-# NOTE: `u1a1deven_rgkalgebra` (the RG oracle) is imported LAZILY in the
-# `_oracle` property only — the frozen runtime path never builds it, so the
-# module drops cleanly into a strict-isolation release (the u1e7 pattern).
+# NOTE: `u1a1deven_rgkalgebra` (the RG-oracle derivation, not included in this
+# repository) is imported LAZILY in the `_oracle` property only — the frozen
+# runtime path never builds it, so the module runs spine-free from the frozen
+# tables alone (the u1e7 pattern).
 
 
 class U1A1DevenConeData(FiniteConeData):
@@ -220,10 +223,10 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
             raise ValueError(f"k must be >= 1, got {k}")
         self.k = k
         self._R = SU2ZPlusRing()
-        # Cone tables: loaded **spine-free** from the shipped freeze
+        # Cone tables: loaded **spine-free** from the frozen tables
         # (`u1a1deven_tables_k{k}.pkl`) when present — construction then needs no
-        # oracle (the strict-isolation release path) — else *learned* (ρ-folded,
-        # closed-form q-powers) from the fast RG oracle and memoised per process.
+        # oracle — else *learned* (ρ-folded, closed-form q-powers) from the
+        # fast RG oracle (where available) and memoised per process.
         # Either way multiply/ρ are oracle-free closed forms (no mult-table
         # freeze: the q-powers are derived, unlike the u1a1aodd sibling).
         self._tb = build_tables(k, allow_frozen=True)
@@ -302,11 +305,11 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
     def _closed_form_gauge_trace(self, e, K):
         """`Tr(X_{0,1}^e)` — the whole **gauge sector** (vacuum `e=0` + v-tower)
         as an **exact closed-form character** (arbitrary 𝖖, no oracle): the `xᵉ`
-        slice of Creutzig's `(A_1, D_{2p})` index, `p = k+1`
-        (`exact_characters.deven_gauged_xn_qn`).  Cross-verified against the
-        repo's INDEPENDENT `sl(3)₋₃/₂` Kac–Wakimoto vacuum character (theta sums)
-        for `e = 0…4` to `q_d²⁸`; this is what exposed the cone-oracle's
-        fixed-cutoff matter-tower truncation from `q_d²⁴` on."""
+        slice of the known `(A_1, D_{2p})` index, `p = k+1`
+        (`exact_characters.deven_gauged_xn_qn`).  Cross-verified against this
+        repository's INDEPENDENT `sl(3)₋₃/₂` Kac–Wakimoto vacuum character
+        (theta sums) for `e = 0…4` to `q_d²⁸` — a check sharp enough to expose
+        any fixed-cutoff truncation of the matter tower."""
         from exact_characters import deven_gauged_xn_qn
         return self._qn_to_rps(deven_gauged_xn_qn(self.k, e, K), K)
 
@@ -329,8 +332,9 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
         # deep-label cone reductions dominate); the frozen table serves its
         # depth instantly and the bootstrap extends it.  The standing speed item
         # is to feed exact matter seeds (per-ray module characters) so the
-        # solver need not generate those rows.  Honest-fail only if the seed
-        # lies outside the bootstrap's solved X01-tower range.
+        # solver need not generate those rows.  Raises (rather than silently
+        # degrading) only if the seed lies outside the bootstrap's solved
+        # X01-tower range.
         fr = self._frozen_seeds.get(seed)
         if fr is not None and fr.K >= K:
             return RPowerSeries(self._R, dict(fr.coeffs), K)
@@ -339,8 +343,8 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
             return RPowerSeries(self._R, dict(cached[1].coeffs), K)
         # The SU(2) matter bootstrap is tractable only on the small D4 (k=1) cone;
         # for k>=2 (D6+, ~3x the rays) its 30-ray deep-label reductions don't
-        # scale (finding A15), so honest-fail FAST rather than hang — the
-        # shipped freeze is the matter source there.
+        # scale, so raise FAST rather than hang — the frozen table is the
+        # matter source there.
         if self._matter_bootstrap_tractable():
             qn = self.matter_seed_trace(K).get(seed)
             if qn is not None:
@@ -360,7 +364,7 @@ class U1A1DevenConeKAlgebra(ConeKAlgebra):
     def _matter_bootstrap_tractable(self) -> bool:
         """Whether the spine-free SU(2) matter bootstrap is feasible.  Only on
         the small D4 (k=1) cone: k>=2's 30-ray deep-label cone reductions don't
-        scale (finding A15)."""
+        scale."""
         return self.k <= 1
 
     def _qn_to_rps(self, qn, K):

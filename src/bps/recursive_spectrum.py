@@ -8,7 +8,8 @@ sequence anywhere.  S is built purely by:
                    (solved against the ELEMENT S_sub, s_coeff(d)=[S_sub]_d)
         S = E_q(F_gamma) . S_sub
 
-EXACT Habiro; only truncation = charge sum along the node cone (deg<=CONE).
+Exact HabiroElement arithmetic; the only truncation is the charge sum along
+the node cone (deg<=CONE).
 Ground-truth S_full (from a known chamber spec) is used ONLY as an independent
 check.
 """
@@ -259,7 +260,7 @@ class Theory:
         return P
 
     def extract_spec_insert(self, S, cutoff=None, max_factors=24):
-        """Minimal-spec extraction by *insertion* (user's algorithm, 2026-06-27).
+        """Minimal-spec extraction by *insertion*.
 
         No slope / green-sequence / front-tail assumption.  Walk the positive
         cone in increasing order; build a partial product `prod E_q(X_beta_i)`
@@ -468,8 +469,8 @@ def recursive_sigma_map(pairing, node_charges, cutoff, *, order=None):
     **spec-free, recursively from the built `S`** (no spec, no green-sequence
     BFS, no global tRG).  Returns a callable `σ(charge) -> charge`.
 
-    Mechanism (user, 2026-06-27 — "commute `F^{UV}_a` across
-    `S^{UV}=E_𝖖(F^{IR}_γ)·S^{IR}` factor-first, then by recursion"):
+    Mechanism — commute `F^{UV}_a` across
+    `S^{UV}=E_𝖖(F^{IR}_γ)·S^{IR}` factor-first, then by recursion:
     at each peel of `γ` onto the sub-quiver `S_sub`,
 
         G_a = E_𝖖(F_γ)^{-1} · F^{UV}_a · E_𝖖(F_γ)        (one-factor conjugation)
@@ -572,8 +573,8 @@ def principled_sigma_maps(pairing, node_charges, cutoff, *, order=None,
     global tRG).  Returns `(sigma, sigma_inverse)`, each a callable
     `charge -> charge`.
 
-    Principled derivation (user, 2026-06-27 — "do a principled analysis of the
-    axioms").  The auxiliary quantum-torus ρ is negation, `ρ_QT(γ) = −γ`
+    Principled derivation, straight from the axioms.
+    The auxiliary quantum-torus ρ is negation, `ρ_QT(γ) = −γ`
     (`quantum_torus_kalgebra.py`), an involution.  The σ-axiom
     `F_a · S = S · ρ_QT(F_{σ(a)})` together with the right-solve
     `F_a · S = S · F̃_a` give `F̃_a = ρ_QT(F_{σ(a)})`; reading the repo's

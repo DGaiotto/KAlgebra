@@ -2,8 +2,9 @@
 bps_quiver_tools.py
 ===================
 
-Self-contained computational toolkit for the K-theoretic Coulomb-branch
-algebra  A_q  of a 4d  N=2  theory specified by a *decorated BPS quiver* Q.
+Self-contained computational toolkit for the K_𝖖-algebra  A_q  (the fusion
+algebra of rotation-equivariant BPS line defects) of a 4d  N=2  theory
+specified by a *decorated BPS quiver* Q.
 
 A decorated BPS quiver is the data
 
@@ -2284,7 +2285,7 @@ class BPSQuiver:
         """Tropical **inverse** mutation at node k.
 
         Inverts :meth:`mutate`:  ``Q.mutate(k).reverse_mutate(k) == Q`` .
-        This is the mutation ``μ^{-1}_{-γ_k}`` of eq (491) in ``main.tex`` ,
+        This is the mutation ``μ^{-1}_{-γ_k}``,
         obtained from the forward formula by flipping the sign inside
         ``max()``:
 
@@ -3674,7 +3675,12 @@ def _laurent_from_pairs(pairs: Sequence[Sequence[int]]) -> "LaurentPoly":
 
 # --- §7b : CoulombAlgebra driver class -------------------------------
 class CoulombAlgebra:
-    """End-to-end driver for the K-theoretic Coulomb-branch algebra  A_q .
+    """End-to-end driver for the K_𝖖-algebra  A_q  of a BPS quiver.
+
+    (The class name ``CoulombAlgebra`` is historical: the same machinery
+    serves BPS-quiver realisations of general K_𝖖-algebras, most of them
+    non-Lagrangian Argyres–Douglas theories, not only K-theoretic Coulomb
+    branch algebras of conventional gauge theories.)
 
     Construction from a decorated BPS quiver  (B, node_charges, frozen) :
 
@@ -3725,8 +3731,7 @@ class CoulombAlgebra:
             # ``find_negating_sequence``  times out but a physics-
             # informed S is known (e.g. the Wilson-line-chamber
             # amalgamation   S_{gauge+matter} = M(W) * S_{gauge} , where
-            # M(W) is the matter contribution expanded in characters --
-            # see main.tex eq. (2067) for the SU(2) x SU(2) example).
+            # M(W) is the matter contribution expanded in characters).
             #
             # We only do a *local* sanity check here: every factor
             # charge must lie in the non-negative cone spanned by the

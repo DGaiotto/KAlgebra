@@ -1,14 +1,15 @@
 """`TensorKAlgebra`: graded tensor product of two `KAlgebra`s over Z[q^±].
 
-Contract (per the design discussion):
+Contract:
 
     TensorKAlgebra(A, B)  over  Z[q, q^{-1}]
 
     label              :  pair (α, β) ∈ basis_set(A) × basis_set(B)
-    coefficient_ring   :  shared TrivialZPlusRing (current scope --
-                          both factors must be over Z[q±] only;
-                          general `R_A ⊗_{Z[q±]} R_B` deferred until
-                          `TensorZPlusRing` lands).
+    coefficient_ring   :  the tensor of the *non-trivial* factor rings --
+                          `TrivialZPlusRing` when both factors are over
+                          Z[q±], `R_A` / `R_B` when one factor is
+                          flavoured, `TensorZPlusRing(R_A, R_B)` when
+                          both are.
     identity           :  (1_A, 1_B)
     multiply           :  factor-wise tensor:
                           multiply((α₁,β₁),(α₂,β₂)) =
@@ -16,12 +17,11 @@ Contract (per the design discussion):
                                           · (γ_A, γ_B)
     rho                :  (ρ_A α, ρ_B β)
     rho_inverse        :  (ρ_A⁻¹ α, ρ_B⁻¹ β)
-    trace((α,β))       :  trace_A(α) · trace_B(β)   (RPowerSeries product)
-    _label_section_decompose :  factor-wise, identity coefficient
+    trace((α,β))       :  trace_A(α) · trace_B(β)   (RPowerSeries product,
+                          each factor lifted into the common ring)
+    _label_section_decompose :  factor-wise
 
 No cross-pairing -- the two factors literally commute over Z[q±].
-For a graded variant with cross-pairing, a separate
-`GradedTensorKAlgebra` layered on top is a follow-up.
 """
 from __future__ import annotations
 
@@ -45,9 +45,11 @@ class TensorKAlgebra(KAlgebra):
 
         TensorKAlgebra(A: KAlgebra, B: KAlgebra)
 
-    Currently requires `A.coefficient_ring()` and `B.coefficient_ring()`
-    to both be `TrivialZPlusRing` (Z[q±]).  General-`R` support waits
-    on `TensorZPlusRing`.
+    All four flavour combinations are supported: both factors over
+    `TrivialZPlusRing` (Z[q±], the direct-product path), one flavoured
+    factor (the common ring is that factor's `R`), or both flavoured
+    (the common ring is `TensorZPlusRing(R_A, R_B)`); each factor's
+    trace is lifted into the common ring by its flavour-growing hom.
     """
 
     def __init__(self, A: KAlgebra, B: KAlgebra) -> None:
@@ -59,10 +61,9 @@ class TensorKAlgebra(KAlgebra):
         self._B_triv = isinstance(R_B, TrivialZPlusRing)
         # Coefficient ring = the product of the *non-trivial* factor rings
         # (a trivial `Z` factor contributes nothing — `Z ⊗ R = R`, no spurious
-        # `TrivialZPlusRing ⊗ R`).  The two factors' traces are lifted into this
-        # common ring by the flavour-growing homs (the previously-deferred
-        # "general `R_A ⊗ R_B`", now that `TensorZPlusRing` + `unit_hom` /
-        # `tensor_inclusion_hom` exist).
+        # `TrivialZPlusRing ⊗ R`).  The two factors' traces are lifted into
+        # this common ring by the flavour-growing homs (`unit_hom` /
+        # `tensor_inclusion_hom`).
         if self._A_triv and self._B_triv:
             self._R = TrivialZPlusRing()
             self._phi_A = self._phi_B = None          # trivial path: direct product
@@ -154,7 +155,7 @@ class TensorKAlgebra(KAlgebra):
         `TensorZPlusRing` basis element).
 
         A trivial-ring factor decomposes as `(label, ())` directly (it need not
-        implement the optional `r_label_decompose` — an unmigrated `Z`-factor
+        implement the optional `r_label_decompose` — a `Z`-factor without one
         still works).  Both factors over `Z`: the lift is trivial for *any*
         label shape (the unpacking is skipped, mirroring
         `_label_section_decompose`)."""

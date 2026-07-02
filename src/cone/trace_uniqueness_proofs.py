@@ -1,5 +1,5 @@
 """Machine-generated trace-uniqueness proofs for finite-type
-KAlgebras (Goal 2.12, proof phase — user direction 2026-06-10).
+K_𝖖-algebras.
 
 For a finite-type cone algebra the ρ²-twisted-cyclicity axiom is
 SOLVED exactly by the Layer-1 reduction: every canonical label's trace
@@ -44,9 +44,11 @@ linear functional on A determined by its elementary seeds through the
 
 The all-orders (N = ∞) statement needs the stabilisation of the
 order-k constraint matrices in k — visibly the same phenomenon as the
-trace miracle (Goal 2.11); flagged as the research continuation.
+trace miracle; an open research question.
 
-Running this module sweeps the trivial-R zoo and prints the proof table.
+There is no bundled sweep driver: use `prove_uniqueness` /
+`proof_report` directly on a finite-type `ConeKAlgebra` instance
+(e.g. `FinitePentagonKAlgebra` from `finite_pentagon_kalg`).
 """
 from __future__ import annotations
 
@@ -318,13 +320,8 @@ def proof_report(records):
 
 
 if __name__ == "__main__":
-    import finite_kalgebras as fk
-    recs = []
-    for sid, N in (("pentagon", 8), ("heptagon", 6), ("e6", 6),
-                   ("e8", 4)):
-        A = fk.FINITE_KALGEBRAS[sid]()
-        rec = prove_uniqueness(A, N, name=sid, verbose=True)
-        print(rec, flush=True)
-        recs.append(rec)
-    print()
-    print(proof_report(recs))
+    print("trace_uniqueness_proofs: no bundled sweep driver — call "
+          "prove_uniqueness / proof_report directly on a finite-type "
+          "ConeKAlgebra instance (e.g. FinitePentagonKAlgebra from "
+          "finite_pentagon_kalg; the zoo is exercised by "
+          "tests/test_cones.py).")

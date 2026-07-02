@@ -85,9 +85,10 @@ def test_a1d3_sqed2_odd_rung():
 
 
 def test_u1a1deven_sqed_even_rung():
-    """U1A1DevenSqed (u(1)-gauged [A₁,D₄] over A1Dodd(0) ⊗ QT): exact-FS; vacuum
-    `1 − q² + …` with q² = −1 + χ₂ (the SU(2) current minus the gauged-U(1)
-    subtraction), truncation-stable."""
+    """U1A1DevenSqed (u(1)-gauged [A₁,D₄] over A1Dodd(0) ⊗ QT): exact-FS;
+    refined vacuum `1 + (χ₂ − 1)q² + …` — the q² coefficient is −1 + χ₂, the
+    SU(2) current minus the gauged-U(1) subtraction, so the identity-character
+    summand is `1 − q² + …` — truncation-stable."""
     A = U1A1DevenSqedRGKAlgebra(1)
     assert A._fs_exact_available()
     with warnings.catch_warnings(record=True) as w:

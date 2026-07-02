@@ -20,7 +20,8 @@ Matter content: 1 hyper in (2_gauge, 6_v) of SU(2)×Spin(6), with
 
 Wilson lattice identification (BPS side)
 ========================================
-In the SU(4)-manifest BPS quiver (`bps_su2_nf3`), the fundamental SU(2)
+In the SU(4)-manifest BPS quiver (an auxiliary realisation not included
+in this repository), the fundamental SU(2)
 Wilson lattice charge is **γ_W = (-1, -2, 0, 0, 0)** — verified
 ρ-fixed and satisfying `F_γ · F_γ = F_{2γ} + F_0` (Wilson closure).
 So `Tr(W_n)` via the Schur F here corresponds to `BPS.trace(n · γ_W)`,
@@ -141,7 +142,7 @@ def _build_F(q_max: int, v_max: int) -> dict:
         F = (q²v²;q²)_∞² · (q²/v²;q²)_∞² · (q²;q²)_∞²
             / ∏_{σ=±, i<j} (−q v^σ μ^{w_i + w_j}; q²)_∞
 
-    Verified vs `bps_su2_nf3.trace(n · γ_W)` at Wilson lattice
+    Verified vs the auxiliary BPS realisation's trace of `n · γ_W` at Wilson lattice
     γ_W = (-1, -2, 0, 0, 0) for n = 0, 1, 2 (q_max ≤ 4):
       Tr(identity)[q²] = 12 SU(4) roots + 3 = χ_{adjoint(SU(4))}
       Tr(W_1)[q¹]      = −χ_{6_v} = −Σ_{i<j} μ^{w_i+w_j}

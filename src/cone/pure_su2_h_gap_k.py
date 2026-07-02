@@ -192,8 +192,8 @@ def _mul_by_H_beta_impl(left_seed: tuple, beta: int) -> dict:
         # n > beta: H_n · H_beta.  If they q-commute (within a cone),
         #   H_n · H_beta = q^{2·cocycle(H_n, H_beta)} · H_beta · H_n
         #                = q^{2·(beta - n)} · h_mul_h(beta, n).
-        # Otherwise (cross-cluster), would need reverse-order
-        # cross_product; not yet implemented.
+        # Otherwise (cross-cluster), this would need the reverse-order
+        # cross_product, which is not implemented.
         from pure_su2_h_cone_data import cone_index_for
         n_lo, n_hi = min(n, beta), max(n, beta)
         cone_idx = cone_index_for(n_lo, n_hi)
@@ -261,7 +261,7 @@ def h_mul_h(a: int, b: int) -> dict:
         #   H_a*H_b = bar(bar(H_a)*bar(H_b)) = bar(H_b*H_a).
         # Reduce the ordered pair (b, a) -- gap = a - b > 0 is the decreasing
         # recursion variable, the explicit termination guarantee -- and
-        # conjugate q -> q^{-1}.  No precondition, no honest-fail.
+        # conjugate q -> q^{-1}.  No precondition; this branch never raises.
         return {seed: LaurentPoly({-e: c for e, c in coef._coeffs.items()})
                 for seed, coef in h_mul_h(b, a).items()}
     if (a, b) in _cache:

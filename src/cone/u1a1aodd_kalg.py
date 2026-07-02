@@ -3,10 +3,11 @@ u1a1aodd_kalg.py
 ================
 
 `U1A1AoddKAlg(k)` — the gauged `[A_1, A_{2k+1}]` family as a closed-form
-`ConeKAlgebra`, **wrapping the validated `RGKAlgebra` oracle**
-`U1A1AoddGaugedRG(k)` to extract its cone tables once at construction (the
-analogue of `A1A2kKAlg` extracting its base table at construction). After
-construction there is no per-multiply RG solve — `multiply` is the
+`ConeKAlgebra`.  Its cone tables were extracted once from a validated
+RG-flow oracle (`U1A1AoddGaugedRG(k)`, a derivation **not included in
+this repository**) and are stored frozen in `u1a1aodd_tables_k{k}.pkl`
+(the analogue of `A1A2kKAlg` computing its base table at construction).
+At runtime there is no per-multiply RG solve — `multiply` is the
 generic cone-monomial reducer over:
 
 **Cyclicity-reduced build.**  The q-commute / cross_product table is
@@ -30,14 +31,14 @@ The chords (= the `(2k+4)`-gon diagonals / cluster variables) are
 selected from the oracle by `u1a1aodd_mult_table.select_chords` (the
 irreducible ρ_UV-orbits, via charge-guided factoring).
 
-STATUS — WORKING for general k:
+Structure and validation (general k):
   * Builds: `(k+2)(2k+1)` chords + `E^±`; cones = Catalan(2k+2)
     triangulations of the `(2k+4)`-gon (k=1: 14, k=2: 132).
   * **Cocycle = chain pairing** (closed form); cross_product extracted
-    from the oracle (`c_lit = c_can + cone_label_phase`, daughter word
-    sorted into canonical cone order — the unsorted word double-counted
-    `_sort_within_cone`'s cocycle swaps, the bug that had broken the
-    Plückers).
+    from the oracle (`c_lit = c_can + cone_label_phase`, with the
+    daughter word sorted into canonical cone order — an unsorted word
+    would double-count `_sort_within_cone`'s cocycle swaps and break
+    the Plückers).
   * **Bar-invariant**, **associative**, unital, `E·E⁻¹ = 𝟙`, and
     `multiply` matches the oracle **exactly** on all chord pairs —
     verified k=1 (81/81) and k=2 (400/400).  k=1 = `U1HexagonKAlg`'s
@@ -54,7 +55,7 @@ STATUS — WORKING for general k:
     falling back).  Verified seed-by-seed against the oracle's
     **adaptive-window** trace (the generic fixed-`_rg_cutoff` trace is
     unreliable on high-charge — its FS object `RG(a)·S_RG` is
-    under-resolved; `U1A1AoddGaugedRG.trace` overrides it with an
+    under-resolved; the oracle's trace overrides it with an
     adaptive `S_RG` window + two-cutoff stability) with
     `oracle_residual_calls=0` in the k=1..3 sweeps.  ρ²-invariant,
     K-stable; gets the squared **wrap** chord right where the direct
@@ -79,12 +80,13 @@ from cone_data import CrossProductTerm, FiniteConeData, Cone
 from laurent_poly import LaurentPoly
 from zplus_ring import TrivialZPlusRing, RPowerSeries
 
-# NOTE: the RG-flow spine (`u1a1aodd_gauged_rg`) is imported LAZILY (only by
-# `_extract` → `select_chords`, the once-at-build extractor).  When the
-# pre-extracted cone tables are present (`u1a1aodd_tables_k{k}.pkl`) they are
-# loaded instead and no oracle is built — construction is then spine-free, and
-# `_trace_residual` is closed-form (`u1_pgon_layer2`).  `chain_pairing` imports
-# spine-free (its module's spine imports are lazy too).
+# NOTE: construction loads the pre-extracted cone tables
+# (`u1a1aodd_tables_k{k}.pkl`) whenever present, so no oracle is built —
+# construction is then spine-free, and `_trace_residual` is closed-form
+# (`u1_pgon_layer2`).  The tables were produced by an RG-flow derivation
+# (`u1a1aodd_gauged_rg`) that is not included in this repository; `_extract`
+# → `select_chords` imports it lazily and runs only where it is available.
+# `chain_pairing` imports spine-free (its module's spine imports are lazy too).
 from u1a1aodd_mult_table import bijection_charge, chain_pairing, k1_true_rays
 import u1_pgon_layer2 as _gp   # general-p (p=k+2) closed-form Layer-2 characters
 
@@ -108,9 +110,10 @@ def _load_frozen_into(cd, k):
 
 
 def freeze_tables(k):
-    """(Re)generate `u1a1aodd_tables_k{k}.pkl` from the oracle (run where the
-    RG-flow spine is available).  Pickles every cone-data attribute except the
-    oracle-holders, so this package loads it and never builds the oracle."""
+    """(Re)generate `u1a1aodd_tables_k{k}.pkl` from the oracle (runs only
+    where the RG-flow derivation, not included in this repository, is
+    available).  Pickles every cone-data attribute except the oracle-holders,
+    so later constructions load the freeze and never build the oracle."""
     import pickle
     alg = U1A1AoddKAlg(k)
     cd = alg._cd

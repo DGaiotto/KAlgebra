@@ -28,18 +28,20 @@ carry its own flavour charge, so each zoo seed matches a character
 combination up to a per-seed monomial ``z^c`` (``A3_SEED_DICTIONARY``,
 re-derived by the tests from leading terms).
 
-Provenance: the su(2)_{−4/3} characters and vortex residues, transcribed via
-the 2026-06-10 harvest.  Certification: bulk agreement with the
-2026-06-10 frozen a3 table, full-row agreement with the live embedded
-BPS oracle at enlarged window, internal ρ²-cyclicity, and the M(2,5)/
-M(2,7) match of the pentagon/heptagon frozen tables.
+Provenance: the su(2)_{−4/3} characters and vortex residues are
+transcribed from standard results on admissible-level sl(2) characters.
+Certification: bulk agreement with the frozen a3 table, full-row
+agreement with an embedded-quiver oracle at enlarged window (an
+author-side computation not included in this repository), internal
+ρ²-cyclicity, and the M(2,5)/M(2,7) match of the pentagon/heptagon
+frozen tables.
 
 Why this module exists (the trapezoid defect): the flavoured BPS trace
 at q-window K is exact only on a trapezoid in (q-order, μ-charge) —
 flavour tails at orders near K need internal q-orders beyond K and
-come out clipped or with spurious edge terms (observed: the 2026-06-10
-frozen a3 table violates the cyclicity identities T₀ = T₃, T₄ = μ·T₀
-from 𝖖²³ on; the live oracle at K=24 corrupts the 𝖖²⁴ row down to
+come out clipped or with spurious edge terms (observed: an early
+frozen a3 table violated the cyclicity identities T₀ = T₃, T₄ = μ·T₀
+from 𝖖²³ on; an oracle run at K=24 corrupts the 𝖖²⁴ row down to
 |μ| ≥ 3, while at K=44 it reproduces these characters exactly).  The
 closed forms have no window at all.
 """

@@ -9,10 +9,11 @@ Mirrors `PureSU2KAlg` (pure-SU(2) `ConeKAlgebra`) with U(1)_F flavour:
   * ρ-action: `ρ(H_n) = μ^{−1} · H_{n−3}` (index shift −3 + μ shift).
   * multiply: literal-word reducer in `su2_nf1_h_multiply.multiply_native`,
     axiom-derived from `h_mul_h` cyclicity + Nf=1 Clebsch (verified
-    against `SUN_Nf(2, 1).algebra` for gaps 0..9 H-H and multi-letter
-    + Wilson + mixed inputs).
-  * trace: cyclicity-bridge formulas in `su2_nf1_h_trace` (TBD —
-    next phase, analogous to pure-SU(2) m-anchor system).
+    against an auxiliary SU(2)+N_f BPS realisation, not included in this
+    repository, for gaps 0..9 H-H and multi-letter + Wilson + mixed
+    inputs).
+  * trace: cyclicity-bridge formulas in `su2_nf1_h_trace` (the Schur
+    F(v, μ) Wilson closed form + the m-anchor cyclicity solvers).
 """
 from __future__ import annotations
 
@@ -52,8 +53,8 @@ class SU2Nf1KAlgebra(ConeKAlgebra):
         in `su2_nf1_h_multiply.multiply_native`.
 
         Structure constants come from `h_mul_h` (W_1-walk cyclicity
-        recursion, verified vs `SUN_Nf(2, 1).algebra` for gaps 0..9)
-        plus Nf=1 ε-corrected w_1↔H Clebsch.
+        recursion, verified vs the auxiliary BPS realisation for gaps
+        0..9) plus Nf=1 ε-corrected w_1↔H Clebsch.
         """
         from su2_nf1_h_multiply import multiply_native
         return multiply_native(a, b)
@@ -192,8 +193,8 @@ class SU2Nf1KAlgebra(ConeKAlgebra):
         return Element({k: v for k, v in out.items() if not v.is_zero()})
 
     def r_label_decompose(self, label):
-        """The single-irrep flavour-lift coordinate (replaces the retired
-        `_label_section_decompose`): peel the U(1) flavour weight `μ^{μ_power}`
+        """The single-irrep flavour-lift coordinate: peel the U(1) flavour
+        weight `μ^{μ_power}`
         (the R-basis-label `(μ_power,)`) off the gauge section
         `(h_factors, 0)`."""
         h_factors, mu_p = label

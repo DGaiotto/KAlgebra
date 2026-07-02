@@ -36,14 +36,9 @@ Completing the square exposes the partial-theta structure:
 These are the bare characters of the M(1, 3) singlet algebra
 (central charge c = -7, the chiral algebra of the (A_1, A_3)
 Argyres-Douglas theory) at U(1)-charge n, lattice √6 · Z, with
-half-arguments at residue cosets {3|n|+2, 3|n|+4} mod 6.
-
-References
-----------
-* Adamovic-Milas, "On the triplet vertex algebra W(p)" and related
-  papers on M(1, p) singlet characters.
-* Beem-Lemos-Liendo-Peelaers-Rastelli-van Rees, the chiral-algebra-
-  to-Argyres-Douglas dictionary.
+half-arguments at residue cosets {3|n|+2, 3|n|+4} mod 6.  These are
+standard results on M(1, p) singlet characters and the chiral-algebra
+description of Argyres-Douglas theories.
 """
 
 from __future__ import annotations

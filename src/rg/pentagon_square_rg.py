@@ -9,8 +9,8 @@ cope with SQED₁'s non-commutative relation `u₊u₋ = 1+𝖖v`.  Like
 `U1SquareRGKAlgebra` it is a **pure** `RGKAlgebra`: `RG`, `multiply`,
 `ρ`/`ρ⁻¹`, `trace`, `inner_product` are all *inherited* from the generic engine
 and computed live from the flow data — nothing is overridden to a closed form,
-and in particular the trace is **not** the heuristic `trace` override that the
-`implementations/pentagon_square_rgkalg.py` (cone-data) presentation carries.
+and in particular the trace is the generic bilinear pairing rather than a
+presentation-specific heuristic override.
 
 Defining data (the whole of it)
 -------------------------------
@@ -22,11 +22,10 @@ Defining data (the whole of it)
 * `grading()` = `Γ_RG = Z`, `deg(m, n) = m` (the **magnetic charge** — additive
   under SQED₁'s multiply, since `u₊u₋` lands in the `m = 0` Coulomb sector),
   height `h(m) = −m`, positive cone `m ≤ 0` (`cone_gens = ((−1,),)`).  `S_RG`
-  lives on the `m ≤ 0` ray, so this is a genuine pointed-cone RG grading.  (My
-  earlier audit wrongly claimed "no simple linear grading"; the mistake was
-  demanding the *RG images* be homogeneous — they need not be: `RG(L₂) =
-  (1,−1)+(0,−1)` is inhomogeneous in `m`, and that is fine, `RG(a)` is a finite
-  element.)
+  lives on the `m ≤ 0` ray, so this is a genuine pointed-cone RG grading.
+  (The *RG images* need not be homogeneous — `RG(L₂) = (1,−1)+(0,−1)` is
+  inhomogeneous in `m`, and that is fine: `RG(a)` is a finite element; only
+  `S_RG` and the grading must live on the pointed cone.)
 * `S_RG = E_𝖖(u₋)` — a **single** quantum dilogarithm on the monopole `u₋ =
   (−1, 0)`, given in both contracts: `rg_generator(cutoff)` (q-order window) and
   the exact per-charge oracle `_s_rg_component((m,)) = {(−|m|, 0): e_{|m|}}` (a

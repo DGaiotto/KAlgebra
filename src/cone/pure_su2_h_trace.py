@@ -1,7 +1,7 @@
 """Axiom-derived trace for `PureSU2KAlg`.
 
-Computes `Tr(L_{(m, e)})` as a q-series WITHOUT consulting
-`pSU2KAlgebra.trace`, using only the SU(2) Schur closed form for
+Computes `Tr(L_{(m, e)})` as a q-series WITHOUT consulting a BPS
+realisation, using only the SU(2) Schur closed form for
 Wilson characters and ρ²-twisted cyclicity for the rest.
 
 Ingredients
@@ -284,7 +284,7 @@ def _solve_anchors_at(m: int, q_max: int) -> dict:
         for e_anc in range(0, 2 * m_lo, 2):
             traces_lp[f'TrL{m_lo}_{e_anc}'] = _tr_anchor(m_lo, e_anc, qm)
     sols = solve_anchors_via_cyclicity(m, traces_lp, qm)
-    # Truncate to the user's q_max.
+    # Truncate to the requested q_max.
     return {
         e_anc: LaurentPoly({e: c for e, c in lp._coeffs.items() if e <= q_max})
         for e_anc, lp in sols.items()

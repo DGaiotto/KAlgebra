@@ -10,7 +10,7 @@ executable: a **connected groupoid** whose objects are realizations
 are verified `KAlgebraIso` witnesses, with composed transport between
 any two realizations and a path-independence (coherence) certificate.
 
-Deliberate v1 non-features (Plan 25, decisions D3/D4/D5):
+Deliberate non-features:
 
 * **`KAlgebraObject` is NOT itself a `KAlgebra`.**  The seven contract
   primitives are label-typed; a delegating object would need one
@@ -21,16 +21,16 @@ Deliberate v1 non-features (Plan 25, decisions D3/D4/D5):
   consumer ever needs to pass one where a `KAlgebra` goes, an explicit
   `as_kalgebra(authority=key)` adapter view can be added — additively.)
 * **Witnesses are held, not searched.**  Discovery stays in the tools
-  that own it (`finite_kalgebras.regen.kalgebra_isomorphism`,
-  `bpskalgebra_iso`, per-theory constructors); the object stores
+  that own it (`bpskalgebra_iso`, per-theory constructors, and external
+  isomorphism-search tooling); the object stores
   verified `KAlgebraIso`s and composes them on demand.
 * **Capability tags are declared, not introspected** — short strings
   like ``'multiply-fast'``, ``'trace-exact'``, ``'chart'`` supplied at
   `add_realization` time; `preferred(tag)` returns the first
   realization carrying the tag (insertion order = preference).
 
-The first population is the finite-type zoo
-(`finite_kalgebras.objects.kalgebra_object`).
+A natural population is the finite-type zoo of `src/cone/`, whose
+algebras present one abstract object per Dynkin type.
 """
 from __future__ import annotations
 
@@ -169,11 +169,11 @@ class KAlgebraObject:
 
     def discover(self, src: str, dst: str, searcher, **kw) -> KAlgebraIso:
         """Find-and-store a witness `src → dst` using an external
-        `searcher(src_alg, dst_alg, **kw) -> KAlgebraIso` (D4: discovery
-        stays in the tools that own it — e.g.
-        `finite_kalgebras.objects.match_generators` for cone↔cone
-        dictionaries).  The searcher is responsible for certification;
-        whatever it returns is stored as a witness and returned."""
+        `searcher(src_alg, dst_alg, **kw) -> KAlgebraIso` (discovery
+        stays in the tools that own it — e.g. a generator-matching
+        search for cone↔cone dictionaries).  The searcher is responsible
+        for certification; whatever it returns is stored as a witness
+        and returned."""
         iso = searcher(self._realizations[src], self._realizations[dst],
                        **kw)
         self.add_iso(src, dst, iso)

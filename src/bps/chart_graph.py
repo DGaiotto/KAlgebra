@@ -1,7 +1,7 @@
-"""Lazy chart graph for BPSKAlgebra (phase 2).
+"""Lazy chart graph for BPSKAlgebra.
 
 A `BPSKAlgebra` represents `A_𝖖[T]` via a *root chart*, but several
-algorithms (algorithm (c) F-finding, chart-search multiplication, …)
+algorithms (chart-local F-finding, chart-search multiplication, …)
 benefit from working in a *neighbouring chart* and translating back.
 
 This module provides the lazy-graph machinery -- private state on
@@ -568,7 +568,7 @@ class Chart:
     """One BPS-quiver presentation of `A_𝖖[T]`.  Identified by
     `chart_id` within a `ChartGraph`; carries the chart-local
     `(nodes, spec)` plus per-chart caches for F (canonical basis at
-    this chart's labels) and F·S (Habiro-form coefficients).
+    this chart's labels) and F·S (`HabiroElement` coefficients).
 
     `parent_edge` is `None` for the root chart; non-root charts
     record the mutation edge that produced them.

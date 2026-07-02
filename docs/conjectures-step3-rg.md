@@ -1,25 +1,26 @@
-# Conjectures
+# Conjectures — Step 3 (the RG flows)
 
-**Step 3** ships the live RG-flow engine (`src/rg/`). Two statements from the
-Schur-quantization RG framework are the ones it directly bears on — and, in the
-constructive spirit of the project, the engine does not merely *check* them, it
-*uses* them to **build** the algebra. (For the framework, see the reference at
-the end.)
+The RG layer (`src/rg/`) provides the live RG-flow engine. Two statements from
+the Schur-quantization RG framework are the ones it directly bears on — and, in
+the constructive spirit of the project, the engine does not merely *check* them,
+it *uses* them to **build** the algebra.
 
 ## 1. RG intertwining (the construction relation)
 
 For an RG flow from a UV theory to an IR (auxiliary) theory with spectrum
 generator `S_RG`, the RG map `RG` and the twisted automorphisms `ρ` satisfy
 
-    RG(a)·S_RG  =  S_RG·ρ_IR⁻¹(RG(ρ_UV(a)))  =  a + O(𝖖) :
+    RG(a)·S_RG  =  S_RG·ρ_IR⁻¹(RG(ρ_UV(a)))  =  L_{apex(a)} + O(𝖖) :
 
-`RG(a)·S_RG` reproduces the UV element `a` to leading order, and intertwines
-`ρ_UV`/`ρ_IR`. (`F·S = X_γ + O(𝖖)` is the leading BPS special case.)
+`RG(a)·S_RG` reproduces the IR apex label `L_{apex(a)}` of the UV label `a` to
+leading order, and intertwines `ρ_UV`/`ρ_IR`. (`F·S = X_γ + O(𝖖)` is the leading
+BPS special case.)
 
 **Constructive use here.** `RGKAlgebra.RG(a)` is *solved* from the discovery
-relation `RG(a)·S_RG = L_{apex(a)} + O(𝖖)` (`graded_rg_solver`, exact Habiro
-arithmetic over the grading cone). The whole derived API (`multiply` via
-`from_ir_image`, `ρ`/`ρ⁻¹` via the mirror) follows from this solve.
+relation `RG(a)·S_RG = L_{apex(a)} + O(𝖖)` (`graded_rg_solver`, exact arithmetic
+in the localization `Z[𝖖^±][(1−𝖖^{2n})^{−1}, n≥1]` over the grading cone). The
+whole derived API (`multiply` via `from_ir_image`, `ρ`/`ρ⁻¹` via the mirror)
+follows from this solve.
 
 *Checked here:* `verify_rg_unital`, `verify_rg_multiplicative`,
 `verify_rg_bar_invariant`, `verify_rho_is_automorphism`, and the certified
@@ -27,7 +28,8 @@ arithmetic over the grading cone). The whole derived API (`multiply` via
 
 ## 2. Orthonormality of the canonical basis
 
-For the canonical basis `{L_a}`, the Schur pairing
+**Conjecture.** The RG flows presented in `src/rg/` satisfy the `K_𝖖`-algebra
+axioms; in particular, for the canonical basis `{L_a}` the Schur pairing
 
     I_{a,b}(𝖖)  =  Tr( ρ(L_a) · L_b )   satisfies   I_{a,b}(𝖖) = δ_{a,b} + O(𝖖) :
 
@@ -39,14 +41,17 @@ expansion** `I_{a,b} = Σ_{c,d} [RG(a)·S_RG]_c·[RG(b)·S_RG]_d·I^aux_{c,d}` o
 well-defined single-basis auxiliary pairing `I^aux_{c,d} = aux.inner_product(c,d)`
 — *not* the ill-defined opposite-cone product `Tr_aux(ρ(S_RG)·…·S_RG)`. That
 `I^aux` itself starts at `𝖖^0` (the IR's own orthonormality) is what lets the
-exact-FS walk skip beyond-`𝖖^K` contributions and stay finite at each order.
+exact-FS walk (the exact per-label evaluation of the `RG(a)·S_RG` products,
+truncated to `𝖖^K` only at the end) skip beyond-`𝖖^K` contributions and stay
+finite at each order.
 
-*Checked here:* `verify_orthonormality(a, b, K)` on each reference flow (no
-negative-`𝖖` window; the `𝖖⁰` coefficient is `δ_{a,b}`), and the trace of each
-flow matches the exact direct Step-1 sample, truncation-stable.
+## Verification scope
 
-## Reference
+What the tests actually certify:
 
-F. Ambrosino, D. Gaiotto, *Renormalization Group Flow in Schur Quantization*,
-JHEP **02** (2026) 057, [arXiv:2503.16685](https://arxiv.org/abs/2503.16685)
-[hep-th], DOI:[10.1007/JHEP02(2026)057](https://doi.org/10.1007/JHEP02(2026)057).
+| check | scope |
+|---|---|
+| RG-unitality / RG-multiplicativity / bar-invariance / orthonormality | 21 flows, on 4–20 labels each, at K = 4–6 |
+| pentagon multiply vs the direct Step-1 sample | all 400 products |
+| vacuum traces vs the standalone cone algebras | matched to q⁶–q¹² |
+| truncation stability + zero-warning discipline | every trace exercised |

@@ -55,7 +55,7 @@ def a2k_rho(k: int, gamma):
     """Closed-form, **BPS-free** ρ (half-monodromy σ) on the `A_{2k}` lattice
     — `sigma_forward` on the linear-quiver spec.  Verified identical to
     `A2k(k).rho` (k=2,3,4).  This is the closed-form ρ the even-family
-    `_rho_orbit` TODO wanted; no `BPSKAlgebra` is built."""
+    `_rho_orbit` uses; no `BPSKAlgebra` is built."""
     from spec_sigma import sigma_forward
     if k not in _A2K_LS_CACHE:
         _A2K_LS_CACHE[k] = _a2k_lattice_spec(k)
@@ -274,7 +274,7 @@ def natural_orbit_seeds(k: int) -> dict[int, tuple[int, ...]]:
     is the BPS-lattice charge γ such that  L_{a, 0} = X[γ].  Computed
     by taking the alternating-pattern seed of the (old) length-(a+1)
     orbit and applying ρ^{-S_old} on the lattice, where S_old is the
-    legacy shift of that orbit.
+    old-labelling shift of that orbit.
     """
     old_lengths, old_shifts = predicted_lengths_and_shifts(k)
     # Invert old_lengths: map length → old orbit index.

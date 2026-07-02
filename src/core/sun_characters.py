@@ -5,10 +5,10 @@ ring** `R(SU(M))`.
 The flavour symmetry of a `U(N)` gauge theory with `M = N_f` fundamental
 hypers is `SU(N_f)` (per node `SU(M_i)` for a quiver with `M_i` fundamentals
 at the i-th node) — the fundamental is *complex* (no `Spin(2N_f)`
-enhancement; Plan 22 T5), and the diagonal `U(1) ⊂ U(N_f)` sits inside the
+enhancement), and the diagonal `U(1) ⊂ U(N_f)` sits inside the
 gauge centre, so it is a *formal* level bookkeeping, not flavour.  A
-Cartan-flavoured presentation (`add_flavour(AbelianZPlusRing(M))`, e.g.
-`un_nf_over_pure_rgflow` / `quiver_over_pure`) only manifests the torus
+Cartan-flavoured presentation (`add_flavour(AbelianZPlusRing(M))`, as in
+the over-pure RG flows) only manifests the torus
 `T = U(1)^M`; the statement that the content is genuinely `SU(M)`-flavoured
 is
 
@@ -19,8 +19,7 @@ decreasing; negative entries = `det`-twists) are exactly the
 `S_M`-invariant `T`-characters, and `U(M)`-content splits as
 `(SU(M) irrep, diagonal level)` via `λ ↦ (λ − λ_M·𝟙, Σλ_i)`.
 
-This is the type-`A` sibling of `so2nf_characters` (the `D_Nf` machinery for
-the pseudoreal SU(2)+Nf case), with the same surface:
+The surface:
 
 * `weyl_elements` / `is_weyl_invariant` — the `S_M` Weyl action.
 * `weyl_denominator` — the Vandermonde `δ = Σ_{σ∈S_M} sgn(σ)·x^{σρ}`,
@@ -265,9 +264,8 @@ from zplus_ring import ZPlusRing
 
 # ---------------------------------------------------------------------------
 # The ring itself lives in `zplus_ring.SUNZPlusRing` (the ZPlusRing family
-# home) — merged 2026-06-12 (user ruling) from this module's class and the
-# Plan 30 twin: ONE class, the union surface (`reduce`/`character`/`dim`/
-# `_validate`/`m`), Kostka-DP LR engine, cross-certified against this
+# home): one class, the union surface (`reduce`/`character`/`dim`/
+# `_validate`/`m`), with a Kostka-DP LR engine cross-certified against this
 # module's Weyl-denominator machinery (`character`/`decompose`).
 # Re-exported here for back-compat.
 # ---------------------------------------------------------------------------
@@ -279,10 +277,9 @@ class SUNFlavourRing(ZPlusRing):
     SU-enhanced flavour presentation.
 
     The `SU(M_i)` factors are the **genuine flavour rings** (one per group
-    of `M_i` fundamental flavours; user ruling 2026-06-11: `SU(N_f)` for
-    `U(N)+N_f`, `SU(M_i)` per quiver node).  The rank-`r` abelian factor is
-    the **formal residue** — for the standard layout (see
-    `sun_flavour_enhancement`) the per-group diagonal levels followed by any
+    of `M_i` fundamental flavours: `SU(N_f)` for `U(N)+N_f`, `SU(M_i)` per
+    quiver node).  The rank-`r` abelian factor is the **formal residue** —
+    in the standard layout, the per-group diagonal levels followed by any
     untouched abelian slots (quiver link μ's): gauge-centre bookkeeping
     carried for faithfulness, *not* flavour.
 

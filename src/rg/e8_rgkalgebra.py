@@ -2,8 +2,8 @@
 e8_rgkalgebra.py
 ================
 
-`E8RGKAlgebra` — the exceptional Argyres–Douglas theory `A_𝖖([A_1, E_8])` as a
-new-contract `RGKAlgebra` (Plan 20), realised by the RG flow
+`E8RGKAlgebra` — the exceptional Argyres–Douglas theory `A_𝖖([A_1, E_8])` as an
+`RGKAlgebra`, realised by the RG flow
 
     [A_1, E_8]   ──drop the central node──▶   u(1)-gauged [A_1, A_7]
 
@@ -48,7 +48,7 @@ The UV BPS quiver is the **E₈ Dynkin**: the A₇ chain (the mag-0 type-2 chord
 == 1` (E₈), vs `9` (A₈) for an end chord, `4` (D₈) for a second-from-end chord.
 Among trees on 8 nodes only E₈ has Cartan det 1, certifying E₈ uniquely; this
 matches the standard E₈ Dynkin that `BPSKAlgebra` is built from.  (The structural
-witness sidesteps the WIP `U1A1AoddKAlg` trace, as for E₆.)
+witness sidesteps the deep-power-incomplete `U1A1AoddKAlg` trace, as for E₆.)
 """
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ from a1aeven_to_u1aodd_rgkalgebra import _e_q_coeff       # c_m = (−q)^m/(q²;
 
 
 class E8RGKAlgebra(RGKAlgebra):
-    """`[A_1, E_8]` as a directional new-contract `RGKAlgebra` over the gauged-odd
+    """`[A_1, E_8]` as a directional `RGKAlgebra` over the gauged-odd
     standalone `U1A1AoddKAlg(3) = u(1)-gauged [A_1, A_7]`, with `S_RG = E_𝖖(L)`
     for `L` the central mag-1 chord `(3, 0)` (the off-centre-of-A₇ attachment that
     distinguishes E₈ from the warm-up's A₈).  See the module docstring."""
@@ -114,7 +114,7 @@ class E8RGKAlgebra(RGKAlgebra):
 
     def _s_rg_component(self, p):
         """`[S_RG]_{(m,)}` — exact, finite, vanishing off the cone.  `S_RG = E_𝖖(X_L)`
-        ⇒ degree-`m` part is the single label `L^m` with Habiro coefficient `c_m`;
+        ⇒ degree-`m` part is the single label `L^m` with coefficient `c_m`;
         degree 0 the identity, negative degree empty."""
         (m,) = p
         if m < 0:

@@ -11,8 +11,8 @@ multiplicativity, ρ-equivariance, trace-equivariance) — so a chain of
 mutations populates a `KAlgebraObject` whose realizations are the
 chamber presentations.
 
-The monodromy theorem-by-experiment (pentagon, `tests/
-test_bps_chart_object.py`): the pure rotation walk (always necklace at
+The monodromy theorem-by-experiment (pentagon, exercised in
+`tests/test_bps_flows.py`): the pure rotation walk (always necklace at
 the spec head) returns the chart data to the root after consuming each
 particle and antiparticle once, and the composed witness loop is
 **ρ²** — the same ρ² that twists the trace cyclicity axiom.  The loop
@@ -26,7 +26,7 @@ Scope ("when the spec cooperates"): `mutate_bpskalgebra` requires the
 chart graph to produce the necklaced chart within the local-move
 budget; otherwise it raises.  The RG-level generalization — mutating
 an arbitrary `RGKAlgebra` along a factorization `S_RG = S₁·S₂` — is
-Plan 26.
+not implemented.
 """
 from __future__ import annotations
 

@@ -9,84 +9,67 @@ of the AD theory (e.g. the two Rogers–Ramanujan functions for the
 pentagon = M(2,5), the M(2,2k+3) Andrews–Gordon characters for the odd
 polygons, flavoured characters for the D-series).
 
-This module produces those seed traces **exactly** from the BPS quiver
-literals embedded in each standalone (`<PREFIX>_BPS_PAIRING` /
-`<PREFIX>_BPS_NODE_CHARGES`) through the exact Habiro/Nahm Schur engine
-of `BPSKAlgebra` — never from truncated approximations — and:
+This module produces those seed traces **exactly** — never from
+truncated approximations — via the **orthonormality bootstrap** together
+with closed-form characters:
 
-* un-branches the BPS Cartan series to the zoo's flavour ring where the
-  zoo ring is non-abelian (SU(2)-character decomposition of the
+* `Tr(1)` comes from a known closed-form vacuum character where one is
+  recognised (`_VACUUM_CHAR`, `ad_characters`), else from the exact
+  Nahm sum on the embedded quiver spec (`vacuum_nahm`);
+* the orbit seeds are pinned by exact linear algebra over cheap
+  cone-data Layer-1 reductions of the deep single-mult-gen labels
+  `((i,a),)`: `Tr(L)=O(q)` pins the leading seeds and the general
+  orthonormality pairs `I_{La,Lb}=δ+O(q)` complete the non-leading ones
+  (`_generate_bootstrap` for trivial-R entries, plus the
+  `u1_bootstrap` / `su2_bootstrap` / `su2u1_bootstrap` modules for
+  the flavoured ones);
+* where the zoo ring is non-abelian, the Cartan series is un-branched
+  to the zoo's flavour ring (SU(2)-character decomposition of the
   μ-Laurent content, certified by an exact `to_abelian` round-trip);
-* freezes them as integer data in `elem_trace_data.py`
-  (regenerate via :func:`freeze`);
-* serves them to the standalones' `_trace_residual` through
-  :func:`trace_residual`, extending **lazily and exactly** past the
-  frozen q-window on demand (memoised per process; can be slow for the
-  E-series — the frozen windows are sized so routine use stays inside).
+* seed traces are frozen as integer data in `elem_trace_data.py`
+  (merged per-entry via :func:`freeze`) and served to the standalones'
+  `_trace_residual` through :func:`trace_residual`, extending lazily
+  and exactly past the frozen q-window on demand (memoised per
+  process; the frozen windows are sized so routine use stays inside).
 
-Validation: the pentagon
-seed traces match `PentagonKAlg`'s Rogers–Ramanujan closed forms, the
-heptagon's match `A1A2kKAlg(2)`'s Andrews–Gordon characters, the
-a1d3/a1d5 identity traces match the hand-written SU(2)-charactered
-algebras, and the trace-enabled entries pass `verify_orthonormality`
-(Goal 2.1) + `verify_rho_twisted_trace` through the contract surface.
+The frozen tables in `elem_trace_data.py` were originally produced with
+a per-seed BPS-quiver derivation not included in this repository; the
+bootstrap reproduces them exactly and is the generation path here.
 
-Frozen-table status + regeneration runbook (2026-06-10)
--------------------------------------------------------
-Frozen (see `elem_trace_data.py`): pentagon K=64, heptagon K=48,
-a3 K=48 (per-mg, CHARACTER-GENERATED — see below), a1d3 K=40,
-a1d5 K=32 — and whatever later sessions merge in via `freeze` (it
-merges per-entry; safe to run incrementally).
+Validation: the pentagon seed traces match the pentagon algebra's
+Rogers–Ramanujan closed forms, the heptagon's match `A1A2kKAlg(2)`'s
+Andrews–Gordon characters, the a1d3/a1d5 identity traces match the
+hand-written SU(2)-charactered algebras, and the trace-enabled entries
+pass `verify_orthonormality` + `verify_rho_twisted_trace` through the
+contract surface.
 
-TRAPEZOID CAVEAT (2026-06-10): the flavoured BPS trace at q-window K
-is exact only on a wedge `|μ| ≲ (2/3)(K−k)` at 𝖖-order k — flavour
-tails near the top of the window come out clipped or with spurious
-edge terms.  The a3 entry was refrozen from the su(2)_{−4/3}
-closed forms (`ad_characters.a3_elem_entry`, certified two-route;
-NOT via `freeze`).  When (re)generating a5/a1d3/a1d5 — or consuming their
-frozen tails near K, or extending any flavoured entry lazily —
-generate at K′ = K + margin and keep only the wedge, or use closed
-forms.  Trivial-R entries have no flavour tails and are unaffected.
+Frozen windows (see `elem_trace_data.py`): pentagon K=64, heptagon
+K=48, a3 K=48 (per-mg, character-generated — see below), a1d3 K=40,
+a1d5 K=32.  `freeze` merges per-entry, so it is safe to run
+incrementally.
 
-DEFAULT for trivial-R since 2026-06-14: the **BPS-free orthonormality
-bootstrap** (`generate(..., method="auto")` → `_generate_bootstrap`).  Tr(1)
-is the only BPS call; the seeds come from cheap cone-data Layer-1 reductions
-of the deep single-mult-gen labels `((i,a),)` + exact linear algebra
-(`Tr(L)=O(q)` pins the leading seeds, the general orthonormality pairs
-`I_{La,Lb}=δ+O(q)` complete the non-leading ones), with a per-seed BPS
-fallback if a seed is left unpinned (reducer ceiling ~degree 6).  Matches the
-BPS tables exactly (e6 K=12 in ~70 s — almost all of it the one Tr(1) call —
-vs ~1200 s per-seed BPS).  `method="bps"` forces the old per-seed engine.
-The pair augmentation is generated **cheapest-total-degree first, re-solving
-and stopping the moment no seed is free**, with the pair's **first factor
-ranging over the full seed set** (a free seed can be pinned by a pair whose two
-factors are OTHER seeds — its trace appears in the Layer-1 reduction of
-L_idx^a·L_jj^b even when neither factor is it).  A seed is pinned at q-order k
-by a pair reaching emin≤−k, so the depth grows with k; stopping early avoids
-grinding the deep mixed-monomial reductions to the Layer-1 step cap (the e8
-"degree-4 wall") when a shallower degree already closes the system (e8 timed out
->900 s under the old generate-everything loop; it now closes at degree 3 —
-entirely wall-free — through K=6).
-Trivial-R seeds that are not frozen (or are asked past the frozen window) are
-served on-demand and cached (`_TRIVIAL_REC`, mirroring the u1 `_U1_REC`) —
-the per-seed BPS engine is infeasible on E7/E8.
-Measured per-seed BPS costs (single CPU, exact Habiro; the bootstrap removes
-all but the Tr(1) one for trivial-R):
+TRAPEZOID CAVEAT: a flavoured trace generated at q-window K is exact
+only on a wedge `|μ| ≲ (2/3)(K−k)` at 𝖖-order k — flavour tails near
+the top of the window come out clipped or with spurious edge terms.
+The a3 entry is frozen from the su(2)_{−4/3} closed forms
+(`ad_characters.a3_elem_entry`, certified two-route; NOT via `freeze`).
+When (re)generating a flavoured entry — or consuming its frozen tails
+near K, or extending it lazily — generate at K′ = K + margin and keep
+only the wedge, or use closed forms.  Trivial-R entries have no
+flavour tails and are unaffected.
 
-* pentagon/a1d3/a1d5 — seconds to ~2 min at the K's above;
-* heptagon K=48, a3 K=40 — a few minutes each;
-* a5 K=24 (per-mg, 20 seeds) — tens of minutes;
-* e6 — 22 s for Tr(1) and ~200 s per mg seed at K=8 ALONE; K≳16 is an
-  hours-scale offline job.  e7 (90 mg's, u1 bootstrap), e8 (128 mg's,
-  orbit-folded ⇒ 16 trivial-R seeds), a7 (35 mg's, per-mg) and a1d7
-  untimed but comparable or worse.  Run these as background jobs via
-  `freeze` (importable from this module).
-
-su2u1 entries (a1d4 / a1d6 / a1d8) are NOT generatable yet — the
-SU(2)×U(1) un-branching of the rank-2 Cartan series needs the
-direction map fixed per entry; deferred to the Plan-18 Z-form
-regeneration.  Until an entry is frozen, its traces still work —
-exactly — through the lazy path; they are just slow on first call.
+Bootstrap pair augmentation: pairs are generated **cheapest-total-degree
+first, re-solving and stopping the moment no seed is free**, with the
+pair's **first factor ranging over the full seed set** (a free seed can
+be pinned by a pair whose two factors are OTHER seeds — its trace
+appears in the Layer-1 reduction of L_idx^a·L_jj^b even when neither
+factor is it).  A seed is pinned at q-order k by a pair reaching
+emin≤−k, so the depth grows with k; stopping early avoids grinding the
+deep mixed-monomial reductions to the Layer-1 step cap when a shallower
+degree already closes the system.
+Trivial-R seeds that are not frozen (or are asked past the frozen
+window) are served on-demand and cached (`_TRIVIAL_REC`, mirroring the
+u1 `_U1_REC`).
 """
 from __future__ import annotations
 
@@ -168,7 +151,7 @@ def elementary_seed_indices(short_id: str) -> list[int]:
 
 
 # ---------------------------------------------------------------------------
-# BPS oracle (exact Habiro/Nahm Schur engine on the embedded quiver)
+# BPS oracle (exact Schur-trace engine on the embedded quiver)
 # ---------------------------------------------------------------------------
 
 _ORACLES: dict[str, object] = {}
@@ -176,14 +159,18 @@ _ORACLES: dict[str, object] = {}
 
 def _bps_oracle(short_id: str):
     """Memoised `BPSKAlgebra` built from the standalone's embedded BPS
-    quiver literals.  Used only for trace generation / lazy extension —
-    the zoo's `multiply`/`rho` never touch it."""
+    quiver literals.  Reached only as a last-resort fallback for trace
+    generation / lazy extension — the zoo's `multiply`/`rho` never touch
+    it — and unconditionally unavailable in this configuration (it
+    requires the BPS realisation layer): the bootstrap + closed-form
+    characters cover every tabulated theory before this is reached."""
     if short_id not in _ORACLES:
         raise NotImplementedError(
-            "spine-free cone release: the BPS oracle is unavailable. Tr(1) "
-            f"for {short_id!r} is not yet supplied by a closed-form vacuum "
-            "character, and the requested q-order exceeds the shipped frozen "
-            "seed window. Wire its vacuum character (ad_characters) to extend.")
+            "the BPS oracle requires the BPS realisation layer, which is "
+            f"not available here. Tr(1) for {short_id!r} is not supplied by "
+            "a closed-form vacuum character, and the requested q-order "
+            "exceeds the frozen seed window. Wire its vacuum character "
+            "(ad_characters) to extend.")
         mod, prefix = _load_standalone(short_id)
         _ORACLES[short_id] = BPSKAlgebra(
             pairing=getattr(mod, f"{prefix}_BPS_PAIRING"),
@@ -244,9 +231,8 @@ def _zoo_ring(short_id: str):
     if flavor == "su2":
         return SU2ZPlusRing()
     raise NotImplementedError(
-        f"elem_traces: flavour {flavor!r} ({short_id}) not yet supported "
-        f"— su2u1 entries are deferred to the Z-form regeneration "
-        f"(Plan 18) follow-up"
+        f"elem_traces: flavour {flavor!r} ({short_id}) not supported here "
+        f"— su2u1 entries need a flavour-in-labels (Z-form) encoding"
     )
 
 
@@ -333,7 +319,8 @@ def _vacuum_rps(short_id: str, K: int):
     """`Tr(1)` (the vacuum trace) as an `RPowerSeries`, spine-free: a known
     closed-form character where one is recognised (`_VACUUM_CHAR`), else the
     exact Nahm sum on the BPS spec (`vacuum_nahm`), else the BPS oracle
-    (unavailable in the spine-free release — tabulated theories never reach it)."""
+    (requires the BPS realisation layer, not available in this
+    configuration — tabulated theories never reach it)."""
     if short_id in _VACUUM_CHAR:
         from ad_characters import m2_2np3_character
         n, rbar = _VACUUM_CHAR[short_id]
@@ -358,13 +345,17 @@ def generate(short_id: str, K: int, *, verbose: bool = False,
     q-order `K`.  Returns the frozen-table record (see `elem_trace_data.py`).
 
     `method`:
-      * `"auto"` (default) — the BPS-FREE orthonormality bootstrap (Tr(1) the
-        only BPS call; the seeds from cheap cone-data Layer-1 reductions + exact
-        linear algebra): `_generate_bootstrap` for trivial-R cone algebras,
-        `u1_bootstrap.generate_u1` (ρ²-orbit-reduced μ-fugacity) for u1 entries
-        — each falling back to the per-seed BPS engine if a seed can't be
-        pinned; su2/su2u1 entries use the BPS engine;
-      * `"bps"` — force the per-seed BPS engine (the original path);
+      * `"auto"` (default) — the orthonormality bootstrap (Tr(1) from a
+        closed-form character or the exact Nahm sum; the seeds from cheap
+        cone-data Layer-1 reductions + exact linear algebra):
+        `_generate_bootstrap` for trivial-R cone algebras,
+        `u1_bootstrap.generate_u1` (ρ²-orbit-reduced μ-fugacity) for u1
+        entries, and the su2 / su2u1 bootstrap modules for the flavoured
+        entries;
+      * `"bps"` — the per-seed BPS engine on the embedded quiver; this
+        path requires the BPS realisation layer and is not available in
+        this configuration (the frozen tables were originally produced
+        with it);
       * `"bootstrap"` — force the bootstrap (raises if unavailable)."""
     flavor = REGEN_SPECS[short_id][2]
 
@@ -396,9 +387,10 @@ def generate(short_id: str, K: int, *, verbose: bool = False,
 
 
 def _generate_bps(short_id: str, K: int, *, verbose: bool = False) -> dict:
-    """The per-seed BPS engine (Habiro/Nahm Schur on the embedded quiver):
-    Tr(1) + one trace per ρ²-orbit seed.  Exact but heavy on the
-    E-series (~200 s per e6 seed at K=8)."""
+    """The per-seed BPS engine (exact Schur traces on the embedded
+    quiver): Tr(1) + one trace per ρ²-orbit seed.  Requires the BPS
+    realisation layer, which is not available in this configuration —
+    see `_bps_oracle`."""
     mod, prefix = _load_standalone(short_id)
     gens = getattr(mod, f"{prefix}_MULT_GENS_LATTICE")
     rank = len(gens[0])
@@ -858,8 +850,9 @@ def trace_residual(short_id: str, algebra, seed_label, K: int
     single-mult-gen ρ²-orbit representatives `((i, 1),)`; those are
     served from the frozen table.  A general cone-monomial seed (should
     Layer 1 ever emit one) is still exact: a zoo label *is* a canonical
-    basis element, so its trace is the BPS trace at the charge
-    `γ = Σ p·γ_i` — computed lazily through the embedded oracle."""
+    basis element, so its trace is the Schur trace at the charge
+    `γ = Σ p·γ_i` — served from the lazy per-charge cache (extending
+    past it requires the BPS realisation layer)."""
     R = algebra.coefficient_ring()
     if short_id not in REGEN_SPECS:
         raise KeyError(f"trace_residual: unknown short_id {short_id!r}")
@@ -867,9 +860,9 @@ def trace_residual(short_id: str, algebra, seed_label, K: int
             and REGEN_SPECS[short_id][2] not in
             ("trivial", "u1", "su2", "su2u1")):
         raise NotImplementedError(
-            f"{short_id}: elementary traces not yet available "
-            f"(flavour {REGEN_SPECS[short_id][2]!r} pending the Plan-18 "
-            f"Z-form regeneration)"
+            f"{short_id}: elementary traces not available "
+            f"(flavour {REGEN_SPECS[short_id][2]!r} needs a "
+            f"flavour-in-labels (Z-form) encoding)"
         )
     if seed_label == ():
         kind = "identity"
@@ -912,10 +905,10 @@ def zoo_trace(short_id: str, algebra, label, K: int) -> RPowerSeries:
     (1+μ+μ²)q²).  But no reduction is needed at all: a zoo label IS a
     canonical basis element with charge `γ = Σ p·γ_i`, and its trace is
     served exactly — frozen seeds for the identity and single gens,
-    exact lazily-cached BPS values for composite labels.  (Orthonormality
+    exact lazily-cached values for composite labels.  (Orthonormality
     over the a3 window passes with 0 bad pairs under this route.)
 
-    The Z-form regeneration (Plan 18 PR2) puts flavour into the labels,
-    making label-ρ² exact and Layer-1 safe again — at which point this
-    bypass can retire."""
+    A flavour-in-labels (Z-form) encoding would make label-ρ² exact and
+    the Layer-1 reducer flavour-safe, removing the need for this
+    bypass; for the entries served here the direct route is used."""
     return trace_residual(short_id, algebra, label, K)

@@ -3,8 +3,8 @@ arbitrary **monomial cone ray** `L_a`, chosen for the *fun of it* rather than to
 realise a known 4d N=2 theory.  They stress the machinery: the generic exact-FS
 engine still produces a well-defined, truncation-safe algebra (closed `multiply`,
 orthonormal canonical basis, convergent `trace`) **even when the corresponding
-"theory" need not exist** (user, 2026-06-27: "show the machinery even works when
-the corresponding theories may not exist").
+"theory" need not exist** — the machinery works whether or not a 4d N=2 theory
+sits behind the flow.
 
 The only requirement on `L_a` is that it be a **monomial cone ray**: `L_a^n` a
 single auxiliary label (so `E_𝖖(L_a) = Σ_n c_n L_a^n` has a clean single-term

@@ -1,4 +1,4 @@
-"""`graded_rg_solver` — the generalised F-solver over a graded IR (Plan 20, T2).
+"""`graded_rg_solver` — the generalised F-solver over a graded IR.
 
 Solves the **discovery relation** in an arbitrary graded auxiliary
 (IR) `KAlgebra`:
@@ -22,14 +22,14 @@ but:
   charge `p` may carry a whole multi-dimensional `B_p` (several aux
   labels), handled label-by-label.
 
-Two facts make this correct and terminating (per the design session):
+Two facts make this correct and terminating:
 
 1. **`[S_RG]_0 = 1_B`** (degree-0 part of `S_RG` is exactly the
    identity): the unknown `[RG(a)]` at a label `c` enters
    `[RG(a)·S_RG]_c` through the self-term `f_c · 1_B = f_c`, read off
    directly — the solve is unit-triangular, no inversion.
 
-2. **Exact Nahm/Habiro arithmetic.**  `S_RG` coefficients are exact
+2. **Exact localized-ring arithmetic.**  `S_RG` coefficients are exact
    `HabiroElement`s (e.g. `rg_generator(cutoff)`), and the residual is
    accumulated exactly — *no `q`-truncation*.  So all cancellations
    happen before the `O(q)` check: beyond the (finite) support the
@@ -40,9 +40,9 @@ Two facts make this correct and terminating (per the design session):
    with a non-positive-`q` residual" (empty worklist).  No explicit
    upper-tropical bound is needed.
 
-(Truncating coefficients to `q^≤K` — the first draft's bug — destroys
-the cancellations, so beyond-support residuals spuriously look
-non-`O(q)` and the walk diverges.  Hence: exact arithmetic only.)
+(Truncating coefficients to `q^≤K` destroys the cancellations, so
+beyond-support residuals spuriously look non-`O(q)` and the walk
+diverges.  Hence: exact arithmetic only.)
 
 `solve_rg` returns `(RG(a), ρ_UV⁻¹(a))` — the latter from the mirror
 constraint.  Forward `ρ_UV(a)` and the **alternative RG map** `tRG(a)`
@@ -138,14 +138,14 @@ class _MirrorAcc:
 
         ρ_IR(S_RG) · RG(a)  =  L_upper  +  O(q).
 
-    Maintains the exact Habiro product `acc = ρ_IR(S_RG)·f` and updates it
+    Maintains the exact localized-ring product `acc = ρ_IR(S_RG)·f` and updates it
     by **only the newly-added `f`-term** (`add`); `test` returns the
     `upper` label iff `RG(a)` is *complete*, else `None`.  The incremental
     `acc` is identical to a full recompute (each `f`-entry is set once),
     and avoids the O(|f|²) cost of recomputing the whole product per peel.
 
-    Completion certificate — **cutoff stability** (the robust replacement
-    for the old "isolated by a height gap" heuristic, which gave both
+    Completion certificate — **cutoff stability** (more robust than an
+    "isolated by a height gap" heuristic, which gives both
     false positives (premature close → truncated `RG`) and false negatives
     (never close → infinite cone-climb)).  `S_RG` is charge-truncated, so
     `ρ_IR(S_RG)·f` carries deep-edge `q⁰` **artifacts whose location moves
@@ -267,7 +267,7 @@ def solve_rg(
 ) -> tuple[Element, Label | None]:
     """Solve `RG(a)·S_RG = L_apex + O(q)` exactly, and derive `ρ_UV⁻¹(a)`.
 
-    Strategy (design session): walk the discovery relation **up** the
+    Strategy: walk the discovery relation **up** the
     positive cone building `RG(a)`; after each correction, test the
     **mirror constraint** `ρ_IR(S_RG)·RG(a) = L_upper + O(q)` (which the
     *same* `RG(a)` must satisfy, anchored at the top).  When it holds,
@@ -281,9 +281,9 @@ def solve_rg(
     mirror is evaluated at the given `S_RG` *and* a higher-cutoff `S_RG`
     (`s_rg_hi`), and `RG(a)` is complete iff the cutoff-*stable*
     non-positive entries are exactly one `{0:1}` (the deep-edge truncation
-    artifacts move with the cutoff and are filtered out).  This replaces
-    the old "isolated by a height gap" heuristic, which both closed early
-    (truncated `RG`) and failed to close (infinite climb).  If `s_rg_hi`
+    artifacts move with the cutoff and are filtered out).  An
+    "isolated by a height gap" heuristic is not sound here: it both closes
+    early (truncated `RG`) and fails to close (infinite climb).  If `s_rg_hi`
     is omitted it defaults to `s_rg` (the stability filter then degrades
     to "single clean `{0:1}`" — adequate only when the artifacts already
     sit at distinct labels; callers should pass a genuinely
@@ -476,9 +476,9 @@ def solve_rg_exact(
     truncation, beyond the true top the residual is **exactly `O(q)`** (exact
     cancellation), the forward peel pushes nothing further, and the cone-walk
     **terminates on its own** — the per-charge oracle makes the whole
-    window/mirror/stability apparatus unnecessary.  This is the user's
-    principle taken to its conclusion: "you are given a function which computes
-    the `γ` part of `S_RG` for every `γ ∈ Γ_RG` — use it."
+    window/mirror/stability apparatus unnecessary.  This takes the oracle
+    contract to its conclusion: given a function that computes the `γ` part
+    of `S_RG` for every `γ ∈ Γ_RG`, use it directly.
 
     `ρ_UV⁻¹(a)` is read off as `ρ_IR⁻¹(top)`, `top` the highest-height `RG(a)`
     label (the leading, coefficient-`1` term — the mirror's single upper

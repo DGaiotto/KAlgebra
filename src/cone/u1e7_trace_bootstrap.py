@@ -1,6 +1,6 @@
 """Forward-triangular orthonormality trace bootstrap for `U1E7ConeKAlgebra`
 (u(1)-gauged E7) — the "orthonormality fixes traces up to Tr(1)" demo for this
-QTCone cone class.
+quantum-torus cone class.
 
 Mirrors `u1aodd_trace_bootstrap` (the proven forward sweep, order k=1..K solving
 the small per-order frontier).  The trace of a single cone-word `L_c` is taken

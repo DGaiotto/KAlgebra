@@ -72,9 +72,11 @@ Storage
 -------
 
 * `F[γ]`           — `dict[Vec, LaurentPoly]`. F-cache is exact in
-  `Z[q, q⁻¹]`; coefficients are non-negative `[n]_q`-positive.
-* `F·S[γ, η]`      — `HabiroElement` (exact in the localized Habiro
-  ring `R = Z[q^±][1/(1−q^{2k})]`). Cached by `(γ, η)`.
+  `Z[q, q⁻¹]`; the coefficients are conjecturally non-negative
+  `[n]_q`-positive (the no-exotics positivity conjecture — not a
+  fact checked by the code).
+* `F·S[γ, η]`      — `HabiroElement` (exact in the localized ring
+  `R = Z[q^±][1/(1−q^{2k})]`). Cached by `(γ, η)`.
 
 Layout
 ------
@@ -87,8 +89,6 @@ versus chart-specific.
     2. KAlgebra contract (intrinsic ops, computed via the chart)
     3. The RG flow itself (`F`, `S`, `σ`)
     4. Chart utilities and accessors
-
-Status: prototype, near-final shape.
 """
 
 from __future__ import annotations
@@ -96,7 +96,7 @@ from __future__ import annotations
 from typing import Callable, Sequence
 import sys, os
 
-# Make this module importable from both `restructuring/` and the repo root.
+# Make this directory and its parent importable by bare module name.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
 if _REPO not in sys.path:
@@ -229,7 +229,7 @@ class BPSKAlgebra(RGKAlgebra):
 
         **Spec-free mode** (`build_S=True`): build the spectrum generator
         `S` by the recursion (`recursive_spectrum`) — no spec, no
-        green-sequence BFS.  Precedence (user 2026-06-28): a finite spec is
+        green-sequence BFS.  Precedence: a finite spec is
         the *ideal* outcome, so unless `extract_spec=False` the built `S` is
         run through the extractor first and a recovered finite chamber drops
         into fast spec mode.  Only when no finite spec is found does the
@@ -307,15 +307,15 @@ class BPSKAlgebra(RGKAlgebra):
         )
         self._flavour_rank = len(self._ker_basis)
         self._gauge_rank = len(self._sec_basis)
-        # `k_joint_prune` (accepted for backward compatibility — e.g.
-        # `pure_ade_lattice` opted in under the #461 opt-in scheme) is now
+        # `k_joint_prune` (accepted for backward compatibility — some
+        # callers, e.g. `pure_ade_lattice`, opted in to a former prune) is
         # SUPERSEDED: the Schur/trace support is bounded by the adaptive
         # two-cutoff-stability shell (`_schur_index_stable`), which is sound
         # in every frame AND keeps the e8-scale memory win that the opt-in
         # prune was reaching for — so the unsound linear K_joint prune is
         # retired and this flag is a documented no-op.
         self._k_joint_prune = bool(k_joint_prune)
-        # Coefficient ring of the FKAlgebra contract: R(U(1)^f) =
+        # Coefficient ring of the flavoured-KAlgebra contract: R(U(1)^f) =
         # AbelianZPlusRing(rank=f) where f = rk(Γ_f).  When f = 0, this
         # is TrivialZPlusRing (R = Z, the unflavoured case).
         self._R: ZPlusRing = (
@@ -342,7 +342,7 @@ class BPSKAlgebra(RGKAlgebra):
                 "spec_free_sigma must be 'trg' (spec-free σ via tRG; the "
                 "default fallback), 'principled' (spec-free σ = −upper(F), the "
                 "principled relation), or 'auto' (alias for 'trg').")
-        # Priority (user 2026-06-28): a provided spec wins; failing that, the
+        # Priority: a provided spec wins; failing that, the
         # S-finder's *ideal* outcome is to recover a finite spec (extraction A,
         # run iff `extract_spec`); only when no spec is found does the spec-free
         # fallback engage, and `spec_free_sigma` chooses it — 'trg' (C) or the
@@ -391,8 +391,8 @@ class BPSKAlgebra(RGKAlgebra):
 
         # ----- spec-free: build S, then recover a finite spec if one exists ---
         # `build_S=True` builds the spectrum generator by the recursion (no
-        # green-sequence BFS).  Preferred path (user 2026-06-27, "A"; reaffirmed
-        # 2026-06-28 — "finding a spec is the ideal outcome of the S-finder"):
+        # green-sequence BFS).  Preferred path (finding a spec is the ideal
+        # outcome of the S-finder):
         # extract a finite-chamber spec from the built S and run the *fast spec
         # mode* (combinatorial σ).  This runs whenever `extract_spec` (default),
         # regardless of `spec_free_sigma`.  Only if no finite spec exists (e.g.
@@ -475,8 +475,8 @@ class BPSKAlgebra(RGKAlgebra):
                 lambda g, _c=csum, _W=W: tuple(-(g[i] + _W * _c[i])
                                                for i in range(len(g))))
             if self._spec_free_sigma == "principled":
-                # Path B — the principled spec-free σ (user 2026-06-27,
-                # "do a principled analysis of the axioms").  σ⁻¹(a)=−upper(F_a),
+                # Path B — the principled spec-free σ, derived from the
+                # axioms.  σ⁻¹(a)=−upper(F_a),
                 # σ(a)=−upper(F̃_a), read off the canonical's support against the
                 # *already-built* S (no spec, no tRG).  ρ/ρ⁻¹ use these exact maps
                 # via the fast section-rectified map (see rho/rho_inverse) instead
@@ -640,8 +640,8 @@ class BPSKAlgebra(RGKAlgebra):
     def identity(self) -> Vec:
         return tuple(0 for _ in range(self.lattice.rank))
 
-    # `multiply` is **inherited from `RGKAlgebra`** (Plan 20 caching-layer
-    # reduction).  The generic section-keyed cached multiply —
+    # `multiply` is **inherited from `RGKAlgebra`**.
+    # The generic section-keyed cached multiply —
     # `from_ir_image(RG(sec a)·RG(sec b))` decomposed in the F-basis and
     # translated by the flavour shift `flav(a)+flav(b)` — is *identical* to
     # (and as fast as) BPS's former hand-rolled version: validated 0
@@ -666,7 +666,7 @@ class BPSKAlgebra(RGKAlgebra):
         The raw chart map (piecewise-linear σ) is *not* globally
         ⋆-equivariant in the flavour direction across its linearity
         cones, so applying it to full labels directly violates the
-        axioms by central flavour shifts (finding A8);
+        axioms by central flavour shifts;
         rectifying through the section restores exactness.  Unflavoured
         algebras: the chart map is used as-is."""
         a_t = tuple(self.lattice.check(a))
@@ -722,11 +722,10 @@ class BPSKAlgebra(RGKAlgebra):
         in the (abelian) flavour ring; on an unflavoured BPSKAlgebra
         (`TrivialZPlusRing`), it is `R.one()`.
 
-        **Aspirationally obsolete (Plan 32)** — superseded by
-        `r_label_decompose`, which returns the same `(section, flav_c)` split
-        with the flavour irrep as a bare key (not wrapped as an `RElement`).
-        Kept, not retired: `to_R_form` still routes through it (it becomes
-        retirable once `to_R_form` reads the lift coordinate directly)."""
+        `r_label_decompose` returns the same `(section, flav_c)` split
+        with the flavour irrep as a bare key (not wrapped as an `RElement`)
+        and is preferred for new code; this method is kept because
+        `to_R_form` still routes through it."""
         a_t = tuple(self.lattice.check(label))
         n = self.lattice.rank
         sec_c, flav_c = decompose_in_basis(
@@ -752,11 +751,10 @@ class BPSKAlgebra(RGKAlgebra):
         X_{γ_f + sec}` with no q-twist.  Unflavoured (`TrivialZPlusRing`)
         falls back to the base default (`1_R ↦ identity`).
 
-        **Aspirationally obsolete (Plan 32)** — the label-level reconstruction
-        (`section + γ_f`) is now `r_label_compose`, a direct central lattice
-        sum with no ring embedding.  Kept, not retired: `from_R_form` still uses
-        the R-linear ring embedding (retirable once it reconstructs via the
-        lift coordinate).
+        The label-level reconstruction (`section + γ_f`) is also available
+        as `r_label_compose`, a direct central lattice sum with no ring
+        embedding, preferred for new code; this method is kept because
+        `from_R_form` still uses the R-linear ring embedding.
         """
         R = self.coefficient_ring()
         if not isinstance(r, RElement) or r.ring != R:
@@ -780,7 +778,7 @@ class BPSKAlgebra(RGKAlgebra):
 
     def r_label_decompose(self, label):
         """The single-irrep **flavour-lift coordinate** `(section, flavour_key)`
-        (Plan 32) — the current-contract optional method.
+        — the contract's optional flavour-lift method.
 
         `section` is the Γ-internal lift of the gauge class via `_sec_basis`
         (a *section of the projection* `Γ → Γ/Γ_f`); `flavour_key` is the SNF
@@ -834,8 +832,8 @@ class BPSKAlgebra(RGKAlgebra):
         **canonical label** `a` — the BPS direct trace primitive.
 
         The overridable hook behind `RGKAlgebra.trace` (which memoises);
-        a **separate** method from `inner_product` (it does NOT route
-        through `inner_product(1, a)`), so the two are independent.  It is
+        a separate memoized entry point that delegates to the same Schur
+        pairing (`_inner_product_uncached(identity, a)`).  It is
         the `a = 1` face of the Schur pairing — exact, free of the
         off-diagonal bar-asymmetry (limitation (E)) of the general
         `_inner_product_uncached`.  kwargs (e.g. `cone_cutoff`) forward to
@@ -852,7 +850,7 @@ class BPSKAlgebra(RGKAlgebra):
         inherited wrapper, so every BPS trace / inner product is cached
         without a BPS-specific cache.
 
-        **Sound support (2026-06-13).**  The η-region summed over is grown
+        **Sound support.**  The η-region summed over is grown
         adaptively until a *two-cutoff stability* certificate holds: the
         result is recomputed on a widening cone-witness shell
         ``⟨f, γ⟩ ≤ B`` until successive shells agree to ``q^K``.  This
@@ -862,9 +860,9 @@ class BPSKAlgebra(RGKAlgebra):
         frames.  The assembled leading q-order of ``[F·S]_η`` grows
         *super-linearly* with the charge but can dip below any *linear*
         witness bound (the "magical cancellations"), so a linear prune is
-        not a valid lower bound — this is the audit-A10 regression that #438
-        introduced (it computed a frame-dependent, wrong vacuum character on
-        sheared unimodular frames, e.g. the pentagon `T=[[1,1],[0,1]]`).
+        not a valid lower bound — an earlier implementation that used one
+        computed a frame-dependent, wrong vacuum character on
+        sheared unimodular frames, e.g. the pentagon `T=[[1,1],[0,1]]`.
 
         Soundness of the adaptive shell: the n-driven Nahm walk over
         ``⟨f, γ⟩ ≤ B`` is *hole-free* (it reaches every charge in the shell,
@@ -875,16 +873,16 @@ class BPSKAlgebra(RGKAlgebra):
         ``B ⊇ support`` further widening adds only ``k_min > K`` charges that
         are invisible to ``expand(K)`` — hence the value stabilises exactly
         at the correct, *frame-independent* answer.  The shell stays small
-        when the support is small, so the e8-scale memory win the #438 prune
-        was reaching for is preserved (achieved soundly, by the assembled
-        order rather than a linear proxy).
+        when the support is small, so the e8-scale memory win the former
+        prune was reaching for is preserved (achieved soundly, by the
+        assembled order rather than a linear proxy).
 
         `cone_cutoff` (optional) only raises the *starting* shell; the
         adaptive growth handles correctness regardless, so it is now a perf
         hint, not a correctness knob.  Habiro-element c-data is cached in
         `self._FS_cache` and reused across shell widenings (incremental).
 
-        Known limitations (unchanged by the support fix; see audit notes):
+        Known limitations (unchanged by the support fix):
 
         * **(E)** Bar on the `a` side acts on the μ-component (the
           ``mu_exp = -fa + fb`` line in ``_schur_index``) but not on the
@@ -997,10 +995,10 @@ class BPSKAlgebra(RGKAlgebra):
             [F_a, F_b], self.cone_gens, self.lattice.rank,
             eff_cutoff,
             cone_witness=self._cone_witness,
-            # The K_joint linear joint-bound prune is RETIRED: it was a
+            # The K_joint linear joint-bound prune is disabled: it was a
             # linear lower bound on a *super-linear* assembled q-order, so it
             # under-included contributing charges on mixed-sign / sheared
-            # frames (audit A10 regression, #438).  Soundness now comes from
+            # frames.  Soundness comes instead from
             # the adaptive two-cutoff-stability shell (`_schur_index_stable`),
             # which widens `eff_cutoff` until the q^K result stabilises; here
             # `eff_cutoff` is that already-chosen shell.
@@ -1174,7 +1172,7 @@ class BPSKAlgebra(RGKAlgebra):
         a_t = tuple(self.lattice.check(a))
         F_a = self._F_internal(a_t)
         # F_a is dict[Vec, QNumberPoly]; Element expects LaurentPoly
-        # (Z[q^±]) coefficients (Plan 10's coefficient ring), so we
+        # (Z[q^±]) coefficients, so we
         # convert at the boundary.
         terms: dict[Vec, "LaurentPoly"] = {}
         for label, qn in F_a.items():
@@ -1203,13 +1201,14 @@ class BPSKAlgebra(RGKAlgebra):
           *super-linearly* with the charge but the term-wise orders dip
           below any linear bound (the "magical cancellations"), so a
           one-shot linear shell is not a sound lower bound — it can
-          under-include (the same root cause as the #438 Schur regression).
+          under-include (the same root cause as the retired Schur prune's
+          unsoundness).
           Widening B only enlarges the η-shell and the exact `expand(k)`
           filter drops η with assembled order > k, so once B covers the
           (finite) support the term-dict is stable and exact;
         * **coefficients**: each `[F·S]_η` evaluated as a **complete
-          Nahm sum** (`c_gamma_via_s`, exact Habiro — all cancellations
-          internal), expanded to `q^k` only at the end.
+          Nahm sum** (`c_gamma_via_s`, exact `HabiroElement` arithmetic —
+          all cancellations internal), expanded to `q^k` only at the end.
         """
         cache = self.__dict__.setdefault("_fs_bps_cache", {})
         a_t = tuple(self.lattice.check(a))
@@ -1278,13 +1277,13 @@ class BPSKAlgebra(RGKAlgebra):
         minimum-shift tuple has shift > K; these contribute only
         at q-orders > K and are invisible to ``expand(K)``.
 
-        Implementation: Strategy A from D5 — two-stage with lazy
+        Implementation: two-stage with lazy
         ``s_γ`` lookup. The inclusion pass walks Nahm tuples
         (``nahm_local.gammas_to_q_order``); per-γ ``s_γ`` is fetched
         via ``nahm_local.s_gamma_habiro`` (already module-level
         cached and shared with the F-solver).
 
-        Spec mode and recipe mode (D6) are both supported. Recipe
+        Spec mode and recipe mode are both supported. Recipe
         mode falls back to a cone-BFS on `_s_coefficient` and uses
         ``HabiroElement.k_min()`` to filter by leading q-order;
         termination requires that ``_s_coefficient(γ)`` becomes
@@ -1350,33 +1349,28 @@ class BPSKAlgebra(RGKAlgebra):
                                  window (F_a's q-coefficients are
                                  palindromic).
             "orthonormality"  : `verify_orthonormality(a, b, K)` over
-                                 the window (Goal 2.1's
-                                 `I_{a,b} = δ_{a,b} + O(q)`).
+                                 the window
+                                 (`I_{a,b} = δ_{a,b} + O(q)`).
 
-        The intertwining identity `F(L_a) · S = S · ρ_QT(F(L_{σ(a)}))` (Goal
-        3.3) and the Schur transport identity (Goal 2.8) are *not*
+        The intertwining identity `F(L_a) · S = S · ρ_QT(F(L_{σ(a)}))`
+        and the Schur transport identity are *not*
         included.  Both involve subtleties around the
         truncation-window of `S` that the abstract `RGKAlgebra`
         verifiers (`verify_rg_twist`, `verify_rg_inner_product`)
         don't handle correctly: at any finite cutoff, the truncated
         `S_RG` produces boundary residuals that propagate as
         spurious low-q contributions through `Element` multiplication.
-        A BPS-specific Habiro-based intertwining verifier with proper
-        support analysis is a separate follow-up (planned).
+        Checking them would require an exact-arithmetic intertwining
+        verifier with proper support analysis, which is not provided.
 
         Flavoured theories
         ------------------
-        Historical note: before Plan 10 (canonical basis over Z, with
-        flavour shifts carried in full-Γ labels), `BPSKAlgebra.multiply`
-        used a section-rep + μ-shift convention that mismatched the
-        auxiliary's full-Γ-tuple labels, so `multiplicative` /
-        `orthonormality` could report `False` on correct mathematics
-        (now superseded).
-        Plan 10 resolved the mismatch: **all four checks are meaningful
+        With the canonical basis over Z and flavour shifts carried in
+        full-Γ labels, **all four checks are meaningful
         on flavoured theories, and a `False` result should be read as a
-        real failure.**  Re-validated 2026-06-10 on the flavoured
+        real failure.**  Validated on the flavoured
         hexagon and an A3-chain (both rank-1 `ker B`): all four checks
-        pass (finding A2).
+        pass.
 
         The `verify_orthonormality` check IS included here because
         `BPSKAlgebra.inner_product` is computed via the single-Habiro-
@@ -2029,7 +2023,7 @@ class BPSKAlgebra(RGKAlgebra):
         decomp = A_c.multiply(a_c, b_c)
 
         # Translate chart-c labels → root labels via reverse μ chain.
-        # `decomp` carries Z[q^±] LaurentPoly coefficients (Plan 10's
+        # `decomp` carries Z[q^±] LaurentPoly coefficients (the
         # Z-form); we keep them as-is during relabeling.
         out: dict[Vec, "LaurentPoly"] = {}
         for label_c, coeff in decomp.terms.items():
@@ -2233,10 +2227,10 @@ class BPSKAlgebra(RGKAlgebra):
             [F_a, F_b], self.cone_gens, self.lattice.rank,
             eff_cutoff,
             cone_witness=self._cone_witness,
-            # The K_joint linear joint-bound prune is RETIRED: it was a
+            # The K_joint linear joint-bound prune is disabled: it was a
             # linear lower bound on a *super-linear* assembled q-order, so it
             # under-included contributing charges on mixed-sign / sheared
-            # frames (audit A10 regression, #438).  Soundness now comes from
+            # frames.  Soundness comes instead from
             # the adaptive two-cutoff-stability shell (`_schur_index_stable`),
             # which widens `eff_cutoff` until the q^K result stabilises; here
             # `eff_cutoff` is that already-chosen shell.
@@ -2386,7 +2380,7 @@ class BPSKAlgebra(RGKAlgebra):
         if not isinstance(self._R, TrivialZPlusRing):
             raise TypeError("save_cache only supports TrivialZPlusRing algebras")
 
-        # Plan 10: Element coefficients are LaurentPoly (Z[q^±]).
+        # Element coefficients are LaurentPoly (Z[q^±]).
         def lp_to_dict(lp) -> dict:
             return {str(q): int(c) for q, c in lp._coeffs.items()}
 
@@ -2444,7 +2438,7 @@ class BPSKAlgebra(RGKAlgebra):
                 f"(sig {data.get('sig')!r} != {self._cache_signature()!r})"
             )
 
-        # Plan 10: Element is over Z[q^±] (LaurentPoly) — load
+        # Element is over Z[q^±] (LaurentPoly) — load
         # cached multiply results as plain LaurentPoly coefficients.
 
         def dict_to_lp(d: dict) -> QTLaurentPoly:

@@ -13,7 +13,7 @@ identity gives
     [m]_q * [n]_q = sum_{i=0..min(m,n)-1} [|m - n| + 1 + 2i]_q,
 
 so {[n]_q} spans a commutative ring (the representation ring of U_q(sl_2)).
-This is exactly the structure of the F-coefficients in the BPS K-algebra:
+This is exactly the structure of the F-coefficients in the BPS K_𝖖-algebra realisation:
 each f_delta is palindromic, and palindromic stays palindromic under
 addition and (untwisted) multiplication.
 

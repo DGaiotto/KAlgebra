@@ -1,6 +1,6 @@
 """BPS-free elementary-trace generation for the su2u1-flavoured finite zoo
 (the [A₁,D_even] entries a1d4 / a1d6 / a1d8) — the **Gram/window** scaffold,
-and the precise diagnosis of why it is the hard (Plan-18) case.
+and the precise diagnosis of why this is the hard case.
 
 The coefficient ring is `R(SU(2)×U(1))` (basis `(n, k)`: SU(2) irrep n = 2·spin,
 U(1) charge k).  We work in the **rank-2 abelian Cartan** `(w₁, w₂)` — both
@@ -14,7 +14,7 @@ propagated additively through the window in `_window`).
 reduce every label to the single-mult-gen seeds via Layer 1 (`seed_reduction`),
 which *bakes in* ρ²-cyclicity and yields a clean q^{≤0}-triangular system the
 forward sweep solves.  For **su2u1 the Layer-1 reduction leaks**: the μ^δ
-cyclicity slide drops a unit (the Plan-18 leak), so `seed_reduction` does **not**
+cyclicity slide drops a unit, so `seed_reduction` does **not**
 reduce to the single-mult-gen seeds (it leaves multi-gen monomials like
 `((1,2),)` irreducible) — i.e. the "seeds" are not elementary.  This module
 therefore builds the orthonormality system from the *raw* structure constants
@@ -22,18 +22,19 @@ therefore builds the orthonormality system from the *raw* structure constants
 unknown, `_window` BFS), so no reduction/leak — `I_{a,b}=μ₂^{δ(a)}·Σ_c C^c·T_c
 =δ_{a,b}+O(𝖖)`.
 
-**Current status — honest-fail.**  Orthonormality-only over the raw window,
-solved by the seed-triangular forward `_sweep`, is **insufficient**: window
-labels whose structure constants have non-negative q-reach are never pinned by
-the q^{≤0} closure, and the per-order frontier sweep is not triangular on the
-raw window (it reports a false inconsistency at q³ on a1d4).  Closing su2u1
-needs the **full constructive `trace_uniqueness` system** — orthonormality
-**plus** ρ²-cyclicity rows, solved by a **per-order GLOBAL** (sparse exact)
-solve carrying the deeper canonicals as unknowns — or the **Plan-18 Z-form**
+**This path raises rather than silently degrading.**  Orthonormality-only
+over the raw window, solved by the seed-triangular forward `_sweep`, is
+**insufficient**: window labels whose structure constants have non-negative
+q-reach are never pinned by the q^{≤0} closure, and the per-order frontier
+sweep is not triangular on the raw window (it reports a false inconsistency
+at q³ on a1d4).  Closing su2u1 needs the **full constructive
+`trace_uniqueness` system** — orthonormality **plus** ρ²-cyclicity rows,
+solved by a **per-order GLOBAL** (sparse exact) solve carrying the deeper
+canonicals as unknowns — or a **flavour-in-labels (Z-form) encoding**
 that repairs the μ^δ leak so the seed reduction (and the fast forward sweep)
 becomes valid.  `generate_su2u1` raises `_BootstrapUnavailable` with this
 diagnosis; the window/δ-propagation/peel machinery here is the reusable
-scaffold for that follow-up.
+scaffold for such a solver.
 
 Per-entry: a1d4 `RHO_DELTA`=0; a1d6 nonzero `RHO_DELTA`; a1d8 lacks `RHO_DELTA`
 (compute via the e7 recipe) — all three gate on the solver above.
@@ -313,8 +314,8 @@ def generate_su2u1(short_id: str, K: int, *, margin: int = 2, rounds: int = 3,
             f"(constructive trace_uniqueness), not the seed-triangular forward "
             f"sweep: for su2u1 the Layer-1 μ^δ slide leaks, so the single-mult-"
             f"gen seeds are not elementary and the deeper canonicals must be "
-            f"carried as unknowns with cyclicity. Plan-18 Z-form or the full "
-            f"Gram solve required")
+            f"carried as unknowns with cyclicity. A flavour-in-labels (Z-form) "
+            f"encoding or the full Gram solve is required")
 
     mg_pos = {pos[s]: s[0][0] for s in mg}
     unreached = [mg_pos[j] for j in mg_pos

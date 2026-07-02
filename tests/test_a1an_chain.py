@@ -7,10 +7,10 @@ A-type Argyres–Douglas RG chain, both legs pure exact-FS `RGKAlgebra`s:
     leg 2   u(1)-gauged [A₁, A_{2k+1}] ──▶  [A₁, A_{2k}] ⊗ QT[Z²]
             (U1A1AoddToEvenQTRGKAlgebra)    (= A1A2kKAlg(k) ⊗ quantum torus)
 
-This package (Step 3, RGKAlgebra) **depends on** Step 1 (KAlgebra: the core
+The RG layer (Step 3, RGKAlgebra) **depends on** Step 1 (KAlgebra: the core
 contract + `quantum_torus_kalgebra` + `tensor_kalgebra`) and Step 2
-(ConeKAlgebra: the cone auxiliaries `A1A2kKAlg`, `U1A1AoddKAlg`) — stages are a
-non-exclusive union, so the cone auxiliaries are imported, not duplicated.
+(ConeKAlgebra: the cone auxiliaries `A1A2kKAlg`, `U1A1AoddKAlg`) — the cone
+auxiliaries are imported, not duplicated.
 
 For each leg: RG solved from the discovery relation by the generic engine, the
 vacuum Schur index reproducing the standalone cone presentation, truncation

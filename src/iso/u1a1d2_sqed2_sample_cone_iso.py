@@ -6,9 +6,9 @@ A **certified, engine-free** ``KAlgebraIso`` identifying two presentations
 of SQED₂ = [A₁, D₂] = U(1) gauge + two charged hypers = ``U_𝖖(𝔰𝔩₂)``:
 
   * the **cone** presentation  ``U1A1D2ConeKAlgebra`` (a ``ConeKAlgebra``;
-    this Step-2 package), as the iso **source**, and
+    ``src/cone``), as the iso **source**, and
   * the **direct sample** presentation ``SQED2SampleKAlgebra``
-    (Step-1, ``src/samples``), as the iso **target**.
+    (``src/samples``), as the iso **target**.
 
 This is the SQED₂ companion to the pentagon / A1A1 sample↔cone isos.  The
 two presentations are the **same algebra** under a simple **relabeling
@@ -25,7 +25,7 @@ with the SU(2) spin ``k`` identical on both sides and the coefficient
 coefficient-1 relabeling).  Both presentations share the same ``ρ``
 (Lusztig's braid) and the same ``SU2ZPlusRing`` coefficient ring, and
 their two ``multiply`` engines (the cone's generic cone-monomial reducer
-— de-risked to reproduce ``U_𝖖(𝔰𝔩₂)`` exactly — versus the sample's PBW
+— which reproduces ``U_𝖖(𝔰𝔩₂)`` exactly — versus the sample's PBW
 straightener ``_uqsl2_multiply``) and two ``trace`` routes (the cone's
 spine-free delegation versus the sample's direct ``[x^n] G(x,μ)``) agree
 term by term, which is exactly what ``KAlgebraIso.verify_all`` certifies.
@@ -33,13 +33,13 @@ term by term, which is exactly what ``KAlgebraIso.verify_all`` certifies.
 Both presentations are *closed-form* and neither imports any realisation
 spine (no ``rgkalgebra`` / ``bps_kalgebra`` / quantum-torus backend).  In
 particular ``U1A1D2ConeKAlgebra``'s ``m=0`` Cartan-sector Schur-index
-trace is delegated to the Step-1 ``SQED2SampleKAlgebra`` (the spine-free
+trace is delegated to ``SQED2SampleKAlgebra`` (the spine-free
 ``[x^n] G(x,μ)``).
 
 Imports
 -------
-This module imports ``kalgebra_iso`` and ``samples`` (Step-1: ``src/core`` /
-``src/samples``) and ``u1a1d2_cone_kalg`` (Step-2: ``src/cone``) by flat name.
+This module imports ``kalgebra_iso`` and ``samples`` (``src/core`` /
+``src/samples``) and ``u1a1d2_cone_kalg`` (``src/cone``) by flat name.
 ``run_tests.py`` / ``conftest.py`` put every ``src/<layer>/`` directory on the
 path, and the module bootstraps the path itself so it also imports standalone.
 """
@@ -59,9 +59,9 @@ for _root, _dirs, _ in os.walk(_SRC):
 
 from laurent_poly import LaurentPoly                               # shared substrate
 from kalgebra import Element                                       # shared substrate
-from kalgebra_iso import KAlgebraIso                               # Step-1 package
-from samples import SQED2SampleKAlgebra                            # Step-1 package
-from u1a1d2_cone_kalg import U1A1D2ConeKAlgebra                    # Step-2 package
+from kalgebra_iso import KAlgebraIso                               # src/core
+from samples import SQED2SampleKAlgebra                            # src/samples
+from u1a1d2_cone_kalg import U1A1D2ConeKAlgebra                    # src/cone
 
 _ONE = LaurentPoly.one()
 

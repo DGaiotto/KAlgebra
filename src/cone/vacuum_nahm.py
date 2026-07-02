@@ -8,14 +8,15 @@ class with the flavour exponents carried as coefficient-ring characters:
     Tr(1) = (q²;q²)_∞^g · Σ_{[η] ∈ Γ_g}  c([η]) · c([η]),
     c([η]) = Σ_{η' : sec(η') = sec(η)} s_{η'} · χ^{flav(η')}.
 
-Every ingredient is spine-free — ``nahm_local`` (the exact Habiro ``s_γ``),
-``snf_kernel`` (the gauge/flavour split of the antisymmetric form), ``qpoch``
-(the prefactor) and ``lattice`` — so this reproduces the BPS-engine vacuum
-trace **without any BPS/RG machinery**, and is exact to arbitrary q-order
-(``K``).  The only theory-specific datum is the ordered BPS **spec** (the
-shortened spectrum), tabulated below; it is computed once from the embedded BPS
-quiver and frozen here as a literal (a *seed for the bootstrap*, not a truncated
-answer — the Nahm sum itself runs to any K).
+Every ingredient is spine-free — ``nahm_local`` (the ``s_γ``, exact in the
+(1-𝖖^{2n})-localized ring), ``snf_kernel`` (the gauge/flavour split of the
+antisymmetric form), ``qpoch`` (the prefactor) and ``lattice`` — so this
+reproduces the BPS-engine vacuum trace **without any BPS/RG machinery**, and
+is exact to arbitrary q-order (``K``).  The only theory-specific datum is the
+ordered BPS **spec** (the shortened spectrum), tabulated below; it was
+computed once from the embedded BPS quiver (a derivation not included in this
+repository) and frozen here as a literal (a *seed for the bootstrap*, not a
+truncated answer — the Nahm sum itself runs to any K).
 
 This is the single input the spine-free orthonormality bootstrap
 (``trace_uniqueness_proofs`` + the per-flavour drivers) needs: every other

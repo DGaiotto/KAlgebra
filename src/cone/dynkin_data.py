@@ -1,8 +1,7 @@
 """Per-factor Dynkin data for simply-laced ADE types.
 
-Self-contained copy of the (rank, Coxeter number, Dynkin edges) lookup
-that ``restructuring/`` needs to be independent of the repo-root
-``pure_ade.py`` for its core lattice/algebra computations.
+Self-contained (rank, Coxeter number, Dynkin edges) lookup for
+lattice/algebra computations over ADE Dynkin types.
 
 Bourbaki numbering, 0-indexed.
 """

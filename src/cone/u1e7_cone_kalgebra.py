@@ -3,16 +3,16 @@ u1e7_cone_kalgebra.py
 =====================
 
 `U1E7ConeKAlgebra` — the u(1)-gauged E7 algebra as a **standalone QT-cone
-ConeKAlgebra**, built once from the `U1E7GaugedRG` RG-flow oracle (no engine at
-runtime once the tables are frozen).  Rebuilt per the spine-free
-QTCone-from-RG recipe; the earlier explicit-`(c0,c1)`
-construction (#589) is superseded.
+ConeKAlgebra**, built once from an RG-flow oracle (`U1E7GaugedRG`, a
+derivation **not included in this repository**); no engine at runtime — the
+frozen tables (`u1e7_cone_tables.pkl`, `u1e7_rho_tables.pkl`) are loaded
+instead, following the spine-free QTCone-from-RG recipe.
 
 Structure (= the recipe):
   * **rank-1 torus** = the gauge leg `E = X_{(0,1)}` (Laurent).  The magnetic
     leg `X_{(1,0)}` is **not** a torus direction; magnetic charge is carried by
-    the **dyonic chords** (`u1e7_cone_derivation.select_chords`: 182 chords,
-    `c0 ∈ {-3..3}`).
+    the **dyonic chords** (182 chords, `c0 ∈ {-3..3}`, selected by a
+    chord-selection derivation not included in this repository).
   * **cones** = the q-commuting cliques of the chords + `E` (built fresh; 2508).
   * **factoring** (`to_cone_label`): chord-atoms cover the A6 letters (magnetic
     `c0` matched exactly), the residual `c0` is supplied by **monopole atoms**
@@ -40,8 +40,10 @@ from zplus_ring import TrivialZPlusRing, ZPlusRing, RPowerSeries, RElement
 from cone_data import FiniteConeData, Cone
 from cone_kalgebra import ConeKAlgebra
 # NOTE: `u1e7_gauged_rg` (the RG-flow oracle) and `u1e7_cone_derivation` are
-# imported LAZILY (inside the build / oracle paths only) so the frozen,
-# spine-free release never touches the realisation engine.
+# derivation modules not included in this repository; they are imported LAZILY
+# (inside the build / oracle paths only, which run where those derivations are
+# available) so the frozen, spine-free runtime never touches a realisation
+# engine.
 
 
 def _lp(c) -> LaurentPoly:
@@ -60,7 +62,7 @@ class U1E7ConeData(FiniteConeData):
     """QT-cone data for u(1)-gauged E7 over the trivial ring; rank-1 torus on the
     gauge leg `E = X_{(0,1)}`, magnetic carried by dyonic chords."""
 
-    def __init__(self, oracle: U1E7GaugedRG, use_frozen: bool = True) -> None:
+    def __init__(self, oracle, use_frozen: bool = True) -> None:
         self._R = TrivialZPlusRing()
         if use_frozen and self._load_frozen():
             return
@@ -143,7 +145,7 @@ class U1E7ConeData(FiniteConeData):
         self._cone_chord_atoms: dict = {
             cone: [a for a in cone if a[0]] for cone in self._cones}
 
-    # ---- freeze / load (spine-free release) ------------------------------
+    # ---- freeze / load (spine-free runtime) ------------------------------
 
     _FROZEN_KEYS = ("_atoms", "_sig", "_mono", "_E", "_torus_gens",
                     "_ai_atoms", "_nb", "_cones", "_cone_by_type",
@@ -371,7 +373,8 @@ class U1E7ConeData(FiniteConeData):
 
 class U1E7ConeKAlgebra(ConeKAlgebra):
     """u(1)-gauged E7 as a standalone QT-cone ConeKAlgebra (rank-1 gauge torus),
-    built from the U1E7GaugedRG oracle (frozen tables → spine-free)."""
+    built from an RG-flow oracle not included in this repository (frozen
+    tables → spine-free)."""
 
     def __init__(self, use_frozen: bool = True):
         self._R = TrivialZPlusRing()

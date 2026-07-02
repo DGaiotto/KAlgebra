@@ -5,10 +5,10 @@ u1square_sample_cone_iso.py
 A **certified, engine-free** ``KAlgebraIso`` identifying two presentations
 of SQED N_f=1 = the U(1)-gauged ``[A_1, A_1]`` Argyres-Douglas theory:
 
-  * the **cone** presentation  ``U1SquareKAlg`` (a ``ConeKAlgebra``; this
-    Step-2 package), as the iso **source**, and
+  * the **cone** presentation  ``U1SquareKAlg`` (a ``ConeKAlgebra``;
+    ``src/cone``), as the iso **source**, and
   * the **direct sample** presentation ``SQED1SampleKAlgebra``
-    (Step-1, ``src/samples``), as the iso **target**.
+    (``src/samples``), as the iso **target**.
 
 This is the SQED1 ↔ U1Square companion to the pentagon
 ``KAlgebraIso`` (``pentagon_sample_cone_iso.py``).  Unlike the pentagon
@@ -20,20 +20,21 @@ the gauge-monopole power), both have ``ρ(m,n) = (−m, −n − max(m,0))``, an
 both are unflavoured (``TrivialZPlusRing``).  The two ``multiply`` engines
 (``U1SquareKAlg``'s generic cone-monomial reducer vs the sample's direct
 ``u_±/v`` straightener ``_sqed1_ureduce``) and the two traces (the cone's
-ρ²-cyclicity Layer-1 reduction vs the sample's Nahm-sum index) **agree term
-by term**, so the correspondence is the **identity on labels** and the
-mathematical content is the certificate that the two engines coincide.
+ρ²-twisted-cyclic reduction to elementary traces vs the sample's Nahm-sum
+index) **agree term by term**, so the correspondence is the **identity on
+labels** and the mathematical content is the certificate that the two
+engines coincide.
 
 Both presentations are *closed-form* and neither imports any realisation
 spine (no ``rgkalgebra`` / ``bps_kalgebra`` / quantum-torus backend).  In
-particular ``U1SquareKAlg``'s ``m=0`` Schur-index seed is delegated to the
-Step-1 ``SQED1SampleKAlgebra`` (the spine-free Nahm sum), *not* the
-source-repo ``Sqed1KAlg`` (which drags in the quantum-torus engine).
+particular ``U1SquareKAlg``'s ``m=0`` Schur-index seed is delegated to
+``SQED1SampleKAlgebra`` (the spine-free Nahm sum), not to a quantum-torus
+backend.
 
 Imports
 -------
-This module imports ``kalgebra_iso`` and ``samples`` (Step-1: ``src/core`` /
-``src/samples``) and ``u1_square_kalg`` (Step-2: ``src/cone``) by flat name.
+This module imports ``kalgebra_iso`` and ``samples`` (``src/core`` /
+``src/samples``) and ``u1_square_kalg`` (``src/cone``) by flat name.
 ``run_tests.py`` / ``conftest.py`` put every ``src/<layer>/`` directory on the
 path, and the module bootstraps the path itself so it also imports standalone.
 """
@@ -51,9 +52,9 @@ for _root, _dirs, _ in os.walk(_SRC):
     if _root not in sys.path:
         sys.path.insert(0, _root)
 
-from kalgebra_iso import KAlgebraIso                               # Step-1 package
-from samples import SQED1SampleKAlgebra                            # Step-1 package
-from u1_square_kalg import U1SquareKAlg                            # Step-2 package
+from kalgebra_iso import KAlgebraIso                               # src/core
+from samples import SQED1SampleKAlgebra                            # src/samples
+from u1_square_kalg import U1SquareKAlg                            # src/cone
 
 
 def build_u1square_sqed1_sample_cone_iso(name: str | None = None) -> KAlgebraIso:

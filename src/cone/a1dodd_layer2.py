@@ -134,7 +134,8 @@ def ap_to_idx(k: int, a: int, p: int) -> int:
 # Each recipe term: (builder, s, q-shift, χ₁-dress?, coeff).
 
 def _recipe(k: int, a: int, p: int):
-    """Closed-form κ-block recipe for seed (a, p), or None if not yet pinned.
+    """Closed-form κ-block recipe for seed (a, p), or None if the recipe
+    is not pinned.
 
     VALIDATED (vs a1d5 / a1d7 and the BPS D-quiver seed traces):
       * p = 1, all `a` (the clean `−Σ_s κ_s^anti[−a]` form);
@@ -234,16 +235,17 @@ def vacuum_trace(k: int, K: int) -> dict:
 
 
 def vacuum_trace_pe(k: int, K: int) -> dict:
-    """Tr(1) via the **plethystic-exponential closed form** of Pan–Yang
-    (arXiv, "Exact non-Lagrangian Schur index in closed form", eq. 47):
+    """Tr(1) via a **known plethystic-exponential closed form** for the
+    non-Lagrangian Schur index:
 
         I_{D_{2k+3}(sl2,[1^2])} = PE[ (q − q^p)/((1−q)(1−q^p)) · χ_adj(z) ],
         p = 2k+3,  χ_adj = z² + 1 + z⁻²  (su(2) spin-1) .
 
-    [A_1, D_{2k+3}] *is* their D_{2k+3}(sl2,[1^2]) (VOA su(2)_{−(4k+4)/(2k+3)}), so
-    this equals the vacuum Schur index = `vacuum_trace`.  Their q = our 𝖖² (we
-    grade in 𝖖, q_paper = 𝖖²), so the result is returned in 𝖖-powers (= 2·q_paper)
-    to be directly comparable; output `{𝖖-power: {SU(2) hw n: int}}`.
+    [A_1, D_{2k+3}] *is* D_{2k+3}(sl2,[1^2]) (VOA su(2)_{−(4k+4)/(2k+3)}), so
+    this equals the vacuum Schur index = `vacuum_trace`.  The conventional
+    Schur variable q_paper is our 𝖖² (we grade in 𝖖), so the result is
+    returned in 𝖖-powers (= 2·q_paper) to be directly comparable; output
+    `{𝖖-power: {SU(2) hw n: int}}`.
 
     Unlike the σ_j/Kac–Wakimoto `vacuum_trace`, this is a trivial general-k closed
     form valid for ALL k (a useful cross-check, and the fast path past k=2).

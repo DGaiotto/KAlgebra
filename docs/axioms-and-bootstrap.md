@@ -98,9 +98,9 @@ The `ConeKAlgebra` realisations (`src/cone/`) carry out this determination:
 
 The bootstrap proceeds order by order with no truncation, so the traces are exact
 and extend to any `𝖖^K`; `test_cones.py` checks this by continuing past any fixed
-order. Run with only this package on the import path, a passing `test_cones.py`
-exhibits the traces as consequences of the axioms rather than of an external
-(BPS- or RG-based) construction.
+order. Because neither the reduction nor the bootstrap consults a BPS or RG
+construction, a passing `test_cones.py` exhibits the traces as consequences of
+the axioms rather than of an external realisation.
 
 ## Two presentations of one algebra
 

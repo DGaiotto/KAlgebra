@@ -18,7 +18,7 @@ s=1,2,3 (vs D₅'s two):
 
 κ's built from the σⱼ(u=2,v=7,s) numerator formula (shared with a1d5_layer2);
 `[n]` = 𝖖ⁿ grading shift; χ₁· = ⊗ SU(2) doublet.  Validated to q¹⁵ against the
-reliable su2 bootstrap (`finite_kalgebras.su2_reliable`).
+reliable su2 orthonormality bootstrap (`su2_bootstrap`).
 """
 from __future__ import annotations
 

@@ -9,10 +9,11 @@ Mirrors `SU2Nf1KAlgebra` (N_f=1) lifted U(1)_F → Spin(4):
     flavour weight).
   * multiply: closed-form spine-free reducer (`su2_nf2_h_multiply`), the
     Spin(4) lift of N_f=1's W_1-walk `h_mul_h` + matter Clebsch; validated
-    exhaustively against the BPS oracle (`su2_nf2_kalgebra`).
+    exhaustively against a BPS-quiver oracle (a derivation not included in
+    this repository).
   * ρ: `ρ(H_n)=H_{n-2}` (shift 4-N_f), flavour weight negated; w_1 fixed.
   * trace: Wilson/identity via the closed-form Schur F (`su2_nf2_h_trace`);
-    magnetic seeds via the orthonormality bootstrap (in progress).
+    magnetic seeds via the orthonormality bootstrap.
 
 NO BPS / RG / quantum-torus engine on any path.
 """

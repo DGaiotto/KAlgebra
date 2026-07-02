@@ -1,9 +1,10 @@
-"""`Grading` — a `Γ_RG`-grading on a `KAlgebra`, as sidecar data (Plan 20).
+"""`Grading` — a `Γ_RG`-grading on a `KAlgebra`, as sidecar data.
 
 A `Grading` equips an *auxiliary* (IR) `KAlgebra` with a charge in a
 lattice `Γ_RG` on each canonical-basis label, additive under
-multiplication, plus a user-supplied **height** functional
-`h : Γ_RG → Z` (physically the central charge).
+multiplication, plus a supplied **height** functional
+`h : Γ_RG → Z` — an integral height functional (a linearized proxy for
+`Im Z_γ`, the physical central charge).
 
 Design decision: the grading is **sidecar
 data, NOT a `KAlgebra` subclass**.  It is *flow-relative* — one algebra
@@ -55,8 +56,9 @@ class Grading:
         `Γ_RG`.  Must be additive under the auxiliary's `multiply`
         (checked by `verify_additive`).
     height
-        Coefficient vector of the height functional `h : Γ_RG → Z`
-        (the physical central charge).  `h(p) = Σ_i height[i]·p[i]`.
+        Coefficient vector of the integral height functional
+        `h : Γ_RG → Z` (a linearized proxy for `Im Z_γ`, the physical
+        central charge).  `h(p) = Σ_i height[i]·p[i]`.
         Must be strictly positive on every nonzero appearing charge
         (height-positivity).
     cone_gens

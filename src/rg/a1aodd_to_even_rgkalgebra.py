@@ -3,8 +3,8 @@ a1aodd_to_even_rgkalgebra.py
 ============================
 
 `A1AoddToEvenRGKAlgebra(k)` — the odd Argyres–Douglas family
-`A_𝖖([A_1, A_{2k+1}])` as a **new-contract `RGKAlgebra`** (Plan 20), the
-odd analogue of `A1A2kRGKAlgebra` (the even prototype).  A concrete RG
+`A_𝖖([A_1, A_{2k+1}])` as an **`RGKAlgebra`**, the
+odd analogue of the even family's flow.  A concrete RG
 flow supplies only `auxiliary()` + `grading()` + `_s_rg_component()`
 (and the identity `apex`); the whole `KAlgebra` API — `RG` (via the
 exact per-charge solver `graded_rg_solver.solve_rg_exact`), `multiply`,
@@ -26,7 +26,7 @@ it adjoins as a spectator **U(1) flavour**:
 — the even algebra flavour-rebased by the `KAlgebra.add_flavour` tool
 (`flavoured_kalgebra.AddFlavourKAlgebra`), labels `(chord, (m,))` with
 `m` the central μ-charge (= the γ₁-charge of the BPS state).  (Contrast
-the even `A1A2kRGKAlgebra`, where the dropped *pair* (γ₁,γ₂) is a
+the even family's flow, where the dropped *pair* (γ₁,γ₂) is a
 symplectic `QT(Z₂)` tensor factor; here the single dropped terminal is
 central, so a flavour, not a torus.)
 
@@ -70,17 +70,9 @@ flavour current is the SU(2) adjoint `χ_1 = μ + 1 + μ⁻¹` (the dropped
 node's U(1) ⊂ the enhanced flavour SU(2)).  Because `_s_rg_component`
 gives each graded piece exactly and the support walk is per-output-label,
 the trace is truncation-safe to any `K` (no `L^{2·cutoff}` blow-up).
-*(This used to carry a hand-rolled μ-graded `rg_s_graded`/`inner_product`/
-`trace` override, written before the nested-aux exact-FS engine (#666);
-the generic engine now reproduces it term-for-term and faster, so the
-override has been removed — the class is pure.)*
-
-Status
-------
-Prototype companion to `A1A2kRGKAlgebra`; the odd member of the
-`a1_odd → a1_even` programme.  Replaces the earlier `A1OddToEvenRGKAlgebra`
-(`a1aodd_rgkalgebra.py`), which used the now-superseded
-`rg_flow_solver.solve_RG` (q-truncated, produced garbage on the hexagon).
+No hand-rolled μ-graded trace override is needed: the generic nested-aux
+exact-FS engine reproduces the μ-refined index term-for-term, so the
+class supplies only the flow data.
 """
 from __future__ import annotations
 
@@ -98,7 +90,7 @@ from a1a2k_kalg import A1A2kKAlg
 
 def _e_q_coeff(m: int) -> HabiroElement:
     """`c_m = (−q)^m / (q²;q²)_m` — the m-th coefficient of `E_𝖖(X)` for a
-    self-pairing-free generator `X` (⟨γ₁,γ₁⟩ = 0).  Habiro form:
+    self-pairing-free generator `X` (⟨γ₁,γ₁⟩ = 0).  As a `HabiroElement`:
     numerator `(−1)^m q^m`, denominator `∏_{j=1}^{m}(1 − q^{2j})`."""
     num = LaurentPoly({m: (-1) ** m})
     denom = {j: 1 for j in range(1, m + 1)}
@@ -106,7 +98,7 @@ def _e_q_coeff(m: int) -> HabiroElement:
 
 
 class A1AoddToEvenRGKAlgebra(RGKAlgebra):
-    """`[A_1, A_{2k+1}]` as a directional new-contract `RGKAlgebra` wrapping
+    """`[A_1, A_{2k+1}]` as a directional `RGKAlgebra` wrapping
     the flavour-rebased even algebra `A1A2kKAlg(k).add_flavour(1)`, with
     `RG` from the exact per-charge solver and the **generic exact-FS**
     μ-refined trace (no override).  See the module docstring."""
@@ -144,7 +136,7 @@ class A1AoddToEvenRGKAlgebra(RGKAlgebra):
         """`[S_RG]_{(m,)}` — exact, finite, vanishing off the cone.
 
         `S_RG = E_𝖖(μ·L)` ⇒ degree-`m` part is the single dressed label
-        `(L^m, (m,))` with Habiro coefficient `c_m`; degree 0 is the
+        `(L^m, (m,))` with coefficient `c_m`; degree 0 is the
         identity, negative degree empty."""
         (m,) = p
         if m < 0:

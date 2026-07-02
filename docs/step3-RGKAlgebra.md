@@ -1,13 +1,14 @@
 # RGKAlgebra — the live RG-flow engine for `A_𝖖[T]`
 
-**Step 3** of the modular release. Where Step 2 (`ConeKAlgebra`, `src/cone/`)
-ships *frozen* closed-form reductions, this layer ships the **engine itself**: an
+**Step 3**, the RG layer of this repository (`src/rg/`). Where Step 2
+(`ConeKAlgebra`, `src/cone/`) provides *frozen* closed-form reductions, this
+layer provides the **engine itself**: an
 `RGKAlgebra` is *defined* by an RG flow to a graded auxiliary, and its entire
 `KAlgebra` API — `RG`, `multiply`, `ρ`/`ρ⁻¹`, `trace`, `inner_product` — is
 **computed live** from the flow data. Pure Python 3, no third-party dependencies;
 every module imports by flat name.
 
-**Coverage.** The shipped flows span the rank-1 Argyres–Douglas landscape both
+**Coverage.** The flows included span the rank-1 Argyres–Douglas landscape both
 ways — A-type (`A1Aeven→U1A1Aodd` chain; ungauged `A1Aodd`), D-type
 (`A1D3Sqed2`/`U1A1DevenSqed` gauged chain; ungauged `A1Deven`), E-type (E₆, E₈,
 gauged `U1A1E7`; ungauged E₇) — together with the SU(2) **Lagrangian gauge**
@@ -15,7 +16,7 @@ corner (SU(2)+N_f, SU(2)×SU(2) bifund, SU(2)ⁿ quiver), the **nested SU(2)-gau
 chain** (an `RGKAlgebra` whose auxiliary is itself an `RGKAlgebra`, composing down
 to pure SU(2)), and "wild" formal flows that exercise the engine past any
 realising theory. Eight clean-room self-tests, all spine-free. (Higher-rank SU(N)
-gauge theories — built via the spec-free matter recursion — are future work.)
+gauge theories are not included.)
 
 ## The layering (depends on Step 1, and Step 2 for the cone auxiliaries)
 
@@ -26,9 +27,10 @@ E-type, fork, over-pure and wild flows additionally use the cone auxiliaries fro
 Step 2 (`src/cone/`: e.g. `a1a2k_kalg`, `u1a1aodd_kalg`, `a1d3_kalg`,
 `a1dodd_kalg`, `pure_su2_h_cone_data` + `pure_su2_h_trace_analytic`). Stages are a
 **non-exclusive union** — Step 3 *depends on* the earlier layers and duplicates
-nothing. The Habiro-ring / lattice / q-number helpers (`habiro`, `lattice`,
-`q_number_poly`) are shared with Step 2 and live in `src/cone/`; they are imported
-by flat name, not copied into `src/rg/`.
+nothing. The exact arithmetic in the localization `Z[𝖖^±][(1−𝖖^{2n})^{−1}, n≥1]`
+(the `habiro` module — the name is historical) and the lattice / q-number helpers
+(`lattice`, `q_number_poly`) are shared with Step 2 and live in `src/cone/`; they
+are imported by flat name, not copied into `src/rg/`.
 
 `conftest.py` (for `pytest`) and `run_tests.py` put every `src/<layer>/` directory
 on `sys.path`, so the flat imports resolve across layers without any
@@ -41,8 +43,8 @@ A concrete flow supplies only its **defining data**:
 - `auxiliary()` — the IR `KAlgebra` (the flow target);
 - `grading()` — a `Γ_RG`-grading of the auxiliary (`grading.py`): a charge
   `deg(L) ∈ Γ_RG` on each auxiliary label, **additive** under `multiply`, plus a
-  height functional `h` (the physical central charge) strictly positive on the
-  appearing charges (⇒ a pointed cone);
+  height functional `h` (an integral proxy for the physical central charge
+  `Im Z_γ`) strictly positive on the appearing charges (⇒ a pointed cone);
 - the spectrum generator `S_RG`, in two contracts — `_s_rg_component(p)` (the
   *exact* graded component `[S_RG]_p`) and `rg_generator(cutoff)` (the q-order
   window);
@@ -51,7 +53,8 @@ A concrete flow supplies only its **defining data**:
 Everything else is **derived generically** (`rgkalgebra.py`):
 
 - `RG(a)` is **solved** from the discovery relation `RG(a)·S_RG = L_{apex(a)} +
-  O(𝖖)` (`graded_rg_solver.py`, exact Habiro arithmetic) — not hand-coded;
+  O(𝖖)` (`graded_rg_solver.py`, exact arithmetic in the `(1−𝖖^{2n})`-localized
+  ring) — not hand-coded;
 - `multiply(a,b) = from_ir_image(RG(a)·_aux RG(b))`;
 - `ρ`/`ρ⁻¹` from the same solve / its mirror;
 - `trace` / `inner_product` by the **bilinear pairing** (see below).
@@ -82,6 +85,9 @@ each component is fetched whole and expanded to `𝖖^K` **last** — exact to a
 | `PentagonSquareSampleRGKAlgebra` | pentagon `K_𝖖([A₁,A₂])` (Yang–Lee) | SQED₁ (`SQED1SampleKAlgebra`) | `m` (magnetic charge) | `E_𝖖(u₋)` | the **non-torus** corner (`u₊u₋ = 1+𝖖v`) |
 | `SQEDNfRGKAlgebra(N_f)` | SQED_{N_f} (U(1)+N_f hypers, SU(N_f) flavour) | Z² QT `.add_flavour(SUNZPlusRing(N_f))` | `b` | `∏_i E_𝖖(μ_i X_{0,1}) → χ_{SU(N_f)}` | the **flavoured / nested-aux** corner |
 
+(Throughout, `E_𝖖(x) = (−𝖖x; 𝖖²)_∞^{−1}` is the quantum-dilogarithm factor from
+which every `S_RG` is built.)
+
 All three are **pure** `RGKAlgebra`s — no operation is overridden to a closed
 form; `RG` is solved by the engine, not hard-coded. Each is certified by a
 `KAlgebraIso` to the direct Step-1 sample (`SQED1SampleKAlgebra` /
@@ -91,13 +97,15 @@ non-torus case: its IR is a gauge theory, so `RG(a)·S_RG` spreads into `v`-band
 that the engine's multiply-based support walk discovers automatically. `SQED_{N_f}`
 is the **flavoured** case: the auxiliary has nested `((a,b), χ)` labels and the
 flavour fuses by Clebsch–Gordan — the trace is the nested-aux exact-FS bilinear
-pairing and the multiply takes the engine's non-additive-flavour branch.
+pairing ("exact-FS" = the exact per-label evaluation of the `RG(a)·S_RG`
+products, truncated to `𝖖^K` only at the very end) and the multiply takes the
+engine's non-additive-flavour branch.
 `SQEDNfRGKAlgebra(1)` = SQED₁, `SQEDNfRGKAlgebra(2)` = SQED₂ (the SU(N_f)-character
 content of `∏_i E_𝖖(μ_i x)` is the general-purpose `sunf_dilog` tool).
 
 ## The A-type Argyres–Douglas chain (`A1Aeven / U1A1Aodd`)
 
-Beyond the three single-flow references, Step 3 ships a **two-leg RG chain**
+Beyond the three single-flow references, Step 3 includes a **two-leg RG chain**
 walking the A-type AD theories down through the gauged-odd theory. Both legs are
 **pure** exact-FS `RGKAlgebra`s (RG solved, no override), with spine-free
 auxiliaries drawn from Steps 1 + 2:
@@ -129,14 +137,15 @@ no `add_flavour` spectator:
 
 Both pure exact-FS. A1D3Sqed2's vacuum reproduces the standalone `A1D3KAlg`
 Schur index exactly (q² = the SU(2) adjoint χ₂); U1A1DevenSqed's vacuum is the
-gauged-`[A₁,D₄]` index `1 − q² + …` (q² = −1 + χ₂, the SU(2) current minus the
-gauged-U(1) subtraction). Self-test: `tests/test_dn_chain.py`. (The A1D3→SQED₂
+gauged-`[A₁,D₄]` index: the SU(2)-refined series is `1 + (χ₂ − 1)q² + …` (the
+SU(2) current minus the gauged-U(1) subtraction), whose identity-character
+summand is `1 − q² + …`. Self-test: `tests/test_dn_chain.py`. (The A1D3→SQED₂
 single-**singlet** drop is the converse of the SQED₁⊗SU(2) doublet drop — same UV
 theory, two distinct IR flows.)
 
 ## The exceptional E-type flows (`[A₁, E₆]`, `[A₁, E₈]`)
 
-The flavourless exceptional AD theories ship as the E-series analogues of the
+The flavourless exceptional AD theories are realised as the E-series analogues of the
 A-chain's leg 1 — a single-node drop with `S_RG = E_𝖖(L)`, but `L` the **central
 diameter** chord (vs the A-type's end short chord; *which chord is dropped* is the
 whole A/E distinction):
@@ -149,13 +158,14 @@ whole A/E distinction):
 
 All three are pure exact-FS `RGKAlgebra`s (RG solved, no override) with spine-free
 auxiliaries. E₆/E₈ are flavourless (the gauged-odd cone directly, no
-`add_flavour`): their vacua have **no q² term** (as required), agree to q⁸ and
-diverge at q¹⁰ (E₆: 3, E₈: 4 — distinct theories). E₇ is shipped via its
+`add_flavour`): their vacua have **no q² term** (as required); computed with this
+engine to q¹⁰, they agree to q⁸ and diverge at q¹⁰ (E₆: 3, E₈: 4 — distinct
+theories), while the self-test pins the series to q⁶. E₇ is presented via its
 **u(1)-gauged** form: the ungauged `[A₁,E₇] → [A₁,A₆] ⊕ U(1)` carries the U(1) as
 an `add_flavour(1)` spectator with a slow refined trace, so gauging the U(1) (one
 leg of `QT(Z²)`, dressing the interior node-4 chord) puts it on the same exact-FS
 engine — vacuum `1 − q² + q⁶ + … ` (q² = −1, the gauged-U(1) subtraction).
-Self-test: `tests/test_e_type.py`. (E₇ is *also* shipped in its **ungauged**
+Self-test: `tests/test_e_type.py`. (E₇ is *also* presented in its **ungauged**
 U(1)-flavoured form below — both presentations are pure exact-FS.)
 
 ## The ungauged `add_flavour` fork (`A1Aodd`, `E₇`, `A1Deven`)
@@ -187,7 +197,7 @@ This is the **ungauged sibling of the D-type ladder**: the gauged even-D rung is
 
 ## The over-pure gauge-theory corner (Lagrangian SU(2) gauge theories)
 
-The first **Lagrangian gauge theories** in the release — built as RG flows over a
+The first **Lagrangian gauge theories** in this repository — built as RG flows over a
 *pure-gauge* core (the AD theories above flow to gauged/ungauged AD survivors;
 these flow to pure gauge theories, the matter integrated out):
 
@@ -197,13 +207,13 @@ these flow to pure gauge theories, the matter integrated out):
 Each matter block is the spectrum generator, peeled to pure-SU(2) Wilson
 characters and integrated out, with the matter's flavour fugacities carried as an
 `add_flavour(U(1)^…)` coefficient so the bilinear exact-FS trace is the
-**μ-refined** Schur index. `SU2NfOverPure`: `S_RG = ∏_i E_𝔮(μ_i v)E_𝔮(μ_i/v)`,
+**μ-refined** Schur index. `SU2NfOverPure`: `S_RG = ∏_i E_𝖖(μ_i v)E_𝖖(μ_i/v)`,
 flavour U(1)^{N_f} (the Cartan of SO(2N_f) — N_f=1 gives the U(1) current at q²,
 N_f=2 the SO(4) adjoint `2 + Σ μ_1^{±1}μ_2^{±1}` = 6).
 
 The bifundamental matter is the spectrum generator, integrated out:
 
-    S_RG = ∏_{ε₁,ε₂ ∈ {±}} E_𝔮(μ · v₁^{ε₁} v₂^{ε₂}),
+    S_RG = ∏_{ε₁,ε₂ ∈ {±}} E_𝖖(μ · v₁^{ε₁} v₂^{ε₂}),
 
 expanded over its four weights and peeled to SU(2)₁×SU(2)₂ characters
 `χ_{w₁}(v₁)χ_{w₂}(v₂) → F⁽¹⁾_{w₁}F⁽²⁾_{w₂}` (Wilson lines of each pure SU(2)).
@@ -217,7 +227,7 @@ composition — a bifundamental on each of the `n−1` links plus up to 2 end
 fundamentals — over `(pure SU(2)^⊗ⁿ).add_flavour(U(1)^L)`, `L=(n−1)+Nf1+Nfn`; n=2
 no-flavour *is* the bifund. Each link/end matter factor combines on its shared
 node by SU(2) Clebsch–Gordan. (n≥3 traces are correct but slow — the generic
-exact-FS over the n-fold tensor; a performance follow-up.)
+exact-FS pairing over the n-fold tensor.)
 
 Self-test: `tests/test_over_pure.py` (`SU2NfOverPure`, `SU2xSU2BifundOverPure`,
 and the `SU2LinearQuiverOverPure` n=2/n=3 construction).
@@ -236,7 +246,8 @@ A fully-nested RG chain showing an `RGKAlgebra`'s auxiliary may itself be an
   Wilson reached *through* the nested aux).
 
 All pure exact-FS over the (doubly-)nested aux. Entry 3's vacuum is
-`1 − q² − q⁴ + q¹² + 2q¹⁴` (a q⁶–q¹⁰ gap), BPS-oracle-validated through q¹⁴.
+`1 − q² − q⁴ + q¹² + 2q¹⁴` (a q⁶–q¹⁰ gap), computed with this engine to q¹⁴;
+the self-test pins the series to q⁸.
 Self-test: `tests/test_su2_gauged_chain.py`.
 
 ## "Wild" formal flows — the framework decoupled from physics
@@ -261,14 +272,15 @@ Self-test: `tests/test_wild.py`.
 
 Engine:
 - `rgkalgebra.py` — the `RGKAlgebra` contract + the full derived `KAlgebra` API
-  (the BPS/`rg_flow` JSON-serialization helpers are neutralized here — they need
-  the realisation engine, which is not part of this spine-free release);
+  (the BPS/`rg_flow` JSON-serialization helpers raise if called — they require
+  the BPS realisation layer, `src/bps/`, which this layer never imports);
 - `grading.py` — the `Γ_RG`-grading sidecar (charge + height + cone);
 - `graded_rg_solver.py` — the exact RG-discovery co-solver.
 
-(Exact Habiro-ring arithmetic `habiro.py`, palindromic 𝖖-number polynomials
-`q_number_poly.py`, and lattice / pointed-cone utilities `lattice.py` are shared
-with Step 2 and live in `src/cone/`; the RG layer imports them by flat name.)
+(Exact `(1−𝖖^{2n})`-localized-ring arithmetic `habiro.py`, palindromic 𝖖-number
+polynomials `q_number_poly.py`, and lattice / pointed-cone utilities `lattice.py`
+are shared with Step 2 and live in `src/cone/`; the RG layer imports them by
+flat name.)
 
 Reference flows:
 - `u1_square_rg.py` — `U1SquareRGKAlgebra` (torus corner);
@@ -297,7 +309,7 @@ Over-pure gauge theory (depends on Step 2's pure-SU(2) cone):
 - `su2_nf_over_pure.py` — `SU2NfOverPure` (SU(2)+N_f);
 - `su2su2_bifund_over_pure.py` — `SU2xSU2BifundOverPure` (SU(2)×SU(2)+bifund);
 - `su2_linear_quiver_over_pure.py` — `SU2LinearQuiverOverPure(n, Nf1, Nfn)`
-  (SU(2)ⁿ chain; n=2 = the bifund; n≥3 traces correct but slow — a perf follow-up).
+  (SU(2)ⁿ chain; n=2 = the bifund; n≥3 traces correct but slow).
 
 SU(2)-gauged chain (nested-aux — each rung's aux is the previous rung's flow):
 - `su2nf1_pure_su2_rgkalgebra.py` — `SU2Nf1PureSU2RGKAlgebra`;
@@ -318,26 +330,21 @@ wild formal flows).
 
 The whole `KAlgebra` API of every flow — structure constants, `ρ`, and the Schur
 index (trace) to any `𝖖`-order — is computed with **no realisation engine** (no
-`bps_kalgebra` / `rg_flow` / `lattice_torus` / `nahm_data` / `chart_graph` / …).
-Each self-test asserts that **no spine module is present in `sys.modules`** after
-the run, so a green run is a machine-checked proof of spine-freeness.
+`bps_kalgebra` / `rg_flow` / `chart_graph` / …). Seven of the eight self-tests
+(all but `test_rg_flows.py`) assert that **no spine module is present in
+`sys.modules`** after the run — a machine-checked spine-freeness certificate for
+those suites.
 
 ## Tests
 
 ```bash
-python3 run_tests.py        # the full gate (all three layers), from the repo root
+python3 run_tests.py        # the full gate (all four layers), from the repo root
 ```
 
 `run_tests.py` puts every `src/<layer>/` directory on `sys.path` and runs the
-Step-1/2 contract tests followed by the eight Step-3 RG self-tests. Each prints a
-`PASS` / `ALL … PASSED` line; `test_cones.py` (Step 2) is the slowest (a few
-minutes).
-
-## Reference
-
-F. Ambrosino, D. Gaiotto, *Renormalization Group Flow in Schur Quantization*,
-JHEP **02** (2026) 057, [arXiv:2503.16685](https://arxiv.org/abs/2503.16685)
-[hep-th], DOI:[10.1007/JHEP02(2026)057](https://doi.org/10.1007/JHEP02(2026)057).
+Step-1/2 contract tests followed by the eight Step-3 RG self-tests and the
+Step-4 BPS self-test. Each prints a `PASS` / `ALL … PASSED` line;
+`test_cones.py` (Step 2) is the slowest (a few minutes).
 
 ## License
 

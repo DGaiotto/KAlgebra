@@ -2,15 +2,16 @@
 u1a1deven_cone_build.py
 =======================
 
-Complete, **self-contained** cone tables for the U(1)-gauged `[A_1, D_{2k+2}]`
-(`U1A1DevenRGKAlgebra`), built from the *fast, BPS-free* RG-flow oracle
-(auxiliary = `A1A2k(k) ⊗ QT(Z²) ⊗ SU(2)`).
+Complete, **self-contained** cone tables for the U(1)-gauged `[A_1, D_{2k+2}]`,
+built from a *fast, BPS-free* RG-flow oracle (`U1A1DevenRGKAlgebra`,
+auxiliary = `A1A2k(k) ⊗ QT(Z²) ⊗ SU(2)`; a derivation not included in this
+repository — at runtime the frozen tables `u1a1deven_tables_k{k}.pkl` are
+loaded instead).
 
-This replaces the under-counting `atomic_gens` heuristic of
-`u1a1deven_cone_derivation.py` (its self-described "blind alley": deriving
-chords from A1A2k single-letter coordinates).  It instead follows the
-**construction the U(1)-gauged A-type uses** (`u1a1aodd_kalg.select_chords`),
-adapted to D-type per the user's recipe (2026-06-21):
+A naive generator heuristic (deriving chords from A1A2k single-letter
+coordinates) under-counts the rays.  The build instead follows the
+**construction the U(1)-gauged A-type uses**
+(`u1a1aodd_mult_table.select_chords`), adapted to D-type:
 
     rays = the monomial-RG canonical elements (seeds);
     cones = q-commuting cliques of those rays;
@@ -68,7 +69,8 @@ def _is_pure_x01(section):
 
 
 class DevenConeTables:
-    """Self-contained cone tables for `U1A1DevenRGKAlgebra(k)`."""
+    """Self-contained cone tables for the U(1)-gauged `[A_1, D_{2k+2}]`
+    algebra at parameter `k`."""
 
     def __init__(self, oracle=None, decode_degree: int = 4, frozen=None):
         if frozen is not None:                       # spine-free load (no oracle)
@@ -184,7 +186,7 @@ class DevenConeTables:
 
         # 2. ρ-closure (mod X_01): the rays.  X_{0,1}^± are the torus, not rays.
         #    ρ transports whole cones, so the ρ-orbit of the seed rays IS the
-        #    full mult-gen set (user's recipe).  Bounded: D-even at fixed k has
+        #    full mult-gen set.  Bounded: D-even at fixed k has
         #    finitely many cluster variables mod the X_01 torus.
         MAX_RAYS = 4 * (2 * kmax + 4) ** 2 + 40   # generous safety bound
         ray_rep = {}    # modT -> canonical oracle section
@@ -591,7 +593,7 @@ class DevenConeTables:
 
     def _chord_nletters(self, chord):
         """Total letter multiplicity of a chord-word.  The exponent is the last
-        component of each factor in both formats — legacy A1A2k `(a, i, e)` and
+        component of each factor in both conventions — A1A2k `(a, i, e)` and
         A1Dodd `((a, p, i), exp)` — so this works for either oracle."""
         return sum(g[-1] for g in chord)
 
@@ -701,12 +703,15 @@ _TABLE_CACHE = {}
 
 
 def build_tables(k, allow_frozen=False):
-    """`DevenConeTables` for `k`, built (ρ-folded, fast) from the RG oracle —
-    the closed-form way: q_commute/cocycle/cross are *learned* on ρ-orbit reps
-    and ρ-translated (cocycle drift + the `d_j·c1(i) − d_i·c1(j)` cross step
-    phase), so the build is fast at every k and **no freeze is needed**.  Built
-    tables are memoized per process (a runtime cache, not a disk freeze).
-    `allow_frozen=True` still loads a legacy pickle if present (compat only)."""
+    """`DevenConeTables` for `k`.  With `allow_frozen=True` (the runtime path
+    in this repository) the frozen pickle `u1a1deven_tables_k{k}.pkl` is
+    loaded, spine-free.  Otherwise the tables are built (ρ-folded, fast) from
+    the RG oracle — the closed-form way: q_commute/cocycle/cross are *learned*
+    on ρ-orbit reps and ρ-translated (cocycle drift + the
+    `d_j·c1(i) − d_i·c1(j)` cross step phase), so the build is fast at every
+    k; that path requires the oracle derivation (`u1a1deven_rgkalgebra`),
+    which is not included in this repository.  Built tables are memoized per
+    process."""
     if not allow_frozen and k in _TABLE_CACHE:
         return _TABLE_CACHE[k]
     if allow_frozen:
@@ -726,7 +731,8 @@ def build_tables(k, allow_frozen=False):
 
 
 def freeze_tables(k):
-    """Build the tables from the oracle and pickle everything except the
+    """Build the tables from the oracle (requires the derivation module, not
+    included in this repository) and pickle everything except the
     oracle-holders, so `build_tables(k)` later loads them spine-free."""
     import pickle
     from u1a1deven_rgkalgebra import U1A1DevenRGKAlgebra

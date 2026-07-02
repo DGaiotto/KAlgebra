@@ -1,9 +1,9 @@
-"""Abstract canonical-basis labelling D_{m, e} for pure ADE BPS K-algebras.
+"""Abstract canonical-basis labelling D_{m, e} for pure ADE BPS K_𝖖-algebras.
 
-Status: TEMPORARY UTILITY.  The eventual plan is to expose the canonical
-basis transparently via (m, e) labels in a higher-level wrapper class
-that uses the chart-coordinate ``pure_ade_kalgebra`` as a computational
-tool.  This module is the prototype of the (m, e) ↔ γ mapping.
+A utility for exposing the canonical basis via intrinsic (m, e) labels on
+top of a chart-coordinate BPS realisation; it implements the (m, e) ↔ γ
+mapping.  The pure-ADE chart builders it consumes (``pure_ade_kalgebra``,
+``pure_ade_lattice``) are derivations not included in this repository.
 
 Mathematical setup (SU(2), simply-connected)
 --------------------------------------------
@@ -109,7 +109,7 @@ def _single_qpow(c):
     """Return the unique 𝖖-power if c = 𝖖^k (unit coefficient), else None.
 
     Accepts either an `RLaurent`-style object (`.coeffs` exposes
-    `dict[int, RElement]`) or a Plan-10 `LaurentPoly` (`._coeffs` exposes
+    `dict[int, RElement]`) or a `LaurentPoly` (`._coeffs` exposes
     `dict[int, int]`).
     """
     coeffs = getattr(c, "coeffs", None)
@@ -470,29 +470,11 @@ def _gauss_jordan_solve(M, b):
 
 
 # ============================================================================
-# Future direction (notes — not implemented):
-#
-# The eventual plan is a higher-level wrapper class, e.g.
-#
-#   class PureADEAbstractAlgebra:
-#       """Canonical basis indexed by (m, e) instead of chart γ.
-#
-#       Internally uses pure_ade_kalgebra(spec) as a computational tool,
-#       but exposes:
-#         - .D(m, e)              -> abstract canonical basis element
-#         - .multiply_D(m1, e1, m2, e2) -> {(m', e'): coef}
-#         - .T(m), .W(e)           -> shorthand for D(m, 0), D(0, e)
-#         - The (m, e) ↔ γ bijection cached and consistent.
-#       """
-#
-# Key design decisions still open:
-#   1. Forward map (m, e) → γ: closed-form? table? incremental q-probe?
-#   2. Are the "Weyl orbit" elements (m, e) for non-dominant chart-magnetic
-#      v exposed as separate D_{m, e} entries, or unified under abstract m?
-#      (Empirically they are distinct elements with different e_abs, so
-#      yes, they are separate.)
-#   3. Hardcoded entries (in the spirit of palindromic_dictionary): for
-#      each ADE simple factor, ship a precomputed (m, e) → γ table for
-#      the principal small canonical basis elements; fall back to q-probe
-#      for larger ones.
+# A natural extension (not implemented) is a wrapper class exposing the
+# canonical basis directly through (m, e) — .D(m, e), .T(m), .W(e), a cached
+# (m, e) ↔ γ bijection, and multiplication in (m, e) coordinates — built on
+# the primitives above.  Note that the "Weyl orbit" elements (m, e) at
+# non-dominant chart-magnetic v are empirically distinct elements with
+# different e_abs, so such a wrapper must expose them as separate D_{m, e}
+# entries.
 # ============================================================================

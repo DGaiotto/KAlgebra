@@ -12,8 +12,8 @@ Z[q, q^{-1}]-linear combination of basis monomials X_delta.  Formally,
 
     O'  =  E_q(X_gamma)^{-1} * O * E_q(X_gamma),
 
-but the explicit series expansion of E_q is never used.  As described in
-main.tex and in the rank-2 implementation in ``mutation.py``, the problem
+but the explicit series expansion of E_q is never used.  As in the
+rank-2 implementation in ``mutation.py``, the problem
 decouples along the gamma-lines of the support of O.  A gamma-line is an
 orbit of the translation  alpha -> alpha + gamma  inside Gamma; the
 "offset" k parametrises alpha = beta + k*gamma where beta is the unique

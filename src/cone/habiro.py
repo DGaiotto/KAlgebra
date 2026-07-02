@@ -1,16 +1,14 @@
 """HabiroElement — exact arithmetic in Z[q,q^{-1}][1/(1-q^{2k}) : k>=1].
 
-Canonical-surface migration of `habiro.HabiroElement` (Plan 07
-Stage A6, renamed from `habiro_ring.py` to `habiro.py` at Stage D flatten.
-
 Self-contained: only depends on `laurent_poly.LaurentPoly`
 and stdlib.
 
-The Habiro ring is the localisation of Z[q,q^{-1}] inverting all
-`(1-q^{2k})` for k>=1.  All Nahm-sum / Schur-index intermediates
-in this project live exactly in this ring.
-
-(Original docstring follows.)"""
+The ring implemented here is the **localisation** of Z[q,q^{-1}]
+inverting all `(1-q^{2k})` for k>=1 — the (1-𝖖^{2n})-localized ring.
+(The module name is historical: the Habiro ring proper is a different
+object, the completion lim Z[q]/((q;q)_n), not this localisation.)
+All Nahm-sum / Schur-index intermediates in this project live exactly
+in the localised ring."""
 
 
 from __future__ import annotations

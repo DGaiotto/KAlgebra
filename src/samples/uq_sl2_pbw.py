@@ -1,5 +1,5 @@
-"""uq_sl2_pbw — standalone `U_𝖖(sl_2)` (central-quotient, close relative) on its
-PBW basis, as a `KAlgebra`.
+"""uq_sl2_pbw — the central quotient of `U_𝖖(sl_2)` on its PBW basis, as a
+`KAlgebra`.
 
 This is the **algebra-side** realisation (no RG flow, no chart): the canonical
 basis is the PBW basis of the central quotient,
@@ -10,9 +10,9 @@ basis is the PBW basis of the central quotient,
 
 each **bar-invariant by construction** (the q^{∓ab} normalisation; `bar` fixes
 `{E,F,K}` and sends `q->q^{-1}`, antimultiplicative).  The Casimir `C` is the
-central element identified with the flavour character `χ_1` (paper §"U_𝖖(sl_2)
-as a K_𝖖-algebra"); here it is carried as a non-negative power `j` in the label
-(`C^j` central), so multiply is `Z[q^±]`-valued.
+central element identified with the flavour character `χ_1`; here it is carried
+as a non-negative power `j` in the label (`C^j` central), so multiply is
+`Z[q^±]`-valued.
 
 Defining relations (central quotient):
 
@@ -278,8 +278,8 @@ class UqSL2PBW(KAlgebra):
 
     `coefficient_ring` is `Z` here (the Casimir is a label coordinate); the
     SU(2)-flavoured refinement `C = χ_1 = μ+μ^{-1}` (and the Cartan-sector Schur
-    trace `Tr K^n = [x^n]G(x,μ)`) is a `base_change`/trace layer on top — the
-    next step toward the full flavoured `U_𝖖(sl_n)` KAlgebra.
+    trace `Tr K^n = [x^n]G(x,μ)`) is supplied by `SQED2SampleKAlgebra` in
+    `samples.py`, which reuses this PBW straightener.
     """
 
     def coefficient_ring(self):
@@ -304,11 +304,12 @@ class UqSL2PBW(KAlgebra):
     def trace(self, a, K: int = 20):
         # Trace localises to the Cartan sector (Tr vanishes on net E/F charge);
         # the surviving Tr(K^n) is the Schur index [x^n]G(x,μ), which requires
-        # the SU(2) flavour layer (C=χ_1).  Implemented in the flavoured
-        # subclass; the bare (Z-coefficient) algebra defers it.
+        # the SU(2) flavour layer (C=χ_1).  Supplied by SQED2SampleKAlgebra in
+        # samples.py; the bare (Z-coefficient) algebra defers it.
         raise NotImplementedError(
             "UqSL2PBW.trace: the Cartan-sector Schur trace Tr(K^n)=[x^n]G(x,μ) "
-            "needs the SU(2) flavour layer (C=χ_1); see the flavoured subclass.")
+            "needs the SU(2) flavour layer (C=χ_1); see SQED2SampleKAlgebra "
+            "in samples.py.")
 
 
 if __name__ == "__main__":

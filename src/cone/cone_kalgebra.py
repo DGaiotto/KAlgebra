@@ -20,12 +20,11 @@ Where it sits
 `ConeKAlgebra(KAlgebra)` is the *closed-form* realisation tier — as
 opposed to the *computed* tiers `RGKAlgebra` (RG-flow) and its subclass
 `BPSKAlgebra` (BPS-quiver), from which the cone structure is frequently
-distilled.  The **abelianization tiers** `AbeKAlgebra` /
-`AbelianizedKAlgebra` are a *logically independent* axis (which chart /
-realisation), **not** competing siblings: concrete abelianized algebras
-often inherit from *both* `ConeKAlgebra` (for the cone-based multiply)
-and `AbeKAlgebra` / `AbelianizedKAlgebra` (for the abelianized-chart
-structure) — e.g. `AbePureUNKAlgebra(AbeKAlgebra, ConeKAlgebra)`.
+distilled.  Abelianized-chart structure is a *logically independent*
+axis (which chart / realisation the presentation is written in), **not**
+a competing sibling: a concrete abelianized algebra can use the
+cone-based multiply of `ConeKAlgebra` while organizing its basis in an
+abelianized chart.
 
 Concrete subclasses provide the algebra's defining data through:
 
@@ -68,25 +67,24 @@ and the two `ConeKAlgebra`-level abstracts:
 
     cone_data, _trace_residual
 
-**Flavour-lift coordinate (migration, 2026-06-18).**  The section split
-is now exposed through `r_label_decompose` (the single-irrep
-`(section, R-basis-label)` coordinate of `KAlgebra`), which
-`ConeKAlgebra` **defaults** for cone presentations: gauge-only /
-flavour-in-coefficients cones lift trivially, and a subclass that still
-supplies the **to-be-retired** `_label_section_decompose` has its
-coordinate read off it automatically (the reverse bridge — see that
-method's docstring).  So `_label_section_decompose` is no longer required
-of new cone theories: a flavour-in-a-label-slot theory (e.g. `A1D3`)
-supplies `r_label_decompose` directly instead.  Its **inverse**
+**Flavour-lift coordinate.**  The section split is exposed through
+`r_label_decompose` (the single-irrep `(section, R-basis-label)`
+coordinate of `KAlgebra`), which `ConeKAlgebra` **defaults** for cone
+presentations: gauge-only / flavour-in-coefficients cones lift
+trivially, and a subclass that instead supplies the RElement-valued
+`_label_section_decompose` has its coordinate read off it automatically
+(the reverse bridge — see that method's docstring).  So
+`_label_section_decompose` is not required of new cone theories: a
+flavour-in-a-label-slot theory (e.g. `A1D3`) supplies
+`r_label_decompose` directly instead.  Its **inverse**
 `r_label_compose` (`(section, R-basis-label) → label`) is the
 label-producing partner — used by the flavour-changing methods
 (`forget` / `lower_flavour`) and the section-factored
 `KAlgebraIso.from_section_map`; its default routes through the central
 embedding `embed_R`, which a peel theory may bypass with a direct
-slot-write override.  Only `_label_section_decompose` (the
-`(section, RElement)` form) is being retired; `embed_R` is **not** —
-it stays as the central embedding `ι : R ↪ A_𝖖` (with its faithfulness /
-ρ-compatibility axioms) and continues to back `from_R_form`.
+slot-write override.  `embed_R` is the central embedding
+`ι : R ↪ A_𝖖` (with its faithfulness / ρ-compatibility axioms) and
+backs `from_R_form`.
 
 See `cone_data.py` for the `Cone` taxonomy (the monomial /
 quantum-torus / character partition), the §"Flavour in the cone
@@ -219,9 +217,8 @@ class ConeKAlgebra(KAlgebra):
         `multiply` canonicalises internally, so ρ must too or ρ(ab) and
         ρ(a)ρ(b) disagree on those words.  A basis-permuting ρ admits no
         q-phase here (the phase relates two normalisations of the *same*
-        lattice point, a property of the word, not of ρ — validated by the
-        exhaustive ρ-automorphism sweep in the z-form work), so it is
-        dropped.  Mirrors `finite_su2u1_zform._canon_word`."""
+        lattice point, a property of the word, not of ρ — validated by an
+        exhaustive ρ-automorphism sweep), so it is dropped."""
         perm = self.rho(label)
         if len(perm) < 2:
             return perm
@@ -241,18 +238,18 @@ class ConeKAlgebra(KAlgebra):
 
     # ρ²-orbit canonicalisation is provided by `KAlgebra` (default:
     # orbit walk with safety bound).  Subclasses with infinite ρ²-orbits
-    # (U1SquareKAlg, future QTCone-refactored U(1)Hex, ...) MUST override
+    # (e.g. `U1SquareKAlg`) MUST override
     # `_canonical_rho2_orbit_rep` with a closed-form drift-quotient
     # canonicalisation.  See `KAlgebra._canonical_rho2_orbit_rep` docstring.
 
     # ----- flavour-lift coordinate: the (section, R-basis-label) surface ----
     #
     # `KAlgebra` carries the *forward* bridge `_label_section_decompose`
-    # (the to-be-retired `(section, RElement)` form) → `r_label_decompose`
-    # (the single-irrep `(section, R-basis-label)` lift coordinate).  Cone
-    # theories historically supply the former; the override below is the
-    # *reverse* bridge, so each gets a correct `r_label_decompose` for free
-    # — no per-theory edit — throughout the migration.
+    # (the `(section, RElement)` form) → `r_label_decompose` (the
+    # single-irrep `(section, R-basis-label)` lift coordinate).  Some cone
+    # theories supply the former; the override below is the *reverse*
+    # bridge, so each gets a correct `r_label_decompose` for free — no
+    # per-theory edit.
 
     def r_label_decompose(
         self, label: Label,
@@ -272,14 +269,13 @@ class ConeKAlgebra(KAlgebra):
             flavour character, `(tile, a, b, k) ↦ ((tile, a, b, 0), k)`
             (`A1D3`/`A1D5`/`A1D7`, `SU3AD`; the μ-power slot of `SU2Nf1`).
 
-        Both shapes are recovered here from the (to-be-retired)
-        RElement-valued `_label_section_decompose` **when a subclass still
-        supplies it**, by reading the single irrep off its coefficient — so
-        every existing cone theory acquires a correct `r_label_decompose`
-        with no change.  When a subclass instead implements
-        `r_label_decompose` directly (the migration end-state) that override
-        wins; when it implements neither, the gauge-only trivial lift is
-        returned.
+        Both shapes are recovered here from the RElement-valued
+        `_label_section_decompose` **when a subclass supplies it**, by
+        reading the single irrep off its coefficient — so every such cone
+        theory acquires a correct `r_label_decompose` with no change.
+        When a subclass instead implements `r_label_decompose` directly
+        that override wins; when it implements neither, the gauge-only
+        trivial lift is returned.
 
         The recursion guard (`_label_section_decompose` still the inherited
         `KAlgebra` default) is what keeps this *reverse* bridge from looping
@@ -287,13 +283,9 @@ class ConeKAlgebra(KAlgebra):
         subclass genuinely overrode `_label_section_decompose`, otherwise it
         returns the trivial lift directly.
 
-        **Slated end-state.**  When `_label_section_decompose` is retired the
-        read-off branch is dropped, leaving the gauge-only trivial lift as
-        the `ConeKAlgebra` default; the flavour-in-a-label-slot theories
-        override `r_label_decompose` (and, where they supply no `embed_R`,
-        `r_label_compose`) directly.  A non-single-irrep (virtual-character)
-        section has no single-irrep lift and raises — such a realisation
-        must implement `r_label_decompose` itself.
+        A non-single-irrep (virtual-character) section has no single-irrep
+        lift and raises — such a realisation must implement
+        `r_label_decompose` itself.
         """
         cls = type(self)
         if cls._label_section_decompose is not KAlgebra._label_section_decompose:

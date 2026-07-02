@@ -6,15 +6,14 @@ Completes the fourth rung of the U(1)-gauged-(2p)-gon ↔ M(1, p)
 singlet correspondence:
 
     U1Square    (A_1, A_1) -> M(1, 2)  level 4
-    U1Hexagon   (A_1, A_3) -> M(1, 3)  level 6  (PR #245)
-    U1Octagon   (A_1, A_5) -> M(1, 4)  level 8  (PR #246)
+    U1Hexagon   (A_1, A_3) -> M(1, 3)  level 6
+    U1Octagon   (A_1, A_5) -> M(1, 4)  level 8
     U1Decagon   (A_1, A_7) -> M(1, 5)  level 10 (this module)
 
 The U1Decagon K-algebra corresponds to the (A_1, A_7) Argyres-Douglas
 theory, with chiral algebra the M(1, 5) singlet vertex algebra at
-central charge c = 1 - 6 * 4^2 / 5 = -18.4 = -18.4  -- actually
-c_{1,p} = 1 - 6*(p-1)^2/p; for p=5, c = 1 - 96/5 = -91/5.  (Check the
-exact value against the literature.)
+central charge c_{1,p} = 1 - 6*(p-1)^2/p; for p = 5,
+c = 1 - 96/5 = -91/5.
 
 Closed form (verified against direct gauged-A_8 BPSKAlgebra evaluation
 through K = 25 for n in {0, 1, 2}):

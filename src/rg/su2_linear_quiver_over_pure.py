@@ -17,7 +17,8 @@ K-algebras, by supplying the matter spectrum in closed form.
     are adjoined as a genuine **coefficient-ring flavour** `R(U(1)^L)` (not baked
     into the labels), so the trace keeps the μ-character — the μ-refined Schur
     index — exactly as `SU2xSU2BifundOverPure` does (a central-level encoding
-    cannot, and its trace honest-fails on flavour-charged states).
+    cannot, and its trace raises on flavour-charged states rather than
+    silently degrading).
   * S_RG = the product of all matter factors
 
         Ψ = ∏_{a=1}^{N_f⁽¹⁾} F⁽¹⁾_a(v₁) · ∏_{i=1}^{n−1} Ψ_i · ∏_{b=1}^{N_f⁽ⁿ⁾} F⁽ⁿ⁾_b(v_n),
@@ -155,8 +156,8 @@ def su2_linear_quiver_matter_spectrum(n: int, cutoff: int,
     the left/right end nodes, truncated to total μ-number `Σ levels ≤ cutoff`.
 
     Returns `{(0,w₁,0,w₂,…,0,w_n, f₁,…,f_L): c}`, `L = (n−1)+Nf1+Nfn`, the exact
-    Habiro coefficient of `∏_j χ_{w_j}(v_j)` at multilevel `(f₁,…,f_L)` ordered
-    `[link₁,…,link_{n−1}, end1₁,…,end1_{Nf1}, endn₁,…,endn_{Nfn}]`.
+    `HabiroElement` coefficient of `∏_j χ_{w_j}(v_j)` at multilevel `(f₁,…,f_L)`
+    ordered `[link₁,…,link_{n−1}, end1₁,…,end1_{Nf1}, endn₁,…,endn_{Nfn}]`.
     """
     if n < 2:
         raise ValueError("linear quiver needs n >= 2 nodes (n-1 >= 1 links)")
@@ -205,10 +206,10 @@ class _PureSU2nKAlg(KAlgebra):
 
     The `L` matter μ-levels are **not** baked in here — they are adjoined by
     `.add_flavour(AbelianZPlusRing(L))`, so the coefficient ring carries the
-    μ-fugacities and the (generic) trace keeps the μ-refined index (the previous
-    central-"level" encoding could not, and its trace honest-failed on
-    flavour-charged states — exactly the lesson `SU2xSU2BifundOverPure` already
-    learned)."""
+    μ-fugacities and the (generic) trace keeps the μ-refined index (a
+    central-"level" encoding cannot, and its trace has to raise on
+    flavour-charged states rather than silently degrade — the same design
+    choice as `SU2xSU2BifundOverPure`)."""
 
     def __init__(self, n: int) -> None:
         if n < 2:

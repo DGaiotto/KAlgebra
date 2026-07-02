@@ -99,7 +99,7 @@ def test_quantum_torus_gamma():
     `Γ = Z^n` with antisymmetric form `B`.  Two regimes:
       * non-degenerate `B` (`Γ_f = 0`): the plain symplectic Z² torus;
       * degenerate `B` (`Γ_f ≠ 0`): a flavour direction lands in the
-        coefficient ring, exercised at the trace boundary."""
+        coefficient ring, exercised through the flavoured trace."""
     # non-degenerate: Z² symplectic ⟨(a,b),(c,d)⟩ = ad − bc
     Q2 = QuantumTorusKAlg([[0, 1], [-1, 0]])
     assert Q2.flavour_rank == 0 and Q2.gauge_rank == 2
@@ -140,6 +140,53 @@ def test_kalgebra_iso():
     print("  OK  KAlgebraIso: unit / round-trip / multiplicative / ρ-equivariant")
 
 
+def test_trace_element_widening_and_bilinear_pairing():
+    """Formal-sum assembly of the trace pairing.
+
+    (1) `trace_element` must widen each per-label trace request by the
+    negative q-valuation of that label's Laurent coefficient: `q^{-n}·Tr(L_a)`
+    is exact through `q^K` only if `Tr(L_a)` is known through `q^{K+n}`.
+    Without the widening every order above `q^{K-n}` of the sum is silently
+    corrupted — on deep products (Laurent coefficients down to `q^{-10}` occur
+    already in the `[A_1,D_3]` mixed tiles of the cone layer) this produced
+    spurious orthonormality violations.
+
+    (2) `inner_product_element` is the bilinear extension of the pairing
+    `I_{a,b}` over formal sums — safer than assembling `Tr(ρ(x)·y)` from a
+    product Element, and it routes through a realisation's sharp per-pair
+    `inner_product` override where one exists."""
+    from zplus_ring import RPowerSeries
+    A = PentagonSampleKAlgebra()
+    R = A.coefficient_ring()
+    lab = (0, 1, 0)
+    K, shift = 4, -3
+    x = Element({lab: LaurentPoly({shift: 1})})
+    got = A.trace_element(x, K)
+    tr_wide = A.trace(lab, K - shift)
+    expected = RPowerSeries(
+        R,
+        {e + shift: c for e, c in tr_wide.coeffs.items() if e + shift <= K},
+        K,
+    )
+    assert got == expected, "trace_element did not widen for q^-3 coefficient"
+    assert any(K < e <= K - shift for e in tr_wide.coeffs), \
+        "sensitivity lost: no trace tail in the widened window"
+    # bilinear pairing: q^{-2}·L_a + L_e against L_a.
+    e_id = A.identity()
+    y = Element({lab: LaurentPoly({-2: 1}), e_id: LaurentPoly({0: 1})})
+    got2 = A.inner_product_element(y, Element.basis(lab), K)
+    iaa_wide = A.inner_product(lab, lab, K + 2)
+    expected2 = RPowerSeries(
+        R,
+        {e - 2: v for e, v in iaa_wide.coeffs.items() if e - 2 <= K},
+        K,
+    ) + A.inner_product(e_id, lab, K)
+    assert got2 == expected2, "inner_product_element bilinearity mismatch"
+    assert A.inner_product_element(
+        Element.basis(lab), Element.basis(lab), K) == A.inner_product(lab, lab, K)
+    print("  OK  trace_element widening + bilinear inner_product_element")
+
+
 if __name__ == "__main__":
     print("running sample contract tests...")
     test_z2_qtorus()
@@ -149,4 +196,5 @@ if __name__ == "__main__":
     test_sqednf()
     test_quantum_torus_gamma()
     test_kalgebra_iso()
+    test_trace_element_widening_and_bilinear_pairing()
     print("ALL SAMPLE CONTRACT TESTS PASSED")

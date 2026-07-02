@@ -6,13 +6,13 @@ reducing until each word is a canonical sorted-cone monomial.  All
 ray-ray products come from axiom-derived kernels:
 
   * `pure_su2_h_gap_k.h_mul_h(a, b)` (a ≤ b) — H_a · H_b via the
-    `w_1 · H_a · H_b` cyclicity recursion (user's hint:
-    *"w_1 H_a H_b associativity reconstructs all gaps recursively"*).
+    `w_1 · H_a · H_b` cyclicity recursion (associativity of
+    `w_1 · H_a · H_b` reconstructs all gaps recursively).
   * Direct SU(2) Clebsch for w_1 ↔ H_n and w_1 × w_1.
   * Chebyshev (`chi_to_w1_powers`, `w1_power_to_chi`) for converting
     between Wilson canonical χ_e and literal w_1^k.
 
-No iso-delegation to `pSU2KAlgebra.multiply`.  All structure constants
+No delegation to a BPS realisation.  All structure constants
 come from the cyclicity / Clebsch / Chebyshev primitives, composed
 purely by associativity using the cone framework's sort-and-substitute
 algorithm.
@@ -519,8 +519,8 @@ def multiply_native(a: tuple, b: tuple) -> Element:
 
 
 # -------------------------------------------------------------------
-# Smoke test (verifies against pSU2KAlgebra ONLY — pSU2 is NOT used
-# on the production path).
+# Smoke test (verifies against the reference pSU2KAlgebra, not included
+# in this repository — it is NOT used on the production path).
 # -------------------------------------------------------------------
 
 if __name__ == "__main__":

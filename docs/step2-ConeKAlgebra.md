@@ -1,27 +1,29 @@
 # ConeKAlgebra — closed-form, spine-free K_𝖖-algebras
 
-**Step 2** of the modular release: many examples of the K-theoretic
-Coulomb-branch algebras `A_𝖖[T]`, each realized
-with the **`ConeKAlgebra` machinery** — a cone presentation of the
-**multiplicative generators** — extending the Step-1 `KAlgebra` contract,
-plus the finite-type zoo. Packaged **without any realisation engine** (no
-BPS-quiver, RG-flow or quantum-torus machinery), pure Python 3, no third-party
+**Step 2**, the cone layer of this repository (`src/cone/`): many examples of
+K_𝖖-algebras `A_𝖖[T]` — U(1)-gauged Argyres–Douglas families, SU(2) gauge
+theories, and the finite-type zoo — each realized with the **`ConeKAlgebra`
+machinery**, a cone presentation of the **multiplicative generators** extending
+the Step-1 `KAlgebra` contract. No realisation engine (no BPS-quiver or RG-flow
+machinery) is used on any computation path; pure Python 3, no third-party
 dependencies.
 
-This is an **extension that depends on Step 1**, not a standalone copy: it imports
-the core layer (`kalgebra`, `zplus_ring`, `laurent_poly`, `qpoch`, `snf_kernel`,
-`sun_characters`, `tensor_zplus_ring`, `flavoured_kalgebra`) and `KAlgebraIso` /
-samples **from the Step-1 `KAlgebra` package** — none of those is duplicated here
-— so run it with **both packages on the path** (Step 1 + Step 2). The only thing
-deliberately absent is the realisation engine.
+This layer is an **extension that depends on Step 1**, not a standalone copy: it
+imports the core layer (`kalgebra`, `zplus_ring`, `laurent_poly`, `qpoch`,
+`snf_kernel`, `sun_characters`, `tensor_zplus_ring`, `flavoured_kalgebra`) and
+`KAlgebraIso` / the samples from `src/core/` and `src/samples/` by bare name —
+none of those is duplicated here. `conftest.py` and `run_tests.py` put every
+`src/<layer>/` directory on `sys.path`, so the imports resolve from the repo
+root.
 
 ## What a `ConeKAlgebra` is
 
 A `KAlgebra` whose canonical basis is organised into **cones** of multiplicative
 generators (maximal q-commuting families of q-normal-ordered monomials). A
 subclass supplies a `ConeData` instance (generators, q-commute cocycle,
-cross-products, the cone↔canonical bijection); `multiply` is the universal
-tagged-cycle reducer, and `trace` is
+cross-products, the cone↔canonical bijection); `multiply` is the generic
+normal-ordering reduction over the cone data (words in the ray generators are
+reduced back to canonical normal-ordered form), and `trace` is
 
 ```
 trace(L) = Layer-1 reduction (ρ²-cyclicity over the cone data) → elementary seeds,
@@ -31,10 +33,13 @@ Tr(1)        = known vacuum character             (where it exists)
              | exact Nahm sum on the BPS spec     (vacuum_nahm — universal).
 ```
 
+("Layer 1" is the reduction of an arbitrary trace to the elementary seeds by
+`ρ²`-twisted cyclicity; "Layer 2" is the closed-form evaluation of those seeds.)
+
 Every trace is **exact and arbitrarily q-improvable** — no fixed-K table, no
-BPS/RG backend on the normal path. (Export-readiness is held to a strict bar:
-a class ships only if *every* operation accepts arbitrary inputs and *every*
-trace is improvable to any q-order — no honest-fail sector, no frozen-K cap.)
+BPS/RG backend on the normal path. (Every class included here meets a strict
+bar: *every* operation accepts arbitrary inputs and *every* trace is improvable
+to any q-order — no frozen-K cap, no sector that raises beyond a fixed order.)
 
 ### Cones — one class, three kinds
 
@@ -46,7 +51,7 @@ and queried with `is_monomial()` / `is_quantum_torus()` / `is_character()`. (The
 former `MonomialCone`/`QTCone`/`CharacterCone` subclasses were folded into this
 one class.)
 
-## The golden standard — A1A2k
+## The reference family — A1A2k
 
 `A1A2kKAlg(k)` is the reference cone implementation: **geometric cone-ray
 labelling** of the chords of the (2k+3)-gon, and a **full closed-form Layer-2
@@ -61,8 +66,11 @@ exercises a few sample k; there is no k restriction.)
 All realisations are spine-free (multiply + trace + orthonormality, no engine)
 and their traces are arbitrarily q-improvable, organised by Dynkin family below.
 The self-test `test_cones.py` runs **31 cone-contract cases** through the generic
-`ConeKAlgebra` API, plus a `check_improvable` battery for the realisations that
-present as a `KAlgebra` rather than a `ConeKAlgebra` (the ungauged twins, Γ, Nf2).
+`ConeKAlgebra` API, plus a `check_improvable` battery: trace-improvability probes
+to high q-order for the closed-form families, and explicit-label batteries for
+the realisations the generic cone loop does not reach (the ungauged polygons
+`HexagonKAlg`/…/`DodecagonKAlg`, the ungauged `A1DevenKAlg`, the named
+`A1D3/5/7ConeKAlg` cone presentations, and `SU2Nf2`/`SU2Nf3ConeKAlgebra`).
 
 **Finite-type zoo** (the closed Argyres–Douglas / minimal theories) — Layer-1
 reduction + the spine-free orthonormality bootstrap seeded by the exact Nahm-sum
@@ -70,7 +78,7 @@ reduction + the spine-free orthonormality bootstrap seeded by the exact Nahm-sum
 `FinitePentagonKAlgebra` (A₂), `FiniteA3/A5/A7`, `FiniteA1D3…A1D8`,
 `FiniteE6/E7/E8`, `FiniteHeptagonKAlgebra` (A₄).
 
-**A1A_even — `A1A2kKAlg(k)`** (the golden standard above): geometric cone-ray
+**A1A_even — `A1A2kKAlg(k)`** (the reference family above): geometric cone-ray
 chord labels + full M(2,2k+3) Andrews–Gordon character trace, every k.
 
 **A1A_odd** (the (2k+4)-gons, k=1..4 = hexagon/octagon/decagon/dodecagon):
@@ -78,10 +86,10 @@ chord labels + full M(2,2k+3) Andrews–Gordon character trace, every k.
   k** — v-tower / long-chord (`a=2`) / diameter (`a=k+1`) seeds are the
   closed-form M(1,p) singlet characters (`u1_pgon_layer2`), and the k≥4
   intermediate chords (no closed form yet) are computed to arbitrary q-order by
-  the spine-free orthonormality bootstrap. Multiply cross-products are
-  RG-oracle-computed (no closed form), so they ship pre-extracted as
-  `u1a1aodd_tables_k{k}.pkl` (k bounded only by the shipped tables; add a pkl to
-  extend).
+  the spine-free orthonormality bootstrap. The multiply cross-products have no
+  known closed form; the frozen tables `u1a1aodd_tables_k{k}.pkl` were computed
+  with an RG-flow derivation not included in this repository (k is bounded by
+  the provided tables).
 - *ungauged* — `HexagonKAlg`/`OctagonKAlg`/`DecagonKAlg`/`DodecagonKAlg` =
   `[A₁,A_{2k+1}]`: the ungauged twins (centraliser of the gauge generator `E=μ`,
   measure-restored trace). Spine-free construct + multiply + arbitrary-q trace.
@@ -95,16 +103,17 @@ chord labels + full M(2,2k+3) Andrews–Gordon character trace, every k.
 - `A1D3ConeKAlg` / `A1D5ConeKAlg` / `A1D7ConeKAlg` — the genuine D-type **cone**
   presentations: closed-form cone multiply off frozen inline Plücker tables +
   the arbitrary-q admissible-character trace (`a1dodd_layer2`). A1D7 is complete
-  including the diameter seed (`a=3`); k≥3 honestly fails (no known closed form).
+  including the diameter seed (`a=3`); for k≥3 the trace raises rather than
+  silently degrading (no known closed form).
 
 **A1D_even** = `[A₁,D_{2k+2}]`, SU(2) (× U(1) when gauged) flavour:
 - *gauged* — `U1A1DevenConeKAlgebra(1)` (D₄): closed-form multiply (frozen
   tables, oracle-free load), trace bootstrapped from `Tr(1)` alone (SU(2)
   per-irrep orthonormality sweep + all-orders monopole cyclicity); gauge sector
   the exact closed-form character, matter sector re-solvable to any q-order.
-  **Only k=1 ships** — k≥2 (D₆/D₈) are held back: their matter-sector trace is
-  frozen at K=8–12 and honest-fails beyond (the spine-free matter bootstrap is
-  intractable for k≥2), which violates the arbitrary-q bar.
+  **Only k = 1 is included**: the k ≥ 2 (D₆/D₈) spine-free matter bootstrap is
+  not tractable at arbitrary order (its frozen tables would fail beyond
+  K ≈ 8–12).
 - *ungauged* — `A1DevenKAlg(k)` (D₄): the U(1) of the gauged D-even ungauged
   (centraliser of `X_{0,1}`; gauge charge → U(1) fugacity z; SU(2)×U(1)
   flavour). Trace reproduces `A1DevenRGKAlgebra` term-for-term.
@@ -117,8 +126,9 @@ by it. Layer-1 and the product multiply are carried in SU(3) Cartan fugacities
 content (`T₀·T₂`'s `3+3̄`) is correct.
 
 **E₇ (gauged)** — `U1E7ConeKAlgebra` = the u(1)-gauged E7 SCFT: a quantum-torus
-cone (rank-1 gauge torus on `E=X_{(0,1)}`). Multiply ships frozen
-(`u1e7_cone_tables.pkl`); the magnetic sector vanishes and every neutral ray-word
+cone (rank-1 gauge torus on `E=X_{(0,1)}`). Multiply loads frozen tables
+(`u1e7_cone_tables.pkl`, computed with a derivation not included in this
+repository); the magnetic sector vanishes and every neutral ray-word
 is fixed by the E7 Nahm-sum vacuum + the forward-triangular orthonormality
 bootstrap; ρ is the spine-free gauge-reflection.
 
@@ -136,18 +146,19 @@ bootstrap; ρ is the spine-free gauge-reflection.
 certified Sample↔Cone `KAlgebraIso` to its Step-1 direct sample — see
 `test_sample_cone_iso.py`):
 - `U1SquareKAlg` — **A1A1** = SQED N_f=1 = U(1)-gauged `[A_1, A_1]`, unflavoured
-  (`QTCone`, `(m,n)` labels); trace = the SQED₁ Schur index, arbitrary-q.
+  (a quantum-torus cone, `(m,n)` labels); trace = the SQED₁ Schur index,
+  arbitrary-q.
 - `U1A1D2ConeKAlgebra` — **A1D2** = SQED N_f=2 = U(1)-gauged `[A_1, D_2]` =
-  `U_𝖖(𝔰𝔩₂)`, flavour **SU(2)** (the spin in the label, Pattern III à la
+  `U_𝖖(𝔰𝔩₂)`, flavour **SU(2)** (the SU(2) spin carried in the label, as in
   `A1D3KAlg`); the `E·F = χ₁ + 𝖖K + 𝖖⁻¹K⁻¹` cone reproduces SQED₂'s
   `U_𝖖(𝔰𝔩₂)` straightener exactly.  trace = the SQED₂ index, arbitrary-q.
 
-Trace machinery shipped: the harvested closed-form characters `ad_characters`
+Trace machinery included: the closed-form characters `ad_characters`
 (full Layer-2 for a3/hexagon) + `minimal_model_characters` (M(2,2k+3)); the
 spine-free orthonormality bootstrap (`trace_uniqueness_proofs` + per-flavour
 drivers); and `vacuum_nahm`, the exact Nahm-sum `Tr(1)` on the embedded BPS spec
 (using only the spine-free `nahm_local`/`snf_kernel`/`qpoch`/`habiro`/`lattice`),
-verified coefficient-for-coefficient against the engine.
+verified coefficient-for-coefficient against the RG-flow engine (`src/rg/`).
 
 ## Quick start
 
@@ -158,7 +169,7 @@ import sys, pathlib
 sys.path[:0] = [str(p) for p in pathlib.Path("src").rglob("*")
                 if p.is_dir() and p.name != "__pycache__"]
 
-from a1a2k_kalg import A1A2kKAlg              # the golden standard
+from a1a2k_kalg import A1A2kKAlg              # the reference family
 A = A1A2kKAlg(1)                              # pentagon, M(2,5)
 A.trace(A.identity(), K=70)                   # exact to q^70 — no BPS, no cap
 
@@ -177,12 +188,13 @@ python3 run_tests.py        # the full gate (all layers), from the repo root
 ```
 
 `test_cones.py` runs the generic contract (multiply / ρ / trace / orthonormality)
-on every shipped cone algebra, then a `check_improvable` battery that traces past
-the old frozen windows to witness arbitrary q-improvability spine-free — e.g.
+on every included cone algebra, then a `check_improvable` battery that traces to
+high q-order to witness arbitrary q-improvability spine-free — e.g.
 pentagon→q⁷⁰, A1A2k(2)→q⁶⁰, U1A1Aodd→q⁴⁰, U1A1Deven(1)→q⁷⁰, A1D{3,5}ConeKAlg→q⁴⁰,
 SU3AD `Tr_T`→q³⁰, the A1D7 diameter seed→q³⁰, the ungauged polygons→q³⁰⁻⁴⁰,
-A1Deven→q³⁰, SU2Nf2 (Spin(4) index)→q¹². It runs with **no realisation-engine
-module present**, so a green run is a proof of spine-freeness.
+A1Deven→q³⁰, SU2Nf2 (Spin(4) index)→q¹². None of its computation paths uses a
+realisation-engine module (the machine-checked `sys.modules` spine-freeness
+assertions live in the Step-3 suites).
 
 **Step-1↔Step-2 correspondence.** A separate test certifies the cone realisation
 against the Step-1 sample:

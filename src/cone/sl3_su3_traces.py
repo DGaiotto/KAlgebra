@@ -21,9 +21,8 @@ No BPS / RG / quantum-torus engine is touched.  Everything below uses only
 `zplus_ring.SU3ZPlusRing` (weight diagrams / characters) and the letter
 machinery of `su3_ad_kalg` (cone relations; lazily, no import cycle).
 
-The character/fugacity bootstrap was prototyped separately; this module
-is the consolidated, engine-free production version those prototypes validate
-against.
+This module is the consolidated, engine-free production implementation
+of the character/fugacity bootstrap.
 """
 from __future__ import annotations
 
@@ -210,7 +209,7 @@ def sym_to_char(z):
 # ---------------------------------------------------------------------------
 # Tr_1 — the Kac–Wakimoto vacuum character of \widehat{sl}(3)_{-3/2}
 # ---------------------------------------------------------------------------
-# Conventions (user, 2026-06-13): q_paper = 𝖖² (BPS index variable), no
+# Conventions: q_paper = 𝖖² (BPS index variable), no
 # q^{-c/24} prefactor (vacuum starts at 1).  ch = N/D solved order-by-order;
 # /D_0 (= /Weyl-denominator) turns an antisymmetric z-Laurent into a symmetric
 # SU(3) character.

@@ -116,8 +116,7 @@ def test_linear_quiver():
     """The SU(2)ⁿ linear quiver: n=2 (no flavour) reproduces the bifundamental
     exactly (spectrum + μ-refined vacuum); n=3 / end-flavoured cases construct
     and are exact-FS.  (n≥3 *traces* are correct but slow — the generic exact-FS
-    over the n-fold tensor; a performance follow-up — so only the n=2 trace is
-    exercised here.)"""
+    over the n-fold tensor — so only the n=2 trace is exercised here.)"""
     # n=2, no flavour == the SU(2)×SU(2) bifundamental
     assert su2_linear_quiver_matter_spectrum(2, 3) == su2su2_bifund_matter_spectrum(3)
     Q2 = SU2LinearQuiverOverPure(2)

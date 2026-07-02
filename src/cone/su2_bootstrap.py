@@ -3,8 +3,9 @@
 bootstrap.
 
 The non-abelian (SU(2)) sibling of the trivial-R `_generate_bootstrap` and the
-abelian-flavour `u1_bootstrap`.  The mechanism is identical — `Tr(1)` is the
-only BPS call, the cone-data Layer-1 reducer expresses each deep single-mult-gen
+abelian-flavour `u1_bootstrap`.  The mechanism is identical — `Tr(1)` (the
+vacuum character, served spine-free) is the only external input, the
+cone-data Layer-1 reducer expresses each deep single-mult-gen
 label `((i,a),)` as `Σ_s P_s(𝖖)·Tr(s)` (cheaply), and the vanishing of every
 closed `𝖖^{≤0}` coefficient of `Tr(L)=δ_{L,1}+O(𝖖)` is one exact linear
 equation — with one twist that distinguishes su2 from u1:
@@ -17,8 +18,8 @@ equation — with one twist that distinguishes su2 from u1:
     still an exact *integer* linear system (the fusion structure constants are
     0/1), solved by the shared `_solve_full`.
 
-Two simplifications make su2 the *easy* non-trivial case (the repo's flavour
-theorem: ρ²-orbit folding is valid for trivial/su2, invalid for the
+Two simplifications make su2 the *easy* non-trivial case (the flavour rule:
+ρ²-orbit folding is valid for trivial/su2, invalid for the
 unit-character u1):
 
   * **su2 folds like trivial-R** (`fold_policy = "rho2"`): `⋆ = id` on SU(2)
@@ -149,10 +150,11 @@ def _sweep(pool: list, Tr1: dict, K: int, *, strict: bool):
 def generate_su2(short_id: str, K: int, *, margin: int = 2,
                  verbose: bool = False) -> dict:
     """BPS-free elementary-trace record for a su2 entry (the su2 path of
-    `elem_traces.generate`).  `Tr(1)` via one BPS call; the seed traces via the
-    SU(2)-irrep orthonormality bootstrap (forward 𝖖-order sweep).  Raises
-    `_BootstrapUnavailable` if a seed is left unpinned, so the caller can fall
-    back to the per-seed BPS engine."""
+    `elem_traces.generate`).  `Tr(1)` via the spine-free vacuum path; the
+    seed traces via the SU(2)-irrep orthonormality bootstrap (forward 𝖖-order
+    sweep).  Raises `_BootstrapUnavailable` if a seed is left unpinned, so
+    the caller can fall back to the per-seed BPS engine (which requires the
+    BPS realisation layer, not available in this configuration)."""
     flavor = REGEN_SPECS[short_id][2]
     if flavor != "su2":
         raise _BootstrapUnavailable(f"{short_id}: flavour {flavor!r} is not su2")

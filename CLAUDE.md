@@ -27,16 +27,16 @@ O(𝖖)`. Four layers of algebras sit over one shared contract:
 - **rg** (`src/rg/`): `RGKAlgebra` and the catalogue of RG flows it presents.
   `RGKAlgebra` is a `KAlgebra` subclass that is *defined* by an RG flow to a
   graded auxiliary; its whole API (`RG`, `multiply`, `ρ`, `trace`) is **computed
-  live** from the flow data via the bilinear exact-FS trace — spine-free (no
-  BPS/RG realisation engine). It depends on core/samples and, for some
+  live** from the flow data via the exact bilinear `RG(a)·S_RG` trace pairing —
+  spine-free (no BPS/RG realisation engine). It depends on core/samples and, for some
   auxiliaries, on cone; see `docs/step3-RGKAlgebra.md`.
 - **bps** (`src/bps/`): `BPSKAlgebra` and the cluster-mutation `BPSAtlas`. A
   `KAlgebra` *realised* from a BPS quiver (a Dirac pairing + node charges): the
   canonical basis is discovered from the Kontsevich–Soibelman spectrum generator
   via `F·S = X_γ + O(𝖖)`, and the whole API follows. This is the realisation
   **spine** — the engine Steps 1–3 deliberately avoid. Adding it does not weaken
-  their spine-free guarantee: nothing in core/samples/cone/rg imports it, and the
-  Step-3 suites still assert no spine module is loaded. See
+  their spine-free guarantee: no module in the earlier layers imports it at import
+  time, and seven of the eight Step-3 suites assert no spine module is loaded. See
   `docs/step4-BPSKAlgebra.md`.
 - **iso** (`src/iso/`): `KAlgebraIso` witnesses identifying a sample with its cone
   realisation.
@@ -44,14 +44,17 @@ O(𝖖)`. Four layers of algebras sit over one shared contract:
 ## Run the tests (the validation gate)
 
 ```bash
-python3 run_tests.py        # or:  pytest
+python3 run_tests.py
 ```
 
 `test_samples`, `test_cones`, `test_sample_cone_iso`, the eight Step-3 RG
 self-tests (`test_rg_flows`, `test_a1an_chain`, `test_dn_chain`, `test_e_type`,
 `test_flavoured_fork`, `test_over_pure`, `test_su2_gauged_chain`, `test_wild`),
 and the Step-4 BPS self-test (`test_bps_flows`, run last — it imports the spine)
-must stay green. No third-party packages, nothing to install.
+must stay green. No third-party packages, nothing to install. Note that `pytest`
+does not run the full gate: it skips `test_cones.py` and `test_sample_cone_iso.py`,
+and importing the BPS suite at collection time defeats the spine-freeness
+assertions in the Step-3 suites — use `python3 run_tests.py`.
 
 ## Layout & import model (read before moving files)
 

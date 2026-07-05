@@ -27,12 +27,19 @@ Step 4 (the BPS-quiver realisation engine — *this* is the spine):
 
   * ``tests/test_bps_flows.py``        — the BPS realisation + atlas + node-drop RG
 
+Step 5 (the abelianized-presentation tier + the object-layer capstone; relies on
+Steps 1-4 by design, so it runs after the spine-free suites):
+
+  * ``tests/test_abe_flows.py``        — the AbeKAlgebra tier (pure U(N)/SU(N),
+    matter as Abe+RG, N=2* machinery, the KAlgebraObject layer, SU(2)/SU(3)
+    families, and the flow-typed RGKAlgebraObjects)
+
 Each prints its own ``PASS`` / ``ALL ... PASSED`` line.  (``pytest`` is not a
 supported entry point — ``conftest.py`` refuses it loudly; this script is the
-gate.)  ``test_cones`` is the slowest (a few minutes). ``test_bps_flows`` is run
-**last** because it imports the BPS spine — so the spine-freeness assertions in
-the Step-3 suites (which require no spine module in ``sys.modules``) hold when
-they run earlier in the same process.
+gate.)  ``test_cones`` is the slowest (a few minutes). ``test_bps_flows`` and
+``test_abe_flows`` are run **last** because they import the BPS spine — so the
+spine-freeness assertions in the Step-3 suites (which require no spine module in
+``sys.modules``) hold when they run earlier in the same process.
 """
 import pathlib
 import runpy
@@ -53,6 +60,6 @@ for _test in ("tests/test_samples.py", "tests/test_cones.py",
               "tests/test_dn_chain.py", "tests/test_e_type.py",
               "tests/test_flavoured_fork.py", "tests/test_over_pure.py",
               "tests/test_su2_gauged_chain.py", "tests/test_wild.py",
-              "tests/test_bps_flows.py"):
+              "tests/test_bps_flows.py", "tests/test_abe_flows.py"):
     print(f"\n=== {_test} ===")
     runpy.run_path(str(_ROOT / _test), run_name="__main__")

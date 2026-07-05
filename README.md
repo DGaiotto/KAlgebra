@@ -24,8 +24,12 @@ algebra of SQED₂), the abelian gauge theories SQED₁/₂/_{N_f}_, the U(1)-ga
 Argyres–Douglas families, and SU(2) gauge-theory cone algebras (the K-theoretic
 Coulomb branch algebras of those conventional gauge theories), a live RG-flow
 engine (`RGKAlgebra`) that computes a theory's algebra from its flow to a graded
-auxiliary, and a BPS-quiver realisation engine (`BPSKAlgebra`) that builds a
-theory's algebra directly from its BPS quiver.
+auxiliary, a BPS-quiver realisation engine (`BPSKAlgebra`) that builds a
+theory's algebra directly from its BPS quiver, and an abelianized-presentation
+tier (`AbeKAlgebra`) that presents the K-theoretic Coulomb branch algebras of
+conventional gauge theories — pure U(N)/SU(N), U(N)+N_f matter, quivers — on an
+enriched rational quantum torus, with an object layer certifying each algebra `≅`
+its cone / BPS / RG presentation.
 
 ## Organisation
 
@@ -38,14 +42,16 @@ A single package layered over one contract:
 | `src/cone/` | the `ConeKAlgebra` helper — a `KAlgebra` subclass that reduces the canonical basis to normal-ordered expressions in a set of multiplicative *ray* generators — together with the catalogue of realisations it presents |
 | `src/rg/` | the `RGKAlgebra` engine — a `KAlgebra` whose entire API (`RG`, `multiply`, `ρ`, `trace`) is computed live from an RG flow to a graded auxiliary — and the catalogue of flows it presents (rank-1 Argyres–Douglas chains, Lagrangian SU(2) gauge theories, nested and formal flows) |
 | `src/bps/` | the `BPSKAlgebra` engine — a `KAlgebra` realised from a BPS quiver (the Kontsevich–Soibelman spectrum generator + the `F·S = X_γ + O(𝖖)` discovery relation), with the cluster-mutation `BPSAtlas`. This is the realisation **spine**; Steps 1–3 are spine-free and never import it |
+| `src/abe/` | the `AbeKAlgebra` tier — a `KAlgebra` presented faithfully on an enriched rational quantum torus: the abelianized (gauge-fugacity) description of the K-theoretic Coulomb branch algebras of conventional gauge theories (pure U(N)/SU(N), U(N)+N_f matter, linear quivers), the N=2\* canonical finder, and the `KAlgebraObject` capstone that certifies each algebra `≅` its cone / BPS / RG presentation. Relies on Steps 1–4 by design |
 | `src/iso/` | `KAlgebraIso` witnesses identifying a sample algebra with its cone realisation |
 
 Per-layer documentation is in `docs/`: `docs/step1-KAlgebra.md` (the contract and
 the samples), `docs/step2-ConeKAlgebra.md` (the cone realisations),
 `docs/step3-RGKAlgebra.md` (the live RG-flow engine), `docs/step4-BPSKAlgebra.md`
-(the BPS-quiver realisation engine), `docs/conjectures-*.md` (the orthonormality
-conjecture), and `docs/axioms-and-bootstrap.md` (how the axioms determine the
-traces).
+(the BPS-quiver realisation engine), `docs/step5-AbeKAlgebra.md` (the abelianized
+presentation tier and the object-layer capstone), `docs/conjectures-*.md` (the
+orthonormality and one-object-many-presentations conjectures), and
+`docs/axioms-and-bootstrap.md` (how the axioms determine the traces).
 
 ## Tests
 

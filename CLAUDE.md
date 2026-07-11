@@ -11,7 +11,7 @@ axiomatisation of the fusion algebra of rotation-equivariant BPS line defects in
 a 4d 𝒩=2 theory — and a range of examples. A K_𝖖-algebra is an algebra `A_𝖖`
 over `Z[𝖖^±]` with a bar involution, a canonical basis `{L_a}`, an automorphism
 `ρ`, and a `ρ²`-twisted trace under which `I_{a,b} = Tr(L_{ρ(a)} L_b) = δ_{a,b} +
-O(𝖖)`. Five layers of algebras sit over one shared contract:
+O(𝖖)`. Six layers of algebras sit over one shared contract:
 
 - **core** (`src/core/`): the abstract `KAlgebra` contract, the Z₊-ring
   coefficient layer (for flavoured algebras), exact `Z[𝖖^±]` arithmetic, and the
@@ -50,6 +50,15 @@ O(𝖖)`. Five layers of algebras sit over one shared contract:
   matter theory is a pure-gauge `AbeKAlgebra` combined with an `RGKAlgebra` flow);
   its self-test runs last, after the spine-free assertions. See
   `docs/step5-AbeKAlgebra.md`.
+- **skein** (`src/skein/`): `SkeinKAlgebra` and its `SkeinAtlas`. The SU(2)
+  (Kauffman-bracket) skein algebras of marked surfaces realised as
+  `A_𝖖[T[A₁, Σ]]`: an intrinsic (contract-free) topological engine used as a
+  non-circular oracle, the two-parent `SkeinKAlgebra(ConeKAlgebra, BPSKAlgebra)`
+  class, a roster of named theories (the `[A₁,Aₙ]` polygons, the four-punctured
+  sphere = SU(2) N_f=4, the SU(2)+N_f family, the D-family), and the flip-atlas
+  whose diagonal flips are certified `KAlgebraIso` quiver mutations. **Relies on
+  Steps 1–5 by design**; its self-test runs last, after the spine-free
+  assertions. See `docs/step6-SkeinKAlgebra.md`.
 - **iso** (`src/iso/`): `KAlgebraIso` witnesses identifying a sample with its cone
   realisation.
 
@@ -62,8 +71,9 @@ python3 run_tests.py
 `test_samples`, `test_cones`, `test_sample_cone_iso`, the eight Step-3 RG
 self-tests (`test_rg_flows`, `test_a1an_chain`, `test_dn_chain`, `test_e_type`,
 `test_flavoured_fork`, `test_over_pure`, `test_su2_gauged_chain`, `test_wild`),
-the Step-4 BPS self-test (`test_bps_flows`), and the Step-5 abelianized-tier
-self-test (`test_abe_flows`) — the last two run after the Step-3 suites because
+the Step-4 BPS self-test (`test_bps_flows`), the Step-5 abelianized-tier
+self-test (`test_abe_flows`), and the Step-6 skein-tier self-test
+(`test_skein_flows`) — the last three run after the Step-3 suites because
 they import the spine — must stay green. No third-party packages, nothing to
 install. `pytest` is not a
 supported entry point and is refused loudly by `conftest.py` (it would skip
@@ -82,9 +92,10 @@ src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (120 .p
 src/rg/        rgkalgebra.py grading.py graded_rg_solver.py … + the flow zoo   (24 .py)
 src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py … the realisation spine   (18 .py)
 src/abe/       abe_kalgebra.py pure_un_kalgebra.py un_nf_kalgebra.py … the abelianized tier + object layer   (63 .py)
+src/skein/     skein_kalgebra.py skein_algebra.py skein_atlas.py … the skein tier + flip-atlas   (70 .py)
 src/iso/       pentagon_/u1square_/u1a1d2_…_sample_cone_iso.py
-tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py + test_abe_flows.py
-docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4,5}-*.md
+tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py + test_abe_flows.py + test_skein_flows.py
+docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4,5,6}-*.md
 ```
 
 Modules import one another by **bare name** (`from kalgebra import …`), not by
@@ -126,6 +137,9 @@ determine the traces from the single seed `Tr 1`.
   the three primitives (`torus_shape`, `chart`, `decompose`) and building canonicals
   constructively; add a case (and, for a matter theory, the Abe + RG flow and its
   certifying `KAlgebraIso`) to `tests/test_abe_flows.py`.
+- **New skein realisation:** add a `SkeinKAlgebra` instance (or `SkeinAtlas` chart)
+  in `src/skein/` from its surface / triangulation data, keeping the intrinsic
+  (contract-free) engine as the oracle; add a case to `tests/test_skein_flows.py`.
 - **New isomorphism witness:** add a builder to `src/iso/` and a case to
   `tests/test_sample_cone_iso.py`.
 - **New flavour group:** add a `ZPlusRing` subclass in `src/core/zplus_ring.py`.

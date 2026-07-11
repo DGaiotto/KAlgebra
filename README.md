@@ -29,7 +29,9 @@ theory's algebra directly from its BPS quiver, and an abelianized-presentation
 tier (`AbeKAlgebra`) that presents the K-theoretic Coulomb branch algebras of
 conventional gauge theories — pure U(N)/SU(N), U(N)+N_f matter, quivers — on an
 enriched rational quantum torus, with an object layer certifying each algebra `≅`
-its cone / BPS / RG presentation.
+its cone / BPS / RG presentation, and a skein tier (`SkeinKAlgebra`) that
+realises the SU(2) skein algebras of marked surfaces as those same algebras,
+with a flip-atlas whose diagonal flips are certified quiver mutations.
 
 ## Organisation
 
@@ -43,15 +45,17 @@ A single package layered over one contract:
 | `src/rg/` | the `RGKAlgebra` engine — a `KAlgebra` whose entire API (`RG`, `multiply`, `ρ`, `trace`) is computed live from an RG flow to a graded auxiliary — and the catalogue of flows it presents (rank-1 Argyres–Douglas chains, Lagrangian SU(2) gauge theories, nested and formal flows) |
 | `src/bps/` | the `BPSKAlgebra` engine — a `KAlgebra` realised from a BPS quiver (the Kontsevich–Soibelman spectrum generator + the `F·S = X_γ + O(𝖖)` discovery relation), with the cluster-mutation `BPSAtlas`. This is the realisation **spine**; Steps 1–3 are spine-free and never import it |
 | `src/abe/` | the `AbeKAlgebra` tier — a `KAlgebra` presented faithfully on an enriched rational quantum torus: the abelianized (gauge-fugacity) description of the K-theoretic Coulomb branch algebras of conventional gauge theories (pure U(N)/SU(N), U(N)+N_f matter, linear quivers), the N=2\* canonical finder, and the `KAlgebraObject` capstone that certifies each algebra `≅` its cone / BPS / RG presentation. Relies on Steps 1–4 by design |
+| `src/skein/` | the `SkeinKAlgebra` tier — the SU(2) (Kauffman-bracket) skein algebras of marked surfaces realised as `A_𝖖[T[A₁, Σ]]`: an intrinsic (contract-free) topological engine, the two-parent `SkeinKAlgebra(ConeKAlgebra, BPSKAlgebra)` class, a roster of named theories (the `[A₁,Aₙ]` polygons, the four-punctured sphere = SU(2) N_f=4, the SU(2)+N_f family, the D-family), and the `SkeinAtlas` whose diagonal flips are certified quiver mutations. Relies on Steps 1–5 by design |
 | `src/iso/` | `KAlgebraIso` witnesses identifying a sample algebra with its cone realisation |
 
 Per-layer documentation is in `docs/`: `docs/step1-KAlgebra.md` (the contract and
 the samples), `docs/step2-ConeKAlgebra.md` (the cone realisations),
 `docs/step3-RGKAlgebra.md` (the live RG-flow engine), `docs/step4-BPSKAlgebra.md`
 (the BPS-quiver realisation engine), `docs/step5-AbeKAlgebra.md` (the abelianized
-presentation tier and the object-layer capstone), `docs/conjectures-*.md` (the
-orthonormality and one-object-many-presentations conjectures), and
-`docs/axioms-and-bootstrap.md` (how the axioms determine the traces).
+presentation tier and the object-layer capstone), `docs/step6-SkeinKAlgebra.md`
+(the skein-algebra tier and its flip-atlas), `docs/conjectures-*.md` (the
+orthonormality, one-object-many-presentations, and skein-dictionary conjectures),
+and `docs/axioms-and-bootstrap.md` (how the axioms determine the traces).
 
 ## Tests
 
@@ -67,14 +71,17 @@ runs `tests/test_samples.py`, `tests/test_cones.py`,
 `tests/test_sample_cone_iso.py`, the eight Step-3 RG self-tests
 (`tests/test_rg_flows.py`, `test_a1an_chain.py`, `test_dn_chain.py`,
 `test_e_type.py`, `test_flavoured_fork.py`, `test_over_pure.py`,
-`test_su2_gauged_chain.py`, `test_wild.py`), and the Step-4 BPS self-test
-(`tests/test_bps_flows.py`). These exercise the contract verifiers — the bar
+`test_su2_gauged_chain.py`, `test_wild.py`), the Step-4 BPS self-test
+(`tests/test_bps_flows.py`), the Step-5 abelianized-tier self-test
+(`tests/test_abe_flows.py`), and the Step-6 skein-tier self-test
+(`tests/test_skein_flows.py`). These exercise the contract verifiers — the bar
 involution, the unit law, associativity, the `ρ`-automorphism property,
 `ρ²`-twisted trace cyclicity, and orthonormality — on the sample algebras, the
-cone realisations, the sample-to-cone isomorphisms, the live RG flows, and the BPS
-realisation. Seven of the eight Step-3 RG self-tests (all but `test_rg_flows.py`)
-additionally assert that no realisation-spine module is imported;
-`test_bps_flows.py` is run last, because Step 4 *is* the spine.
+cone realisations, the sample-to-cone isomorphisms, the live RG flows, the BPS
+realisation, the abelianized presentations, and the skein algebras. Seven of the
+eight Step-3 RG self-tests (all but `test_rg_flows.py`) additionally assert that
+no realisation-spine module is imported; `test_bps_flows.py`, `test_abe_flows.py`
+and `test_skein_flows.py` are run last, because Steps 4–6 import the spine.
 
 The modules import one another by unqualified name; `conftest.py` and
 `run_tests.py` place each `src/` subdirectory on `sys.path`. The modules must

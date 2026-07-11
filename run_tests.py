@@ -1,7 +1,7 @@
 """Validation gate — pure Python 3, no third-party dependencies.
 
 Puts every ``src/<layer>/`` directory on ``sys.path`` (the project's bare-name
-import convention), then runs the contract self-tests for all four layers:
+import convention), then runs the contract self-tests for every layer:
 
     python3 run_tests.py
 
@@ -34,12 +34,21 @@ Steps 1-4 by design, so it runs after the spine-free suites):
     matter as Abe+RG, N=2* machinery, the KAlgebraObject layer, SU(2)/SU(3)
     families, and the flow-typed RGKAlgebraObjects)
 
+Step 6 (the skein tier — SU(2) skein algebras of marked surfaces realised as
+``A_𝖖[T]``; relies on Steps 1-5, so it also runs after the spine-free suites):
+
+  * ``tests/test_skein_flows.py``      — the SkeinKAlgebra tier (the intrinsic
+    Kauffman-bracket layer, the two-parent ``SkeinKAlgebra`` class, the named
+    roster, the KAlgebraIso / KAlgebraObject legs, the contract axioms, the
+    ``SkeinAtlas`` flip charts, and the independent BPS-quiver vacuum anchor)
+
 Each prints its own ``PASS`` / ``ALL ... PASSED`` line.  (``pytest`` is not a
 supported entry point — ``conftest.py`` refuses it loudly; this script is the
-gate.)  ``test_cones`` is the slowest (a few minutes). ``test_bps_flows`` and
-``test_abe_flows`` are run **last** because they import the BPS spine — so the
-spine-freeness assertions in the Step-3 suites (which require no spine module in
-``sys.modules``) hold when they run earlier in the same process.
+gate.)  ``test_cones`` is the slowest (a few minutes). ``test_bps_flows``,
+``test_abe_flows`` and ``test_skein_flows`` are run **last** because they import
+the BPS spine — so the spine-freeness assertions in the Step-3 suites (which
+require no spine module in ``sys.modules``) hold when they run earlier in the
+same process.
 """
 import pathlib
 import runpy
@@ -60,6 +69,7 @@ for _test in ("tests/test_samples.py", "tests/test_cones.py",
               "tests/test_dn_chain.py", "tests/test_e_type.py",
               "tests/test_flavoured_fork.py", "tests/test_over_pure.py",
               "tests/test_su2_gauged_chain.py", "tests/test_wild.py",
-              "tests/test_bps_flows.py", "tests/test_abe_flows.py"):
+              "tests/test_bps_flows.py", "tests/test_abe_flows.py",
+              "tests/test_skein_flows.py"):
     print(f"\n=== {_test} ===")
     runpy.run_path(str(_ROOT / _test), run_name="__main__")

@@ -1,6 +1,6 @@
 """Generate ClusterApplet share-URLs for BPS quivers / `BPSKAlgebra`s.
 
-ClusterApplet (https://berserkdvd.github.io/ClusterApplet/) loads a quiver
+ClusterApplet loads a quiver
 from a URL fragment: ``<base>#<URL-encoded JSON>`` where the JSON has the
 schema (source of truth: ``coordination/to_clusterapplet/presets.jsx``)::
 
@@ -22,12 +22,16 @@ The encoding matches the working preset URLs exactly: ``json.dumps`` with
 the default ``", "`` / ``": "`` separators, then percent-encoded with
 ``urllib.parse.quote(safe="")``.
 
+Share-URL generation is disabled by default (``APPLET_BASE = None``): the
+viewer is being rewritten.  Pass an explicit ``base=`` to target a specific
+deployment once it is hosted.
+
 Quick use::
 
     from clusterapplet_url import bpskalgebra_applet_url
     from bps_kalgebra import BPSKAlgebra
     A = BPSKAlgebra(pairing=[[0,1],[-1,0]], node_charges=[(1,0),(0,1)])
-    print(bpskalgebra_applet_url(A, name="A_2 pentagon"))
+    print(bpskalgebra_applet_url(A, name="A_2 pentagon", base="<viewer URL>"))
 """
 from __future__ import annotations
 
@@ -36,7 +40,10 @@ import math
 import urllib.parse
 from typing import Sequence
 
-APPLET_BASE = "https://berserkdvd.github.io/ClusterApplet/"
+# The ClusterApplet viewer is being rewritten; share-URL generation is
+# disabled until it is re-hosted.  Pass an explicit ``base=`` to
+# ``applet_url`` / ``bpskalgebra_applet_url`` to target a deployment.
+APPLET_BASE = None
 
 
 def _auto_positions(n: int, *, cx: int = 450, cy: int = 375,
@@ -74,6 +81,10 @@ def applet_url(
     `False`.  `charges` and `spec` are included only if given.  Returns the
     full ``<base>#<encoded JSON>`` string.
     """
+    if base is None:
+        raise NotImplementedError(
+            "ClusterApplet share-URL generation is disabled: the viewer is "
+            "being rewritten. Pass an explicit base= URL to generate links.")
     B = _as_int_matrix(B)
     n = len(B)
     if any(len(row) != n for row in B):
@@ -184,8 +195,12 @@ if __name__ == "__main__":
                     node_charges=[(1, 0), (0, 1)],
                     spec=[(1, 0), (0, 1)])
     pos = [[300, 300], [500, 300]]
-    print("# bare quiver (always renders):")
-    print(bpskalgebra_applet_url(A, name="pentagon [A1,A2]", positions=pos))
+    # Share-URL generation is disabled by default; pass an explicit base=
+    # URL once the rewritten viewer is hosted.
+    base = "<your ClusterApplet deployment URL>"
+    print("# bare quiver:")
+    print(bpskalgebra_applet_url(A, name="pentagon [A1,A2]", positions=pos,
+                                 base=base))
     print("\n# with the BPS spectrum:")
     print(bpskalgebra_applet_url(A, name="pentagon [A1,A2]", positions=pos,
-                                 spec_seq=[0, 1]))
+                                 spec_seq=[0, 1], base=base))

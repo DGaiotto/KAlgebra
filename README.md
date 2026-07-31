@@ -29,9 +29,12 @@ theory's algebra directly from its BPS quiver, and an abelianized-presentation
 tier (`AbeKAlgebra`) that presents the K-theoretic Coulomb branch algebras of
 conventional gauge theories — pure U(N)/SU(N), U(N)+N_f matter, quivers — on an
 enriched rational quantum torus, with an object layer certifying each algebra `≅`
-its cone / BPS / RG presentation, and a skein tier (`SkeinKAlgebra`) that
+its cone / BPS / RG presentation, a skein tier (`SkeinKAlgebra`) that
 realises the SU(2) skein algebras of marked surfaces as those same algebras,
-with a flip-atlas whose diagonal flips are certified quiver mutations.
+with a flip-atlas whose diagonal flips are certified quiver mutations, and a
+general-gauge-group tier (`PureGAbeKAlgebra` / `GNAbeKAlgebra`) that carries the
+abelianized presentation to gauge theory at an arbitrary 4d gauge group with
+arbitrary matter.
 
 ## Organisation
 
@@ -46,6 +49,7 @@ A single package layered over one contract:
 | `src/bps/` | the `BPSKAlgebra` engine — a `KAlgebra` realised from a BPS quiver (the Kontsevich–Soibelman spectrum generator + the `F·S = X_γ + O(𝖖)` discovery relation), with the cluster-mutation `BPSAtlas`. This is the realisation **spine**; Steps 1–3 are spine-free and never import it |
 | `src/abe/` | the `AbeKAlgebra` tier — a `KAlgebra` presented faithfully on an enriched rational quantum torus: the abelianized (gauge-fugacity) description of the K-theoretic Coulomb branch algebras of conventional gauge theories (pure U(N)/SU(N), U(N)+N_f matter, linear quivers), the N=2\* canonical finder, and the `KAlgebraObject` capstone that certifies each algebra `≅` its cone / BPS / RG presentation. Relies on Steps 1–4 by design |
 | `src/skein/` | the `SkeinKAlgebra` tier — the SU(2) (Kauffman-bracket) skein algebras of marked surfaces realised as `A_𝖖[T[A₁, Σ]]`: an intrinsic (contract-free) topological engine, the two-parent `SkeinKAlgebra(ConeKAlgebra, BPSKAlgebra)` class, a roster of named theories (the `[A₁,Aₙ]` polygons, the four-punctured sphere = SU(2) N_f=4, the SU(2)+N_f family, the D-family), and the `SkeinAtlas` whose diagonal flips are certified quiver mutations. Relies on Steps 1–5 by design |
+| `src/gn/` | the general-gauge-group tier — gauge theory at an arbitrary 4d gauge group with arbitrary matter: `PureGAbeKAlgebra` (pure gauge over any `RootDatum`, built by a ladder of separately-guarded constructive routes with a licensed, (★)-guarded solve as the last rung — which is what opens the groups with no minuscule cocharacter), `GNAbeKAlgebra` (`T^*N` matter at any datum and any matter *representation*, with iterable matter-removal flows), `LineLattice` (the 4d gauge group data as a lattice and its dual, with the Langlands family `(G, Adj) ↔ (G^∨, Adj)` as certified `KAlgebraIso`), `AuxSpace` (the Schur pairing in vacuum-state form, with `ρ` never constructed), and `PureSO3KAlgebra` (the independent BPS-quiver oracle that checks the odd-height claim from outside the tier — the one module here that imports the Step-4 spine). Relies on Steps 1–6 by design |
 | `src/iso/` | `KAlgebraIso` witnesses identifying a sample algebra with its cone realisation |
 
 Per-layer documentation is in `docs/`: `docs/step1-KAlgebra.md` (the contract and
@@ -53,9 +57,18 @@ the samples), `docs/step2-ConeKAlgebra.md` (the cone realisations),
 `docs/step3-RGKAlgebra.md` (the live RG-flow engine), `docs/step4-BPSKAlgebra.md`
 (the BPS-quiver realisation engine), `docs/step5-AbeKAlgebra.md` (the abelianized
 presentation tier and the object-layer capstone), `docs/step6-SkeinKAlgebra.md`
-(the skein-algebra tier and its flip-atlas), `docs/conjectures-*.md` (the
+(the skein-algebra tier and its flip-atlas), `docs/step7-GNKAlgebra.md` (the
+general-gauge-group tier and the (★)-guarded build), `docs/conjectures-*.md` (the
 orthonormality, one-object-many-presentations, and skein-dictionary conjectures),
 and `docs/axioms-and-bootstrap.md` (how the axioms determine the traces).
+
+Two notes bound what the gate establishes:
+`docs/verification-scope.md` (what a green gate does *not* certify — the two
+best-effort RG checkers it omits, and the one search bound that is proven only
+in the pointed case) and `docs/frozen-data-provenance.md` (where the eight
+`.pkl` tables and the fourteen generated `finite_*_kalg.py` modules came from,
+their content hashes, and what validates them here given that their builders
+are not shipped).
 
 ## Tests
 
@@ -73,15 +86,19 @@ runs `tests/test_samples.py`, `tests/test_cones.py`,
 `test_e_type.py`, `test_flavoured_fork.py`, `test_over_pure.py`,
 `test_su2_gauged_chain.py`, `test_wild.py`), the Step-4 BPS self-test
 (`tests/test_bps_flows.py`), the Step-5 abelianized-tier self-test
-(`tests/test_abe_flows.py`), and the Step-6 skein-tier self-test
-(`tests/test_skein_flows.py`). These exercise the contract verifiers — the bar
+(`tests/test_abe_flows.py`), the Step-6 skein-tier self-test
+(`tests/test_skein_flows.py`), and the Step-7 general-gauge-group self-test
+(`tests/test_gn_flows.py`). These exercise the contract verifiers — the bar
 involution, the unit law, associativity, the `ρ`-automorphism property,
 `ρ²`-twisted trace cyclicity, and orthonormality — on the sample algebras, the
 cone realisations, the sample-to-cone isomorphisms, the live RG flows, the BPS
-realisation, the abelianized presentations, and the skein algebras. Seven of the
+realisation, the abelianized presentations, the skein algebras, and the
+general-gauge-group charts. Seven of the
 eight Step-3 RG self-tests (all but `test_rg_flows.py`) additionally assert that
-no realisation-spine module is imported; `test_bps_flows.py`, `test_abe_flows.py`
-and `test_skein_flows.py` are run last, because Steps 4–6 import the spine.
+no realisation-spine module is imported; `test_bps_flows.py`, `test_abe_flows.py`,
+`test_skein_flows.py` and `test_gn_flows.py` are run last, because Steps 4–6
+import the spine and Step 7 reaches it through the one module that must — the
+`PureSO3KAlgebra` oracle it checks its odd-height claim against.
 
 The modules import one another by unqualified name; `conftest.py` and
 `run_tests.py` place each `src/` subdirectory on `sys.path`. The modules must

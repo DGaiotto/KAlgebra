@@ -1,5 +1,5 @@
 """`UNNfKAlgebra` — the native `A_𝖖[U(N)+N_f]` on the `AbeKAlgebra`
-contract (Plan 30 T4, increment 1: N_f = 1).
+contract (ruling T4, increment 1: N_f = 1).
 
 Labels are **`(m, λ)` only** — per the D8b ruling (user, 2026-06-12) the
 matter is organized as (fundamental of U(N)) ⊗ (anti-fundamental of
@@ -93,7 +93,7 @@ class UNNfKAlgebra(AbeKAlgebra):
         return g if self._Nf == 1 else (g, tuple(w))
 
     def _label_section_decompose(self, label):
-        """**Aspirationally obsolete (Plan 32)** — superseded by
+        """**Aspirationally obsolete** — superseded by
         `r_label_decompose` (same gauge section + the single SU(N_f) irrep,
         returned as the bare weight key `w` rather than wrapped as `χ_w`).
         Kept, not retired: `to_R_form` still routes through it (it derives from
@@ -233,7 +233,7 @@ class UNNfKAlgebra(AbeKAlgebra):
     def _transport(self, mturq):
         """A `MatterURQTorus` flow chart (the URQ transport source) → the
         group-general `MatterWRQTorus` over `self.torus().datum` (`u_n(N)`).
-        The transport is an isomorphism (`tests/test_matter_wrq_torus.py`)."""
+        The transport is an isomorphism (the suite in the source repository)."""
         from matter_wrq_torus import MatterWRQTorus, vr_to_tr
         D = self.torus().datum
         return MatterWRQTorus(D, self._Nf, {
@@ -379,7 +379,7 @@ class UNNfKAlgebra(AbeKAlgebra):
         # per q-order, dropping the gauge-centre level (`self._R.reduce`).  This
         # replaces the former hand-rolled highest-weight `_su_peel`, which was
         # incomplete at N_f >= 4 (it raised on / fabricated spurious dominant
-        # reps; see tests/test_un_nf_complete_enhancement.py).
+        # reps; see the suite in the source repository).
         import sun_characters as SC
         byq: dict = {}                       # {qexp: {Cartan weight: int}}
         for kv, lp in levels.items():
@@ -412,11 +412,13 @@ class UNNfKAlgebra(AbeKAlgebra):
     def trace(self, a, K: int = 20):
         """`Tr(L_a)` — the matter-measure torus trace, flavour content
         assembled into SU(N_f) characters (central specialized; D8b)."""
-        return self._package_levels(self.chart(a).trace(K=K), K)
+        # W >= K: the mu-window lesson (a product path at partial flavour
+        # level p costs at least q^p) — the default W=4 under-resolves K > 4.
+        return self._package_levels(self.chart(a).trace(K=K, W=K + 2), K)
 
     def inner_product(self, a, b, K: int = 20):
         prod = self.chart(a).rho() * self.chart(b)
-        return self._package_levels(prod.trace(K=K), K)
+        return self._package_levels(prod.trace(K=K, W=K + 2), K)
 
 
 if __name__ == "__main__":

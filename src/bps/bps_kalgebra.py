@@ -26,6 +26,28 @@ In both cases the canonical primitive is `_s_coefficient(γ)`, and
 The RG flow's σ map (= label-level ρ) is derived from spec in case (a);
 in case (b) the user must supply `sigma=...` and `sigma_inverse=...`.
 
+The lattice is a CHOICE, and that choice is the 4d gauge group
+--------------------------------------------------------------
+
+`node_charges` and `Γ` are two inputs, not one.  The quiver — the nodes'
+mutual pairings `⟨n_i, n_j⟩` — is the BPS spectrum data; **where those
+nodes sit inside `Γ` is the choice of 4d gauge group**, and the same
+quiver embedded differently is a different theory.  Pure SU(2) and pure
+SO(3) are both the Kronecker-2 quiver on the canonical `Z²` with unit
+symplectic pairing, differing only in the embedding:
+
+    SU(2)   nodes (1, 0), (−1, 2)      Γ = P^∨ ⊕ P   (simply connected)
+    SO(3)   nodes (2, 0), (−2, 1)      Γ = Q^∨ ⊕ Q   (adjoint)
+
+so `⟨n₀, n₁⟩ = 2` holds for both and identifies neither.  For pure ADE the
+node charges live in `Q^∨ ⊕ Q`, and the admissible `Γ` are the unimodular
+`Λ₀ = P^∨ ⊕ Q ⊆ Γ ⊆ Q^∨ ⊕ P`, classified by the Lagrangian subgroups of
+`(P/Q)²`.  Do not hand-write node vectors for a named gauge group:
+`pure_ade_lattice.pure_ade_lattice_data(factors, global_form=…)` builds
+them, and `global_form_bridge` carries the choice to and from the
+abelianized tier's `global_form.LineLattice`, so the two presentations of
+one theory cannot drift apart unnoticed.
+
 Charges vs labels (three roles of an integer tuple)
 ---------------------------------------------------
 

@@ -42,13 +42,27 @@ Step 6 (the skein tier — SU(2) skein algebras of marked surfaces realised as
     roster, the KAlgebraIso / KAlgebraObject legs, the contract axioms, the
     ``SkeinAtlas`` flip charts, and the independent BPS-quiver vacuum anchor)
 
-Each prints its own ``PASS`` / ``ALL ... PASSED`` line.  (``pytest`` is not a
-supported entry point — ``conftest.py`` refuses it loudly; this script is the
-gate.)  ``test_cones`` is the slowest (a few minutes). ``test_bps_flows``,
-``test_abe_flows`` and ``test_skein_flows`` are run **last** because they import
-the BPS spine — so the spine-freeness assertions in the Step-3 suites (which
-require no spine module in ``sys.modules``) hold when they run earlier in the
-same process.
+Step 7 (gauge theory at an arbitrary 4d gauge group with arbitrary matter;
+relies on Steps 1-6, so it also runs after the spine-free suites):
+
+  * ``tests/test_gn_flows.py``         — general-`G` pure gauge over an arbitrary
+    root datum with the guarded route ladder and the licensed (star) solve, `(G, N)`
+    matter at any datum and any matter representation, the 4d gauge group data and
+    its Langlands duals, and the vacuum-state Schur pairing
+
+Notes on the order and the entry point:
+
+  * ``pytest`` is **not** a supported entry point and is refused loudly by
+    ``conftest.py``.  It would skip ``test_cones.py`` and
+    ``test_sample_cone_iso.py`` (neither exposes ``test_``-prefixed
+    collectables), and importing the BPS suite at collection time would defeat
+    the spine-freeness assertions the Step-3 suites make.  Use this script.
+  * ``test_cones.py`` is the slowest suite by a wide margin — it walks the whole
+    finite-type cone zoo.
+  * the spine-importing tiers (Steps 4-7) run **last**, after every suite that
+    asserts no spine module is loaded, so that ordering is what makes those
+    assertions meaningful rather than accidental.
+
 """
 import pathlib
 import runpy
@@ -70,6 +84,6 @@ for _test in ("tests/test_samples.py", "tests/test_cones.py",
               "tests/test_flavoured_fork.py", "tests/test_over_pure.py",
               "tests/test_su2_gauged_chain.py", "tests/test_wild.py",
               "tests/test_bps_flows.py", "tests/test_abe_flows.py",
-              "tests/test_skein_flows.py"):
+              "tests/test_skein_flows.py", "tests/test_gn_flows.py"):
     print(f"\n=== {_test} ===")
     runpy.run_path(str(_ROOT / _test), run_name="__main__")

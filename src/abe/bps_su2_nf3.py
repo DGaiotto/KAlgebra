@@ -76,24 +76,24 @@ def s4_permute(v: tuple, perm: tuple) -> tuple:
 
     Acts as the linear transformation on the rank-3 flavour Cartan that
     permutes w_1..w_4 according to `perm`.
+
+    **Exact over `Z`** — no solver and no floating point.  Decompose
+    `flav = Σ_k c_k w_k`.  The `w_k` span the rank-3 Cartan with the single
+    relation `Σ_k w_k = 0`, so `c` is determined only up to a common shift
+    `c_k → c_k + t`; that shift is invisible in the answer, because permuting
+    `c` and re-contracting moves the result by `t·Σ_k w_k = 0`.  Fixing `c_4 = 0`
+    leaves a `3×3` system that is **unit upper-triangular** in this basis
+    (`w_1, w_2, w_3` as columns), so back-substitution is exact in integers:
+
+        c_3 = f_3,   c_2 = f_2 + c_3,   c_1 = f_1 + c_2,   c_4 = 0.
     """
     if len(perm) != 4 or sorted(perm) != [0, 1, 2, 3]:
         raise ValueError(f"perm must be a permutation of (0,1,2,3); got {perm}")
-    # Reconstruct the flavour 3-vector as a linear combination of w_k's,
-    # then permute the coefficients, then re-express in Dynkin basis.
-    flav = v[2:5]
-    # Decompose: flav = c_1·w_1 + c_2·w_2 + c_3·w_3 + c_4·w_4 with Σ c_k = 0
-    # (since Σ w_k = 0).  Use c_k = "amount of weight w_k in flav" — this
-    # has a 1-parameter family (Σ c_k free), so we fix by setting min c_k = 0.
-    import numpy as _np
-    W = _np.array(SU4_FUND_WEIGHTS).T               # 3x4 matrix (each col = w_k).
-    # Solve W·c = flav with min-c-shift normalisation.
-    # Just compute c via pinv (rank 3 matrix).
-    c_solve, *_ = _np.linalg.lstsq(W, _np.array(flav, dtype=float), rcond=None)
-    # Normalise: c_k → c_k - min(c_k).  But for permutation we just need
-    # to permute the c's; the min-shift is invariant.
-    permuted_c = [c_solve[perm[i]] for i in range(4)]
-    new_flav = W @ _np.array(permuted_c)
-    # Round to integers (should be exact).
-    new_flav = tuple(int(round(x)) for x in new_flav)
+    f1, f2, f3 = v[2:5]
+    c = (f1 + f2 + f3, f2 + f3, f3, 0)
+    new_flav = [0, 0, 0]
+    for i, w in enumerate(SU4_FUND_WEIGHTS):
+        ci = c[perm[i]]
+        for j in range(3):
+            new_flav[j] += ci * w[j]
     return (v[0], v[1], *new_flav)

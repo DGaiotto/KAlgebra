@@ -55,6 +55,7 @@ recognize layers build on this (subsequent increments).
 from __future__ import annotations
 
 import itertools
+from fractions import Fraction
 
 from laurent_poly import LaurentPoly
 from root_datum import RootDatum
@@ -94,8 +95,84 @@ def _weyl_transport(datum, m, build_dominant):
     raise RuntimeError(f"no Weyl element carrying cocharacter {m_dom} to {m}")
 
 
+def _root_pairing_count(datum, a, m) -> int:
+    """`⟨α, m⟩` as a Python **int**, for use as a loop bound in the ψ-dressing.
+
+    Why this exists: a cocharacter of a **non-simply-connected** global form lives
+    in the coweight lattice `P^∨ ⊋ Q^∨`, so its coordinates are `Fraction`s in the
+    coroot basis — and then `⟨α, m⟩` comes back as a `Fraction` even when its value
+    is a plain integer, which `range()` rejects on *type* alone.  Since `P^∨` is by
+    definition the dual of the root lattice, `⟨α, m⟩ ∈ Z` for every root `α`
+    whenever `m ∈ P^∨`, so the coercion below is always legitimate there and this
+    is the only thing that stood between the ψ-dressing and the exotic forms.
+
+    Honest-fails when the value is genuinely non-integral: that means `m ∉ P^∨`,
+    the ψ-dressing product `∏_{l<⟨α,m⟩}` has no meaning, and no coercion can
+    manufacture one.  (Distinct from the *other* boundary — an `m ∈ P^∨` with odd
+    `⟨Σ⁺, m⟩`, where the dressing is fine but the *standalone monomial* `M(m)`
+    wants `𝖖^{⟨ρ,m⟩}`.  That one is **not an obstruction** (D31): the algebra needs
+    the phase only through the integral coboundary `δS̃`, and `cocycle_R` restores
+    the honest phase, so those charges build.  Either way, not a failure of this
+    coercion.)"""
+    v = _pairing_root_cochar(datum, a, m)
+    iv = int(v)
+    if iv != v:
+        raise NotImplementedError(
+            f"{datum.name}: ⟨α, m⟩ = {v} is not an integer at α={tuple(a)}, "
+            f"m={tuple(m)} — the cocharacter is not in the coweight lattice "
+            f"P^∨, so the ψ-dressing product ∏_{{l<⟨α,m⟩}} is undefined.  A "
+            f"genuine global form has m ∈ P^∨; check the coweight normalization.")
+    return iv
+
+
 def _psi_monomial_data(datum, m):
-    """`(weight, qpow, sign_is_neg)` of the numerator monomial M(m) for dominant m."""
+    """`(weight, qpow, sign_is_neg)` of the numerator monomial M(m) for dominant m.
+
+    ⚠ **The sign is `(−1)^{S + Σ_{α>0}⟨α,m⟩}`, and at odd `⟨Σ⁺,m⟩` with the honest
+    `S = −⟨ρ,m⟩` that exponent is HALF-INTEGRAL — so `(−1)^{sgn}` is a FOURTH ROOT
+    OF UNITY, not a sign.**  `sgn % 2 == 1` is `False` for every half-integer
+    (`Fraction(1,2) % 2 == 1/2`), so this function then *silently* returns `+1`
+    where the honest value is `i^{2·sgn}`.  Measured at SO(3)=PSU(2)
+    (`⟨Σ⁺,m⟩ = m[0]`), honest `S = −m/2`:
+
+        m=(1,)  Σ⟨α,m⟩=1  S=−1/2  sgn=1/2   -> code +1, honest i^1
+        m=(3,)  Σ⟨α,m⟩=3  S=−3/2  sgn=3/2   -> code +1, honest i^3
+        m=(2,)  Σ⟨α,m⟩=2  S=−1    sgn=1     -> code −1, honest −1   (agree)
+
+    Consequences worth knowing before you measure anything here:
+
+      * shipped code never reaches the half-integral branch — the `ε`-corrected
+        `RootDatum.atom_phase` keeps `S` integral — so this is a **trap for
+        probes** (the same species as `atom_phase_doubled`, D26), not a live bug;
+      * it is why "simulate `𝖖^{1/2}`" never worked at odd height: the honest atom
+        normalisation there wants a square root of **`−𝖖`**, and simulating a
+        half-power supplies the `𝖖` half while this line silently drops the `i`;
+      * the phase is **not** a free convention here.  `inner` is BILINEAR, so
+        rescaling an element by `c` moves `I` by `c²`; measured, `S: 0 → −1` at
+        `m=(1,)` moves `I` by `𝖖²`, and at even `m=(2,)` **only** `S = −⟨ρ,m⟩`
+        gives `𝖖⁰ = 1` (`S = 0` and `S = −⟨Σ⁺,m⟩` both fail).  Orthonormality
+        PINS `S = −⟨ρ,m⟩`;
+      * hence at odd `⟨Σ⁺,m⟩` the pinned value is half-integral — which is why
+        THIS monomial cannot be built there.
+
+    ⚠ **THE CONCLUSION THAT USED TO FOLLOW — "no integral `S` restores
+    orthonormality, so this presentation does not carry those lines at all;
+    absorbing `−𝖖^{−1}` would need the forbidden `i·𝖖^{−1/2}`" — IS RETRACTED
+    (D31, 2026-07-29).**  It treated `M(m)` as if the tier needed it.  The tier
+    needs only the *cocycle*, and there `S` appears solely through the coboundary
+    `δS̃`, which is an INTEGER even when `S̃` is not (`π = ⟨Σ⁺,·⟩ mod 2` is
+    Weyl-invariant and additive, so the halves cancel).  So this function keeps
+    the **reduced** integral phase and `cocycle_R` restores the honest one
+    exactly, via `(−𝖖)^{δ(S_honest − S_used)}`.  There is no scalar to absorb, no
+    `𝖖^{1/2}` and no `i` anywhere; the odd sectors build and are orthonormal —
+    certified at SO(3) against the `PureSO3KAlgebra` BPS oracle, and measured at
+    SO(5)/SO(7).  Everything above about *this monomial* stays true: it is the
+    square root of the measure, it genuinely wants `(−𝖖)^{⟨ρ,m⟩}`, and the
+    half-integral branch remains a trap for probes that call it directly.
+
+    See D26/D27 and especially **D31** in
+    the design record; battery
+    a probe in the source repository."""
     d = datum.dim
     wt = [0] * d
     qpow = 0
@@ -117,7 +194,7 @@ def _psi_dominant(datum, m):
     coeff = LaurentPoly({qpow: -1 if neg else 1})
     rat = TorusRational.from_laurent(TorusLaurent.monomial(datum, wt, coeff))
     for a in datum.positive_roots():
-        am = _pairing_root_cochar(datum, a, m)
+        am = _root_pairing_count(datum, a, m)
         for l in range(am):
             rat = rat * TorusRational.factor_inv(datum, a, 2 * l)
     return rat
@@ -130,7 +207,7 @@ def _psi_inv_dominant(datum, m):
         datum, tuple(-x for x in wt), LaurentPoly({-qpow: -1 if neg else 1}))
     den = TorusLaurent.one(datum)
     for a in datum.positive_roots():
-        am = _pairing_root_cochar(datum, a, m)
+        am = _root_pairing_count(datum, a, m)
         for l in range(am):
             den = den * TorusLaurent(datum, {
                 (0,) * datum.dim: LaurentPoly({0: 1}),
@@ -149,14 +226,119 @@ def dressing_psi_inv(datum, m):
     return _weyl_transport(datum, m, lambda md: _psi_inv_dominant(datum, md))
 
 
+_PHASE_GAP_CACHE: dict = {}
+
+
+def _phase_gap(datum, m):
+    """`S_honest(m̃) − S_used(m̃)` at the dominant rep `m̃`, as a `Fraction`.
+
+    `S_honest = −⟨ρ, m⟩ = −½⟨Σ⁺, m⟩` is the phase the axioms want (bar
+    antimultiplicativity pins its Weyl-invariant content — the D10 finding);
+    `S_used = RootDatum.atom_phase` is what the datum actually hands the ψ
+    dressing, which must be an integer because `LaurentPoly` has integer
+    exponents.  The gap is therefore:
+
+      * `−π(m)/2` on the DEFAULT phase (`S_used = −(⟨Σ⁺,m⟩ − ε)/2` with
+        `ε(m_dom) = +1` at odd height), i.e. a half-integer exactly at odd
+        `⟨Σ⁺, m⟩`;
+      * the CENTRAL shift on `u_n` / `product_datum`, which carry their own
+        certified convention — `½Σ_j m_j` at `U(N)`, Weyl-invariant *and*
+        additive, hence invisible in the cocycle (D29: the centre is the only
+        surviving freedom).  `U(2)` at `m = (1,0)` has odd `⟨Σ⁺,m⟩` yet needs no
+        correction, which is exactly why the gap must be computed rather than
+        read off the parity."""
+    # NOTE: the per-datum sub-cache holds a STRONG reference to its datum.  Keying
+    # on `id(datum)` alone is a live bug — CPython reuses addresses after GC, so a
+    # short-lived datum's entries get served to an unrelated later one (observed:
+    # a spurious non-integral gap of 3/2 at `su_n(3)` during the gate run).
+    ent = _PHASE_GAP_CACHE.get(id(datum))
+    if ent is None or ent[0] is not datum:
+        ent = (datum, {})
+        _PHASE_GAP_CACHE[id(datum)] = ent
+    sub = ent[1]
+    key = tuple(m)
+    hit = sub.get(key)
+    if hit is None:
+        md = datum.dominant_cochar_rep(key)
+        hit = (-Fraction(datum._root_height(md)) / 2
+               - Fraction(datum.atom_phase(md)))
+        sub[key] = hit
+    return hit
+
+
+def _phase_coboundary(datum, a, b) -> int:
+    """`δ(S_honest − S_used)(a, b)` — an INTEGER, always.
+
+    This is the whole content of D31.  `S̃ = S ∘ dominant_cochar_rep` may be a
+    half-integer, but its coboundary cannot be: the parity character
+    `π = ⟨Σ⁺, ·⟩ mod 2` is Weyl-invariant *and* additive (it kills every simple
+    coroot, `⟨Σ⁺, α_i^∨⟩ = 2`), so the halves cancel in
+    `S̃(a+b) − S̃(a) − S̃(b)`.  Measured over a box at SO(3)/SO(5)/SO(7)/Spin(5)/
+    Sp(2)/G₂/SU(3): 0 non-integral coboundaries, including at the 12 (SO(5)) and
+    62 (SO(7)) points where `S̃` itself is half-integral."""
+    tot = tuple(a[i] + b[i] for i in range(datum.dim))
+    v = _phase_gap(datum, tot) - _phase_gap(datum, a) - _phase_gap(datum, b)
+    if v.denominator != 1:
+        raise AssertionError(
+            f"{datum.name}: δ(S_honest − S_used) is non-integral at "
+            f"a={tuple(a)}, b={tuple(b)} ({v}) — the datum's atom phase differs "
+            f"from −⟨ρ,m⟩ by something that is not a half-integer character.")
+    return int(v)
+
+
 def cocycle_R(datum, a, b):
-    """`R_{a,b} = ψ_a · S_a(ψ_b) · ψ_{a+b}^{-1}`, `S_a : v ↦ 𝖖^{2a} v`."""
+    """`R_{a,b} = (−𝖖)^{δ(S_honest−S_used)(a,b)} · ψ_a · S_a(ψ_b) · ψ_{a+b}^{-1}`,
+    `S_a : v ↦ 𝖖^{2a} v`.
+
+    **The prefactor is the honest atom phase, restored** (D31, 2026-07-29), and
+    it is what lets the tier carry 't Hooft lines at odd `⟨Σ⁺, m⟩` — SO(3),
+    SO(5), Sp(4)/Z₂, SO(7), PSU(4).  On the default phase the exponent evaluates
+    to `π(a)·π(b)` (so it fires only when BOTH charges have odd `⟨Σ⁺,·⟩`); on a
+    datum with its own convention — `u_n`, `product_datum` — it is `0`, because
+    that convention differs from `−⟨ρ,m⟩` by a *central* linear functional, which
+    is Weyl-invariant and additive and so cancels in the coboundary.  `U(2)` at
+    `m = (1,0)` is the case that discriminates: odd `⟨Σ⁺,m⟩`, yet no correction.
+
+    The atom phase is `S(m) = −⟨ρ, m⟩ = −½⟨Σ⁺, m⟩`, an integer on the coroot
+    lattice (`⟨Σ⁺, α_i^∨⟩ = 2`) and a half-integer exactly at odd `⟨Σ⁺, m⟩`.
+    `_psi_monomial_data` cannot hold the half — it materialises the standalone
+    monomial `M(m) ∝ (−𝖖)^{⟨ρ,m⟩}`, i.e. the SQUARE ROOT of the measure, which
+    is a function on `G̃`'s torus and not on `G̃/H`'s.  But the algebra never
+    needs `S` as a number: it needs only the coboundary
+    `δS̃(a,b) = S̃(a+b) − S̃(a) − S̃(b)` (`S̃ = S ∘ dominant_cochar_rep`), and that
+    is an INTEGER even where `S̃` is not, because `π` is additive.  Concretely,
+    on the default phase `RootDatum.atom_phase` returns the *reduced* integral
+    `S_red = −(⟨Σ⁺,m⟩ − ε)/2` with `ε(m_dom) = +1` at odd height, so
+
+        S_honest − S_red = −π(m)/2
+        δ(S_honest − S_red)(a, b) = ½(π(a) + π(b) − π(a+b)) = π(a)·π(b)
+        R_honest = (−𝖖)^{π(a)π(b)} · R_red                    (D29's law)
+
+    — vanishing unless BOTH charges have odd `⟨Σ⁺,·⟩`, so the entire certified
+    even sector is bit-identical (measured).  `_phase_coboundary` computes the
+    general `δ(S_honest − S_used)` rather than this special case, so that data
+    carrying their own (central-shifted) convention are correctly left alone.
+
+    Why `dressing_psi` is deliberately NOT changed: on the support of a single
+    canonical `π` is constant (the bubbled cells differ from the leading one by
+    coroots, which `π` kills), so the honest `ψ` differs from the reduced one by
+    an overall scalar `(−𝖖)^{π/2}` — invisible to `star_bubbling`'s (★), which is
+    a homogeneous residue-cancellation condition.  Keeping `ψ` reduced therefore
+    keeps every difference-operator surface integral and unchanged.
+
+    Battery: a probe in the source repository; record: ruling D31."""
     a, b = tuple(a), tuple(b)
     tot = tuple(a[i] + b[i] for i in range(datum.dim))
     shift = tuple(2 * x for x in a)
-    return (dressing_psi(datum, a)
-            * dressing_psi(datum, b).q_shift(shift)
-            * dressing_psi_inv(datum, tot)).simplify()
+    red = (dressing_psi(datum, a)
+           * dressing_psi(datum, b).q_shift(shift)
+           * dressing_psi_inv(datum, tot)).simplify()
+    e = _phase_coboundary(datum, a, b)
+    if not e:
+        return red
+    phase = TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, (0,) * datum.dim, LaurentPoly({e: (-1) ** (e % 2)})))
+    return (red * phase).simplify()
 
 
 def cocycle_Rtilde(datum, a, b):
@@ -186,7 +368,11 @@ def _rho_block(datum, k):
             wexp[i] += ak * a[i]
         qf += ak * (ak - 1)
     wexp = tuple(-x for x in wexp)
-    qpow = -qf + 2 * _phase_S(datum, k)
+    # the DOUBLED phase, which is integral on all of `P^∨` with no parity
+    # correction — see `RootDatum.atom_phase_doubled`.  Using `2*_phase_S` here
+    # shifted ρ by `𝖖^{±1}` at odd `⟨Σ⁺,k⟩` and broke `I_{a,a} = 1 + O(𝖖)`, since ρ
+    # is *defined* so the seed contributes exactly 1.
+    qpow = -qf + datum.atom_phase_doubled(tuple(k))
     sign_exp = datum.rho_sign_exp(k)
     return (-1 if sign_exp % 2 else 1), qpow, wexp
 
@@ -555,7 +741,7 @@ def multiply_in_basis(datum, a, b, build=build_canonical):
 # ===========================================================================
 # Generic native build — product-and-peel + KL bar-correction (D10 wall (b))
 #
-# The datum-general transcription of the `PureSU2KAlgebra` (#765) native build
+# The datum-general transcription of the `PureSU2KAlgebra` native build
 # (itself the SU-torus transcription of the U(N) keystone `cf_build_full`):
 # dress a WELL-FOUNDED seed product (e.g. `H·L_{m−1,e}` — magnetically charged,
 # coupling the target only to strictly-lower/other canonicals) into the
@@ -733,12 +919,32 @@ def minuscule(datum, m, e):
 def _un_fundamental_coweights(N, m_dom):
     """U(N) decomposition of a dominant cocharacter into fundamental coweights:
     `m = Σ_k c_k φ_k + p·𝟙`, `φ_k = (1^k, 0^{N-k})`, `c_k = m_k − m_{k+1}`,
-    `p = m_N`.  Returns `(list_of_φ_k_with_multiplicity, p)`."""
+    `p = m_N`.  Returns `(list_of_φ_k_with_multiplicity, p)`.
+
+    **Honest-fails on non-integral coordinate differences.**  The multiplicities
+    `c_k` count *generators*, so they must be `int`; at a non-simply-connected form
+    a cocharacter lives in `P^∨` and its coordinates are `Fraction`s, which
+    `range()` rejects on type alone.  Where they are integral in value the
+    coercion below rescues them; where they are genuinely fractional this type-A
+    recipe has no meaning and the caller (`build_cone_monomial`, i.e. the `cone`
+    route) must decline so the dispatcher falls through to a route that applies.
+    Measured at `SO(7)` `m = (1, 2, 3/2)`, where the bare `range()` raised
+    `TypeError` — which `_guarded_dispatch` does NOT treat as "route not
+    applicable", so it escaped and killed `chart()` on a label the licensed (★)
+    solve builds.  Same coercion discipline as `_root_pairing_count`."""
     m = list(m_dom)
     p = m[-1]
     factors = []
     for k in range(1, N):
-        for _ in range(m[k - 1] - m[k]):
+        c = m[k - 1] - m[k]
+        ic = int(c)
+        if ic != c:
+            raise NotImplementedError(
+                f"_un_fundamental_coweights: c_{k} = {c} is not an integer at "
+                f"m={tuple(m_dom)} — the U(N) fundamental-coweight decomposition "
+                f"m = Σ c_k φ_k + p·𝟙 counts generators, so a fractional "
+                f"difference means this type-A recipe does not apply here.")
+        for _ in range(ic):
             factors.append(tuple(1 if i < k else 0 for i in range(N)))
     return factors, p
 
@@ -855,6 +1061,23 @@ def build_dressed_cone_monomial(datum, m, e):
     p = m[N - 1]
     if any(x < 0 for x in c):
         return None
+    # A cocharacter of a non-simply-connected form lives in the coweight lattice
+    # `P^∨ ⊋ Q^∨`, so its coordinates are `Fraction`s.  The box product below
+    # indexes INTEGER boxes (`range(ck + 1)`), so a genuinely fractional `c`/`p`
+    # means this route does not apply — return `None` and let the route
+    # dispatcher fall through, rather than raising `TypeError: 'Fraction' object
+    # cannot be interpreted as an integer` out of `range()`.  Measured at
+    # `SO(5)` `m = (1, 1)`, `e = (1, 0)`, where the coordinates are integral in
+    # VALUE but `Fraction` in TYPE, so the coercion below rescues it outright.
+    # Same coercion discipline as `_root_pairing_count`.
+    def _exact_int(x):
+        iv = int(x)
+        return iv if iv == x else None
+    c_i = [_exact_int(x) for x in c]
+    p_i = _exact_int(p)
+    if p_i is None or any(x is None for x in c_i):
+        return None
+    c, p = c_i, p_i
     for bs in itertools.product(*[range(ck + 1) for ck in c]):
         base = _cone_box_product(datum, m, c, p, bs, 0)      # n=0 box product
         Lbase = _bar_center(base) if base is not None else None
@@ -965,17 +1188,94 @@ def leading_orbit(datum, m, e):
     return WRQTorus(datum, f)
 
 
+_DOM_FUNCTIONAL_CACHE: dict = {}
+
+
+def _dominance_functional(datum):
+    """A linear functional `f` on the weight lattice with `f(α_i) = 1` for every
+    simple root — hence `f(α) > 0` for every positive root, and `f` is strictly
+    increasing along the dominance order.
+
+    Solves `C·t = (1,…,1)` over `Q`, `C` the matrix whose rows are the simple
+    roots in the repo's weight coordinates; then `f(λ) = ⟨λ, t⟩`.
+
+    **Why this replaced the previous root-dot test (2026-07-27).**  The old
+    `_levi_dom_rep` decided dominance by `⟨α, x⟩ ≥ 0` with a plain dot product
+    of the *root* coordinate vector against the weight, while the repo's own
+    `RootDatum.is_dominant` uses the *coroot* pairing.  In these coordinates
+    (`simple_coroots` = the standard basis, i.e. weights in the
+    fundamental-weight basis) those are different functionals whenever
+    root ≠ coroot — **non-simply-laced only**, which is why it went unnoticed.
+    At `G₂` the effect was total: no weight of the **7** was recognised as
+    dominant, `_levi_dom_rep` fell through to returning its input, two weights
+    tied for the peel maximum, a wrong character was subtracted, and
+    `_levi_decompose` never terminated — so `PureGAbeKAlgebra(g_2()).multiply`
+    raised on *Wilson lines*.  The old `_levi_height` had the same defect:
+    `Σ_{α>0}⟨α,·⟩` is not monotone along the dominance order at `G₂`
+    (`Σ_{α>0}α = (2,2)` and `⟨(2,2), α₂⟩ = −2 < 0`).
+
+    Measured on applying this: `G₂` repaired (`7⊗7 = 1+7+14+27`, dim 49) and
+    `Spin(5)` / `Sp(4)` / `SU(3)` / `U(2)` outputs bit-identical."""
+    key = datum.name
+    got = _DOM_FUNCTIONAL_CACHE.get(key)
+    if got is not None:
+        return got
+    from fractions import Fraction
+    d = datum.dim
+    rows = [[Fraction(x) for x in a] + [Fraction(1)] for a in datum.simple_roots]
+    piv_cols, r = [], 0
+    for c in range(d):
+        piv = next((i for i in range(r, len(rows)) if rows[i][c] != 0), None)
+        if piv is None:
+            continue
+        rows[r], rows[piv] = rows[piv], rows[r]
+        pv = rows[r][c]
+        rows[r] = [x / pv for x in rows[r]]
+        for i in range(len(rows)):
+            if i != r and rows[i][c] != 0:
+                f = rows[i][c]
+                rows[i] = [a - f * b for a, b in zip(rows[i], rows[r])]
+        piv_cols.append(c)
+        r += 1
+        if r == len(rows):
+            break
+    for i in range(r, len(rows)):
+        if all(x == 0 for x in rows[i][:d]) and rows[i][d] != 0:
+            raise ValueError(
+                f"_dominance_functional: no functional positive on the simple "
+                f"roots of {datum.name}")
+    t = [Fraction(0)] * d
+    for i, c in enumerate(piv_cols):
+        t[c] = rows[i][d]
+    for a in datum.simple_roots:                    # verify, do not trust
+        if sum(Fraction(a[i]) * t[i] for i in range(d)) != 1:
+            raise ValueError(
+                f"_dominance_functional: verification failed on {datum.name}")
+    t = tuple(t)
+    _DOM_FUNCTIONAL_CACHE[key] = t
+    return t
+
+
 def _levi_dom_rep(datum, m, wt, Wm, Phim):
-    """The Levi-dominant representative of weight `wt` in its `W_m` orbit."""
+    """The Levi-dominant representative of weight `wt` in its `W_m` orbit.
+
+    Taken as the orbit element maximizing the dominance functional `f`: since
+    `f` is strictly positive on `Φ_m⁺ ⊆ Φ⁺`, the orbit maximum **is** the
+    Levi-dominant element (unique, with a deterministic tuple tie-break)."""
+    t = _dominance_functional(datum)
+    best, bestk = None, None
     for w in Wm:
         x = datum.act(w, wt)
-        if all(sum(a[i] * x[i] for i in range(datum.dim)) >= 0 for a in Phim):
-            return x
-    return tuple(wt)
+        k = (sum(t[i] * x[i] for i in range(datum.dim)), x)
+        if bestk is None or k > bestk:
+            best, bestk = x, k
+    return tuple(wt) if best is None else best
 
 
 def _levi_height(datum, wt, Phim):
-    return sum(sum(a[i] * wt[i] for i in range(datum.dim)) for a in Phim)
+    """`f(wt)` — strictly increasing along the dominance order at ANY datum."""
+    t = _dominance_functional(datum)
+    return sum(t[i] * wt[i] for i in range(datum.dim))
 
 
 def _levi_decompose(datum, m, P):
@@ -1108,7 +1408,35 @@ def trace_residual(datum, f0: TorusRational, K: int = 8,
     result non-linear in `f0` (pieces of a decomposition may cut at different
     orders).  `w_cutoff=False` skips the division entirely and returns the raw
     UNDIVIDED series `[v^0](measure·f_0)·pref` (= `|W|·Tr`), which is exact and
-    linear in `f0` — diagnostics/tests only."""
+    linear in `f0` — diagnostics/tests only.
+
+    ⚠ **A ZERO HERE CAN MEAN "CUT", NOT "ORTHOGONAL"** — read this before believing
+    a vanishing pairing.  If the *leading* coefficient is not divisible by `|W|`
+    the cutoff fires at order 0 and the whole series is returned as `0`, with no
+    signal that anything was dropped.  Measured (2026-07-29, `su_2`): the
+    odd-`⟨Σ⁺,m⟩` cocharacter `m = (½,)` has raw `|W|·Tr = 𝖖⁻² + 2𝖖⁴ − 2𝖖⁸` —
+    manifestly non-zero — and `w_cutoff=True` reports `0`, while the even control
+    `m = (1,)` gives raw `2 − 2𝖖² + 4𝖖⁶` → `1 − 𝖖² + 2𝖖⁶` as it should.  That `0`
+    was once reported as "the leading orbit is trace-null at odd height", which was
+    wrong: the element is non-zero and so is its pairing (ruling D23 addendum).
+
+    So when a pairing comes out `0` and that is *surprising*, re-run with
+    `w_cutoff=False` before drawing any conclusion.  Scanning the requested `K` is
+    NOT enough — this cutoff is internal and `K`-invariant (checked 2…12), which is
+    exactly how it imitates a real phenomenon.  Same shape as the matter Nahm-window
+    bug (`langlands_iso`'s module docstring): an internal window producing a
+    structured false signal.
+
+    ⚠ **AND THERE IS A SECOND, DISTINCT ZERO MECHANISM** (D30): a `K`-WINDOW zero,
+    where `w_cutoff=True` *and* `w_cutoff=False` both give `0` because the series
+    simply starts beyond the requested order.  Measured: at SO(3) with `S = −2m`,
+    `I(x·y, x)` is `0/0` at `K = 8` but `−𝖖⁹ + 3𝖖¹³` at `K = 14`; at SU(2) with
+    `S = 0`, `0/0` at `K = 8` but `+2𝖖¹⁰ − 𝖖¹² − 2𝖖¹⁴` at `K = 14`; and with
+    `S = −2m`, `0` at both `K = 8` and `14`, only appearing at `K = 20`
+    (`+2𝖖¹⁸ − 𝖖²⁰`).  So `w_cutoff=False` alone does **not** clear a surprising
+    zero — **also raise `K`**.  The two mechanisms are independent: the `|W|` cutoff
+    is `K`-invariant, the window zero is `w_cutoff`-invariant, and a probe that
+    checks only one of them will be fooled by the other."""
     f0 = f0.simplify()
     if f0.is_zero():
         return LaurentPoly.zero()

@@ -1,17 +1,17 @@
-"""`matter_wrq_torus` — `MatterWRQTorus`: the U(N)+N_f enriched torus on the
+"""`matter_wrq_torus` — `MatterWRQTorus`: the `(G, N)` enriched torus on the
 **group-general WRQ substrate** (D10 Stage 2).
 
 The flavoured extension of `WRQTorus` per the validated design
-(`tests/test_flavoured_wrq.py`): the gauge foundation is unchanged (the WRQ
+(the suite in the source repository): the gauge foundation is unchanged (the WRQ
 cocycle IS the flavoured gauge backbone), and matter enters **additively** —
 
-  * a **μ-level grading** on residuals: `f = {atom m: {k ∈ Z^{N_f}:
-    TorusRational}}` (one slot per fundamental flavour, mirroring the
+  * a **μ-level grading** on residuals: `f = {atom m: {k ∈ Z^{#slots}:
+    TorusRational}}` (one slot per irreducible matter summand, mirroring the
     certified `QuiverURQTorus` level buckets at one node);
-  * the **matter rung dressing** `Z(m)` — per flavour `i` and colour `j` with
-    `m_j < 0`, the bar-centered rung ladder `∏_s (1 + 𝖖^{2s−d+1} μ_i v_j)`,
-    `d = −m_j` — polynomial per level (NO new poles: denominators stay gauge
-    roots);
+  * the **matter rung dressing** `Z(m)` — per slot `i` and each weight `w` of
+    that slot's representation with `c = ⟨m, w⟩ < 0`, the bar-centered rung
+    ladder `∏_{s<|c|} (1 + 𝖖^{2s+c+1} μ_i v^w)` — polynomial per level (NO new
+    poles: denominators stay gauge roots);
   * the **matter cocycle** `W_{m,m'} = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}` per
     μ-level — a finite net numerator, computed once by triangular division
     (the `quiver_urq_torus._quiver_cocycle` transcription);
@@ -19,18 +19,31 @@ cocycle IS the flavoured gauge backbone), and matter enters **additively** —
     factor of the image atom: division by the q-free Z-top monomial
     `v^{E(−m)}` and the **level star** `k_i ↦ −k_i − D_i(−m)` (`D` = the
     slot's rung count);
-  * the **μ-refined trace**: the flavour matter factors
-    `∏_{i,j} E(μ_i v_j)·E(μ_i⁻¹/v_j)` (Nahm window `W`) inserted into the
-    datum-general Schur residue `wrq_torus.trace_residual` (which carries the
-    D10 k=0-pole folding + completeness pad).
+  * the **μ-refined trace**: the matter factors `∏_{i,w} E(μ_i v^w)·E(μ_i⁻¹
+    v^{−w})` (Nahm window `W`) inserted into the datum-general Schur residue
+    `wrq_torus.trace_residual` (which carries the D10 k=0-pole folding +
+    completeness pad).
+
+**Matter is a representation, not a count** (widened 2026-07-28 so the
+`(G, N)` tier can name its theory; user: *"fix the torusshape so
+`GMatterAbeKAlgebra` can name itself"*).  The `Nf` argument may be an `int` —
+that many copies of the **defining** representation, the original U(N)+N_f
+reading reproduced bit-for-bit — or a per-slot sequence of dominant highest
+weights (`slot_weights` normalizes either).  The formula above is the general
+one; at `w = e_j` (U(N) fundamentals) `c = m_j` and it collapses to the
+colour-indexed ladder it was, which is why the widening is default-inert.  It
+is the same rung law as `matter_star_bubbling.matter_monomials`, which is what
+lets `GMatterAbeKAlgebra` present its charts here.
 
 Public language: atoms `U_m`, monomials `v^e`, μ-levels, and the cocycles
 `R̃·W` — no `u`'s, no dressing operators (user ruling 2026-07-02).
 
-Certification (`tests/test_matter_wrq_torus.py`): transported
+Certification (the suite in the source repository): transported
 `UNNfKAlgebra(2,1)` / `(2,2)` charts — multiply, ρ, and the μ-refined trace
 commute with the `VRational → TorusRational` transport, cross-engine against
-the certified `QuiverURQTorus`.
+the certified `QuiverURQTorus`; plus the widening's own leg (the `int` and
+expanded-weight declarations agree cell for cell, and `Z` matches
+`matter_star_bubbling.Z_levels` at a non-type-A datum).
 """
 from __future__ import annotations
 
@@ -47,7 +60,8 @@ from weyl_torus_ring import TorusLaurent, TorusRational
 from wrq_torus import cocycle_Rtilde, _rho_Gtilde, trace_residual, WRQTorus
 
 
-__all__ = ["MatterWRQTorus", "vr_to_tr", "tr_to_vr"]
+__all__ = ["MatterWRQTorus", "vr_to_tr", "tr_to_vr", "rep_weights",
+           "defining_weight", "slot_weights"]
 
 
 # ---------------------------------------------------------------------------
@@ -103,28 +117,151 @@ def tr_to_vr(datum: RootDatum, tr: TorusRational):
 
 
 # ---------------------------------------------------------------------------
+# what the matter IS: per-slot weight sets
+# ---------------------------------------------------------------------------
+_REP_CACHE: dict = {}
+_DEF_CACHE: dict = {}
+
+
+def rep_weights(datum: RootDatum, lam) -> tuple:
+    """The weights of the irreducible `G`-representation of highest weight
+    `lam`, **repeated by multiplicity** — the terms of the Weyl character
+    `wrq_torus.levi_character(datum, 0, lam)` (whose `W_m = W`, `Φ_m⁺ = Φ⁺`, so
+    it is the full character of `G`).  Sorted, so the rung order is
+    deterministic.  Memoized: `TorusShape` construction and `repr` both ask for
+    this, and a Weyl character is not free.
+
+    `rep_weights(u_n(N), (1,0,…,0)) == (e_1, …, e_N)`, which is what makes the
+    general rung ladder below reduce to the U(N)+N_f one."""
+    from wrq_torus import levi_character
+    lam = tuple(lam)
+    hit = _REP_CACHE.get((datum.name, lam))
+    if hit is not None:
+        return hit
+    chi = levi_character(datum, (0,) * datum.dim, lam)
+    out: list = []
+    for wt, lp in chi.terms.items():
+        mult = lp._coeffs.get(0, 0)
+        if mult < 0:
+            raise ValueError(
+                f"rep_weights: negative multiplicity {mult} at {wt} — {lam} is "
+                f"presumably not a dominant weight of {datum.name}")
+        out.extend([tuple(wt)] * int(mult))
+    if not out:
+        raise ValueError(
+            f"rep_weights: {lam} has empty character in {datum.name}")
+    got = tuple(sorted(out))
+    _REP_CACHE[(datum.name, lam)] = got
+    return got
+
+
+def defining_weight(datum: RootDatum) -> tuple:
+    """The highest weight of the node's **defining** representation — what a
+    bare `int` matter multiplicity is shorthand for.  `U(N)`/`SU(N)`: the first
+    fundamental weight; in general the first fundamental weight with a
+    non-empty character.  Memoized (see `rep_weights`)."""
+    hit = _DEF_CACHE.get(datum.name)
+    if hit is not None:
+        return hit
+    d = datum.dim
+    for i in range(d):
+        w = tuple(1 if j == i else 0 for j in range(d))
+        try:
+            if rep_weights(datum, w):
+                _DEF_CACHE[datum.name] = w
+                return w
+        except Exception:
+            continue
+    raise ValueError(
+        f"defining_weight: no fundamental weight of {datum.name} has a "
+        f"non-empty character — give the matter weights explicitly")
+
+
+def slot_weights(datum: RootDatum, matter) -> tuple:
+    """Normalize a matter declaration to **one weight set per μ-slot**.
+
+    Accepts, per the tier's widened matter language:
+
+      * an `int` `Nf` — `Nf` copies of the defining representation (the legacy
+        U(N)+N_f reading, reproduced exactly);
+      * a sequence of dominant **highest weights** — one hypermultiplet per
+        entry, the slot's weight set being that irrep's weights;
+      * a sequence of already-expanded weight sets (tuples of weights), passed
+        through.
+
+    One μ-slot per irreducible summand `N_i` is the standing flavour convention
+    (user, 2026-07-27: *"if it is a sum of irreps `N_i`, just use a `U(1)`
+    flavour for each for now"*)."""
+    if isinstance(matter, int):
+        w = defining_weight(datum)
+        return (rep_weights(datum, w),) * int(matter)
+    d = datum.dim
+    out = []
+    for entry in tuple(matter):
+        entry = tuple(entry)
+        if entry and all(isinstance(x, int) for x in entry):
+            if len(entry) != d:
+                raise ValueError(
+                    f"slot_weights: highest weight {entry} has length "
+                    f"{len(entry)}, expected {d} for {datum.name}")
+            out.append(rep_weights(datum, entry))
+        else:                                   # an expanded weight set
+            ws = tuple(tuple(w) for w in entry)
+            for w in ws:
+                if len(w) != d:
+                    raise ValueError(
+                        f"slot_weights: weight {w} has length {len(w)}, "
+                        f"expected {d} for {datum.name}")
+            out.append(tuple(sorted(ws)))
+    return tuple(out)
+
+
+# ---------------------------------------------------------------------------
 # matter rungs / Z-levels / matter cocycle (1-node flavour transcription)
 # ---------------------------------------------------------------------------
-def _flavour_rungs(atom, N: int, Nf: int):
-    """Rungs of `Z(m)` at `atom`: `(slot i, vw = e_j, shift)` for each flavour
-    `i` and colour `j` with `atom_j < 0`, shifts bar-centered."""
+def _flavour_rungs(atom, slots):
+    """Rungs of `Z(m)` at `atom`: `(slot i, vw = w, shift)` for each μ-slot `i`
+    and each weight `w` of that slot's representation with `c = ⟨atom, w⟩ < 0`,
+    shifts bar-centered — `2s + c + 1` for `s = 0 … |c|−1`.
+
+    At `slots = ((e_1,…,e_N),)·Nf` (the U(N)+N_f case) `c = atom_j`, so this is
+    verbatim the previous colour-indexed ladder; the general form is
+    `matter_star_bubbling.matter_monomials`, which is the same formula.
+
+    `c` is coerced to `int` for the same reason as
+    `matter_star_bubbling.matter_pairing`: at a **non-simply-connected** global form
+    the atom has `Fraction` coordinates, so `⟨atom, w⟩` arrives as a `Fraction` even
+    when its value is integral, and `range()` rejects that on type alone.  For a
+    legal matter representation of the form every weight lies in the form's electric
+    lattice, so the value *is* integral and the coercion is sound; a genuinely
+    non-integral `c` means the matter is not a representation of this global form
+    (`GNAbeKAlgebra` rejects that up front) and it honest-fails."""
     out = []
-    for i in range(Nf):
-        for j in range(N):
-            if atom[j] < 0:
-                dep = -atom[j]
-                vw = tuple(1 if t == j else 0 for t in range(N))
-                for s in range(dep):
-                    out.append((i, vw, 2 * s - dep + 1))
+    for i, wts in enumerate(slots):
+        for w in wts:
+            c = sum(x * y for x, y in zip(atom, w))
+            ic = int(c)
+            if ic != c:
+                raise NotImplementedError(
+                    f"⟨atom, w⟩ = {c} is not an integer at atom {tuple(atom)}, "
+                    f"matter weight {tuple(w)} — the matter is not a "
+                    f"representation of this global form (a centre-charged "
+                    f"weight against a fractional coweight), so the zero-mode "
+                    f"ladder ∏_{{s<|c|}} has no meaning.")
+            c = ic
+            if c >= 0:
+                continue
+            for s in range(-c):
+                out.append((i, tuple(w), 2 * s + c + 1))
     return out
 
 
-def _rung_levels(datum, atom, Nf: int) -> dict:
+def _rung_levels(datum, atom, slots) -> dict:
     """`Z(m)` per μ-level `{k: TorusRational}` — the finite bar-centered rung
     expansion (each rung contributes `1 + 𝖖^{shift} μ_slot v^{vw}`)."""
     d = datum.dim
-    levels = {(0,) * Nf: {(0,) * d: LaurentPoly({0: 1})}}
-    for (slot, vw, sh) in _flavour_rungs(atom, d, Nf):
+    levels = {(0,) * len(slots): {(0,) * d: LaurentPoly({0: 1})}}
+    for (slot, vw, sh) in _flavour_rungs(atom, slots):
         out: dict = {}
         for kv, row in levels.items():
             for ve, c in row.items():
@@ -144,17 +281,17 @@ def _rung_levels(datum, atom, Nf: int) -> dict:
 _W_CACHE: dict = {}
 
 
-def _matter_cocycle(datum, m, mp, Nf: int) -> dict:
+def _matter_cocycle(datum, m, mp, slots) -> dict:
     """`W_{m,m'} = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}` per μ-level — finite
     net numerator by triangular division (raises past the rung budget)."""
-    key = (datum.name, tuple(m), tuple(mp), Nf)
+    key = (datum.name, tuple(m), tuple(mp), slots)
     hit = _W_CACHE.get(key)
     if hit is not None:
         return hit
     t = tuple(x + y for x, y in zip(m, mp))
-    Zm = _rung_levels(datum, m, Nf)
-    Zmp = _rung_levels(datum, mp, Nf)
-    Zt = _rung_levels(datum, t, Nf)
+    Zm = _rung_levels(datum, m, slots)
+    Zmp = _rung_levels(datum, mp, slots)
+    Zt = _rung_levels(datum, t, slots)
     neg_mp = tuple(-x for x in mp)
     num: dict = {}
     for k1, z1 in Zm.items():
@@ -165,7 +302,7 @@ def _matter_cocycle(datum, m, mp, Nf: int) -> dict:
             term = (a * b).simplify()
             num[k] = term if k not in num else (num[k] + term).simplify()
     budget = max((sum(k) for k in num), default=0) + len(
-        _flavour_rungs(t, datum.dim, Nf)) + 1
+        _flavour_rungs(t, slots)) + 1
     seen = set(num)
     for k in list(num):
         for dz in Zt:
@@ -197,14 +334,23 @@ def _matter_cocycle(datum, m, mp, Nf: int) -> dict:
 # the element
 # ---------------------------------------------------------------------------
 class MatterWRQTorus:
-    """A U(N)+N_f enriched-torus element on the WRQ substrate: residuals
-    `{atom m: {μ-level k ∈ Z^{N_f}: TorusRational}}`."""
+    """A `(G, N)` enriched-torus element on the WRQ substrate: residuals
+    `{atom m: {μ-level k ∈ Z^{#slots}: TorusRational}}`.
 
-    __slots__ = ("datum", "Nf", "_f", "_d")
+    `Nf` declares **what the matter is** (`slot_weights` normalizes it): an
+    `int` for the U(N)+N_f reading — that many copies of the defining
+    representation, the original meaning, bit-for-bit — or a per-slot sequence
+    of dominant highest weights for a general `N = ⊕N_i`, one μ-slot per
+    summand.  Everything matter-side (rungs, the cocycle `W`, ρ's level star,
+    the μ-refined trace window) is indexed by the weights of those
+    representations; at `w = e_j` it is the colour-indexed ladder it was."""
 
-    def __init__(self, datum: RootDatum, Nf: int, f: dict):
+    __slots__ = ("datum", "Nf", "slots", "_f", "_d")
+
+    def __init__(self, datum: RootDatum, Nf, f: dict):
         self.datum = datum
-        self.Nf = int(Nf)
+        self.slots = slot_weights(datum, Nf)
+        self.Nf = len(self.slots)
         self._d = datum.dim
         out: dict = {}
         for m, row in f.items():
@@ -256,7 +402,7 @@ class MatterWRQTorus:
             for k, fr in row.items():
                 kk = tuple(a + b for a, b in zip(k, k0))
                 dst[kk] = (fr * sc).simplify()
-        return MatterWRQTorus(self.datum, self.Nf, f)
+        return MatterWRQTorus(self.datum, self.slots, f)
 
     # ----- ring ops -----
     def __add__(self, other: "MatterWRQTorus") -> "MatterWRQTorus":
@@ -265,7 +411,7 @@ class MatterWRQTorus:
             dst = out.setdefault(m, {})
             for k, fr in row.items():
                 dst[k] = (dst[k] + fr).simplify() if k in dst else fr
-        return MatterWRQTorus(self.datum, self.Nf, out)
+        return MatterWRQTorus(self.datum, self.slots, out)
 
     def __mul__(self, other: "MatterWRQTorus") -> "MatterWRQTorus":
         """`U_m U_{m'} = R̃_{m,m'}·W_{m,m'}·U_{m+m'}` — the WRQ gauge cocycle
@@ -275,7 +421,7 @@ class MatterWRQTorus:
             neg_m = tuple(-x for x in m)
             for mp, row2 in other._f.items():
                 t = tuple(x + y for x, y in zip(m, mp))
-                W = _matter_cocycle(self.datum, m, mp, self.Nf)
+                W = _matter_cocycle(self.datum, m, mp, self.slots)
                 Rt = cocycle_Rtilde(self.datum, m, mp)
                 neg_mp = tuple(-x for x in mp)
                 dst = out.setdefault(t, {})
@@ -289,10 +435,10 @@ class MatterWRQTorus:
                             term = (base * w).simplify()
                             dst[K] = term if K not in dst else (
                                 dst[K] + term).simplify()
-        return MatterWRQTorus(self.datum, self.Nf, out)
+        return MatterWRQTorus(self.datum, self.slots, out)
 
     def bar(self) -> "MatterWRQTorus":
-        return MatterWRQTorus(self.datum, self.Nf, {
+        return MatterWRQTorus(self.datum, self.slots, {
             m: {k: fr.bar() for k, fr in row.items()}
             for m, row in self._f.items()})
 
@@ -338,7 +484,7 @@ class MatterWRQTorus:
         per-slot rung counts."""
         E = [0] * self._d
         D = [0] * self.Nf
-        for (slot, vw, _sh) in _flavour_rungs(atom, self._d, self.Nf):
+        for (slot, vw, _sh) in _flavour_rungs(atom, self.slots):
             D[slot] += 1
             for t in range(self._d):
                 E[t] += vw[t]
@@ -364,7 +510,7 @@ class MatterWRQTorus:
                 k2 = tuple(-x - dd for x, dd in zip(k, D))
                 dst = out.setdefault(a, {})
                 dst[k2] = g if k2 not in dst else (dst[k2] + g).simplify()
-        return MatterWRQTorus(self.datum, self.Nf, out)
+        return MatterWRQTorus(self.datum, self.slots, out)
 
     def rho_inverse(self) -> "MatterWRQTorus":
         """ρ⁻¹ — undo the matter factor at the **source atom** first
@@ -385,7 +531,7 @@ class MatterWRQTorus:
                 g = (g.vinv() * gtinv).simplify()
                 dst = out.setdefault(m, {})
                 dst[k] = g if k not in dst else (dst[k] + g).simplify()
-        return MatterWRQTorus(self.datum, self.Nf, out)
+        return MatterWRQTorus(self.datum, self.slots, out)
 
     # ----- μ-refined trace -----
     def trace(self, K: int = 8, W: int = 4) -> dict:
@@ -402,8 +548,8 @@ class MatterWRQTorus:
         def a_n(nn):
             return HabiroElement.nahm_term((-1) ** nn, nn, [nn]).expand(Kq + W)
 
-        cells = [(i, tuple(1 if t == j else 0 for t in range(d)))
-                 for i in range(Nf) for j in range(d)]
+        cells = [(i, tuple(w)) for i, wts in enumerate(self.slots)
+                 for w in wts]
         terms = {((0,) * Nf, (0,) * d): LaurentPoly({0: 1})}
         for (slot, vw) in cells:
             for sign in (+1, -1):

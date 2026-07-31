@@ -11,7 +11,7 @@ axiomatisation of the fusion algebra of rotation-equivariant BPS line defects in
 a 4d 𝒩=2 theory — and a range of examples. A K_𝖖-algebra is an algebra `A_𝖖`
 over `Z[𝖖^±]` with a bar involution, a canonical basis `{L_a}`, an automorphism
 `ρ`, and a `ρ²`-twisted trace under which `I_{a,b} = Tr(L_{ρ(a)} L_b) = δ_{a,b} +
-O(𝖖)`. Six layers of algebras sit over one shared contract:
+O(𝖖)`. Seven layers of algebras sit over one shared contract:
 
 - **core** (`src/core/`): the abstract `KAlgebra` contract, the Z₊-ring
   coefficient layer (for flavoured algebras), exact `Z[𝖖^±]` arithmetic, and the
@@ -59,6 +59,31 @@ O(𝖖)`. Six layers of algebras sit over one shared contract:
   whose diagonal flips are certified `KAlgebraIso` quiver mutations. **Relies on
   Steps 1–5 by design**; its self-test runs last, after the spine-free
   assertions. See `docs/step6-SkeinKAlgebra.md`.
+- **gn** (`src/gn/`): `PureGAbeKAlgebra`, `GNAbeKAlgebra` and the
+  general-gauge-group tier — gauge theory at an **arbitrary 4d gauge group with
+  arbitrary matter**. Pure gauge over any `RootDatum` is built by a ladder of
+  separately-guarded constructive routes with a licensed, (★)-guarded solve as the
+  last rung — which is what opens the groups with no minuscule cocharacter, `Spin(5)`
+  among them; `T^*N` matter is carried at any datum and any matter *representation*
+  (not a count), with iterable matter-removal flows and a type-A seam that is a
+  surjection rather than an isomorphism; `LineLattice` holds the 4d gauge group data
+  as a lattice and its dual, with the Langlands family `(G, Adj) ↔ (G^∨, Adj)` as
+  certified `KAlgebraIso`; and `AuxSpace` re-founds the Schur pairing in vacuum-state
+  form, `I_{a,b} = ⟨L_a·1, L_b·1⟩`, with `ρ` never constructed. `PureSO3KAlgebra`
+  (`pure_so3.py`) is the tier's **independent oracle**: pure `SO(3)` as a BPS-quiver
+  chart, where the quiver nodes *are* the charge basis and the atom phase never
+  enters, so it can check the odd-`⟨Σ⁺,m⟩` claim from outside the cocycle that claim
+  lives in — and it is the **one module of this tier that imports the Step-4 spine**
+  (measured; the working tier does not). A BPS quiver does *not* by itself name a
+  theory: it is a quiver **plus a choice of how its node charges embed in a charge
+  lattice** `Γ`, and that choice is the 4d gauge group — SU(2) and SO(3) are the same
+  Kronecker-2 quiver on the same canonical `Z²`, differing only as `Γ = P^∨ ⊕ P`
+  versus `Q^∨ ⊕ Q`. `global_form_bridge.py` maps that one choice between
+  `pure_ade_lattice`'s `global_form=` (the BPS side) and `LineLattice` (the
+  abelianized side), so the two presentations of a theory cannot drift apart.
+  **Relies on Steps 1–6 by design** (and bumps
+  seven earlier-tier modules); its self-test runs last, after the spine-free
+  assertions. See `docs/step7-GNKAlgebra.md`.
 - **iso** (`src/iso/`): `KAlgebraIso` witnesses identifying a sample with its cone
   realisation.
 
@@ -72,9 +97,10 @@ python3 run_tests.py
 self-tests (`test_rg_flows`, `test_a1an_chain`, `test_dn_chain`, `test_e_type`,
 `test_flavoured_fork`, `test_over_pure`, `test_su2_gauged_chain`, `test_wild`),
 the Step-4 BPS self-test (`test_bps_flows`), the Step-5 abelianized-tier
-self-test (`test_abe_flows`), and the Step-6 skein-tier self-test
-(`test_skein_flows`) — the last three run after the Step-3 suites because
-they import the spine — must stay green. No third-party packages, nothing to
+self-test (`test_abe_flows`), the Step-6 skein-tier self-test
+(`test_skein_flows`), and the Step-7 general-gauge-group self-test
+(`test_gn_flows`) — the last four run after the Step-3 suites, which assert a
+spine-free process — must stay green. No third-party packages, nothing to
 install. `pytest` is not a
 supported entry point and is refused loudly by `conftest.py` (it would skip
 `test_cones.py` and `test_sample_cone_iso.py`, and importing the BPS suite at
@@ -88,14 +114,16 @@ src/core/      kalgebra.py kalgebra_iso.py            the contract + iso witness
                zplus_ring.py laurent_poly.py          coefficient rings + exact 𝖖-arithmetic
                tensor_zplus_ring.py tensor_kalgebra.py snf_kernel.py qpoch.py sun_characters.py flavoured_kalgebra.py
 src/samples/   samples.py quantum_torus_kalgebra.py uq_sl2_pbw.py
-src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (120 .py + 8 .pkl)
+src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (119 .py + 8 .pkl)
 src/rg/        rgkalgebra.py grading.py graded_rg_solver.py … + the flow zoo   (24 .py)
-src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py … the realisation spine   (18 .py)
+src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py … the realisation spine   (20 .py)
 src/abe/       abe_kalgebra.py pure_un_kalgebra.py un_nf_kalgebra.py … the abelianized tier + object layer   (63 .py)
 src/skein/     skein_kalgebra.py skein_algebra.py skein_atlas.py … the skein tier + flip-atlas   (70 .py)
+src/gn/        pure_g_abe_kalgebra.py gn_abe_kalgebra.py star_bubbling.py global_form.py pure_so3.py global_form_bridge.py … the general-G tier   (15 .py)
 src/iso/       pentagon_/u1square_/u1a1d2_…_sample_cone_iso.py
-tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py + test_abe_flows.py + test_skein_flows.py
-docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4,5,6}-*.md
+tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py + test_abe_flows.py + test_skein_flows.py + test_gn_flows.py
+docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4,5,6,7}-*.md
+               verification-scope.md  frozen-data-provenance.md   what the gate does/doesn't certify
 ```
 
 Modules import one another by **bare name** (`from kalgebra import …`), not by
@@ -140,6 +168,10 @@ determine the traces from the single seed `Tr 1`.
 - **New skein realisation:** add a `SkeinKAlgebra` instance (or `SkeinAtlas` chart)
   in `src/skein/` from its surface / triangulation data, keeping the intrinsic
   (contract-free) engine as the oracle; add a case to `tests/test_skein_flows.py`.
+- **New general-`G` realisation:** build a `PureGAbeKAlgebra` (or, with matter, a
+  `GNAbeKAlgebra`) in `src/gn/` from its `RootDatum` and matter representation,
+  keeping the constructive routes ahead of the licensed (★) solve; add a case to
+  `tests/test_gn_flows.py`.
 - **New isomorphism witness:** add a builder to `src/iso/` and a case to
   `tests/test_sample_cone_iso.py`.
 - **New flavour group:** add a `ZPlusRing` subclass in `src/core/zplus_ring.py`.

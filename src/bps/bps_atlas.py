@@ -1531,14 +1531,6 @@ class BPSAtlas:
             obj.add_iso(root_s, self._key_str(key), self._iso[key])
         return obj
 
-    # ---- visualization seam ----------------------------------------------
-    def applet_url(self, key: ChartKey = (), name: str | None = None) -> str:
-        """A ClusterApplet share-URL for chart `key` (a thin seam over
-        `clusterapplet_url`)."""
-        from clusterapplet_url import bpskalgebra_applet_url
-        return bpskalgebra_applet_url(
-            self.chart(key), name=name or f"atlas[{self._key_str(key)}]")
-
     def __repr__(self) -> str:
         return f"BPSAtlas(root={self._root!r}, charts={len(self._charts)})"
 

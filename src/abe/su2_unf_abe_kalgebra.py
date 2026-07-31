@@ -260,7 +260,10 @@ class SU2UNfAbeKAlgebra(UngaugedKAlgebra):
         # to the SO Cartan x_i = k_i − s  (pre-measure).
         orth: dict = {}
         for n in range(-(K + 1), K + 2):
-            levels = self._G.chart(self._e_shift(a, n)).trace(K=K)
+            # `W = K + 2`: the matter Nahm window caps the trustworthy 𝖖-order at
+            # W+1, so the chart default of 4 silently corrupts everything above 𝖖⁴
+            # (2026-07-28; same fix as UNNfKAlgebra / AbeKAlgebra._chart_trace)
+            levels = self._G.chart(self._e_shift(a, n)).trace(K=K, W=K + 2)
             for kv, C in levels.items():
                 cf = C._coeffs if hasattr(C, "_coeffs") else getattr(C, "coeffs", {})
                 x = tuple(_int_or_half(ki - s) for ki in kv)

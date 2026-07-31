@@ -1,5 +1,5 @@
 """Z₊-rings (Lusztig-Ostrik) — the natural class of coefficient rings for
-K_𝖖-algebras with flavour.
+K-theoretic Coulomb branch algebras with flavour.
 
 A *Z₊-ring* is a unital ring R together with a Z-basis B such that:
 
@@ -8,23 +8,23 @@ A *Z₊-ring* is a unital ring R together with a Z-basis B such that:
        b · b' = Σ_{b''} N^{b''}_{b, b'} · b''   with   N^{b''}_{b, b'} ∈ Z_{≥0};
   3. there is an involution ⋆ : B → B with (b · b')⋆ = b'⋆ · b⋆ and 1⋆ = 1.
 
-Commutative Z₊-rings with rigid duals model the Grothendieck rings R(G) of
-representation categories of compact (algebraic) groups G — the case
-relevant here.  In our setting these are the coefficient rings of
-flavoured KAlgebras: the canonical basis of R(G) is the set of irreducible
-representations, multiplication is the tensor product (with non-negative
-multiplicities given by Clebsch-Gordan), the identity is the trivial rep,
-and ⋆ is the duality V ↦ V*.
+By Lusztig-Ostrik (and Tannakian reconstruction), commutative Z₊-rings of
+finite type with rigid duals are *exactly* the Grothendieck rings R(G) of
+representation categories of compact (algebraic) groups G.  In our setting
+these are the coefficient rings of flavoured KAlgebras: the canonical basis of R(G)
+is the set of irreducible representations, multiplication is the tensor
+product (with non-negative multiplicities given by Clebsch-Gordan), the
+identity is the trivial rep, and ⋆ is the duality V ↦ V*.
 
-Concrete cases provided here:
+Concrete cases shipped here:
 
   * `TrivialZPlusRing()`: R = Z, basis = {()}, ⋆ trivial.  Used by an
     ordinary unflavoured KAlgebra (G trivial).
   * `AbelianZPlusRing(rank=n)`: R = R(U(1)^n) = Z[μ_1^±, …, μ_n^±], basis =
     Z^n (characters), ⋆(f) = -f (the rep-ring duality `V ↦ V*`).  Used by
-    flavoured KAlgebras whose flavour symmetry has been broken to its
-    maximal torus — the typical mass-deformation picture, and what
-    BPS-quiver realizations produce by default.
+    flavoured KAlgebras whose flavour symmetry has been broken to its maximal
+    torus — the typical mass-deformation picture, and what BPS-quiver
+    realizations produce by default.
   * `SU2ZPlusRing()`: R = R(SU(2)) = Z[χ_1] ⊂ Z[μ^±], basis = ℕ (the
     irreducible characters χ_n of highest weight n / spin n/2 / dim n+1),
     multiplication = Clebsch-Gordan
@@ -43,12 +43,13 @@ Concrete cases provided here:
     μ carries weight 1 of the SO(3) Cartan U(1); χ_1 = μ + 1 + μ⁻¹ is
     the 3-dim vector rep).  Embeds in `SU2ZPlusRing` as the even-n
     subring via `χ_j^{SO(3)} ↦ χ_{2j}^{SU(2)}` (set μ_{SO(3)} = μ_{SU(2)}²).
-    Used when the U(1) flavour symmetry of a flavoured KAlgebra is
-    enhanced to SO(3) — the natural enhancement when the σ-symmetrised lattice
-    points carry integer weights, e.g. the σ-invariant subalgebra of a
-    quantum torus where σ exchanges two generators at equal flavour
+    Used when the U(1) flavour symmetry of a flavoured KAlgebra is enhanced to
+    SO(3) — the natural enhancement when the ε-symmetrised lattice
+    points carry integer weights, e.g. the ε-invariant subalgebra of a
+    quantum torus where ε exchanges two generators at equal flavour
     weight (the simplest case: B = [[0,1,1],[-1,0,0],[-1,0,0]],
-    σ : g_2 ↔ g_3).
+    ε : g_2 ↔ g_3).  (`ε`, not `σ`: `σ` in this repo is the BPS
+    half-monodromy only.)
 
     Two involutions on `R[q^±]` are kept structurally distinct:
 
@@ -76,9 +77,9 @@ The corresponding KAlgebra coefficient ring is `R[q^±]`, implemented here as
 `RLaurent[R]`.  Two distinct involutions live on this ring:
 
   * The KAlgebra's **bar involution** on `R[q^±]` is `q ↔ q^{-1}` acting
-    trivially on R.  Structure constants `C^c_{a,b}(q, μ)` of flavoured
-    KAlgebras are palindromic in q, with μ-dependence transparent to bar.
-    This is `RLaurent.bar()`.
+    trivially on R.  Structure constants `C^c_{a,b}(q, μ)` of flavoured KAlgebras
+    are palindromic in q, with μ-dependence transparent to bar.  This is
+    `RLaurent.bar()`.
 
   * The Lusztig-Ostrik **⋆ involution** on R is the rep-ring duality
     `V ↦ V*` — non-trivial in general (`μ^f ↦ μ^{-f}` on the abelian
@@ -88,15 +89,21 @@ The corresponding KAlgebra coefficient ring is `R[q^±]`, implemented here as
     automorphism) restricted to the central flavour subalgebra: in any
     QT realization `ρ(X_γ) = X_{-γ}`, so on `μ^f = X_{γ_f}` we get
     `ρ(μ^f) = μ^{-f}`.  Surfaced as `RElement.star()` and through
-    `ZPlusRing.star_basis`; used by BPS-quiver realisations to define
-    `ρ`'s action on the central subalgebra.
+    `ZPlusRing.star_basis`; used by the flavoured BPS realisations to define `ρ`'s action
+    on the central subalgebra.
 
 Non-abelian rep rings are first-class: `SU2ZPlusRing`, `SO3ZPlusRing`, and
-`SU3ZPlusRing` are provided above, each fitting the same `ZPlusRing` protocol
+`SU3ZPlusRing` are shipped above, each fitting the same `ZPlusRing` protocol
 with non-trivial (Clebsch-Gordan / Klimyk) multiplicities.  We don't
 construct rep rings programmatically — adding a further non-abelian case
 (higher-rank R(SU(N)), other simple groups) means hand-writing its basis
 enumeration, structure constants, and ⋆.
+
+References:
+    V. Ostrik, "Module categories, weak Hopf algebras and modular invariants",
+        Transform. Groups 8 (2003).
+    G. Lusztig, "Leading coefficients of character values of Hecke algebras",
+        Proc. Sympos. Pure Math. 47 (1987).
 """
 
 from __future__ import annotations
@@ -147,25 +154,24 @@ class ZPlusRing(ABC):
 
         This is the per-basis datum of the **forgetful map** `ε : R → Z`
         (`augmentation()`) — physically *forget the flavour group `G_f`*
-        (`K_𝖖[T; G_f] → K_𝖖[T]` at the coefficient-ring level).  It is
+        (`K_𝖖[T; G_f] → K_𝖖[T]` at the coefficient-ring level; the design record).  It is
         a Z₊-ring homomorphism on the basis:
 
             dim(b₁·b₂) = dim(b₁)·dim(b₂),   dim(b⋆) = dim(b),   dim(1) = 1
 
         (checked by `verify_augmentation_is_hom`).  A torus has only
         1-dimensional irreps, so `dim ≡ 1` on `AbelianZPlusRing` / `Trivial`;
-        the **1-dim reps** (`dim(b) == 1`, the lift torsor) are
+        the **1-dim reps** (`dim(b) == 1`, the lift torsor of the design record) are
         exactly the group-like/unit characters.
         """
 
     @abstractmethod
     def one_dim_rep_rank(self) -> int:
         """Rank `c` of the group of **1-dimensional representations**
-        `Λ ≅ Z^c` — the *lift torsor* of the section machinery.
-        `Λ = R(G_f^ab)` is the rep ring of the abelianization; within the
-        connected-reductive scope it is free abelian, `c` = number of
-        central `U(1)` factors of `G_f`.  `0` for semisimple / trivial
-        `G_f`."""
+        `Λ ≅ Z^c` — the *lift torsor* of the design record.  `Λ = R(G_f^ab)` is the rep
+        ring of the abelianization; within the connected-reductive scope
+        (ruling A2) it is free abelian, `c` = number of central `U(1)`
+        factors of `G_f`.  `0` for semisimple / trivial `G_f`."""
 
     @abstractmethod
     def embed_one_dim_rep(self, f: "tuple[int, ...]") -> BasisElement:
@@ -209,17 +215,17 @@ class ZPlusRing(ABC):
                     return False
         return True
 
-    # ------- the 1-dim-rep subring  Λ = R(G_f^ab) ↪ R  (the lift torsor) -------
+    # ------- the 1-dim-rep subring  Λ = R(G_f^ab) ↪ R  (the design record lift torsor) -------
 
     def one_dim_reps(self) -> "AbelianZPlusRing":
         """`Λ` as an abstract ring: `AbelianZPlusRing(c)`, `c = one_dim_rep_rank()`
-        (free abelian within the connected-reductive scope)."""
+        (free abelian within the connected-reductive scope; ruling A2)."""
         return AbelianZPlusRing(self.one_dim_rep_rank())
 
     def one_dim_rep_inclusion(self) -> "RingHom":
         """The group-like inclusion `ι : AbelianZPlusRing(c) → R`,
         `μ^f ↦ embed_one_dim_rep(f)` — the handle the lift/section machinery
-        uses to range over and apply twists by `Λ`."""
+        (ruling T4) uses to range over and apply twists by `Λ`."""
         Lam = self.one_dim_reps()
         return RingHom(
             Lam, self,
@@ -441,7 +447,7 @@ class AbelianZPlusRing(ZPlusRing):
     Lusztig-Ostrik `⋆` of the Z₊-ring, *not* the KAlgebra's bar — the
     latter acts only on q, leaving μ alone.  The Z₊-ring `⋆` here matches
     the action of `ρ` restricted to the central flavour subalgebra in
-    any BPS-quiver realization (`ρ(μ^f) = μ^{-f}` since
+    any flavoured BPS realization (`ρ(μ^f) = μ^{-f}` since
     `ρ(X_γ) = X_{-γ}`).
     """
 
@@ -516,14 +522,15 @@ class SU2ZPlusRing(ZPlusRing):
     structure constants here are exactly the Weyl-orbit recombination
     of the U(1) `μ^a · μ^b = μ^{a+b}` rule.
 
-    Use: coefficient ring for a flavoured KAlgebra whose U(1) flavour
-    symmetry is enhanced to SU(2) (the universal cover; integer +
-    half-integer spins both appear as basis elements).  Use `SO3ZPlusRing`
-    instead when only integer-spin reps appear naturally — which is the
-    more common case for BPS realisations like [A_1, D_3] where the
+    Use: coefficient ring for a flavoured KAlgebra whose U(1) flavour symmetry
+    is enhanced to SU(2) (the universal cover; integer + half-integer
+    spins both appear as basis elements).  Use `SO3ZPlusRing` instead
+    when only integer-spin reps appear naturally — which is the more
+    common case for BPS realisations like [A_1, D_3] where the
     "half-integer-spin" canonical basis elements emerge as σ-orbit
     chains over BPS F's rather than as elements of the coefficient
-    ring proper.  See `a1d3_kalg` for the [A_1, D_3] setup.
+    ring proper.  See the SU(2) realisations (`su2_bps_kalgebra`,
+    `a1d3_kalg`) for the [A_1, D_3] setup.
     """
 
     def one_basis(self) -> int:
@@ -631,6 +638,152 @@ class SU2ZPlusRing(ZPlusRing):
 # ---------------------------------------------------------------------------
 
 
+
+class UNZPlusRing(ZPlusRing):
+    """The Z₊-ring `R(U(n))` — the flavour ring of `n` copies of the SAME
+    matter irrep (user ruling, 2026-07-28: *"you could have `U(n_i)` if there
+    are `n_i` copies of the same irrep"*).
+
+    Basis: `U(n)`-dominant weights — weakly decreasing integer `n`-tuples, with
+    **negative entries allowed** (the `det`-twisted reps).  `(0,)*n` is trivial,
+    `(1,0,…,0)` the defining rep, `(1,)*n` the determinant.  Unlike
+    `SUNZPlusRing` there is **no column reduction**: `det` is a non-trivial
+    character of `U(n)`, so `(1,)*n ≠ (0,)*n`.
+
+    Multiplication and decomposition are delegated to the certified type-A
+    character machinery in `sun_characters`, which — despite the module name —
+    works with `U(M)` weights throughout (`is_dominant` accepts negatives,
+    `character` is the Schur Laurent polynomial `s_λ`, `decompose` un-branches
+    an `S_n`-invariant Laurent polynomial into `U(n)` irreps).  So the product
+    is `s_λ · s_μ` expanded and re-read, i.e. Littlewood–Richardson computed
+    exactly rather than re-implemented here.
+
+    Star: rep-ring duality `λ⋆ = (−λ_n, …, −λ_1)`.
+    1-dim reps: the `det` powers `det^k = (k,)*n` — so `one_dim_rep_rank() == 1`
+    (the centre `U(1) ⊂ U(n)`), which is exactly the Plan-32 lift torsor here.
+
+    Relation to the standing D5 ruling.  For a **U(N) gauge node** with `N_f`
+    fundamentals the flavour ring is `R(SU(N_f))`, because the diagonal
+    `U(1) ⊂ U(N_f)` sits inside the gauge centre and is level bookkeeping, not
+    flavour.  A general `G` need not have a centre to absorb it (`G₂` is
+    centreless), so `R(U(n_i))` is the right ring for `(G, N)` and D5 remains
+    correct where it was made.
+
+    `UNZPlusRing(1)` ≅ `AbelianZPlusRing(rank=1)` under `(k,) ↔ (k,)`.
+    """
+
+    def __init__(self, n: int) -> None:
+        if n < 1:
+            raise ValueError(f"UNZPlusRing: n >= 1 required, got {n}")
+        self._n = int(n)
+        self._mult_cache: dict = {}
+        self._char_cache: dict = {}
+
+    @property
+    def n(self) -> int:
+        return self._n
+
+    def __eq__(self, other) -> bool:
+        return isinstance(other, UNZPlusRing) and other._n == self._n
+
+    def __hash__(self):
+        return hash(("UNZPlusRing", self._n))
+
+    def __repr__(self) -> str:
+        return f"UNZPlusRing({self._n})"
+
+    # ----- basis hygiene ------------------------------------------------
+    def reduce(self, lam) -> tuple:
+        """Validate + normalize a `U(n)`-dominant weight.  There is nothing to
+        reduce (no `det ≡ 1` relation); this only type-checks."""
+        lam = tuple(int(x) for x in lam)
+        if len(lam) != self._n:
+            raise ValueError(
+                f"UNZPlusRing({self._n}): weight {lam} has length {len(lam)}")
+        if any(lam[i] < lam[i + 1] for i in range(len(lam) - 1)):
+            raise ValueError(
+                f"UNZPlusRing({self._n}): {lam} is not weakly decreasing")
+        return lam
+
+    def character(self, lam) -> dict:
+        """`s_λ` as `{Cartan weight: multiplicity}` — the weight diagram."""
+        lam = self.reduce(lam)
+        hit = self._char_cache.get(lam)
+        if hit is None:
+            import sun_characters as SC
+            hit = SC.character(self._n, lam)
+            self._char_cache[lam] = hit
+        return dict(hit)
+
+    # ----- the Z₊-ring primitives ---------------------------------------
+    def one_basis(self) -> tuple:
+        return (0,) * self._n
+
+    def multiply_basis(self, b1, b2) -> dict:
+        key = (self.reduce(b1), self.reduce(b2))
+        hit = self._mult_cache.get(key)
+        if hit is not None:
+            return dict(hit)
+        import sun_characters as SC
+        prod = SC._lpoly_mul(self.character(key[0]), self.character(key[1]))
+        out = {lam: c for lam, c in SC.decompose(self._n, prod).items() if c}
+        for lam, c in out.items():
+            if c < 0:
+                raise ValueError(
+                    f"UNZPlusRing({self._n}): negative multiplicity {c} at "
+                    f"{lam} in {key[0]}·{key[1]} — not a Z₊-ring product")
+        self._mult_cache[key] = out
+        return dict(out)
+
+    def star_basis(self, b) -> tuple:
+        """Rep-ring duality: `V ↦ V*`, i.e. `λ ↦ (−λ_n, …, −λ_1)`."""
+        lam = self.reduce(b)
+        return tuple(-x for x in reversed(lam))
+
+    def dim(self, b) -> int:
+        return sum(self.character(b).values())
+
+    def one_dim_rep_rank(self) -> int:
+        """The centre `U(1) ⊂ U(n)`: the 1-dim reps are the `det` powers."""
+        return 1
+
+    def embed_one_dim_rep(self, f) -> tuple:
+        f = tuple(int(x) for x in f)
+        if len(f) != 1:
+            raise ValueError(
+                f"UNZPlusRing: one_dim_rep_rank is 1, got {f}")
+        return (f[0],) * self._n
+
+    # ----- torus embedding ----------------------------------------------
+    def to_abelian(self, elt: "RElement",
+                   target: "AbelianZPlusRing | None" = None) -> "RElement":
+        """Weight diagram over `AbelianZPlusRing(rank=n)`: `χ_λ ↦ Σ_w μ^w`.
+        The `U(n)` sibling of `SUNZPlusRing.to_abelian` — with the diagonal
+        KEPT, since here it is a genuine flavour direction."""
+        if elt.ring is not self:
+            raise ValueError("to_abelian: element's ring is not this UNZPlusRing")
+        if target is None:
+            target = AbelianZPlusRing(rank=self._n)
+        if not (isinstance(target, AbelianZPlusRing)
+                and target.rank == self._n):
+            raise ValueError(
+                f"to_abelian: target must be AbelianZPlusRing(rank={self._n})")
+        out: dict = {}
+        for lam, c in elt.terms.items():
+            for w, mult in self.character(lam).items():
+                key = tuple(int(x) for x in w)
+                out[key] = out.get(key, 0) + c * mult
+        return RElement(target, {k: v for k, v in out.items() if v})
+
+    def from_abelian(self, poly: dict) -> dict:
+        """`{Cartan weight: coeff} → {U(n)-dominant λ: multiplicity}` — the
+        inverse read, used to package a μ-graded flavour content into
+        characters.  Honest-fails (via `decompose`) on a non-invariant input."""
+        import sun_characters as SC
+        return {lam: c for lam, c in SC.decompose(self._n, dict(poly)).items()
+                if c}
+
+
 class TensorZPlusRing(ZPlusRing):
     """Tensor-product Z₊-ring  R = R_1 ⊗ R_2 ⊗ ... ⊗ R_k  of factor
     Z₊-rings.  The canonical use is **SU(2)^n** =
@@ -645,17 +798,18 @@ class TensorZPlusRing(ZPlusRing):
     with structure constants the products of the factors' (non-negative)
     structure constants.  `⋆` acts factor-wise.
 
-    This is the coefficient ring for SU(2)^n-flavoured KAlgebras; the
-    per-factor un-branch from the `U(1)^k` Cartan (`AbelianZPlusRing(k)`)
-    up to the non-abelian product is a Weyl-invariance recognition
+    This is the 'missing infrastructure piece' for SU(2)^n-flavoured
+    KAlgebras (the design notes); the per-factor
+    un-branch from the `U(1)^k` Cartan (`AbelianZPlusRing(k)`) up to the
+    non-abelian product is a `FlavourEnhancementKAlgebra`-style wrapper
     (Weyl group `∏_i W(R_i)`; for SU(2)^n the per-puncture `μ_p ↔ μ_p⁻¹`).
     """
 
     def __init__(self, *factors):
         # Unified surface: accept both the list form
         # `TensorZPlusRing([R1, R2, ...])` and the binary positional form
-        # `TensorZPlusRing(R_a, R_b)` (the `tensor_zplus_ring` module
-        # re-exports this class for that form).
+        # `TensorZPlusRing(R_a, R_b)` (the former `tensor_zplus_ring`
+        # class, now a re-export shim — the design record streamline).
         if len(factors) == 1 and isinstance(factors[0], (list, tuple)):
             factors = tuple(factors[0])
         self.factors = tuple(factors)
@@ -664,11 +818,11 @@ class TensorZPlusRing(ZPlusRing):
 
     @property
     def factor_a(self):
-        return self.factors[0]   # binary-form back-compat
+        return self.factors[0]   # binary-form back-compat (the design record streamline)
 
     @property
     def factor_b(self):
-        return self.factors[1]   # binary-form back-compat
+        return self.factors[1]   # binary-form back-compat (the design record streamline)
 
     def one_basis(self) -> tuple:
         return tuple(f.one_basis() for f in self.factors)
@@ -747,8 +901,8 @@ class SU2xU1ZPlusRing(ZPlusRing):
 
     Star ⋆: SU(2) self-dual; U(1) negation.  (k, m) ↦ (k, -m).
 
-    Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry
-    is SU(2) × U(1) (e.g. A_1D_{2k} for k ≥ 2 — chain + doublet, with the
+    Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry is
+    SU(2) × U(1) (e.g. A_1D_{2k} for k ≥ 2 — chain + doublet, with the
     chain-sum gauged U(1) on top of the doublet SU(2)).
     """
 
@@ -825,15 +979,16 @@ class SO3ZPlusRing(ZPlusRing):
     subring via `χ_j^{SO(3)} ↦ χ_{2j}^{SU(2)}` (set μ_{SO(3)} = μ_{SU(2)}²).
     See `to_su2()`.
 
-    Use: coefficient ring for a flavoured KAlgebra whose U(1) flavour
-    symmetry is enhanced to SO(3) — the natural enhancement when the
-    σ-symmetrised lattice elements all carry integer flavour weights.
+    Use: coefficient ring for a flavoured KAlgebra whose U(1) flavour symmetry
+    is enhanced to SO(3) — the natural enhancement when the
+    ε-symmetrised lattice elements all carry integer flavour weights.
     Canonical example: the [A_1, D_3] Argyres-Douglas theory in the
     D_3 (= central node + 2 leaves) BPS-quiver presentation, where
     Γ = Z·g_1 ⊕ Z·g_2 ⊕ Z·g_3, `B = [[0,1,1], [-1,0,0], [-1,0,0]]`,
-    σ = (g_2 ↔ g_3) the D_3 leaf-exchange Poisson involution; then
+    ε = (g_2 ↔ g_3) the D_3 leaf-exchange Poisson involution (written `ε`, not
+    `σ`: in this repo `σ` is the BPS half-monodromy only); then
     ker(B) = Z·(g_3 − g_2) is the SO(3) Cartan direction, and the
-    σ-invariant combination `X_{g_3-g_2} + X_0 + X_{g_2-g_3}` realises
+    ε-invariant combination `X_{g_3-g_2} + X_0 + X_{g_2-g_3}` realises
     the SO(3) vector character χ_1 = μ + 1 + μ⁻¹.  D_3 ≅ A_3 as
     Dynkin diagrams, so [A_1, D_3] = [A_1, A_3] as a physical theory;
     the D_3 presentation manifests SO(3) (= leaf-exchange Weyl) at the
@@ -952,8 +1107,8 @@ class SU3ZPlusRing(ZPlusRing):
     Embedding in the maximal-torus ring.  `R(SU(3)) ↪ R(U(1)²) =
     Z[μ_1^±, μ_2^±]` as the Weyl-symmetric subring (S_3 acting by
     permuting the three weights of the fundamental).  In the
-    "fundamental orbit basis" — where the three weights of the
-    fundamental are `(1, 0)`, `(0, 1)`,
+    "fundamental orbit basis" — where the
+    three weights of the fundamental are `(1, 0)`, `(0, 1)`,
     `(-1, -1)` — the Weyl group S_3 is generated by:
 
         σ_3 : (a, b) → (-b, a - b)    (Z_3 cyclic, order 3)
@@ -965,8 +1120,8 @@ class SU3ZPlusRing(ZPlusRing):
     (i.e. ω_1 ↔ (0, 1), ω_2 ↔ (1, 1)).  Implemented by
     `to_abelian()`.
 
-    Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry
-    is enhanced to SU(3) — the natural enhancement for a BPS quiver
+    Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry is
+    enhanced to SU(3) — the natural enhancement for a BPS quiver
     containing an S_3-orbit of three rays at the three fundamental
     weights of SU(3) (gauge node + 3-orbit of flavour nodes).
     """
@@ -1097,8 +1252,8 @@ class SU3ZPlusRing(ZPlusRing):
         # Convert ν (fundamental-orbit lattice) → Dynkin displacement.
         a, b = nu
         # Lattice basis: ω_1 = (0, 1), ω_2 = (1, 1) in fundamental-orbit
-        # coords.  So (a, b) = a·(1, 0) + b·(0, 1) (the fundamental-orbit
-        # lattice basis e_3, e_4) = (a, b) in that basis.  We need to express
+        # coords.  So (a, b) = a·(1, 0) + b·(0, 1) (the user's lattice
+        # basis e_3, e_4) = (a, b) in user's basis.  We need to express
         # (a, b) in the ω-basis: ω_1 = (0, 1), ω_2 = (1, 1) (lattice).
         # So (a, b) = c_1·(0, 1) + c_2·(1, 1) ⟹ c_2 = a, c_1 = b - a.
         nu_dyn = (b - a, a)  # = (p_dyn, q_dyn) displacement
@@ -1155,7 +1310,7 @@ class SU3ZPlusRing(ZPlusRing):
         #   α_2 = (-1, 2) → (2, 1)
         #   α_1+α_2 = (1, 1) → (1, 2)
         pos_roots_lattice = [(-1, 1), (2, 1), (1, 2)]
-        # Inner-product Gram matrix on lattice basis (fundamental-orbit coords).
+        # Inner-product Gram matrix on lattice basis (in user's coords).
         # The standard SU(3) Killing form, in ω-basis, has Gram G_ω = (1/3)[[2,1],[1,2]].
         # Convert to lattice basis: change-of-basis from lattice (e_3, e_4)
         # to ω (ω_1, ω_2).  We have ω_1 = (0, 1), ω_2 = (1, 1) in lattice;
@@ -1279,9 +1434,9 @@ class SU3ZPlusRing(ZPlusRing):
             χ_{(p,q)}  ↦  Σ_{w ∈ S_3 Weyl orbit}  m_w · μ_1^{w_1} · μ_2^{w_2}
 
         Weights are expressed in the fundamental-orbit basis (where the
-        three fundamental weights are (1, 0), (0, 1), (-1, -1)).  Mostly
-        diagnostic; also usable to cross-check traces computed over the
-        maximal-torus ring.
+        three fundamental weights are (1, 0), (0, 1), (-1, -1)) — the
+        same basis used by the SU(3)-flavoured BPS realisations.  Mostly
+        diagnostic / used by their traces for the reverse direction.
         """
         if elt.ring is not self:
             raise ValueError("to_abelian: element's ring is not this SU3ZPlusRing")
@@ -1456,9 +1611,9 @@ class SU4ZPlusRing(ZPlusRing):
     "fundamental-orbit lattice basis" differs from the ω-basis.)
     Implemented by `to_abelian()`.
 
-    Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry
-    is SU(4) — natural for SU(2)+N_f=3 with manifest SU(4) flavour
-    symmetry (see the `su2_nf3_*` cone modules).
+    Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry is
+    SU(4) — natural for SU(2)+N_f=3 with manifest SU(4) flavour
+    symmetry (see `bps_su2_nf3` / `su2_nf3_kalgebra`).
     """
 
     # --- Weyl group S_4 in Dynkin coords -------------------------------
@@ -1992,7 +2147,7 @@ class RLaurent:
                 self.ring, {n: c * other for n, c in self.coeffs.items()},
             )
         # LaurentPoly (Z[q^±]) lifts coefficient-wise into R[q^±]
-        # (Element coefficients may mix the two types).
+        # ( widening: Element coefficients may mix the two types).
         if type(other).__name__ == "LaurentPoly":
             out: dict[int, RElement] = {}
             one_b = self.ring.one_basis()
@@ -2172,7 +2327,17 @@ class RPowerSeries:
         return not self.coeffs
 
     def __getitem__(self, q_exp: int) -> RElement:
-        """The R-coefficient at q^{q_exp} (zero if absent)."""
+        """The R-coefficient at q^{q_exp} (zero if absent).
+
+        Probing **beyond the truncation window** raises: the series is
+        unknown there, and silently returning zero manufactures phantom
+        coefficients (the same corruption family as the unwidened
+        trace-pairing assembly, the audit A18)."""
+        if q_exp > self.K:
+            raise IndexError(
+                f"RPowerSeries[{q_exp}]: beyond the truncation window "
+                f"K={self.K} — the coefficient is unknown, not zero."
+            )
         return self.coeffs.get(q_exp, self.ring.zero())
 
     def __add__(self, other: "RPowerSeries") -> "RPowerSeries":
@@ -2213,9 +2378,13 @@ class RPowerSeries:
             )
         if isinstance(other, RLaurent):
             # Multiply truncated R((q)) by R[q^±]: shift and accumulate.
+            # A negative-valuation Laurent factor LOWERS the sound
+            # truncation window: q^{-n}·(series known to K) is known only
             if other.ring != self.ring:
                 raise ValueError("RPowerSeries: ring mismatch with RLaurent")
             K = self.K
+            if other.coeffs:
+                K += min(0, min(other.coeffs))
             out: dict[int, RElement] = {}
             for n1, c1 in self.coeffs.items():
                 for n2, c2 in other.coeffs.items():
@@ -2232,7 +2401,11 @@ class RPowerSeries:
         if isinstance(other, RPowerSeries):
             if other.ring != self.ring:
                 raise ValueError("RPowerSeries: ring mismatch")
-            K = min(self.K, other.K)
+            # Sound window under negative-valuation content: each factor's
+            # unknown tail is shifted down by the other's lowest exponent.
+            v1 = min(0, min(self.coeffs)) if self.coeffs else 0
+            v2 = min(0, min(other.coeffs)) if other.coeffs else 0
+            K = min(self.K + v2, other.K + v1)
             out: dict[int, RElement] = {}
             for n1, c1 in self.coeffs.items():
                 for n2, c2 in other.coeffs.items():
@@ -2376,14 +2549,14 @@ class RingHom:
                 new_coeffs[q_exp] = mapped
         return RPowerSeries(self.target, new_coeffs, P.K)
 
-    # ------- compatibility with augmentation + 1-dim reps -------
+    # ------- compatibility with augmentation + 1-dim reps (the design record T1b / D8) -------
     #
     # A Z₊-ring hom that "forgets part of a flavour symmetry" is a restriction
     # φ = α* of a compact-group hom α : H → G.  Such a φ PRESERVES DIMENSION
     # (ε_target ∘ φ = ε_source, since restriction preserves dim) and carries
     # 1-dim reps to 1-dim reps (so it induces a map Λ(source) → Λ(target) on the
     # lift torsors).  These are *verifiers*, not enforced invariants — a RingHom
-    # is a low-level tool; the flavour homs provided here all pass them.
+    # is a low-level tool (ruling D8); the shipped flavour homs all pass them.
 
     def verify_preserves_augmentation(self, samples) -> bool:
         """`ε_target ∘ φ == ε_source` on the given source basis `samples`
@@ -2429,7 +2602,7 @@ class RingHom:
 
 
 # ---------------------------------------------------------------------------
-# R(SU(N)) — the general unitary-flavour rep ring.
+# R(SU(N)) — the general unitary-flavour rep ring (ruling D8).
 # ---------------------------------------------------------------------------
 
 
@@ -2465,7 +2638,7 @@ def _distinct_perms(items: tuple):
 @lru_cache(maxsize=None)
 def _sun_kostka(lam: tuple, mu: tuple) -> int:
     """Kostka number K_{λμ} (# SSYT of shape λ, content μ) — small DP,
-    self-contained (no dependencies outside this module).
+    self-contained (zplus_ring must not import the per-theory realisation layer).
 
     Memoized two ways: `@lru_cache` reuses repeated `(λ, μ)` across the whole
     process, and the inner horizontal-strip recursion is memoized per call on
@@ -2514,8 +2687,8 @@ def _sun_kostka(lam: tuple, mu: tuple) -> int:
 
 
 class SUNZPlusRing(ZPlusRing):
-    """The Z₊-ring `R(SU(N))` for arbitrary `N ≥ 1` — the faithful
-    flavour ring of a U-gauge node with `N` fundamentals.
+    """The Z₊-ring `R(SU(N))` for arbitrary `N ≥ 1` (ruling D8: the
+    faithful flavour ring of a U-gauge node with `N` fundamentals).
 
     Basis: dominant SU(N) weights as **partitions with < N rows**
     (tuples, weakly decreasing, trailing zeros stripped; a full
@@ -2531,7 +2704,7 @@ class SUNZPlusRing(ZPlusRing):
 
     `SUNZPlusRing(2)` ≅ `SU2ZPlusRing` under `(n,) ↔ n`;
     `SUNZPlusRing(3)` ≅ `SU3ZPlusRing` under `(a,b) ↔ Dynkin (a−b, b)`
-    — both certified in the tests.
+    — both certified in the suite in the source repository.
     """
 
     def __init__(self, N: int) -> None:
@@ -2698,10 +2871,10 @@ class SUNZPlusRing(ZPlusRing):
         top = full[0]
         return self.reduce(tuple(top - x for x in reversed(full)))
 
-    # ----- the sun_characters-compatible surface (one ring, two
-    # cross-certifying engines: this class's Kostka-DP LR vs
-    # sun_characters' Weyl-denominator toolkit, pinned equal in the
-    # tests) -------------------
+    # ----- the merged surface (the design record; the sun_characters twin folded
+    # in here 2026-06-12 — one ring, two cross-certifying engines: this
+    # class's Kostka-DP LR vs sun_characters' Weyl-denominator toolkit,
+    # pinned equal in the suite in the source repository) -------------------
 
     @property
     def m(self) -> int:
@@ -2753,7 +2926,7 @@ def augmentation_hom(source: ZPlusRing) -> RingHom:
     abelian torus every irrep is 1-dimensional, so this is the classic
     `μ^f ↦ 1` "gauge quotient / set μ → 1" specialization — the previous
     `AbelianZPlusRing`-only signature is exactly that special case.  Aligns
-    with the `CoulombAlgebra.schur_index` output.
+    with the bundle stack's `CoulombAlgebra.schur_index` output.
 
     Generalised to any `ZPlusRing` for the Plan-32 forgetful map.
     """
@@ -2890,7 +3063,7 @@ def so3_to_u1_hom(
     This is exactly `SO3ZPlusRing.to_abelian()`, wrapped as a `RingHom`.
 
     Formalises the "SO(3) → U(1) symmetry reduction" relating an
-    SO(3)-flavoured K_𝖖-algebra to a conventional U(1)-flavoured one
+    SO(3)-flavoured K-algebra to a conventional U(1)-flavoured one
     via base-change of the coefficient ring.
     """
     if source is None:
@@ -3009,7 +3182,7 @@ def su2_to_u1_hom(
     the adjoint-normalised fugacity is μ = z²).  This is the hom that
     restricts an SU(2)-flavoured KAlgebra to its maximal torus, e.g.
     `a1d3.base_change(su2_to_u1_hom())` = the z-refined μ-flavoured
-    hexagon face (the hexagon pair)."""
+    hexagon face (the design notes, hexagon pair)."""
     if source is None:
         source = SU2ZPlusRing()
     if target is None:
@@ -3038,8 +3211,8 @@ def su3_to_su2u1_hom(
 
         3 = χ_{(1,0)}  ↦  2_{+1} ⊕ 1_{-2}     (i.e. (1, +1) + (0, -2)).
 
-    Physically: the D₄ AD theory's SU(3)-enhanced flavour restricted to
-    the SU(2)×U(1) visible to the A₁D₄ chart, so
+    Physically (regen note for a1d4): the D₄ AD theory's SU(3)-enhanced
+    flavour restricted to the SU(2)×U(1) visible to the A₁D₄ chart, so
     `a1d4 = SU3ADKAlg.base_change(su3_to_su2u1_hom())`.
 
     Computed exactly from the weight system: in the fundamental-orbit
@@ -3114,6 +3287,126 @@ def su3_to_su2u1_hom(
     return RingHom(source, target, _on_basis)
 
 
+def un_to_sun_hom(
+    M: int,
+    source: "UNZPlusRing | None" = None,
+    target: "SUNZPlusRing | TrivialZPlusRing | None" = None,
+) -> RingHom:
+    """The **central specialization** `R(U(M)) → R(SU(M))` — restriction along
+    `SU(M) ↪ U(M)`, i.e. setting the central fugacity (`det`) to 1:
+
+        χ_λ  ↦  χ_{λ − λ_M·(1,…,1)}       (then trimmed to an SU(M) partition)
+
+    This is ruling **D8b written as a ring hom**, and it is the seam between the
+    two flavour conventions live in the repo:
+
+    * `GMatterAbeKAlgebra` at a general `(G, N)` carries `R(U(n_i))` for `n_i`
+      copies of the same matter irrep (ruling TM7) — a general `G` need not have
+      a centre to absorb the diagonal `U(1)`, so the full `U(n_i)` is faithful
+      there (`G₂` is centreless);
+    * `UNNfKAlgebra` at a **U(N) gauge node** carries `R(SU(N_f))` (ruling D5),
+      because there the diagonal `U(1) ⊂ U(N_f)` *does* sit inside the gauge
+      centre and is level bookkeeping rather than flavour.
+
+    So the type-A comparison of the two presentations is not an identity but a
+    `base_change` along this hom — which is exactly why D8b insisted the central
+    direction be removed by **specializing a fugacity**, never by identifying
+    labels (the design notes §"Flavour rings"): a central specialization is an
+    algebra homomorphism, so associativity, bar and orthonormality survive it.
+
+    `M = 1` is the degenerate case: `U(1)` is *entirely* central, so the whole
+    ring is specialized away and the target is `TrivialZPlusRing` — matching
+    `UNNfKAlgebra(N, 1).coefficient_ring()` on the nose.
+
+    Multiplicativity is inherited rather than asserted: on `U(M)` weights the
+    product is the Littlewood–Richardson expansion of `s_λ·s_μ`, and subtracting
+    `λ_M + μ_M` columns commutes with LR (a full column is `det`, which is
+    central), so `φ(χ_λ·χ_μ) = φ(χ_λ)·φ(χ_μ)`.  The battery checks it on
+    products anyway (the suite in the source repository).
+    """
+    M = int(M)
+    if M < 1:
+        raise ValueError(f"un_to_sun_hom: M >= 1 required, got {M}")
+    if source is None:
+        source = UNZPlusRing(M)
+    if not isinstance(source, UNZPlusRing) or source.n != M:
+        raise TypeError(f"un_to_sun_hom: source must be UNZPlusRing({M})")
+    if target is None:
+        target = TrivialZPlusRing() if M == 1 else SUNZPlusRing(M)
+    if M == 1:
+        if not isinstance(target, TrivialZPlusRing):
+            raise TypeError(
+                "un_to_sun_hom: at M = 1 the whole ring is central, so the "
+                "target must be TrivialZPlusRing")
+    elif not isinstance(target, SUNZPlusRing) or target.N != M:
+        raise TypeError(f"un_to_sun_hom: target must be SUNZPlusRing({M})")
+
+    def _on_basis(lam) -> RElement:
+        lam = source.reduce(lam)
+        if M == 1:
+            # det ≡ 1 kills everything: χ_{(k,)} ↦ 1.
+            return target.one()
+        shift = lam[-1]
+        return target.basis_element(
+            target.reduce(tuple(x - shift for x in lam)))
+
+    return RingHom(source, target, _on_basis)
+
+
+def un_to_cartan_hom(
+    n: int,
+    source: "UNZPlusRing | None" = None,
+    target: "AbelianZPlusRing | None" = None,
+) -> RingHom:
+    """The **Cartan restriction** `R(U(n)) → R(U(1)^n)`:
+
+        χ_λ  ↦  Σ_{w ∈ wt(λ)}  mult_λ(w) · μ^w        (the weight diagram)
+
+    the `U(n)` analogue of `su2_to_u1_hom`, computed from `UNZPlusRing.character`
+    (the Schur Laurent polynomial `s_λ`), so the weight multiplicities are the
+    certified type-A character machinery's rather than a reimplementation.
+
+    This is the second of the two `(G, N)` flavour seams, and it is the one that
+    relates the two *conventions* now live for the same matter:
+
+    * a **flow** (`GMatterOverMatter` / `GMatterOverPure`) grades its integrated-out
+      hypermultiplet slots one `U(1)` each — `AbelianZPlusRing(M)`, because the
+      μ-levels are what the RG cone is graded by;
+    * the **native** class (`GMatterAbeKAlgebra`) packages `n_i` copies of the
+      same matter irrep into `R(U(n_i))` (ruling TM7), because those slots are
+      genuinely interchangeable.
+
+    So flow and native present the same algebra over rings related by this hom:
+    `native.base_change(un_to_cartan_hom(n))` is the flow's flavour convention.
+    That is the honest form of the comparison — sharper than comparing after
+    `augmentation_hom` (which forgets the flavour refinement entirely).
+
+    Distinct from `un_to_sun_hom`, which quotients the *centre* (`det ↦ 1`,
+    ruling D8b, the U(N)-gauge-node seam); this one restricts to the *maximal
+    torus* and keeps every fugacity.
+    """
+    n = int(n)
+    if n < 1:
+        raise ValueError(f"un_to_cartan_hom: n >= 1 required, got {n}")
+    if source is None:
+        source = UNZPlusRing(n)
+    if not isinstance(source, UNZPlusRing) or source.n != n:
+        raise TypeError(f"un_to_cartan_hom: source must be UNZPlusRing({n})")
+    if target is None:
+        target = AbelianZPlusRing(rank=n)
+    if not isinstance(target, AbelianZPlusRing) or target.rank != n:
+        raise TypeError(
+            f"un_to_cartan_hom: target must be AbelianZPlusRing({n})")
+
+    def _on_basis(lam) -> RElement:
+        lam = source.reduce(lam)
+        return RElement(target,
+                        {tuple(w): int(m)
+                         for w, m in source.character(lam).items() if m})
+
+    return RingHom(source, target, _on_basis)
+
+
 __all__ = [
     "BasisElement",
     "ZPlusRing",
@@ -3128,6 +3421,7 @@ __all__ = [
     "SU3ZPlusRing",
     "SU4ZPlusRing",
     "SUNZPlusRing",
+    "UNZPlusRing",
     "RingHom",
     "identity_hom",
     "augmentation_hom",
@@ -3136,5 +3430,7 @@ __all__ = [
     "so3_to_su2_hom",
     "su2_to_u1_hom",
     "su3_to_su2u1_hom",
+    "un_to_sun_hom",
+    "un_to_cartan_hom",
     "u1_weyl_to_so3",
 ]

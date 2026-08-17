@@ -234,11 +234,13 @@ def _find_pairing_intertwining_aut(
     AND `A · nodes_1 = nodes_2` as multisets, or `None` if no such
     `A` exists.
 
-    Strategy: pick a rank-subset of `nodes_1` as a basis of the
-    rank-`n` lattice, pick a corresponding rank-subset of `nodes_2`
-    in some order, solve `A · (basis_1 columns) = (basis_2 columns)`
-    over `Q`, and verify integer + unimodular + pairing-intertwining
-    + multiset-matching.
+    Strategy: pick a linearly independent rank-subset of `nodes_1` as a
+    solve basis (ANY nonzero determinant — the node span may sit at
+    finite index in the ambient lattice, e.g. pure_ade frames at index
+    N, where no unimodular subset exists), pick a corresponding
+    rank-subset of `nodes_2` of equal covolume in some order, solve
+    `A · (basis_1 columns) = (basis_2 columns)` over `Q`, and verify
+    integer + unimodular + pairing-intertwining + multiset-matching.
 
     For small ranks (≤ 6) the enumeration is `O((n choose r)² · r!)`
     in the worst case but usually terminates quickly because most
@@ -287,10 +289,25 @@ def _find_pairing_intertwining_aut(
             for r in range(rank)
         ]
         d1 = _int_det(M_1)
-        if abs(d1) != 1:
+        # Any linearly-INDEPENDENT subset serves as a solve basis: the
+        # node span may sit at finite index in the ambient lattice
+        # (pure_ade frames: index N in the weight-including lattice), in
+        # which case NO subset is unimodular and requiring |det| = 1
+        # returned None on genuinely isomorphic pairs.
+        # Integrality/unimodularity of A itself is checked downstream.
+        if d1 == 0:
             continue
         # Try every rank-subset and permutation of nodes_2 as targets.
         for idx_2 in combinations(range(n_nodes), rank):
+            # Necessary filter: a unimodular A maps the chosen basis onto
+            # a subset of equal covolume, |det M_2| == |det M_1|
+            # (permutation-invariant, so check once per subset).
+            M_2_chk = [
+                [nodes_2_t[idx_2[i]][r] for i in range(rank)]
+                for r in range(rank)
+            ]
+            if abs(_int_det(M_2_chk)) != abs(d1):
+                continue
             for perm in permutations(idx_2):
                 M_2 = [
                     [nodes_2_t[perm[i]][r] for i in range(rank)]

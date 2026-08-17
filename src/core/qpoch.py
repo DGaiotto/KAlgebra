@@ -63,6 +63,11 @@ class PowerSeries:
         return not self._c
 
     def __getitem__(self, e: int) -> int:
+        if e > self.K:
+            raise IndexError(
+                f"PowerSeries[{e}]: beyond the truncation window K={self.K} "
+                f"— the coefficient is unknown, not zero."
+            )
         return self._c.get(e, 0)
 
     # --- arithmetic ---
@@ -164,11 +169,17 @@ def inv_qpoch_finite(k: int, K: int) -> PowerSeries:
 
 
 def _invert_series(f: PowerSeries, K: int) -> PowerSeries:
-    """Invert a power series f with f[0] != 0, truncated to order K."""
-    assert f[0] != 0, "constant term must be nonzero to invert"
-    # For our use: f[0] = 1 always, so inv[0] = 1.
-    inv: dict[int, int] = {0: 1}
+    """Invert a power series over Z, truncated to order K.
+
+    Over Z[[q]] a series is invertible iff its constant term is ±1 —
+    asserted honestly (the old code asserted only `!= 0` and then
+    silently assumed `f[0] = 1`, giving a wrong inverse for `f[0] = −1`
+    or any other unit-free constant)."""
     f0 = f[0]
+    assert f0 in (1, -1), (
+        f"_invert_series: constant term must be ±1 over Z (got {f0})"
+    )
+    inv: dict[int, int] = {0: f0}
     for n in range(1, K + 1):
         s = 0
         for m in range(1, n + 1):
@@ -176,7 +187,6 @@ def _invert_series(f: PowerSeries, K: int) -> PowerSeries:
             if fm != 0 and (n - m) in inv:
                 s += fm * inv[n - m]
         if s != 0:
-            # inv[n] = -s / f0.  f0 = 1 so inv[n] = -s.
-            inv[n] = -s
+            inv[n] = -f0 * s
     return PowerSeries(inv, K)
 

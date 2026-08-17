@@ -62,6 +62,46 @@ def clear_nahm_cache() -> None:
 # Per-γ Nahm-index solver (cold path).
 # ---------------------------------------------------------------------------
 
+def _solve_nahm_indices_nonneg(
+    gamma: Vec,
+    spec_t: Sequence[Vec],
+) -> list[tuple[int, ...]]:
+    """All ``(n_1, …, n_N)`` with ``n_a ≥ 0`` and ``Σ n_a γ_a = γ``, for
+    the (ubiquitous) case that **every spec entry is coordinatewise
+    non-negative and nonzero**: direct coordinate-budget DFS, each
+    multiplicity bounded exactly by the remaining budget on the entry's
+    support.
+
+    Same output as the general Gaussian path below, but immune to its
+    free-variable enumeration wall: with N spec entries of rank r the
+    general path backtracks over a ``(max_n+1)^(N−r)`` box with only a
+    weak look-ahead prune — already ~51¹⁰ on a rank-6 chart with a
+    16-entry spec (the tetrahedral S²₀,₄ arranged spec), where the true
+    solution count is tiny.  Found via the gluing-vs-RG probe (the
+    directional exact solve hung inside ``s_gamma_habiro``)."""
+    if any(x < 0 for x in gamma):
+        return []
+    N = len(spec_t)
+    r = len(gamma)
+    results: list[tuple[int, ...]] = []
+    ns = [0] * N
+
+    def dfs(j: int, rem: tuple) -> None:
+        if j == N:
+            if all(x == 0 for x in rem):
+                results.append(tuple(ns))
+            return
+        g = spec_t[j]
+        cap = min(rem[i] // g[i] for i in range(r) if g[i])
+        for t in range(cap + 1):
+            ns[j] = t
+            dfs(j + 1, tuple(rem[i] - t * g[i] for i in range(r)))
+        ns[j] = 0
+
+    dfs(0, tuple(gamma))
+    return results
+
+
 def _solve_nahm_indices(
     gamma: Vec,
     spec_t: Sequence[Vec],
@@ -72,10 +112,17 @@ def _solve_nahm_indices(
     Gaussian elimination over Q for a particular rational solution
     plus the kernel; enumerate free variables over non-negative
     integers, checking integrality and non-negativity of the pivot
-    variables.
+    variables.  When every spec entry is coordinatewise non-negative
+    (the physical node-basis case) the exact coordinate-budget DFS
+    above is used instead — identical results, no enumeration wall.
     """
     N = len(spec_t)
     r = len(gamma)
+
+    if all(
+        all(c >= 0 for c in g) and any(g) for g in spec_t
+    ):
+        return _solve_nahm_indices_nonneg(gamma, spec_t)
 
     M = [[Fraction(spec_t[j][i]) for j in range(N)] + [Fraction(gamma[i])]
          for i in range(r)]
@@ -171,6 +218,86 @@ def _nahm_shift(ns: Sequence[int], kmat: Sequence[Sequence[int]]) -> int:
         for j in range(i + 1, N):
             s += ni * ns[j] * row[j]
     return s
+
+
+# ---------------------------------------------------------------------------
+# the GENERAL Nahm sum -- any BPS-factor content, not only a spin-0 spec
+# ---------------------------------------------------------------------------
+#
+# `_nahm_shift` carries an implicit all-ones linear term and the off-diagonal
+# `k_{ab}`, and NO diagonal.  That is exactly the shape of a product of plain
+# `E_𝖖(X_{γ_a})`, which is why the route reached only spin-0 specs.  Restoring
+# the two missing coefficients reaches every BPS factor (user, 2026-08-14: *"you
+# certainly know the series for E and E^{-1} ... they are related by 𝖖 <-> 𝖖^{-1}
+# anyway"*), because
+#
+#     E_𝖖(x)      = Σ_n (−1)^n 𝖖^{n}   x^n / (𝖖²;𝖖²)_n
+#     E_𝖖(x)^{-1} = Σ_n        𝖖^{n²}  x^n / (𝖖²;𝖖²)_n
+#
+# — the second being the first at `𝖖 → 𝖖⁻¹`, since
+# `(𝖖^{-2};𝖖^{-2})_n = (−1)^n 𝖖^{−n(n+1)} (𝖖²;𝖖²)_n`.  So inversion is what
+# introduces the DIAGONAL `n²`, and a `𝖖^j`-scaled argument shifts the LINEAR
+# coefficient.  Reading the two off `charge_series`'s
+# `m_s(γ) = ∏_{j=−2s,step 2}^{2s} E_𝖖((−1)^{2s} 𝖖^j X_γ)^{(−1)^{2s}}`:
+#
+#     exponent +1 (integer spin)  ->  linear 1+j,  diagonal 0,  sign base −σ
+#     exponent −1 (half-integer)  ->  linear j,    diagonal 1,  sign base  σ
+#
+# Both rows are pinned against `charge_series`.
+
+
+def general_nahm_shift(ns: Sequence[int],
+                       kmat: Sequence[Sequence[int]],
+                       linear: Sequence[int],
+                       diagonal: Sequence[int]) -> int:
+    """``Σ c_a n_a + Σ_a d_a n_a² + Σ_{a<b} n_a n_b k_{ab}``.
+
+    `_nahm_shift` is the special case `c ≡ 1`, `d ≡ 0`.
+    """
+    total = 0
+    N = len(ns)
+    for i in range(N):
+        ni = ns[i]
+        if ni == 0:
+            continue
+        total += linear[i] * ni + diagonal[i] * ni * ni
+        row = kmat[i]
+        for j in range(i + 1, N):
+            total += ni * ns[j] * row[j]
+    return total
+
+
+def general_nahm_habiro(gamma: Vec,
+                        generators: Sequence[tuple],
+                        kmat: Sequence[Sequence[int]]) -> HabiroElement:
+    """``[∏_a E_𝖖(σ_a 𝖖^{j_a} X_{γ_a})^{±1} |0>]_γ`` as an exact element.
+
+    `generators` is one tuple `(charge, linear, diagonal, sign)` per `E_𝖖`
+    factor, in product order — the flattening `nahm_generators` produces from a
+    BPS-factor content.  `kmat[a][b] = ⟨γ_a, γ_b⟩`, as for `s_gamma_habiro`.
+
+    Same route as `s_gamma_habiro` and sharing its index solver: enumerate the
+    tuples `n` with `Σ n_a γ_a = γ`, then sum one signed term each.  Nothing here
+    multiplies factors together, which is the whole point — it stays an
+    independent check on the accumulate-and-multiply engine in `bps_factor_spectrum`.
+    """
+    charges = [tuple(g[0]) for g in generators]
+    linear = [g[1] for g in generators]
+    diagonal = [g[2] for g in generators]
+    signs = [g[3] for g in generators]
+
+    all_ns = _solve_nahm_indices(tuple(gamma), charges)
+    if not all_ns:
+        return HabiroElement.zero()
+    terms = []
+    for ns in all_ns:
+        sign = 1
+        for base, n in zip(signs, ns):
+            if base < 0 and n & 1:
+                sign = -sign
+        terms.append(HabiroElement.nahm_term(
+            sign, general_nahm_shift(ns, kmat, linear, diagonal), list(ns)))
+    return HabiroElement.sum(terms)
 
 
 # ---------------------------------------------------------------------------
@@ -319,7 +446,7 @@ def gammas_to_q_order(
       Nf chambers, …), the negative quadratic part can bring shift
       below `Σ n_a`. The default falls back to
       ``2 * K * (1 + |min_neg|) + 2``, which is empirically
-      sufficient for the mixed-sign theories included here; it is
+      sufficient for the mixed-sign theories shipped today; it is
       *not* mathematically sound in the worst case (a sufficiently
       negative single off-diagonal can produce shift-≤-K tuples
       with arbitrarily large `Σ n_a`). When in doubt, pass
@@ -599,7 +726,8 @@ def fs_dict_for_eta_set(
     ``cone_gens = [(1,0), (0,-1)]``): every required μ with negative
     second coordinate fell outside the box, the walk returned a
     truncated table, and ``[F·S|0>]_η`` came out zero where it
-    shouldn't.  The witness-based L-shell is cone-direction-agnostic and always
+    shouldn't.  The
+    witness-based L-shell is cone-direction-agnostic and always
     contains the needed μ.
     """
     if not eta_set:

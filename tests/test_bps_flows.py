@@ -16,9 +16,9 @@ What this exercises:
                                and trace truncation-stability with
                                **no RuntimeWarning**.
   * `test_pentagon_spec_free`— the same algebra built **spec-free** (`build_S=True`,
-                               the recursive spectrum-generator engine): multiply /
-                               trace / inner_product reproduce the spec-mode values
-                               over a label grid.
+                               `S` from the quiver alone): multiply / trace /
+                               inner_product reproduce the spec-mode values over a
+                               label grid.
   * `test_pentagon_iso`      — a `KAlgebraIso` BPS-pentagon ↔ the Step-1
                                `PentagonSampleKAlgebra` (`verify_all`): the
                                cross-check that the two presentations are the same
@@ -28,6 +28,34 @@ What this exercises:
                                and the flavoured trace over `R((q))`.
   * `test_directional_nodedrop` — a node-deletion RG flow (`DirectionalSingleNodeRG`)
                                certified against an independent UV `BPSKAlgebra`.
+
+The `S`-building layer, whose checks are deliberately weighted towards
+**independent** cross-checks — an engine's agreement with itself says nothing
+about the conjecture underneath it:
+
+  * `test_bps_factor_spectrum`      — `bps_factor_spectrum` (`S` from its leading data as a
+                               product of palindromic BPS factors, one per
+                               `(γ, s)` pair) against the
+                               Nahm-sum expansion of a known chamber spec and
+                               against the chart's own `[S|0⟩]_γ`;
+                               order-independence of `S` asserted *non-vacuously*;
+                               the central charge selecting pure SU(2)'s
+                               weak-coupling chamber (dyon tower + the W boson,
+                               its one spin-1/2 state); and coverage of Markov
+                               (= N=2*), where the peel gate trips.
+  * `test_peel_engine_retired` — every door into the peel recursion refuses, and
+                               refuses with the *retirement* error; an unknown
+                               engine does not; both opt-ins reach the intact
+                               engine, which still agrees with the factor build; and
+                               the context manager does not leak the opt-in.
+  * `test_fs_builder`        — `F_γ` and `S` grown together out of
+                               `F_γ·S = X_γ + O(𝖖)`, reproducing the F-solver over
+                               a charge grid by a route that never saw the support
+                               window — plus the degenerate `Ω ≡ 0` solution,
+                               asserted because the relation *alone* pins nothing.
+  * `test_factor_order_search` — a cored quiver's BPS factors collapsing to
+                               spin-0 ones that rebuild `S` independently, and the acyclic
+                               short-circuit landing on the node charges.
 
 Run with every `src/<layer>/` directory on the path (the BPS layer imports the
 Step-1 core and the Step-3 engine — nothing is duplicated):
@@ -46,6 +74,8 @@ for _root, _dirs, _ in os.walk(_SRC):
         sys.path.insert(0, _root)
 
 from laurent_poly import LaurentPoly
+from habiro import HabiroElement
+from q_number_poly import QNumberPoly
 from kalgebra import Element
 from kalgebra_iso import KAlgebraIso
 from samples import PentagonSampleKAlgebra
@@ -55,6 +85,20 @@ from directional_subquiver_rg import (
     certify_directional_vs_bps,
 )
 from bps_atlas import BPSAtlas
+from bps_factor_spectrum import (
+    PLACEMENT_ORDERS,
+    BPSFactorSpectrum,
+    build_spectrum_generator_from_factors,
+    spin_decompose,
+)
+from recursive_spectrum import (
+    RetiredEngineError,
+    Theory,
+    build_spectrum_generator,
+    enable_retired_peel_engine,
+)
+from fs_builder import FSBuilder
+from factor_order_search import find_simple_factorisation
 
 _ONE = LaurentPoly.one()
 
@@ -409,6 +453,328 @@ def test_gauge_atlas_examples():
           f"recursive-S drifts; finite-spec atlas → {fa['n_charts']} charts)")
 
 
+# ---------------------------------------------------------------------------
+# the S- and F·S-building engines (the Step-4 increment)
+# ---------------------------------------------------------------------------
+
+RAY_H0 = HabiroElement.zero()
+KRONECKER2 = [[0, 2], [-2, 0]]
+B3 = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+# Markov (= N=2*): the three-cycle with every bracket 2.  It admits no finite
+# `E_𝖖`-product, which is exactly why it is here.
+MARKOV = [[0, 2, -2], [-2, 0, 2], [2, -2, 0]]
+CYCLE111 = [[0, 1, -1], [-1, 0, 1], [1, -1, 0]]
+# Weak coupling for pure SU(2): the central charge that selects the chamber with
+# the dyon tower and the W boson, rather than the two-state strong-coupling one.
+WEAK_SU2 = [complex(-1, 1), complex(1, 1)]
+
+
+def _same_in_cone(A, B, theory):
+    """Equality of two `S`'s on the positive cone only.
+
+    Both builds are truncated along the CONE, not in `𝖖`, and they need not agree
+    on charges outside it — outside is where each one's own truncation debris
+    lives.  Comparing there would fail for reasons that say nothing about `S`.
+    """
+    return all(A.get(g, RAY_H0) == B.get(g, RAY_H0)
+               for g in set(A) | set(B) if theory.in_cone(g))
+
+
+def _n_factors(content):
+    """How many BPS factors `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` a content carries.
+
+    NOT the number of charges: a charge whose `Ω` spans several spins carries one
+    factor per spin, and the two counts genuinely differ (the pentagon's free
+    order gives 14 charges but 19 factors).  The factor is the unit the order
+    places, so it is the unit worth counting.
+    """
+    return sum(len(spin_decompose(om)) for om in content.values())
+
+
+def test_bps_factor_spectrum():
+    """`bps_factor_spectrum`: `S` from its LEADING DATA, no spec and no `F`-solve.
+
+    Four independent checks, in increasing order of what they would catch:
+
+    (i)   against `Theory.S_from_spec` — ground truth.  That routine expands the
+          ordered product `∏ E_𝖖(X_{γ_i})` of a KNOWN chamber spec as a Nahm sum
+          and shares no code path with this recursion, so agreement is
+          evidence rather than self-consistency.
+    (ii)  order-independence.  The recursion needs a total order on the PAIRS
+          `(γ, s)` — one position per BPS factor `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` — and
+          `S` does not depend on the choice, though the CONTENT `Ω` does.  Both
+          halves are asserted: if every order produced the same number of BPS
+          factors the first half would be testing nothing.
+    (iii) the central charge selects the chamber.  Supplying weak-coupling
+          phases for pure SU(2) reproduces the physical spectrum: the dyon tower
+          plus the W boson, which is the one state of nonzero spin.  Same `S` as
+          the two-factor strong-coupling factorisation.  This is the one place a
+          central charge is in play, and so the one place charges organise
+          into rays at all.
+    (iv)  against the chart's own `[S|0⟩]_γ`, through
+          `BPSKAlgebra.verify_spectrum_generator_from_factors`.
+
+    Then the reason the engine exists: COVERAGE.  On Markov (= N=2*) the peel
+    recursion's monomial-charge gate trips and it honest-fails; this construction
+    has no gate to trip and builds.
+    """
+    theory = Theory("pentagon", PENTA_PAIRING, PENTA_NODES, CONE=8)
+
+    # (i) ground truth
+    S = build_spectrum_generator_from_factors(PENTA_PAIRING, PENTA_NODES, 8)
+    assert _same_in_cone(S, theory.S_from_spec([(1, 0), (0, 1)]), theory)
+
+    # (ii) order-independence, non-vacuously
+    built = {}
+    for order in PLACEMENT_ORDERS:
+        try:
+            b = BPSFactorSpectrum(PENTA_PAIRING, PENTA_NODES, 8, order=order)
+        except ValueError:
+            continue          # `strip` honest-fails where the strip leaves a core
+        b.run()
+        built[order] = b
+    assert len(built) >= 3, list(built)
+    ref = built[list(built)[0]].spectrum_generator()
+    for order, b in built.items():
+        assert _same_in_cone(ref, b.spectrum_generator(), theory), order
+    # Count the PLACED UNIT — the BPS factors `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}`, one per
+    # `(γ, s)` pair — not the charges carrying one.  The two differ (the free
+    # order here gives 14 charges but 19 factors), and it is the factor count
+    # that the order actually moves.
+    counts = {o: _n_factors(b.multiplicities()) for o, b in built.items()}
+    assert len(set(counts.values())) > 1, (
+        f"every order gave {counts} BPS factors — order-independence is vacuous "
+        f"here")
+
+    # (iii) the central charge chooses the chamber
+    strong = BPSFactorSpectrum(KRONECKER2, PENTA_NODES, 6, order="phase")
+    strong.run()
+    weak = BPSFactorSpectrum(KRONECKER2, PENTA_NODES, 6, order="phase",
+                       phases=WEAK_SU2)
+    weak.run()
+    assert len(strong.omega) == 2, strong.omega
+    su2 = Theory("su2", KRONECKER2, PENTA_NODES, CONE=6)
+    assert _same_in_cone(strong.spectrum_generator(),
+                         weak.spectrum_generator(), su2)
+    spins = {g: spin_decompose(o) for g, o in weak.multiplicities().items()}
+    assert spins[(1, 1)] == {1: 1}, spins            # the W boson, spin 1/2
+    assert all(spins[g] == {0: 1} for g in spins if g != (1, 1)), spins
+
+    # (iv) against the chart's own S
+    A = BPSKAlgebra(pairing=PENTA_PAIRING, node_charges=PENTA_NODES)
+    assert A.verify_spectrum_generator_from_factors(6)
+
+    # coverage: the peel gate trips, this construction builds
+    with enable_retired_peel_engine():
+        try:
+            build_spectrum_generator(MARKOV, B3, 5)
+            raise AssertionError("the peel engine should gate out on Markov")
+        except RetiredEngineError:                          # pragma: no cover
+            raise AssertionError(
+                "got the RETIREMENT error, so the gate was never reached")
+        except ValueError as exc:
+            assert "monomial-charge gate" in str(exc), str(exc)
+    markov = BPSFactorSpectrum(MARKOV, B3, 5)
+    markov.run()
+    assert markov.omega, "the construction produced no factors on Markov"
+
+    print(f"  PASS: test_bps_factor_spectrum (ground truth; {len(built)} orders give "
+          f"one S with BPS-factor counts {sorted(set(counts.values()))}; weak-coupling "
+          f"SU(2) = dyon tower + W boson; Markov builds where the peel gate trips)")
+
+
+def test_peel_engine_retired():
+    """The peel `S`-recursion is RETIRED — and kept, switchable, on purpose.
+
+    Retired means every way *in* refuses.  The doors are enumerated rather than
+    sampled: a retirement that closes three of four entrances is not a
+    retirement, since a caller arriving through the fourth would reach the engine
+    silently.
+
+    It is gated rather than deleted because it is the only INDEPENDENT
+    construction of `S` in the release — it solves `F_γ·S_sub = X_γ + O(𝖖)` and
+    reattaches `E_𝖖(F_γ)`, sharing no mechanism with the factor recursion — so the
+    cross-check between the two has to stay runnable.  Evidence you cannot run is
+    not evidence.
+    """
+    import recursive_spectrum as rs
+
+    doors = (
+        ("build_spectrum_generator",
+         lambda: rs.build_spectrum_generator(PENTA_PAIRING, PENTA_NODES, 4)),
+        ("_build_S_by_engine",
+         lambda: rs._build_S_by_engine(PENTA_PAIRING, PENTA_NODES, 4,
+                                       engine="peel")),
+        ("build_spectrum_generator_auto",
+         lambda: rs.build_spectrum_generator_auto(PENTA_PAIRING, PENTA_NODES,
+                                                  engine="peel")),
+        ("extract_spec_from_quiver",
+         lambda: rs.extract_spec_from_quiver(PENTA_PAIRING, PENTA_NODES,
+                                             cutoff=4, engine="peel")),
+        ("BPSKAlgebra",
+         lambda: BPSKAlgebra(pairing=PENTA_PAIRING, node_charges=PENTA_NODES,
+                             build_S=True, build_S_cutoff=4,
+                             build_S_engine="peel")),
+    )
+    for label, call in doors:
+        try:
+            call()
+        except RetiredEngineError:
+            continue
+        raise AssertionError(f"{label} still reaches the retired peel engine")
+    assert rs.ACTIVE_SPEC_FREE_ENGINES == ("factors",)
+
+    # An unknown engine and a retired one must not report the same thing: the
+    # retired one exists and is reachable, and the message has to say so.
+    try:
+        BPSKAlgebra(pairing=PENTA_PAIRING, node_charges=PENTA_NODES,
+                    build_S=True, build_S_cutoff=4, build_S_engine="bogus")
+    except RetiredEngineError:                              # pragma: no cover
+        raise AssertionError("an unknown engine reported itself as retired")
+    except ValueError:
+        pass
+
+    # Intact behind both opt-ins, and still agreeing with the factor build.
+    by_kwarg = rs.build_spectrum_generator(PENTA_PAIRING, PENTA_NODES, 6,
+                                           allow_retired=True)
+    with enable_retired_peel_engine():
+        by_context = rs._build_S_by_engine(PENTA_PAIRING, PENTA_NODES, 6,
+                                           engine="peel")
+    assert by_kwarg == by_context
+    theory = Theory("pentagon", PENTA_PAIRING, PENTA_NODES, CONE=6)
+    assert _same_in_cone(
+        by_kwarg,
+        build_spectrum_generator_from_factors(PENTA_PAIRING, PENTA_NODES, 6),
+        theory)
+
+    # The opt-in does not leak: the context manager restores the retirement.
+    assert rs.PEEL_RETIRED is True
+    try:
+        rs.build_spectrum_generator(PENTA_PAIRING, PENTA_NODES, 4)
+    except RetiredEngineError:
+        pass
+    else:
+        raise AssertionError("the context manager leaked the opt-in")
+
+    print(f"  PASS: test_peel_engine_retired ({len(doors)} doors refuse; both "
+          f"opt-ins reach the intact engine and it still agrees)")
+
+
+def test_fs_builder():
+    """`F_γ` and `S` grown TOGETHER out of `F_γ·S = X_γ + O(𝖖)`.
+
+    Where the shipped F-solver takes `S` as given and enumerates the
+    doubly-tropical support window `[γ₋, γ⁺]`, this route has neither: at each
+    cone degree it places the BPS factors the leading data forces and reads off
+    the palindromic `F`-coefficients the relation forces.  So the interval is an
+    OUTPUT here, which is what makes agreement with the solver evidence rather
+    than a restatement.
+
+    Four checks:
+
+    (i)   `F` agrees with `BPSKAlgebra.F` over a grid of pentagon charges,
+          positive and negative;
+    (ii)  the `S` it produces on the way is the standalone `bps_factor_spectrum` build;
+    (iii) the two moves are ONE alphabet — `[n]_𝖖 = χ_{(n−1)/2}`, the F-solver's
+          peel basis and the `S`-side multiplicity basis being the same
+          `Z`-basis of the palindromic Laurent polynomials.  This is why the two
+          recursions interleave at all, so it is pinned rather than asserted;
+    (iv)  the honest caveat: the relation ALONE pins nothing.  `Ω ≡ 0` gives
+          `S = 1` and `F = X_γ`, which satisfies `F·S = X_γ + O(𝖖)` exactly.
+          What makes the build deterministic is `S`'s leading data.
+    """
+    A = BPSKAlgebra(pairing=PENTA_PAIRING, node_charges=PENTA_NODES)
+    charges = [(1, 0), (0, 1), (1, 1), (-1, 0), (-1, 1), (0, -1), (2, 1)]
+
+    # (i)
+    for g in charges:
+        need = FSBuilder(PENTA_PAIRING, PENTA_NODES, g, 2).cutoff_needed(A)
+        assert need >= 0, (g, "the shipped F charge is not γ + cone")
+        b = FSBuilder(PENTA_PAIRING, PENTA_NODES, g, max(need, 1))
+        b.run()
+        bad = b.verify_against_solve_F(A)
+        assert not bad, (g, bad[:3])
+
+    # (ii)
+    b = FSBuilder(PENTA_PAIRING, PENTA_NODES, (1, 0), 6)
+    b.run()
+    theory = Theory("pentagon", PENTA_PAIRING, PENTA_NODES, CONE=6)
+    assert _same_in_cone(
+        b.spectrum_generator(),
+        build_spectrum_generator_from_factors(PENTA_PAIRING, PENTA_NODES, 6),
+        theory)
+
+    # (iii)
+    for n in range(1, 8):
+        chi = {e: c for e, c in QNumberPoly({n: 1}).to_laurent()._coeffs.items()
+               if c}
+        assert spin_decompose(chi) == {n - 1: 1}, (n, chi)
+
+    # (iv)
+    z = FSBuilder(PENTA_PAIRING, PENTA_NODES, (-1, 0), 5, order="lex",
+                  omega_policy=lambda k, forced, resid: {})
+    z.run()
+    assert z.factors.omega == {}, z.factors.omega
+    assert z.F() == {(-1, 0): LaurentPoly({0: 1})}, z.F()
+
+    print(f"  PASS: test_fs_builder ({len(charges)} charges == the F-solver, "
+          f"support an output; S byproduct == the standalone build; one alphabet; "
+          f"Ω ≡ 0 shows the relation alone pins nothing)")
+
+
+def test_factor_order_search():
+    """Searching the ORDER for a simple factorisation of `S`.
+
+    `S` does not depend on the order the BPS factors are placed in; its
+    FACTORISATION does, and some orders factor it far more simply than others.
+    This is a BFS over **BPS-factor** insertion points, looking for an order
+    with spin-0 factors only that stops populating inside the cone — which is
+    what a consumer needs.
+
+    ⚠ `is_spec` is bounded, not a certificate: stopping is a screen, the result
+    is confirmed by rebuilding `S` and the candidate product `confirm_extra`
+    degrees further, and a factorisation can agree everywhere the check looks
+    and disagree one degree past it.  So the assertion below is read relative to
+    `Result.confirmed_to`, and the independent Nahm-sum rebuild is what carries
+    the weight here.
+
+    (i)  on a quiver whose source/sink strip leaves a core, the default falls
+         back to random placement: a legitimate total order, but a poor
+         factorisation.  The search finds a spin-0 one, and it is genuinely
+         better — both halves asserted, since "fewer factors" alone could be a
+         lucky draw while "spin 0" is the property that matters.
+    (ii) every reported factorisation is REBUILT through `Theory.S_from_spec`,
+         the independent Nahm-sum route, so a wrong ORDER is caught and not just
+         a wrong multiset.
+    (iii) on an acyclic quiver it short-circuits to the strip order, which
+         attains the provable floor: at cone degree 1 the product is empty, so
+         every node carries a factor in every order.
+    """
+    # (i) + (ii) a cored quiver
+    default = BPSFactorSpectrum(CYCLE111, B3, 5)
+    assert default.order == "random", default.order
+    default.run()
+    content = default.multiplicities()
+    found = find_simple_factorisation(CYCLE111, B3, 5)
+    assert found.is_spec and found.content.max_spin_doubled == 0, found.spec
+    # spin-0 throughout, so the spec length IS the factor count on this side.
+    assert len(found.spec) < _n_factors(content), (len(found.spec),
+                                                   _n_factors(content))
+
+    theory = Theory("3-cycle(1,1,1)", CYCLE111, B3, CONE=5)
+    lex = BPSFactorSpectrum(CYCLE111, B3, 5, order="lex")
+    lex.run()
+    assert _same_in_cone(theory.S_from_spec(list(found.spec)),
+                         lex.spectrum_generator(), theory)
+
+    # (iii) acyclic: the node charges themselves, in the strip order
+    pent = find_simple_factorisation(PENTA_PAIRING, PENTA_NODES, 6)
+    assert pent.is_spec and list(pent.spec) == list(PENTA_NODES), pent.spec
+
+    print(f"  PASS: test_factor_order_search (3-cycle: {_n_factors(content)} BPS factors "
+          f"→ {len(found.spec)} spin-0 factors, rebuilt independently; "
+          f"pentagon short-circuits to its node charges)")
+
 def main():
     test_pentagon_spec()
     test_pentagon_spec_free()
@@ -418,6 +784,10 @@ def main():
     test_atlas()
     test_atlas_examples()
     test_gauge_atlas_examples()
+    test_bps_factor_spectrum()
+    test_peel_engine_retired()
+    test_fs_builder()
+    test_factor_order_search()
     print("\nALL BPSKAlgebra (Step 4) self-tests passed.")
 
 

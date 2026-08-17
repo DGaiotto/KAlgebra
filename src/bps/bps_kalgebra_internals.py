@@ -540,7 +540,7 @@ def solve_F_with_initial_guess(
 # with [S_k]_⋅ = `s_gamma_habiro(⋅, S_k_t, kmat_S_k)` (the standard
 # Nahm-sum coefficient for the spec S_k as a finite product of E_q's).
 #
-# Tradeoff: we lose the cached `s_gamma_habiro(γ, full_spec)`
+# Tradeoff (per user): we lose the cached `s_gamma_habiro(γ, full_spec)`
 # (which currently caches per-theory across many F's), since the
 # bracketed sum uses S_1 and S_2 separately. We gain when multiple F's
 # share the same (S_1, S_2) split — the inner s1_xdelta_s2 results
@@ -564,7 +564,7 @@ def s1_xdelta_s2_coeff(
     Triple sum over (α, β) with α + β = η − δ, weighted by
     `[S_1]_α · [S_2]_β · q^{⟨α, δ⟩ + ⟨α, β⟩ + ⟨δ, β⟩}`. Each `[S_k]_·`
     is a Nahm-sum HabiroElement; the multiplication keeps everything
-    exact in the localized ring `Z[q^±][1/(1−q^{2k})]`.
+    exact in the localized Habiro ring.
     """
     from collections import deque
     target = tuple(e - d for e, d in zip(eta, delta))
@@ -764,13 +764,13 @@ def _enumerate_output_charges(
     while keeping the filter under the cutoff).
 
     Filter shape:
-      * `cone_witness=None`: filter by L1 norm
+      * `cone_witness=None` (legacy): filter by L1 norm
         ``sum(abs(γ)) <= cone_cutoff``.  Correct shape only for
         axis-aligned cones (where ``⟨f, γ⟩ = |γ|_1`` for cone-positive γ
         with ``f = (1,…,1)``).  For oblique cones this both over-includes
         (charges outside the cone whose c-data is zero) and may
         under-include (charges shallow in the cone but large in L1) -- a
-        known accuracy limitation of this plain default.
+        known accuracy bug in the legacy default.
       * `cone_witness=f`: filter by the cone-witness L-shell predicate
         ``⟨f, γ⟩ <= cone_cutoff``.  This is the principled cone-shape
         filter: ``f`` is a strict cone-pointedness witness
@@ -780,7 +780,7 @@ def _enumerate_output_charges(
         ``fs_dict_for_eta_set`` (the inner Nahm walk) and
         ``_warm_fs_cache_for_schur``.  Recommended.
 
-    `K_joint` (needs `cone_witness`): additionally prune
+    `K_joint` (audit A10 fix; needs `cone_witness`): additionally prune
     by the PAIRED-CONTRIBUTION bound.  The Schur path pairs
     ``c_a(γ)·c_b(γ)`` and truncates at ``q^{K_joint}``; each side obeys
     the cone-witness Nahm bound
@@ -799,8 +799,8 @@ def _enumerate_output_charges(
     BFS safely.  Without it, the η-shell for a trace (vacuum × deep-F)
     is budgeted by the symmetric worst-case formula and explodes
     polynomially in the lattice rank (e6: 134 596 charges at the
-    default cutoff where dozens contribute; e8 front seeds: out of
-    memory at 16 GB).
+    default cutoff where dozens contribute; e8 front seeds: OOM at
+    16 GB — finding A10).
     """
     from collections import deque
     zero = tuple(0 for _ in range(rank))
@@ -1036,7 +1036,7 @@ def compute_strict_cone_witness(
     # box stops at ±3).  `lp_witness.lp_feasible_strict` is a two-phase
     # rational simplex that finds an integer witness iff the cone is pointed,
     # with no box (sound positive: ⟨f, g⟩ ≥ 1 since g, f are integral and
-    # ⟨f, g⟩ > 0; sound negative by LP duality).
+    # ⟨f, g⟩ > 0; sound negative by LP duality).  Reused, not reimplemented.
     from lp_witness import lp_feasible_strict
     feasible, w = lp_feasible_strict(gens, rank)
     if feasible and w is not None and _witnesses(w):
@@ -1053,7 +1053,7 @@ def compute_strict_cone_witness(
                 )
     raise ValueError(
         f"Positive cone is not pointed: the exact LP strict-witness solve "
-        f"(sigma_iso._lp_feasible_strict) found no f with ⟨f, g⟩ > 0 for "
+        f"(lp_witness.lp_feasible_strict) found no f with ⟨f, g⟩ > 0 for "
         f"every generator (box search to [-{bound},{bound}]^{rank} also empty)."
     )
 

@@ -2,9 +2,8 @@
 bps_quiver_tools.py
 ===================
 
-Self-contained computational toolkit for the K_𝖖-algebra  A_q  (the fusion
-algebra of rotation-equivariant BPS line defects) of a 4d  N=2  theory
-specified by a *decorated BPS quiver* Q.
+Self-contained computational toolkit for the K-theoretic Coulomb-branch
+algebra  A_q  of a 4d  N=2  theory specified by a *decorated BPS quiver* Q.
 
 A decorated BPS quiver is the data
 
@@ -19,7 +18,9 @@ where
 The arrows of Q encode the pairings  B_{ij} = <gamma_i^Q, gamma_j^Q>  in
 the usual way (positive = outgoing arrows, negative = incoming).
 
-Implements the BPS-quiver routines underlying the K_𝖖-algebra realisation.
+Based on Ambrosino-Gaiotto, *K-theoretic Coulomb branches of 4d N=2 QFTs
+from BPS quivers* (DESY-25-035), and on the main-branch implementation of
+the same routines in this repository.
 
 Zero external dependencies beyond  fractions.Fraction  and  collections.
 
@@ -2261,13 +2262,22 @@ class BPSQuiver:
         """
         rank = len(charges[0])
         n = len(charges)
+        # Sparse form: only the NONZERO charge coordinates contribute to
+        # <gamma_i, gamma_j> = sum_{a,b} B[a][b] c_i[a] c_j[b].  Iterating just
+        # the nonzeros makes this O(n^2 * nnz^2) instead of O(n^2 * rank^2) --
+        # a large win for sparse charges (e.g. standard-basis nodes, nnz=1, so
+        # O(n^2)), and behaviour-identical for dense ones.
+        nz = [[(a, ca) for a in range(rank) if (ca := charges[i][a])]
+              for i in range(n)]
         exchange = [[0] * n for _ in range(n)]
         for i in range(n):
+            nzi = nz[i]
             for j in range(n):
-                val = sum(
-                    pairing_matrix[a][b] * charges[i][a] * charges[j][b]
-                    for a in range(rank) for b in range(rank)
-                )
+                val = 0
+                for a, ca in nzi:
+                    row = pairing_matrix[a]
+                    for b, cb in nz[j]:
+                        val += row[b] * ca * cb
                 exchange[i][j] = int(val)
         fr = list(frozen) if frozen is not None else [False] * n
         return cls([tuple(c) for c in charges], fr, exchange,
@@ -2319,7 +2329,7 @@ class BPSQuiver:
         """Tropical **inverse** mutation at node k.
 
         Inverts :meth:`mutate`:  ``Q.mutate(k).reverse_mutate(k) == Q`` .
-        This is the mutation ``μ^{-1}_{-γ_k}``,
+        This is the mutation ``μ^{-1}_{-γ_k}`` of eq (491) in the paper,
         obtained from the forward formula by flipping the sign inside
         ``max()``:
 
@@ -2403,6 +2413,8 @@ class BPSQuiver:
                                edge_mult_heuristic: bool = True,
                                edge_mult_threshold: int = 2,
                                _cover_search: bool = True,
+                               strategy: str = "bfs",
+                               lookup=None,
                                ) -> list[int] | None:
         """Search for a mutation sequence negating every unfrozen charge.
 
@@ -2412,6 +2424,19 @@ class BPSQuiver:
 
         Parameters
         ----------
+        strategy
+            ``"bfs"``  (default) — the plain bidirectional search below,
+            unchanged.  ``"auto"``  — the enhanced dispatcher ladder
+            (:func:`find_spec_auto`):
+            exchange-component decomposition, the acyclic/mantle
+            source-sink strip (zero search where it applies), and a
+            classified seeded recursion on the coupled core.  Every
+            result is replay-verified.  ``"auto"``  returns None only
+            when no finite chamber is found (honest), same as
+            ``"bfs"`` .  With ``"auto"`` an optional ``lookup``
+            (e.g. :func:`spec_lookup_from_library`) is consulted first
+            at every recursion level; hits are replay-verified, so a
+            stale library can never corrupt a result.
         bidirectional
             If True (default), use bidirectional BFS with meet-in-the-
             middle up to permutation of mutable charges.  Forward BFS
@@ -2465,6 +2490,15 @@ class BPSQuiver:
         rule is purely index-level, so the sequence is identical in cover
         and self; only the search dynamics differ in the dependent case.
         """
+        if strategy == "auto":
+            return find_spec_auto(self, max_depth=max_depth, lookup=lookup)
+        if lookup is not None:
+            raise ValueError(
+                "lookup is only supported with strategy='auto' (the "
+                "dictionary seam lives in find_spec_auto)")
+        if strategy != "bfs":
+            raise ValueError(
+                f"unknown strategy {strategy!r}; use 'bfs' or 'auto'")
         if _cover_search:
             cover = self._free_cover()
             # Forward all parameters; the cover does the search natively.
@@ -3673,7 +3707,7 @@ def _verify_pointed_cone(
                 )
     raise ValueError(
         f"Positive cone is not pointed: the exact LP strict-witness solve "
-        f"(sigma_iso._lp_feasible_strict) found no f with f(g) > 0 for every "
+        f"(lp_witness.lp_feasible_strict) found no f with f(g) > 0 for every "
         f"generator (box search to [-{bound},{bound}]^{rank} also empty).  "
         f"Check that the unfrozen node charges generate a strictly positive cone."
     )
@@ -3709,12 +3743,7 @@ def _laurent_from_pairs(pairs: Sequence[Sequence[int]]) -> "LaurentPoly":
 
 # --- §7b : CoulombAlgebra driver class -------------------------------
 class CoulombAlgebra:
-    """End-to-end driver for the K_𝖖-algebra  A_q  of a BPS quiver.
-
-    (The class name ``CoulombAlgebra`` is historical: the same machinery
-    serves BPS-quiver realisations of general K_𝖖-algebras, most of them
-    non-Lagrangian Argyres–Douglas theories, not only K-theoretic Coulomb
-    branch algebras of conventional gauge theories.)
+    """End-to-end driver for the K-theoretic Coulomb-branch algebra  A_q .
 
     Construction from a decorated BPS quiver  (B, node_charges, frozen) :
 
@@ -3765,7 +3794,8 @@ class CoulombAlgebra:
             # ``find_negating_sequence``  times out but a physics-
             # informed S is known (e.g. the Wilson-line-chamber
             # amalgamation   S_{gauge+matter} = M(W) * S_{gauge} , where
-            # M(W) is the matter contribution expanded in characters).
+            # M(W) is the matter contribution expanded in characters --
+            # see the paper, eq. (2067) for the SU(2) x SU(2) example).
             #
             # We only do a *local* sanity check here: every factor
             # charge must lie in the non-negative cone spanned by the
@@ -3813,7 +3843,14 @@ class CoulombAlgebra:
             self.negating_sequence = seq
             self.spec = self.quiver.build_spectrum_generator(seq)
         else:
-            seq = self.quiver.find_negating_sequence()
+            # Auto-find defaults to the enhanced dispatcher ladder
+            # (find_spec_auto; user-ruled 2026-07-16 "flip to auto"):
+            # components / acyclic / mantle are O(rank²) integer work and
+            # the coupled core runs the classified seeded recursion —
+            # measured never worse than ~2× plain BFS on coupled cores and
+            # transformatively faster on decomposable shapes (A_14 chain
+            # 0.002 s vs 111 s).  Every result is replay-verified.
+            seq = self.quiver.find_negating_sequence(strategy="auto")
             if seq is None:
                 raise ValueError("could not find a negating mutation sequence")
             self.negating_sequence = seq
@@ -4219,7 +4256,6 @@ class CoulombAlgebra:
 #     spec = PRESETS["pentagon"]
 #     A = CoulombAlgebra(spec["B"], spec["nodes"], spec.get("frozen"))
 #
-# The PRESETS dict below is the full catalogue.
 
 PRESETS: dict[str, dict] = {
     "pentagon": {
@@ -4262,6 +4298,316 @@ PRESETS: dict[str, dict] = {
 # ---------------------------------------------------------------------
 # Demo
 # ---------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Enhanced spec-finder — the dispatcher ladder
+# (2026-07-16).  Pure exchange-level combinatorics feeding the existing
+# bidirectional searchers; every returned sequence is replay-verified.
+# ---------------------------------------------------------------------------
+
+def _ex_components(exchange: Sequence[Sequence[int]],
+                   idx: Sequence[int]) -> list[list[int]]:
+    """Connected components of the exchange graph restricted to ``idx``."""
+    idx = list(idx)
+    seen: set[int] = set()
+    comps: list[list[int]] = []
+    for start in idx:
+        if start in seen:
+            continue
+        comp, stack = [], [start]
+        seen.add(start)
+        while stack:
+            i = stack.pop()
+            comp.append(i)
+            for j in idx:
+                if j not in seen and exchange[i][j] != 0:
+                    seen.add(j)
+                    stack.append(j)
+        comps.append(sorted(comp))
+    return comps
+
+
+def _strip_mantle_indices(exchange: Sequence[Sequence[int]],
+                          idx: Sequence[int]) -> tuple[list[int], list[int], list[int]]:
+    """Iteratively strip sources (→ heads, strip order) and sinks (→ tails,
+    strip order — the caller emits them REVERSED) until the remaining core
+    has neither.  Source/sink is relative to the CURRENT remaining set; the
+    peel lemmas make each strip exact:
+    spec = heads ++ spec(core) ++ reversed(tails).  A finite DAG always has
+    a source, so an acyclic quiver strips to an empty core (the
+    topological-product-spec corollary)."""
+    rem = list(idx)
+    heads: list[int] = []
+    tails: list[int] = []
+    changed = True
+    while changed and rem:
+        changed = False
+        for k in list(rem):
+            others = [j for j in rem if j != k]
+            if all(exchange[k][j] >= 0 for j in others):        # source
+                heads.append(k)
+                rem.remove(k)
+                changed = True
+            elif all(exchange[k][j] <= 0 for j in others):      # sink
+                tails.append(k)
+                rem.remove(k)
+                changed = True
+    return heads, rem, tails
+
+
+def _induced_quiver(exchange: Sequence[Sequence[int]],
+                    idx: Sequence[int]) -> "BPSQuiver":
+    """Standard-basis quiver on the induced exchange submatrix (the
+    small-lattice frame every sub-solve runs in; sequences are index-level,
+    so they replay on the ambient quiver via the ``idx`` map)."""
+    n = len(idx)
+    sub = [[exchange[i][j] for j in idx] for i in idx]
+    charges = [tuple(1 if c == r else 0 for c in range(n)) for r in range(n)]
+    return BPSQuiver.from_pairing(charges, sub)
+
+
+#: bounded prefix-BFS depth for the middle rung of the stage-4 escalation
+#: ladder (L18) — deep enough for the small early-prefix fallbacks the
+#: natural order needs, cheap enough (~b^(d/2) bidirectional) that a hard
+#: coupled-order prefix fails fast instead of hanging the ladder.
+_BFS_LADDER_DEPTH = 8
+
+
+def _coupled_first_order(exchange: Sequence[Sequence[int]],
+                         idx: Sequence[int]) -> list[int]:
+    """Node-addition order for the seeded recursion: maximally-coupled
+    prefix first, sparse attachments last — so the full-BFS fallbacks happen
+    at the SMALLEST prefix ranks and the bottleneck rank is as small as
+    the frame allows."""
+    idx = list(idx)
+    if len(idx) <= 2:
+        return idx
+    # seed: the pair with the largest |exchange| entry
+    best = max(((abs(exchange[i][j]), i, j) for i in idx for j in idx if i != j))
+    order = [best[1], best[2]]
+    rest = [i for i in idx if i not in order]
+    while rest:
+        nxt = max(rest, key=lambda g: sum(abs(exchange[g][j]) for j in order))
+        order.append(nxt)
+        rest.remove(nxt)
+    return order
+
+
+def _solve_core_seeded(exchange: Sequence[Sequence[int]],
+                       core: Sequence[int], *,
+                       max_depth: int,
+                       seed_slack: int,
+                       order: Sequence[int] | None = None,
+                       allow_bfs: bool = True) -> list[int] | None:
+    """Negating sequence for the (source/sink-free) core by the classified
+    seeded recursion: add nodes in ``order``
+    (default: coupled-first); per step use closed-form source/sink
+    placement (the peel lemmas — zero search) ⊂ seeded head/tail
+    ``find_mutation_path`` ⊂ prefix-BFS fallback (disabled when
+    ``allow_bfs`` is False — the cheap seeded-only attempt of the
+    multi-order escalation).
+    Returns LOCAL-to-``core`` sequences mapped back to ambient indices, or
+    None (honest failure — no finite chamber found within budgets)."""
+    order = _coupled_first_order(exchange, core) if order is None \
+        else list(order)
+    seq: list[int] = [0]                      # single node: mutate it once
+    for k in range(1, len(order)):
+        prefix, g = order[:k], order[k]
+        step = None
+        # (a) closed-form: the new node is a source/sink relative to the prefix
+        if all(exchange[g][j] >= 0 for j in prefix):
+            step = [k] + seq
+        elif all(exchange[g][j] <= 0 for j in prefix):
+            step = seq + [k]
+        else:
+            # (b) seeded head/tail placement on the induced (k+1)-quiver
+            Qk = _induced_quiver(exchange, order[:k + 1])
+            target = reflected_endpoint(Qk)
+            cone_fwd = [tuple(c) for c in Qk.charges]
+            cone_bwd = [tuple(-x for x in c) for c in Qk.charges]
+            budget = len(seq) + 1 + seed_slack
+            for kw in ({"tail": seq}, {"head": seq}):
+                step = find_mutation_path(
+                    Qk, target, allow_permutation=True,
+                    cone_fwd=cone_fwd, cone_bwd=cone_bwd,
+                    max_depth=budget, **kw)
+                if step is not None:
+                    break
+            # (c) prefix-BFS fallback (the bottleneck step)
+            if step is None and allow_bfs:
+                step = _induced_quiver(exchange, order[:k + 1]) \
+                    .find_negating_sequence(max_depth=max_depth)
+            if step is None:
+                return None
+        seq = step
+    return [order[p] for p in seq]
+
+
+def spec_lookup_from_library(entries, *, verify: bool = True,
+                             max_rank: int = 9):
+    """Build a ``lookup`` callable for :func:`find_spec_auto` from a spec
+    library (the landing-order (iv) dictionary seam, loader tier).
+
+    ``entries`` is a path to a JSON list or the list itself; each entry
+    carries ``exchange`` (the matrix whose std-basis quiver the sequence
+    negates) and ``seq``.  Entries are matched **up to node permutation
+    only** — a global sign flip does NOT transport negating sequences —
+    via a permutation-canonical key with witness, and the witness pair
+    transports the library sequence into the query frame.  With
+    ``verify`` (default) each entry is replayed once at load time and
+    invalid entries are dropped; every lookup hit is replay-verified
+    again inside ``find_spec_auto`` regardless, so a stale library can
+    slow the ladder but never corrupt it.  Queries above ``max_rank``
+    return None (the witness search enumerates n! permutations).
+    """
+    import json as _json
+    from itertools import permutations as _perms
+
+    if isinstance(entries, (str, bytes)) or hasattr(entries, "read_text"):
+        with open(entries) as fh:
+            entries = _json.load(fh)
+
+    def _canon(ex):
+        n = len(ex)
+        best, best_perm = None, None
+        for perm in _perms(range(n)):
+            t = tuple(ex[perm[i]][perm[j]] for i in range(n)
+                      for j in range(n))
+            if best is None or t < best:
+                best, best_perm = t, perm
+        return best, best_perm
+
+    table: dict = {}
+    for e in entries:
+        ex = [list(map(int, r)) for r in e["exchange"]]
+        seq = [int(x) for x in e.get("seq") or []]
+        n = len(ex)
+        if not seq or n > max_rank:
+            continue
+        if verify:
+            std = [tuple(1 if k == j else 0 for k in range(n))
+                   for j in range(n)]
+            if not _replay_negates(BPSQuiver.from_pairing(std, ex), seq):
+                continue
+        key, perm = _canon(ex)
+        table.setdefault((n, key), []).append((perm, seq))
+
+    def lookup(sub_exchange, idx):
+        n = len(sub_exchange)
+        if n > max_rank:
+            return None
+        key, perm_q = _canon(sub_exchange)
+        hits = table.get((n, key))
+        if not hits:
+            return None
+        perm_l, seq = hits[0]
+        # sub_exchange[perm_q[i]][perm_q[j]] == ex_lib[perm_l[i]][perm_l[j]]
+        # so lib index perm_l[i] plays at query-local index perm_q[i].
+        phi = {perm_l[i]: perm_q[i] for i in range(n)}
+        return [phi[s] for s in seq]
+
+    return lookup
+
+
+def find_spec_auto(Q: "BPSQuiver", *, max_depth: int = 30,
+                   seed_slack: int = 3,
+                   lookup=None) -> list[int] | None:
+    """Enhanced negating-sequence finder — the dispatcher ladder:
+
+    0. optional ``lookup(sub_exchange, idx) -> seq | None`` (a dictionary
+       seam — any hit is re-verified like everything else);
+    1. exchange-component decomposition (sequences concatenate — decoupled
+       components never dress each other);
+    2.+3. mantle strip: sources → head, sinks → reversed tail (the proved
+       peel lemmas; an acyclic quiver strips to nothing — its spec is the
+       source-first topological product, zero search);
+    4. the source/sink-free core: classified seeded recursion
+       (closed-form ⊂ seeded ⊂ prefix-BFS) with multi-order escalation —
+       (coupled-first, natural) × (seeded-only, +BFS-fallback), cheapest
+       first (L12/L18: the addition order can decide solvability-in-
+       practice).
+
+    Returns a mutation sequence (node indices) or None (no finite chamber
+    found — honest).  The assembled sequence is replay-verified on the
+    free cover (frame-independent) before being returned; an invalid
+    assembly raises (it would indicate a bug, not a search failure).
+    Stages 0–3 are O(rank²) integer work; only stage 4 searches.
+    """
+    mutable = [i for i, f in enumerate(Q.frozen) if not f]
+    exchange = Q.exchange
+
+    def solve(idx: list[int]) -> list[int] | None:
+        if not idx:
+            return []
+        if lookup is not None:
+            hit = lookup([[exchange[i][j] for j in idx] for i in idx], idx)
+            if hit is not None:
+                cand = [idx[p] for p in hit]
+                sub = _induced_quiver(exchange, idx)
+                loc = {g: p for p, g in enumerate(idx)}
+                if _replay_negates(sub, [loc[g] for g in cand]):
+                    return cand
+        comps = _ex_components(exchange, idx)
+        if len(comps) > 1:
+            out: list[int] = []
+            for comp in comps:
+                part = solve(comp)
+                if part is None:
+                    return None
+                out.extend(part)
+            return out
+        heads, core, tails = _strip_mantle_indices(exchange, idx)
+        if heads or tails:
+            mid = solve(core)
+            if mid is None:
+                return None
+            return heads + mid + list(reversed(tails))
+        # stage 4, multi-order escalation (L12/L18): the node-addition
+        # order can decide solvability-in-practice — PA-frame SU(3)+Nf≥5
+        # walls coupled-first yet solves in <0.3s in the natural order
+        # (which needs one SMALL prefix-BFS).  A fixed attempt order with
+        # an unbounded BFS rung can hang before the winning attempt runs,
+        # so the BFS depth is laddered too: seeded-only, then a bounded
+        # prefix-BFS, then the full budget — each rung over both orders.
+        coupled = _coupled_first_order(exchange, idx)
+        orders = [coupled]
+        if list(idx) != coupled:
+            orders.append(list(idx))
+        rungs: list[int | None] = [None]
+        for d in sorted({min(_BFS_LADDER_DEPTH, max_depth), max_depth}):
+            rungs.append(d)
+        for depth in rungs:
+            for order in orders:
+                seq = _solve_core_seeded(
+                    exchange, idx,
+                    max_depth=(depth if depth is not None else 0),
+                    seed_slack=seed_slack,
+                    order=order, allow_bfs=depth is not None)
+                if seq is not None:
+                    return seq
+        return None
+
+    seq = solve(mutable)
+    if seq is None:
+        return None
+    cover = Q._free_cover()
+    if not _replay_negates(cover, seq):
+        raise RuntimeError(
+            "find_spec_auto assembled an invalid sequence (replay does not "
+            "negate) — this is a bug in the ladder, not a search failure.")
+    return seq
+
+
+def _replay_negates(Q: "BPSQuiver", seq: Sequence[int]) -> bool:
+    """Frame-independent verification: replaying ``seq`` negates the multiset
+    of mutable charges."""
+    mutable = [i for i, f in enumerate(Q.frozen) if not f]
+    target = sorted(tuple(-x for x in Q.charges[i]) for i in mutable)
+    cur = Q
+    for k in seq:
+        cur = cur.mutate(k)
+    return sorted(tuple(cur.charges[i]) for i in mutable) == target
+
 
 def _demo() -> None:
     """Short self-test: run the full pipeline on the Pentagon theory."""

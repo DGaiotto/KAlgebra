@@ -26,28 +26,6 @@ In both cases the canonical primitive is `_s_coefficient(γ)`, and
 The RG flow's σ map (= label-level ρ) is derived from spec in case (a);
 in case (b) the user must supply `sigma=...` and `sigma_inverse=...`.
 
-The lattice is a CHOICE, and that choice is the 4d gauge group
---------------------------------------------------------------
-
-`node_charges` and `Γ` are two inputs, not one.  The quiver — the nodes'
-mutual pairings `⟨n_i, n_j⟩` — is the BPS spectrum data; **where those
-nodes sit inside `Γ` is the choice of 4d gauge group**, and the same
-quiver embedded differently is a different theory.  Pure SU(2) and pure
-SO(3) are both the Kronecker-2 quiver on the canonical `Z²` with unit
-symplectic pairing, differing only in the embedding:
-
-    SU(2)   nodes (1, 0), (−1, 2)      Γ = P^∨ ⊕ P   (simply connected)
-    SO(3)   nodes (2, 0), (−2, 1)      Γ = Q^∨ ⊕ Q   (adjoint)
-
-so `⟨n₀, n₁⟩ = 2` holds for both and identifies neither.  For pure ADE the
-node charges live in `Q^∨ ⊕ Q`, and the admissible `Γ` are the unimodular
-`Λ₀ = P^∨ ⊕ Q ⊆ Γ ⊆ Q^∨ ⊕ P`, classified by the Lagrangian subgroups of
-`(P/Q)²`.  Do not hand-write node vectors for a named gauge group:
-`pure_ade_lattice.pure_ade_lattice_data(factors, global_form=…)` builds
-them, and `global_form_bridge` carries the choice to and from the
-abelianized tier's `global_form.LineLattice`, so the two presentations of
-one theory cannot drift apart unnoticed.
-
 Charges vs labels (three roles of an integer tuple)
 ---------------------------------------------------
 
@@ -94,11 +72,9 @@ Storage
 -------
 
 * `F[γ]`           — `dict[Vec, LaurentPoly]`. F-cache is exact in
-  `Z[q, q⁻¹]`; the coefficients are conjecturally non-negative
-  `[n]_q`-positive (the no-exotics positivity conjecture — not a
-  fact checked by the code).
-* `F·S[γ, η]`      — `HabiroElement` (exact in the localized ring
-  `R = Z[q^±][1/(1−q^{2k})]`). Cached by `(γ, η)`.
+  `Z[q, q⁻¹]`; coefficients are non-negative `[n]_q`-positive.
+* `F·S[γ, η]`      — `HabiroElement` (exact in the localized Habiro
+  ring `R = Z[q^±][1/(1−q^{2k})]`). Cached by `(γ, η)`.
 
 Layout
 ------
@@ -111,6 +87,8 @@ versus chart-specific.
     2. KAlgebra contract (intrinsic ops, computed via the chart)
     3. The RG flow itself (`F`, `S`, `σ`)
     4. Chart utilities and accessors
+
+Status: prototype, near-final shape.
 """
 
 from __future__ import annotations
@@ -118,7 +96,7 @@ from __future__ import annotations
 from typing import Callable, Sequence
 import sys, os
 
-# Make this directory and its parent importable by bare module name.
+# Make this module importable from both `restructuring/` and the repo root.
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
 if _REPO not in sys.path:
@@ -189,6 +167,27 @@ def _bps_mat_inverse(M):
     return [[A[i][n + j] for j in range(n)] for i in range(n)]
 
 
+def _bps_solve_in_basis(nodes, gamma):
+    """Coordinates of `gamma` in the node basis, exactly, or `None`.
+
+    `None` when the nodes are not a square invertible system — the caller then
+    has no cone coordinate to read, which is the honest answer rather than a
+    guess.  Used by the BPS-factor `S` accessors to decide a charge's cone
+    degree.
+    """
+    from fractions import Fraction
+    rank = len(nodes)
+    if rank == 0 or len(gamma) != rank or any(len(n) != rank for n in nodes):
+        return None
+    columns = [[nodes[c][r] for c in range(rank)] for r in range(rank)]
+    try:
+        inverse = _bps_mat_inverse(columns)
+    except StopIteration:          # singular: no node-basis coordinate exists
+        return None
+    return [sum(inverse[i][j] * Fraction(gamma[j]) for j in range(rank))
+            for i in range(rank)]
+
+
 # ---------------------------------------------------------------------------
 # BPSKAlgebra
 # ---------------------------------------------------------------------------
@@ -228,6 +227,8 @@ class BPSKAlgebra(RGKAlgebra):
         build_S: bool = False,
         build_S_cutoff: int | None = None,
         build_S_order: Sequence[Sequence[int]] | None = None,
+        build_S_engine: str = "factors",
+        build_S_factor_order: str | None = None,
         spec_free_sigma: str = "trg",
         extract_spec: bool = True,
     ):
@@ -250,8 +251,23 @@ class BPSKAlgebra(RGKAlgebra):
         `E_q`-factorization (e.g., SU(2) N=2*).
 
         **Spec-free mode** (`build_S=True`): build the spectrum generator
-        `S` by the recursion (`recursive_spectrum`) — no spec, no
-        green-sequence BFS.  Precedence: a finite spec is
+        `S` directly from the BPS quiver — no spec, no green-sequence BFS.
+        Which engine does it is `build_S_engine`, **`"factors"` by default since
+        2026-08-12 and the only active engine since 2026-08-13** (user rulings:
+        replace the peel engine; then retire it temporarily, without erasing
+        it): `"factors"` is `bps_factor_spectrum` — prescribe `S`'s leading data
+        and read the palindromic factor multiplicities off degree by degree —
+        while `"peel"` is `recursive_spectrum`'s peel recursion (remove a node,
+        solve `F_γ · S_sub = X_γ + O(𝖖)`, reattach `E_𝖖(F_γ)`), which is now
+        **retired**: asking for it here raises
+        `recursive_spectrum.RetiredEngineError` unless the call is inside
+        `recursive_spectrum.enable_retired_peel_engine()`.  The code is intact,
+        so the cross-check remains available on demand.  The default changed for
+        **coverage**: the peel engine's monomial-charge gate trips on a
+        character-charge (matter) node and honest-fails, so N=2\\*/Markov and the
+        wild quivers could not be built through spec-free mode at all; the factor
+        engine has no such step, and the two produce the *same* `S` wherever
+        both run.  Precedence (user 2026-06-28): a finite spec is
         the *ideal* outcome, so unless `extract_spec=False` the built `S` is
         run through the extractor first and a recovered finite chamber drops
         into fast spec mode.  Only when no finite spec is found does the
@@ -271,6 +287,18 @@ class BPSKAlgebra(RGKAlgebra):
 
         Parameters
         ----------
+        build_S_engine
+            `"factors"` (default, and the only active engine) or the retired
+            `"peel"` — see "Spec-free mode" above.
+        build_S_factor_order
+            Placement order for the factor engine (`bps_factor_spectrum.PLACEMENT_ORDERS`;
+            `None` = the engine's own phase-free default, `"strip"` on an
+            acyclic quiver and `"random"` otherwise).  `S` does not depend
+            on it; the factor content and the cost do, and `"lex"` is measurably
+            cheaper on generic high-rank quivers.  Mutually exclusive with
+            `build_S_order`, which is the *peel* engine's peel order over node
+            charges — passing that one with the factor engine raises rather than
+            being silently ignored.
         pairing
             Antisymmetric integer matrix (rank n × n).  May be degenerate;
             `Γ_f := ker(B)` is the abelian-flavour sublattice and is
@@ -329,15 +357,15 @@ class BPSKAlgebra(RGKAlgebra):
         )
         self._flavour_rank = len(self._ker_basis)
         self._gauge_rank = len(self._sec_basis)
-        # `k_joint_prune` (accepted for backward compatibility — some
-        # callers, e.g. `pure_ade_lattice`, opted in to a former prune) is
+        # `k_joint_prune` (accepted for backward compatibility — e.g.
+        # `pure_ade_lattice` opted in under the opt-in scheme) is now
         # SUPERSEDED: the Schur/trace support is bounded by the adaptive
         # two-cutoff-stability shell (`_schur_index_stable`), which is sound
         # in every frame AND keeps the e8-scale memory win that the opt-in
         # prune was reaching for — so the unsound linear K_joint prune is
         # retired and this flag is a documented no-op.
         self._k_joint_prune = bool(k_joint_prune)
-        # Coefficient ring of the flavoured-KAlgebra contract: R(U(1)^f) =
+        # Coefficient ring of the flavoured contract: R(U(1)^f) =
         # AbelianZPlusRing(rank=f) where f = rk(Γ_f).  When f = 0, this
         # is TrivialZPlusRing (R = Z, the unflavoured case).
         self._R: ZPlusRing = (
@@ -346,7 +374,7 @@ class BPSKAlgebra(RGKAlgebra):
         )
 
         # ----- auxiliary quantum-torus K-algebra (the RG-flow target) -----
-        # Cached per construction: `auxiliary()` must return the same object every
+        # `auxiliary()` must return the same object every
         # call so `then(...)` composition's Python-`is` endpoint check
         # works.  The QT and self share `R` by construction (both derive
         # from the same SNF on `pairing`); we sanity-check that here.
@@ -364,13 +392,32 @@ class BPSKAlgebra(RGKAlgebra):
                 "spec_free_sigma must be 'trg' (spec-free σ via tRG; the "
                 "default fallback), 'principled' (spec-free σ = −upper(F), the "
                 "principled relation), or 'auto' (alias for 'trg').")
-        # Priority: a provided spec wins; failing that, the
+        # Priority (user 2026-06-28): a provided spec wins; failing that, the
         # S-finder's *ideal* outcome is to recover a finite spec (extraction A,
         # run iff `extract_spec`); only when no spec is found does the spec-free
         # fallback engage, and `spec_free_sigma` chooses it — 'trg' (C) or the
         # principled −upper(F) σ (B).  `extract_spec=False` forces the spec-free
         # path (for benchmarking/validating B/C even where a spec exists).
         self._spec_free_sigma = "trg" if spec_free_sigma == "auto" else spec_free_sigma
+        # Which spec-free engine builds `S`.  Default flipped to the BPS-factor
+        # engine 2026-08-12 (user: replace the peel engine, leave it accessible)
+        # for coverage — the peel engine's monomial-charge gate honest-fails on a
+        # character-charge (matter) node, so N=2*/Markov was unreachable through
+        # spec-free mode; the two engines agree on `S` wherever both build.
+        # Then RETIRED 2026-08-13 (user: retire it temporarily, do not erase).
+        # An unknown name and a retired name get DIFFERENT errors on purpose: a
+        # caller who asks for 'peel' should be told it exists and how to reach
+        # it, not that it is not a thing.
+        from recursive_spectrum import SPEC_FREE_ENGINES, _peel_gate
+        if build_S_engine not in SPEC_FREE_ENGINES:
+            raise ValueError(
+                f"build_S_engine must be one of {list(SPEC_FREE_ENGINES)}: "
+                f"'factors' (bps_factor_spectrum — leading data + palindromic BPS "
+                f"factors, the default and the only active engine) or 'peel' "
+                f"(recursive_spectrum's peel recursion, retired).")
+        if build_S_engine == "peel":
+            _peel_gate(False)
+        self._build_S_engine = build_S_engine
         # Set when the spec-free σ is supplied by the principled −upper(F)
         # relation (B): then ρ uses the fast section-rectified map, not tRG.
         self._principled_sigma = False
@@ -413,8 +460,8 @@ class BPSKAlgebra(RGKAlgebra):
 
         # ----- spec-free: build S, then recover a finite spec if one exists ---
         # `build_S=True` builds the spectrum generator by the recursion (no
-        # green-sequence BFS).  Preferred path (finding a spec is the ideal
-        # outcome of the S-finder):
+        # green-sequence BFS).  Preferred path (user 2026-06-27, "A"; reaffirmed
+        # 2026-06-28 — "finding a spec is the ideal outcome of the S-finder"):
         # extract a finite-chamber spec from the built S and run the *fast spec
         # mode* (combinatorial σ).  This runs whenever `extract_spec` (default),
         # regardless of `spec_free_sigma`.  Only if no finite spec exists (e.g.
@@ -431,12 +478,27 @@ class BPSKAlgebra(RGKAlgebra):
         # graceful, never a hang), so pass an explicit larger cutoff for deeper
         # products.
         self._auto_S = None
+        _engine_kw = dict(engine=self._build_S_engine, factor_order=build_S_factor_order)
+        if self._build_S_engine == "peel":
+            _engine_kw["order"] = build_S_order
+        elif build_S_order is not None:
+            # Same reasoning as the `spec_free_sigma='principled'` refusal below:
+            # an argument that cannot take effect is a silent no-op the caller
+            # almost certainly did not intend, so refuse loudly.  Nothing in the
+            # tree passes `build_S_order` to this constructor (every other
+            # occurrence of that name is `Theory.build_S_order`, a different
+            # method), so this widens no existing caller's contract.
+            raise ValueError(
+                "build_S_order is the PEEL engine's peel order over node "
+                "charges; the factor engine (the default since 2026-08-12) takes "
+                "build_S_factor_order=... instead.  Pass build_S_engine='peel' to "
+                "supply a peel order.")
         if self._spec_free and build_S_cutoff is None:
             from recursive_spectrum import build_spectrum_generator_auto
             self._auto_S, build_S_cutoff = build_spectrum_generator_auto(
                 [list(r) for r in pairing],
                 [tuple(g) for g in self.node_charges],
-                order=build_S_order,
+                **_engine_kw,
             )
 
         if self._spec_free and extract_spec:
@@ -444,7 +506,7 @@ class BPSKAlgebra(RGKAlgebra):
             _ex = extract_spec_from_quiver(
                 [list(r) for r in pairing],
                 [tuple(g) for g in self.node_charges],
-                cutoff=build_S_cutoff, order=build_S_order,
+                cutoff=build_S_cutoff, **_engine_kw,
             )
             if _ex is not None:
                 spec = [tuple(g) for g in _ex]   # → fast spec mode below
@@ -482,17 +544,17 @@ class BPSKAlgebra(RGKAlgebra):
             # σ is NOT supplied: ρ/ρ⁻¹ route through the RGKAlgebra parent's
             # tRG-derived map (see rho/rho_inverse), and the F-solver uses a
             # generous cone-covering window in place of the exact tropical σ.
-            from recursive_spectrum import build_spectrum_generator
+            from recursive_spectrum import _build_S_by_engine
             if node_charges is None:
                 raise ValueError("build_S (spec-free) requires node_charges.")
             H0 = HabiroElement.zero()
             if self._auto_S is not None:        # reuse the auto-stabilized build
                 S_built = self._auto_S
             else:
-                S_built = build_spectrum_generator(
+                S_built = _build_S_by_engine(
                     [list(r) for r in pairing],
                     [tuple(g) for g in self.node_charges],
-                    build_S_cutoff, order=build_S_order,
+                    build_S_cutoff, **_engine_kw,
                 )
             self._built_S = {tuple(g): c for g, c in S_built.items()}
             self._s_coefficient_fn = lambda g, _H0=H0: self._built_S.get(
@@ -511,8 +573,8 @@ class BPSKAlgebra(RGKAlgebra):
                 lambda g, _c=csum, _W=W: tuple(-(g[i] + _W * _c[i])
                                                for i in range(len(g))))
             if self._spec_free_sigma == "principled":
-                # Path B — the principled spec-free σ, derived from the
-                # axioms.  σ⁻¹(a)=−upper(F_a),
+                # Path B — the principled spec-free σ (user 2026-06-27,
+                # "do a principled analysis of the axioms").  σ⁻¹(a)=−upper(F_a),
                 # σ(a)=−upper(F̃_a), read off the canonical's support against the
                 # *already-built* S (no spec, no tRG).  ρ/ρ⁻¹ use these exact maps
                 # via the fast section-rectified map (see rho/rho_inverse) instead
@@ -647,6 +709,10 @@ class BPSKAlgebra(RGKAlgebra):
         # Multiply cache, keyed by (sec(a), sec(b)) — flavour-shifted inputs
         # reuse the orbit-pair entry with a μ-monomial twist.
         self._multiply_cache: dict[tuple[Vec, Vec], Element] = {}
+        # BPS-factor spectrum-generator cache, keyed by (cutoff, order); only the
+        # default leading data / central charge is cached (a caller-supplied one
+        # is not part of the key).
+        self._factor_S_cache: dict[tuple[int, str], tuple[dict, dict]] = {}
 
         # ----- lazy chart graph (private; no public surface in phase 2) -----
         # Built only in spec mode (recipe mode has no quiver to mutate).
@@ -676,8 +742,17 @@ class BPSKAlgebra(RGKAlgebra):
     def identity(self) -> Vec:
         return tuple(0 for _ in range(self.lattice.rank))
 
-    # `multiply` is **inherited from `RGKAlgebra`**.
-    # The generic section-keyed cached multiply —
+    def cache_identity(self) -> str:
+        """Distinguish BPS structure-constant caches by the defining quiver —
+        node charges + their Dirac pairing (parametric refinement of the base
+        `cache_identity`, so a pentagon cache never loads into a hexagon)."""
+        ncs = tuple(tuple(g) for g in self.node_charges)
+        dirac = tuple(tuple(self.lattice.bracket(a, b) for b in self.node_charges)
+                      for a in self.node_charges)
+        return f"BPSKAlgebra(nc={ncs},B={dirac})"
+
+    # `multiply` is **inherited from `RGKAlgebra`** (the caching-layer
+    # reduction).  The generic section-keyed cached multiply —
     # `from_ir_image(RG(sec a)·RG(sec b))` decomposed in the F-basis and
     # translated by the flavour shift `flav(a)+flav(b)` — is *identical* to
     # (and as fast as) BPS's former hand-rolled version: validated 0
@@ -758,10 +833,11 @@ class BPSKAlgebra(RGKAlgebra):
         in the (abelian) flavour ring; on an unflavoured BPSKAlgebra
         (`TrivialZPlusRing`), it is `R.one()`.
 
-        `r_label_decompose` returns the same `(section, flav_c)` split
-        with the flavour irrep as a bare key (not wrapped as an `RElement`)
-        and is preferred for new code; this method is kept because
-        `to_R_form` still routes through it."""
+        **Aspirationally obsolete** — superseded by
+        `r_label_decompose`, which returns the same `(section, flav_c)` split
+        with the flavour irrep as a bare key (not wrapped as an `RElement`).
+        Kept, not retired: `to_R_form` still routes through it (it becomes
+        retirable once `to_R_form` reads the lift coordinate directly)."""
         a_t = tuple(self.lattice.check(label))
         n = self.lattice.rank
         sec_c, flav_c = decompose_in_basis(
@@ -787,10 +863,11 @@ class BPSKAlgebra(RGKAlgebra):
         X_{γ_f + sec}` with no q-twist.  Unflavoured (`TrivialZPlusRing`)
         falls back to the base default (`1_R ↦ identity`).
 
-        The label-level reconstruction (`section + γ_f`) is also available
-        as `r_label_compose`, a direct central lattice sum with no ring
-        embedding, preferred for new code; this method is kept because
-        `from_R_form` still uses the R-linear ring embedding.
+        **Aspirationally obsolete** — the label-level reconstruction
+        (`section + γ_f`) is now `r_label_compose`, a direct central lattice
+        sum with no ring embedding.  Kept, not retired: `from_R_form` still uses
+        the R-linear ring embedding (retirable once it reconstructs via the
+        lift coordinate).
         """
         R = self.coefficient_ring()
         if not isinstance(r, RElement) or r.ring != R:
@@ -814,7 +891,7 @@ class BPSKAlgebra(RGKAlgebra):
 
     def r_label_decompose(self, label):
         """The single-irrep **flavour-lift coordinate** `(section, flavour_key)`
-        — the contract's optional flavour-lift method.
+ — the current-contract optional method.
 
         `section` is the Γ-internal lift of the gauge class via `_sec_basis`
         (a *section of the projection* `Γ → Γ/Γ_f`); `flavour_key` is the SNF
@@ -868,8 +945,8 @@ class BPSKAlgebra(RGKAlgebra):
         **canonical label** `a` — the BPS direct trace primitive.
 
         The overridable hook behind `RGKAlgebra.trace` (which memoises);
-        a separate memoized entry point that delegates to the same Schur
-        pairing (`_inner_product_uncached(identity, a)`).  It is
+        a **separate** method from `inner_product` (it does NOT route
+        through `inner_product(1, a)`), so the two are independent.  It is
         the `a = 1` face of the Schur pairing — exact, free of the
         off-diagonal bar-asymmetry (limitation (E)) of the general
         `_inner_product_uncached`.  kwargs (e.g. `cone_cutoff`) forward to
@@ -886,7 +963,7 @@ class BPSKAlgebra(RGKAlgebra):
         inherited wrapper, so every BPS trace / inner product is cached
         without a BPS-specific cache.
 
-        **Sound support.**  The η-region summed over is grown
+        **Sound support (2026-06-13).**  The η-region summed over is grown
         adaptively until a *two-cutoff stability* certificate holds: the
         result is recomputed on a widening cone-witness shell
         ``⟨f, γ⟩ ≤ B`` until successive shells agree to ``q^K``.  This
@@ -896,9 +973,9 @@ class BPSKAlgebra(RGKAlgebra):
         frames.  The assembled leading q-order of ``[F·S]_η`` grows
         *super-linearly* with the charge but can dip below any *linear*
         witness bound (the "magical cancellations"), so a linear prune is
-        not a valid lower bound — an earlier implementation that used one
-        computed a frame-dependent, wrong vacuum character on
-        sheared unimodular frames, e.g. the pentagon `T=[[1,1],[0,1]]`.
+        not a valid lower bound — the linear prune was a regression (it
+        computed a frame-dependent, wrong vacuum character on sheared
+        unimodular frames, e.g. the pentagon `T=[[1,1],[0,1]]`).
 
         Soundness of the adaptive shell: the n-driven Nahm walk over
         ``⟨f, γ⟩ ≤ B`` is *hole-free* (it reaches every charge in the shell,
@@ -909,21 +986,26 @@ class BPSKAlgebra(RGKAlgebra):
         ``B ⊇ support`` further widening adds only ``k_min > K`` charges that
         are invisible to ``expand(K)`` — hence the value stabilises exactly
         at the correct, *frame-independent* answer.  The shell stays small
-        when the support is small, so the e8-scale memory win the former
-        prune was reaching for is preserved (achieved soundly, by the
-        assembled order rather than a linear proxy).
+        when the support is small, so the e8-scale memory win the prune
+        was reaching for is preserved (achieved soundly, by the assembled
+        order rather than a linear proxy).
 
         `cone_cutoff` (optional) only raises the *starting* shell; the
         adaptive growth handles correctness regardless, so it is now a perf
         hint, not a correctness knob.  Habiro-element c-data is cached in
         `self._FS_cache` and reused across shell widenings (incremental).
 
-        Known limitations (unchanged by the support fix):
+        Known limitations (unchanged by the support fix; see audit notes):
 
         * **(E)** Bar on the `a` side acts on the μ-component (the
           ``mu_exp = -fa + fb`` line in ``_schur_index``) but not on the
           q-component of ``ha``.  At q⁰ invisible; c-data is bar-symmetric
-          in q on every theory tested.
+          in q on every theory tested.  The one formerly-observed
+          off-diagonal "manifestation" (the pentagon ``I_{(1,0),(0,1)}``
+          q⁸ gap vs the literal ``Tr(ρ(a)·b)``) was adjudicated 2026-07-01
+          as an artifact of the *literal* side — the unwidened
+          ``trace_element`` assembly; this direct route
+          was correct there, and the two now agree.
         * **(F)** Sentinel ``F is None`` ↔ ``a == identity()``.
         """
         a = tuple(a)
@@ -1031,10 +1113,10 @@ class BPSKAlgebra(RGKAlgebra):
             [F_a, F_b], self.cone_gens, self.lattice.rank,
             eff_cutoff,
             cone_witness=self._cone_witness,
-            # The K_joint linear joint-bound prune is disabled: it was a
+            # The K_joint linear joint-bound prune is RETIRED: it was a
             # linear lower bound on a *super-linear* assembled q-order, so it
             # under-included contributing charges on mixed-sign / sheared
-            # frames.  Soundness comes instead from
+            # frames (audit A10 regression).  Soundness now comes from
             # the adaptive two-cutoff-stability shell (`_schur_index_stable`),
             # which widens `eff_cutoff` until the q^K result stabilises; here
             # `eff_cutoff` is that already-chosen shell.
@@ -1144,7 +1226,7 @@ class BPSKAlgebra(RGKAlgebra):
     #
     # The `auxiliary()` / `RG()` / `rg_generator()` methods below are the
     # `RGKAlgebra` contract realised by BPSKAlgebra: the "RG flow" *is*
-    # the canonical-basis morphism into the quantum torus.
+    # the canonical-basis morphism into the quantum torus.  See
     # ====================================================================
 
     # -------- RGKAlgebra contract ----------------------------------------
@@ -1208,7 +1290,7 @@ class BPSKAlgebra(RGKAlgebra):
         a_t = tuple(self.lattice.check(a))
         F_a = self._F_internal(a_t)
         # F_a is dict[Vec, QNumberPoly]; Element expects LaurentPoly
-        # (Z[q^±]) coefficients, so we
+        # (Z[q^±]) coefficients (the contract's coefficient ring), so we
         # convert at the boundary.
         terms: dict[Vec, "LaurentPoly"] = {}
         for label, qn in F_a.items():
@@ -1237,14 +1319,13 @@ class BPSKAlgebra(RGKAlgebra):
           *super-linearly* with the charge but the term-wise orders dip
           below any linear bound (the "magical cancellations"), so a
           one-shot linear shell is not a sound lower bound — it can
-          under-include (the same root cause as the retired Schur prune's
-          unsoundness).
+          under-include (the same root cause as the Schur regression).
           Widening B only enlarges the η-shell and the exact `expand(k)`
           filter drops η with assembled order > k, so once B covers the
           (finite) support the term-dict is stable and exact;
         * **coefficients**: each `[F·S]_η` evaluated as a **complete
-          Nahm sum** (`c_gamma_via_s`, exact `HabiroElement` arithmetic —
-          all cancellations internal), expanded to `q^k` only at the end.
+          Nahm sum** (`c_gamma_via_s`, exact Habiro — all cancellations
+          internal), expanded to `q^k` only at the end.
         """
         cache = self.__dict__.setdefault("_fs_bps_cache", {})
         a_t = tuple(self.lattice.check(a))
@@ -1313,18 +1394,18 @@ class BPSKAlgebra(RGKAlgebra):
         minimum-shift tuple has shift > K; these contribute only
         at q-orders > K and are invisible to ``expand(K)``.
 
-        Implementation: two-stage with lazy
+        Implementation: Strategy A from D5 — two-stage with lazy
         ``s_γ`` lookup. The inclusion pass walks Nahm tuples
         (``nahm_local.gammas_to_q_order``); per-γ ``s_γ`` is fetched
         via ``nahm_local.s_gamma_habiro`` (already module-level
         cached and shared with the F-solver).
 
-        Spec mode and recipe mode are both supported. Recipe
+        Spec mode and recipe mode (D6) are both supported. Recipe
         mode falls back to a cone-BFS on `_s_coefficient` and uses
         ``HabiroElement.k_min()`` to filter by leading q-order;
         termination requires that ``_s_coefficient(γ)`` becomes
         zero or has leading q-order > K along every cone-positive
-        ray (true for cone-positive spec / recipe specifications).
+        direction (true for cone-positive spec / recipe specifications).
         """
         out: dict[Vec, HabiroElement] = {self.identity(): HabiroElement.one()}
 
@@ -1385,26 +1466,30 @@ class BPSKAlgebra(RGKAlgebra):
                                  window (F_a's q-coefficients are
                                  palindromic).
             "orthonormality"  : `verify_orthonormality(a, b, K)` over
-                                 the window
-                                 (`I_{a,b} = δ_{a,b} + O(q)`).
+                                 the window (Goal 2.1's
+                                 `I_{a,b} = δ_{a,b} + O(q)`).
 
-        The intertwining identity `F(L_a) · S = S · ρ_QT(F(L_{σ(a)}))`
-        and the Schur transport identity are *not*
+        The intertwining identity `F(L_a) · S = S · ρ_QT(F(L_{σ(a)}))` (Goal
+        3.3) and the Schur transport identity (Goal 2.8) are *not*
         included.  Both involve subtleties around the
         truncation-window of `S` that the abstract `RGKAlgebra`
         verifiers (`verify_rg_twist`, `verify_rg_inner_product`)
         don't handle correctly: at any finite cutoff, the truncated
         `S_RG` produces boundary residuals that propagate as
         spurious low-q contributions through `Element` multiplication.
-        Checking them would require an exact-arithmetic intertwining
-        verifier with proper support analysis, which is not provided.
+        A BPS-specific Habiro-based intertwining verifier with proper
+        support analysis is a separate follow-up (planned).
 
         Flavoured theories
         ------------------
-        With the canonical basis over Z and flavour shifts carried in
-        full-Γ labels, **all four checks are meaningful
+        Historical note: before the canonical basis was put over Z (with
+        flavour shifts carried in full-Γ labels), `BPSKAlgebra.multiply`
+        used a section-rep + μ-shift convention that mismatched the
+        auxiliary's full-Γ-tuple labels, so `multiplicative` /
+        `orthonormality` could report `False` on correct mathematics.
+        That mismatch is resolved: **all four checks are meaningful
         on flavoured theories, and a `False` result should be read as a
-        real failure.**  Validated on the flavoured
+        real failure.**  Re-validated 2026-06-10 on the flavoured
         hexagon and an A3-chain (both rank-1 `ker B`): all four checks
         pass.
 
@@ -1681,6 +1766,208 @@ class BPSKAlgebra(RGKAlgebra):
                         continue
                     new_front.append(nxt)
             frontier = new_front
+        return out
+
+    def spectrum_generator_from_factors(
+        self,
+        cutoff: int,
+        *,
+        order: str | None = None,
+        phases=None,
+        order_key=None,
+        piece_key=None,
+        leading_data=None,
+        with_multiplicities: bool = False,
+    ):
+        """`S` built **from its leading data**, as a product of BPS factors.
+
+        A second, independent route to this chart's spectrum generator, beside
+        `spectrum_generator(K)` (which needs the spec, or the recipe's
+        `s_coefficient`) and the spec-free peel engine behind `build_S=True`.
+        Here `S` is characterised as the unique element of the group generated by
+        the quantum-dilogarithm multiplets whose coefficient at `X_γ` has no
+        `𝖖^{≤0}` part and has `𝖖¹`-coefficient `−1` on the node charges and `0`
+        elsewhere; the multiplicities `Ω_γ` are then forced degree by degree.
+        Construction, evidence and status: `bps_factor_spectrum.py` and
+        `docs/conjectures-step4-bps.md` §3.
+
+        **Why this exists alongside the peel engine: coverage.**  The peel
+        recursion reattaches `E_𝖖(F_γ)` and so needs every peel to be a monomial
+        charge; on a character-charge (matter) node its gate trips and it honest-fails,
+        which puts N=2\\*/Markov and the wild quivers out of reach.  This
+        construction has no gate to trip.  Measured on 18 quivers: the peel
+        engine gates out on 4 of them, this builds all 18, and on the 14 both
+        build the two agree **exactly**.  On cost neither engine dominates, and the variable is the
+        **cone size** rather than the rank — this one places a factor per `(γ, s)` pair and
+        the factor count grows with the cone `C(D+r, r)`, while the peel engine does
+        ~`rank` `F`-solves.  Rays win at cone degree 2 (1.5–2.1× at rank 16–32);
+        the peel engine wins at degree `≥ 3` with rank `≥ 10` (1.1–1.7×) and at
+        rank `≤ 4` (up to 3.9×).  Coverage, not speed, is the reason this exists.
+
+        Returns `{γ: HabiroElement}` — **exact**, truncated only along the
+        positive cone (`cone degree ≤ cutoff`), never in `𝖖`.  Contrast
+        `spectrum_generator(K)`, which returns `LaurentPoly` truncated *in* `𝖖`;
+        the two are different truncations of the same object and are not
+        interchangeable.
+
+        Parameters
+        ----------
+        cutoff
+            Cone-degree truncation, in the node basis.
+        order
+            Where the BPS factors are placed relative to one another; `S` does
+            not depend on it, but the *content* and the cost do.  **`None`
+            (default) takes `BPSFactorSpectrum`'s own phase-free default** — `"strip"`
+            on an acyclic quiver (the source/sink strip, `rank` factors, spin-0
+            only), `"random"` where the strip leaves a core.  It used to default
+            to `"phase"`, synthesising a generic central charge, which
+            contradicted the 2026-08-13 ruling that a central charge is used only
+            when supplied; `S` is unaffected, the reported `Ω` is not, so ask for
+            a chamber with `phases=`.  `"lex"` is measurably faster on generic
+            high-rank quivers.  See `bps_factor_spectrum.PLACEMENT_ORDERS`.
+        phases
+            Central charge per node — the *linear* parametrization of the order.
+            Supplying the weak-coupling charge of pure SU(2), say, returns the
+            familiar physical spectrum (dyon tower `Ω = 1`, W boson
+            `Ω = 𝖖⁻¹ + 𝖖`) instead of the strong-coupling pair — the same `S`,
+            factored differently.
+        order_key
+            `charge (node coords) -> sortable`: an arbitrary total order on the
+            cone, the charge-level parametrization.
+        piece_key
+            `(charge (node coords), 2s) -> sortable`: an arbitrary total order on
+            the **pairs `(γ, s)`**, which is what the construction actually
+            requires (user, 2026-08-13).  The general form; the other two are
+            special cases of it.  At most one of the three may be given.
+        leading_data
+            Optional `charge -> int` overriding the prescribed `𝖖¹`-coefficient.
+            The default is the BPS one.
+        with_multiplicities
+            Also return `Ω`, as `{γ: {exponent: coefficient}}`.
+            `bps_factor_spectrum.spin_decompose` turns one into `{2s: a_s}`.
+
+        Raises
+        ------
+        ValueError
+            If the chart has no node charges (recipe mode without them), or the
+            node charges are not linearly independent — the construction works in
+            node coordinates, so a dependent set would silently identify distinct
+            cone points.
+        """
+        from bps_factor_spectrum import BPSFactorSpectrum
+
+        if not getattr(self, "node_charges", None):
+            raise ValueError(
+                "spectrum_generator_from_factors needs the BPS-quiver node charges "
+                "(they generate the positive cone the recursion walks); this "
+                "instance was built in recipe mode without them.")
+        cacheable = (phases is None and leading_data is None
+                     and order_key is None and piece_key is None)
+        key = (int(cutoff), order)
+        if cacheable and key in self._factor_S_cache:
+            S, omega = self._factor_S_cache[key]
+        else:
+            builder = BPSFactorSpectrum(
+                [list(row) for row in self.lattice.pairing],
+                [tuple(g) for g in self.node_charges],
+                cutoff, order=order, phases=phases, order_key=order_key,
+                piece_key=piece_key, leading_data=leading_data,
+            )
+            builder.run()
+            S = builder.spectrum_generator()
+            omega = builder.multiplicities()
+            if cacheable:
+                self._factor_S_cache[key] = (S, omega)
+        if with_multiplicities:
+            return dict(S), {g: dict(o) for g, o in omega.items()}
+        return dict(S)
+
+    def verify_spectrum_generator_from_factors(
+        self, cutoff: int, *, order: str | None = None,
+        phases=None, order_key=None, piece_key=None,
+    ) -> bool:
+        """`S` from the BPS factors `==` this chart's own `[S|0⟩]_γ`, in-cone.
+
+        A genuine cross-check, not a self-consistency one: the left side is built
+        from leading data by placing palindromic BPS factors, the right side is
+        this instance's `_s_coefficient` — a Nahm-sum expansion of the spec in
+        spec mode, the caller's oracle in recipe mode, the peel engine's build in
+        spec-free mode.  No code path is shared beyond exact `HabiroElement`
+        arithmetic, so agreement is evidence for the factor construction, whose
+        surjectivity is conjectural (`docs/conjectures-step4-bps.md` §3).
+
+        Compares on the whole cone the factor build covers, **including the top
+        shell** (cone degree exactly `= cutoff`).
+
+        The top shell used to be excluded, on the ground that "a BPS factor
+        placed at degree `d` contributes at `2d, 3d, …`, so the top shell is the
+        one the truncation can clip".  That reasoning does not hold: every factor
+        factor that can reach degree `D` has degree `≤ D`, so it is already
+        placed by the time degree `D` is read, and the accumulator retains every
+        product of total degree `≤ D`.  The shell is therefore complete, and
+        excluding it made the verifier compare strictly less than it could.
+        Measured before the change: agreement at every degree including the top
+        shell on all 1108 dictionary entries up to rank 8, and on five
+        further quivers.
+
+        Any of the three order parametrizations may be passed through, so the
+        cross-check can be taken in the same order a search or a chamber selected
+        rather than only in the default one.  `S` is order-independent, so a
+        disagreement under one order and agreement under another would itself be
+        a finding — which is the reason to make the order reachable here.
+        """
+        S_factors = self.spectrum_generator_from_factors(
+            cutoff, order=order, phases=phases, order_key=order_key,
+            piece_key=piece_key)
+        nodes = [tuple(g) for g in self.node_charges]
+        interior = {}
+        for gamma, coeff in S_factors.items():
+            k = self._factor_cone_degree(gamma, nodes)
+            if k is not None and k <= cutoff:
+                interior[gamma] = coeff
+        for gamma, coeff in interior.items():
+            if coeff != self._s_coefficient(gamma):
+                return False
+        # And nothing the chart has inside the compared region is missing here.
+        for gamma in self._cone_interior_charges(nodes, cutoff):
+            if gamma not in interior and not self._s_coefficient(gamma).is_zero():
+                return False
+        return True
+
+    def _factor_cone_degree(self, gamma, nodes) -> int | None:
+        """Cone degree of `gamma` in the node basis, or `None` if not in the
+        non-negative span (so not a charge the factor build ranges over)."""
+        coords = _bps_solve_in_basis(nodes, tuple(gamma))
+        if coords is None:
+            return None
+        if any(c < 0 or c.denominator != 1 for c in coords):
+            return None
+        return int(sum(coords))
+
+    def _cone_interior_charges(self, nodes, cutoff: int):
+        """Cone charges of node-degree `<= cutoff`, as lattice charges.
+
+        The top shell is included: it is complete in the factor build (every factor
+        reaching degree `D` has degree `<= D` and is placed), so the
+        completeness half of the cross-check ranges over it too.
+        """
+        rank = len(nodes)
+        dim = len(nodes[0])
+        out = []
+        coeffs = [0] * rank
+
+        def rec(i: int, left: int):
+            if i == rank:
+                out.append(tuple(
+                    sum(coeffs[j] * nodes[j][d] for j in range(rank))
+                    for d in range(dim)))
+                return
+            for v in range(left + 1):
+                coeffs[i] = v
+                rec(i + 1, left - v)
+            coeffs[i] = 0
+
+        rec(0, cutoff)
         return out
 
     # ====================================================================
@@ -2059,7 +2346,7 @@ class BPSKAlgebra(RGKAlgebra):
         decomp = A_c.multiply(a_c, b_c)
 
         # Translate chart-c labels → root labels via reverse μ chain.
-        # `decomp` carries Z[q^±] LaurentPoly coefficients (the
+        # `decomp` carries Z[q^±] LaurentPoly coefficients (the contract's
         # Z-form); we keep them as-is during relabeling.
         out: dict[Vec, "LaurentPoly"] = {}
         for label_c, coeff in decomp.terms.items():
@@ -2263,10 +2550,10 @@ class BPSKAlgebra(RGKAlgebra):
             [F_a, F_b], self.cone_gens, self.lattice.rank,
             eff_cutoff,
             cone_witness=self._cone_witness,
-            # The K_joint linear joint-bound prune is disabled: it was a
+            # The K_joint linear joint-bound prune is RETIRED: it was a
             # linear lower bound on a *super-linear* assembled q-order, so it
             # under-included contributing charges on mixed-sign / sheared
-            # frames.  Soundness comes instead from
+            # frames (audit A10 regression).  Soundness now comes from
             # the adaptive two-cutoff-stability shell (`_schur_index_stable`),
             # which widens `eff_cutoff` until the q^K result stabilises; here
             # `eff_cutoff` is that already-chosen shell.

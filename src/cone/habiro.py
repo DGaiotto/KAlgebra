@@ -391,9 +391,14 @@ class HabiroElement:
             new_denom[k] = new_denom.get(k, 0) + m
         for k, m in other.denom.items():
             new_denom[k] = new_denom.get(k, 0) + m
-        # Numerator monomial fast path: a monomial multiplier cannot
-        # alter divisibility, even when both operands carry denominators.
-        if len(self.numerator._coeffs) <= 1 or len(other.numerator._coeffs) <= 1:
+        # Numerator monomial fast path: a monomial multiplier cannot alter
+        # divisibility --- but only when that side carries NO denominator of its
+        # own.  `q/(1-q^2) * (q^{-1}-q)` has a monomial numerator on the left and
+        # still needs simplifying: it is the value 1, yet skipping simplify()
+        # returns (1-q^2)/(1-q^2), which violates the class invariant and makes
+        # `is_polynomial()` answer False on a Laurent polynomial (measured).
+        if (len(other.numerator._coeffs) <= 1 and not other.denom) or (
+                len(self.numerator._coeffs) <= 1 and not self.denom):
             return HabiroElement(self.numerator * other.numerator, new_denom)
         return HabiroElement(self.numerator * other.numerator, new_denom).simplify()
 

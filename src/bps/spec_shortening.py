@@ -31,8 +31,8 @@ collapses (currently we use the commute moves implicitly via the scan
 order; a more aggressive search would explore the commute orbit).
 
 This is O(|spec| · #collapses) per pass, no BFS — strictly local
-moves; a global `find_mutation_path`-style BFS is not needed for
-shortening.
+moves. Compare to the previous global approach, which used
+`find_mutation_path` BFS and is now superseded.
 """
 
 from __future__ import annotations
@@ -52,8 +52,8 @@ def _bracket(g1: Sequence[int], g2: Sequence[int],
 def _bracket_via_cache(g1, g2, B, bg_cache, n):
     """O(rank) lattice pairing via a precomputed `B @ b` cache.
 
-    Mirrors the `bg_cache` trick of `chart_graph._enumerate_local_moves`:
-    each unique `g2` charge is mapped to its `B @ g2`
+    Mirrors the `bg_cache` trick from's `_enumerate_local_moves`
+    speedup: each unique `g2` charge is mapped to its `B @ g2`
     column-product once (`O(rank^2)`), and the pairing is then
     a single dot product (`O(rank)`).
 
@@ -435,3 +435,68 @@ def shorten_spec(
             break
         cur = nxt
     return cur
+
+
+def _local_move_neighbors(spec, B, bg_cache, cap):
+    """All specs one local move from `spec`: commute swaps (⟨a,b⟩=0),
+    pentagon EXPANDs (⟨a,b⟩=+1, only while len < cap -- these LENGTHEN), and
+    pentagon collapses (triples [b,a+b,a] with ⟨a,b⟩=1 -- these shorten)."""
+    n = len(B)
+    L = len(spec)
+    br = lambda a, b: _bracket_via_cache(a, b, B, bg_cache, n)
+    out = []
+    for i in range(L - 1):
+        a, b = spec[i], spec[i + 1]
+        p = br(a, b)
+        if p == 0:                                   # commute
+            out.append(spec[:i] + [b, a] + spec[i + 2:])
+        elif p == 1 and L < cap:                     # expand (temporary lengthening)
+            ab = tuple(x + y for x, y in zip(a, b))
+            out.append(spec[:i] + [b, ab, a] + spec[i + 2:])
+    for i in range(L - 2):                           # collapse
+        b, ab, a = spec[i], spec[i + 1], spec[i + 2]
+        if all(ab[k] == a[k] + b[k] for k in range(n)) and br(a, b) == 1:
+            out.append(spec[:i] + [a, b] + spec[i + 3:])
+    return out
+
+
+def shorten_spec_bfs(
+    spec: Sequence[Sequence[int]],
+    exchange: Sequence[Sequence[int]],
+    *,
+    lengthen_budget: int = 2,
+    max_states: int = 20000,
+) -> list[tuple]:
+    """Shorten a spec by BFS over ALL local moves, ALLOWING TEMPORARY LENGTHENING.
+
+    Unlike the greedy `shorten_spec` (collapse + commute-orbit only, so it stalls
+    at a local minimum behind a required pentagon expand), this explores the full
+    local-move orbit — commute swaps, pentagon EXPANDs (`[a,b]→[b,a+b,a]`), and
+    pentagon collapses — up to length `len(spec) + lengthen_budget`, and returns
+    the SHORTEST spec reached.  Permitting an expand (a temporary +1) can expose a
+    collapse that nets an overall shortening the greedy pass cannot reach.
+
+    Every move preserves the E_q product `S`, so any reached spec is an equivalent
+    factorisation; the shortest reachable one is returned.  Bounded by
+    `lengthen_budget` (how far above the start length the search may climb) and
+    `max_states` (BFS node cap).  Reduces to a superset of `shorten_spec`'s reach
+    at `lengthen_budget=0` (collapses + commutes, no expand)."""
+    from collections import deque
+    B = [list(row) for row in exchange]
+    bg_cache: dict = {}
+    start = tuple(tuple(int(x) for x in g) for g in spec)
+    cap = len(start) + max(0, lengthen_budget)
+    best = start
+    seen = {start}
+    dq = deque([list(start)])          # list of tuple-charges (hashable elements)
+    while dq and len(seen) < max_states:
+        s = dq.popleft()
+        for nb in _local_move_neighbors(s, B, bg_cache, cap):
+            key = tuple(tuple(g) for g in nb)
+            if key in seen:
+                continue
+            seen.add(key)
+            if len(key) < len(best):
+                best = key
+            dq.append(nb)
+    return [tuple(g) for g in best]

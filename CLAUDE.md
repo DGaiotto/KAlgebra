@@ -33,10 +33,19 @@ O(𝖖)`. Seven layers of algebras sit over one shared contract:
 - **bps** (`src/bps/`): `BPSKAlgebra` and the cluster-mutation `BPSAtlas`. A
   `KAlgebra` *realised* from a BPS quiver (a Dirac pairing + node charges): the
   canonical basis is discovered from the Kontsevich–Soibelman spectrum generator
-  via `F·S = X_γ + O(𝖖)`, and the whole API follows. This is the realisation
-  **spine** — the engine Steps 1–3 deliberately avoid. Adding it does not weaken
-  their spine-free guarantee: no module in the earlier layers imports it at import
-  time, and every Step-3 suite asserts no spine module is loaded (shared,
+  via `F·S = X_γ + O(𝖖)`, and the whole API follows. `S` need not be given:
+  `bps_factor_spectrum` builds it from the quiver alone out of its leading data,
+  as one palindromic BPS factor `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` per `(γ, s)` pair, in
+  any total order on those pairs and with no gate — so it builds at any BPS
+  quiver, N=2\* included. The older peel recursion (`recursive_spectrum`) is
+  retired but reachable behind an opt-in, as the independent cross-check;
+  `factor_order_search` looks for an order whose factors are finitely many and
+  spin-0; and `fs_builder` grows `F_γ` and `S` together out of the discovery
+  relation, so the doubly-tropical support window is an output rather than an
+  input. This is the realisation **spine** — the engine Steps 1–3 deliberately
+  avoid. Adding it does not weaken their spine-free guarantee: no module in the
+  earlier layers imports it at import time, and every Step-3 suite asserts no
+  spine module is loaded (shared,
   filesystem-derived list in `tests/_spine.py`). See
   `docs/step4-BPSKAlgebra.md`.
 - **abe** (`src/abe/`): `AbeKAlgebra` and the abelianized-presentation tier. A
@@ -116,7 +125,8 @@ src/core/      kalgebra.py kalgebra_iso.py            the contract + iso witness
 src/samples/   samples.py quantum_torus_kalgebra.py uq_sl2_pbw.py
 src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (119 .py + 8 .pkl)
 src/rg/        rgkalgebra.py grading.py graded_rg_solver.py … + the flow zoo   (24 .py)
-src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py … the realisation spine   (20 .py)
+src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py bps_factor_spectrum.py
+               factor_order_search.py fs_builder.py … the realisation spine   (23 .py)
 src/abe/       abe_kalgebra.py pure_un_kalgebra.py un_nf_kalgebra.py … the abelianized tier + object layer   (63 .py)
 src/skein/     skein_kalgebra.py skein_algebra.py skein_atlas.py … the skein tier + flip-atlas   (70 .py)
 src/gn/        pure_g_abe_kalgebra.py gn_abe_kalgebra.py star_bubbling.py global_form.py pure_so3.py global_form_bridge.py … the general-G tier   (15 .py)

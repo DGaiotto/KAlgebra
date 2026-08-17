@@ -1937,6 +1937,27 @@ class ComposedRG(RGKAlgebra):
         intermediate = self._first.RG(a)
         return self._second.RG_element(intermediate)
 
+    def grading(self):
+        """The joint grading of a composed flow: the two steps' gradings, side by side.
+
+        Without this, `rg_generator` below can only return the *unwindowed*
+        squash — the per-factor box rather than the joint simplex a direct
+        multi-drop would cut — so a composed flow silently carries terms a
+        single flow of the same total height would not.
+        """
+        from grading import Grading
+        g1 = self._first.grading()
+        g2 = self._second.grading()
+        cone = None
+        if g1.cone_gens is not None and g2.cone_gens is not None:
+            z1, z2 = ((0,) * g1.rank, (0,) * g2.rank)
+            cone = (tuple(tuple(c) + z2 for c in g1.cone_gens)
+                    + tuple(z1 + tuple(c) for c in g2.cone_gens))
+        return Grading(rank=g1.rank + g2.rank,
+                       deg=lambda l: tuple(g1.deg(l)) + tuple(g2.deg(l)),
+                       height=tuple(g1.height) + tuple(g2.height),
+                       cone_gens=cone)
+
     def rg_generator(self, cutoff) -> dict[Label, "HabiroElement"]:
         """Squashed `S_total = inner_RG(S_outer) · S_inner`, where
         `outer = self._first` is the source step and
@@ -1964,7 +1985,18 @@ class ComposedRG(RGKAlgebra):
         s_outer_mid = self._first.rg_generator(cutoff)
         s_outer_aux = _apply_rg_to_habiro_dict(self._second, s_outer_mid)
         s_inner_aux = self._second.rg_generator(cutoff)
-        return _multiply_habiro_dicts(s_outer_aux, s_inner_aux, aux)
+        squashed = _multiply_habiro_dicts(s_outer_aux, s_inner_aux, aux)
+        try:
+            g = self.grading()
+        except NotImplementedError:
+            import warnings
+            warnings.warn(
+                "ComposedRG.rg_generator: a step exposes no grading; returning "
+                "the UNWINDOWED squash (per-factor box, not the joint-simplex "
+                "window of a direct multi-drop).",
+                RuntimeWarning, stacklevel=2)
+            return squashed
+        return {k: v for k, v in squashed.items() if g.height_of(k) <= cutoff}
 
     @property
     def first(self) -> RGKAlgebra:

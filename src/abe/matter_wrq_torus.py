@@ -57,7 +57,7 @@ if _HERE not in sys.path:
 from laurent_poly import LaurentPoly
 from root_datum import RootDatum, u_n
 from weyl_torus_ring import TorusLaurent, TorusRational
-from wrq_torus import cocycle_Rtilde, _rho_Gtilde, trace_residual, WRQTorus
+from wrq_torus import CC, _rho_Gtilde, trace_residual, WRQTorus
 
 
 __all__ = ["MatterWRQTorus", "vr_to_tr", "tr_to_vr", "rep_weights",
@@ -281,9 +281,14 @@ def _rung_levels(datum, atom, slots) -> dict:
 _W_CACHE: dict = {}
 
 
-def _matter_cocycle(datum, m, mp, slots) -> dict:
+def _matter_factor_via_Z(datum, m, mp, slots) -> dict:
     """`W_{m,m'} = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}` per μ-level — finite
-    net numerator by triangular division (raises past the rung budget)."""
+    net numerator by triangular division (raises past the rung budget).
+
+    The **trivialization** route, no longer the definition (user, 2026-08-24):
+    `Z` trivializes `W` exactly as `ψ` trivializes the gauge cocycle `R`, and
+    `_matter_factor` below defines it directly.  Kept, and checked against the
+    definition by `verify_Z_trivializes_matter_factor`."""
     key = (datum.name, tuple(m), tuple(mp), slots)
     hit = _W_CACHE.get(key)
     if hit is not None:
@@ -333,6 +338,136 @@ def _matter_cocycle(datum, m, mp, slots) -> dict:
 # ---------------------------------------------------------------------------
 # the element
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# The matter cocycle as a PRIMITIVE — a product over the matter weights
+# ---------------------------------------------------------------------------
+#
+# The matter half of the user's 2026-08-24 ruling (*"same for the matter
+# cocycle, which we should not forget"*; *"including matter of course"*).  `W`
+# is defined directly below; `Z` is demoted to a trivialization of it, whose
+# main role is the formulation of the star axiom.
+#
+# The support rule is the same as the gauge cocycle's — a matter weight `w`
+# contributes exactly when `⟨m,w⟩` and `⟨m',w⟩` have opposite signs — but the
+# statistics are opposite: matter contributes NUMERATOR factors
+# `(1 + 𝖖^k μ v^w)` where the vector multiplet contributes denominators
+# `1/(1 − 𝖖^k v^α)`.
+
+
+def matter_factor_exponents(A, B):
+    """The `𝖖`-exponents of the surviving factors at one matter weight, with
+    `A = ⟨m,w⟩` and `B = ⟨m',w⟩`.
+
+    **The matter counterpart of `wrq_torus.CC`, and already in the
+    same (`f`-representation) frame** — `MatterWRQTorus.__mul__` applies `R̃` for
+    the gauge part and this factor *unshifted*, because its own definition
+    carries the shifts `T_{−m'}`, `T_m`.  So there is no separate `W̃`.
+
+    Empty unless `A` and `B` have opposite signs.  Otherwise the two `Z`-ladders
+    cancel down to their overlap, `c = min(|A|, |B|)` factors with exponents
+
+        sgn(A) · (|A| + |B| − 1 − 2j),      j = 0 … c−1
+
+    — manifestly odd under conjugating both charges.
+
+    **Stated on the Clebsch–Gordan range, the parallel with the vector
+    multiplet is exact** (`wrq_torus.cocycle_range`): with `d = ||A|−|B||` and
+    `D = |A|+|B|`, the gauge factor spans the **closed** range `d … D` in steps
+    of 2 as *denominators* (ends once, interior twice), and this one spans its
+    **strict interior** `d+1 … D−1` as *numerators*, once each.  Measured for
+    every `|A|, |B| ≤ 5`."""
+    A, B = int(A), int(B)
+    if A * B >= 0:
+        return []
+    c = min(abs(A), abs(B))
+    s = 1 if A > 0 else -1
+    return [s * (abs(A) + abs(B) - 1 - 2 * j) for j in range(c)]
+
+
+def _matter_factor(datum, m, mp, slots) -> dict:
+    """`W_{m,m'}` per μ-level — **the primitive**, a product over matter weights.
+
+    Certified equal to the `Z`-built route; see
+    `verify_Z_trivializes_matter_factor`."""
+    key = (datum.name, tuple(m), tuple(mp), slots, "primitive")
+    hit = _W_CACHE.get(key)
+    if hit is not None:
+        return hit
+    n_slots = len(slots)
+    levels = {(0,) * n_slots: TorusRational.one(datum)}
+    for i, wts in enumerate(slots):
+        for w in wts:
+            w = tuple(w)
+            A = datum.shift_pairing(tuple(m), w)
+            B = datum.shift_pairing(tuple(mp), w)
+            for e in matter_factor_exponents(A, B):
+                mono = TorusRational.from_laurent(TorusLaurent.monomial(
+                    datum, tuple(int(x) for x in w),
+                    LaurentPoly({int(e): 1})))
+                out: dict = {}
+                for k, val in levels.items():
+                    out[k] = (out[k] + val).simplify() if k in out else val
+                    k2 = tuple(x + (1 if t == i else 0)
+                               for t, x in enumerate(k))
+                    term = (val * mono).simplify()
+                    out[k2] = ((out[k2] + term).simplify()
+                               if k2 in out else term)
+                levels = {k: v for k, v in out.items() if not v.is_zero()}
+    _W_CACHE[key] = levels
+    return levels
+
+
+def CC_N(datum, m, mp, slots) -> dict:
+    """`CC[N]_{m,m'}` — the cocycle of the `(G, N)` theory, per μ-level.
+
+    Name and split ruled by the user, 2026-08-24: **`CC` for pure gauge,
+    `CC[N]` combining gauge and matter**, so `CC = CC[0]` is a genuine
+    specialisation rather than a notational coincidence, matching the repo's
+    `(G, N)` / `(G, 0)` convention.  This is exactly what the product law of
+    `Σ_m f_m(𝖖^m v)·U_m` multiplies by, so it is the object worth naming; the
+    matter-only piece is the ratio `CC[N]/CC[0]` and keeps no name of its own
+    (`_matter_factor`).
+
+    ⚠ **`N` must be a representation whose weights are allowed by the global
+    form `G`** (user, 2026-08-24).  Otherwise `CC[N]` is not a cocycle *of that
+    form* at all: at `PSU(N)` the fundamental is not admissible while the
+    adjoint is.  This module sees only a `RootDatum` and the weight lists, so it
+    cannot check that itself — `verify_matter_weights_admitted` does, given the
+    form's `LineLattice`, and `GNAbeKAlgebra` filters on `lines.elec_admits`
+    when it builds the slots."""
+    gauge = CC(datum, m, mp)
+    out = {}
+    for k, w in _matter_factor(datum, m, mp, slots).items():
+        term = (gauge * w).simplify()
+        if not term.is_zero():
+            out[k] = term
+    return out
+
+
+def verify_matter_weights_admitted(lines, slots) -> bool:
+    """Every weight of every matter slot is an electric charge of the form.
+
+    The precondition of `CC[N]` (user, 2026-08-24: *"`N` must be a
+    representation of weight allowed by the global form `G`"*).  `lines` is a
+    `global_form.LineLattice`; the test is its `m = 0` fibre, i.e. which
+    representations are representations *of this form*."""
+    return all(lines.elec_admits(tuple(w)) for wts in slots for w in wts)
+
+
+def verify_Z_trivializes_matter_factor(datum, m, mp, slots) -> bool:
+    """`δZ = W` — that `Z` **trivializes** the matter cocycle.
+
+    The matter counterpart of `wrq_torus.verify_psi_trivializes_cocycle`.  `W`
+    is defined independently, so this equality is emergent evidence."""
+    a = {k: v.simplify()
+         for k, v in _matter_factor(datum, m, mp, slots).items()
+         if not v.simplify().is_zero()}
+    b = {k: v.simplify()
+         for k, v in _matter_factor_via_Z(datum, m, mp, slots).items()
+         if not v.simplify().is_zero()}
+    return set(a) == set(b) and all(a[k] == b[k] for k in a)
+
+
 class MatterWRQTorus:
     """A `(G, N)` enriched-torus element on the WRQ substrate: residuals
     `{atom m: {μ-level k ∈ Z^{#slots}: TorusRational}}`.
@@ -414,22 +549,25 @@ class MatterWRQTorus:
         return MatterWRQTorus(self.datum, self.slots, out)
 
     def __mul__(self, other: "MatterWRQTorus") -> "MatterWRQTorus":
-        """`U_m U_{m'} = R̃_{m,m'}·W_{m,m'}·U_{m+m'}` — the WRQ gauge cocycle
-        times the finite matter cocycle, μ-levels convolved."""
+        """`U_m U_{m'} = CC[N]_{m,m'}·U_{m+m'}`, μ-levels convolved.
+
+        `CC[N]` is gauge and matter together (`CC_N`); the pure-gauge cocycle is
+        its `N = 0` specialisation `CC`."""
         out: dict = {}
         for m, row1 in self._f.items():
             neg_m = tuple(-x for x in m)
             for mp, row2 in other._f.items():
                 t = tuple(x + y for x, y in zip(m, mp))
-                W = _matter_cocycle(self.datum, m, mp, self.slots)
-                Rt = cocycle_Rtilde(self.datum, m, mp)
+                # `CC[N]` -- gauge and matter together, which is exactly what
+                # the product law multiplies by.
+                W = CC_N(self.datum, m, mp, self.slots)
                 neg_mp = tuple(-x for x in mp)
                 dst = out.setdefault(t, {})
                 for k1, f1 in row1.items():
                     a = f1.q_shift(neg_mp)
                     for k2, f2 in row2.items():
                         b = f2.q_shift(m)
-                        base = (a * b * Rt).simplify()
+                        base = (a * b).simplify()
                         for r, w in W.items():
                             K = tuple(x + y + z for x, y, z in zip(k1, k2, r))
                             term = (base * w).simplify()

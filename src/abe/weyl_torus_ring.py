@@ -20,6 +20,8 @@ unchanged; the R-path uses the coefficients' own `+`/`*`/`bar`.
 """
 from __future__ import annotations
 
+import operator as _operator
+
 from laurent_poly import LaurentPoly
 from root_datum import RootDatum
 from zplus_ring import RLaurent
@@ -51,14 +53,20 @@ def _s_qshift(coeff, k, scalar):
     if k == 0:
         return coeff
     if scalar is None:
-        return LaurentPoly({e + k: c for e, c in coeff._coeffs.items()})
+        # a 𝖖-shift is a bijection on exponents and leaves the coefficients alone,
+        # so a clean input stays clean — no need to re-validate (measured 825k
+        # `LaurentPoly.__init__` calls in one dressed SU(3) build, mostly here).
+        return LaurentPoly._from_clean_dict(
+            {e + k: c for e, c in coeff._coeffs.items()})
     return RLaurent(scalar, {e + k: c for e, c in coeff.coeffs.items()})
 
 
 def _s_bar(coeff, scalar):
     """`𝖖 ↦ 𝖖⁻¹` on a scalar (R-side untouched)."""
     if scalar is None:
-        return LaurentPoly({-e: c for e, c in coeff._coeffs.items()})
+        # `𝖖 ↦ 𝖖⁻¹` negates exponents bijectively; coefficients untouched.
+        return LaurentPoly._from_clean_dict(
+            {-e: c for e, c in coeff._coeffs.items()})
     return coeff.bar()
 
 
@@ -88,6 +96,24 @@ class TorusLaurent:
         self._t = t
 
     # ----- constructors -----
+    @classmethod
+    def _clean(cls, datum, terms, scalar=None):
+        """Fast-path constructor.  Caller MUST ensure:
+          - every key is already a `tuple` of ints of length `datum.dim`
+          - no value is `None` and no value `is_zero()`
+
+        Skips the re-tupling and per-term `is_zero()` sweep in `__init__`.  Same
+        contract, and for the same reason, as `LaurentPoly._from_clean_dict`: the
+        hot arithmetic paths below build their output dicts already clean, so
+        re-validating them was pure overhead on the substrate of the whole
+        abelianized tier."""
+        out = cls.__new__(cls)
+        out.datum = datum
+        out._d = datum.dim
+        out._scalar = scalar
+        out._t = terms
+        return out
+
     @classmethod
     def zero(cls, datum, scalar=None):
         return cls(datum, {}, scalar)
@@ -138,13 +164,14 @@ class TorusLaurent:
                 out.pop(e, None)
             else:
                 out[e] = s
-        return TorusLaurent(self.datum, out, self._scalar)
+        return TorusLaurent._clean(self.datum, out, self._scalar)
 
     __radd__ = __add__
 
     def __neg__(self):
-        return TorusLaurent(self.datum, {e: -lp for e, lp in self._t.items()},
-                            self._scalar)
+        return TorusLaurent._clean(self.datum,
+                                   {e: -lp for e, lp in self._t.items()},
+                                   self._scalar)
 
     def __sub__(self, other):
         o = self._coerce(other)
@@ -157,32 +184,70 @@ class TorusLaurent:
         sc = self._scalar
         if self.is_zero() or o.is_zero():
             return TorusLaurent.zero(self.datum, sc)
-        d = self._d
         out = {}
+        # `tuple(map(add, e1, e2))` replaces `tuple(e1[i]+e2[i] for i in range(d))`:
+        # same result, but it drops a Python-level generator frame and `range`
+        # indexing from the innermost loop of the whole tier's arithmetic.
+        _add = _operator.add
+        t1, t2 = self._t, o._t
+        # ---- monomial fast path ------------------------------------------------
+        # MEASURED on a dressed SU(3) build: **91%** of the 140k multiplications in
+        # one chart build have a monomial on one side and **74%** are monomial ×
+        # monomial, with a mean of 3.3 term-pairs per call.  The tier multiplies by
+        # monomials constantly — the `ψ` dressing, the cocycle factors, the
+        # normal-ordering shifts — so the general path's accumulation dict,
+        # `setdefault` and zero-sweep were overhead on almost every call.
+        #
+        # With one side a single weight the output weights `e_fixed + e` are
+        # pairwise DISTINCT, so nothing can collide and no accumulation is needed.
+        if len(t1) == 1 or len(t2) == 1:
+            if len(t1) == 1:
+                ((e1, c1),) = t1.items()
+                for e2, c2 in t2.items():
+                    out[tuple(map(_add, e1, e2))] = c1 * c2
+            else:
+                ((e2, c2),) = t2.items()
+                for e1, c1 in t1.items():
+                    out[tuple(map(_add, e1, e2))] = c1 * c2
+            if sc is not None:
+                # the scalar ring is supplied from outside, so do not assume it is a
+                # domain — sweep zeros.  (`Z[𝖖^±]` below is one, so the raw path
+                # needs no sweep: a product of nonzero Laurent polynomials over `Z`
+                # is nonzero.)
+                out = {e: c for e, c in out.items() if not c.is_zero()}
+            return TorusLaurent._clean(self.datum, out, sc)
+        # ---- general path ------------------------------------------------------
         if sc is None:
             # raw-int fast path (Z[𝖖^±]) — behaviourally unchanged
             out_raw: dict = {}
+            other_items = list(o._t.items())
             for e1, c1 in self._t.items():
-                for e2, c2 in o._t.items():
-                    e = tuple(e1[i] + e2[i] for i in range(d))
-                    acc = out_raw.setdefault(e, {})
-                    for q1, k1 in c1._coeffs.items():
-                        for q2, k2 in c2._coeffs.items():
+                c1_items = list(c1._coeffs.items())
+                for e2, c2 in other_items:
+                    e = tuple(map(_add, e1, e2))
+                    acc = out_raw.get(e)
+                    if acc is None:
+                        acc = out_raw[e] = {}
+                    for q2, k2 in c2._coeffs.items():
+                        for q1, k1 in c1_items:
                             qe = q1 + q2
                             nv = acc.get(qe, 0) + k1 * k2
                             if nv:
                                 acc[qe] = nv
                             else:
                                 acc.pop(qe, None)
-            out = {e: LaurentPoly(d2) for e, d2 in out_raw.items() if d2}
+            # every `d2` here is already a clean dict[int,int] with no zero values
+            out = {e: LaurentPoly._from_clean_dict(d2)
+                   for e, d2 in out_raw.items() if d2}
         else:
+            other_items = list(o._t.items())
             for e1, c1 in self._t.items():
-                for e2, c2 in o._t.items():
-                    e = tuple(e1[i] + e2[i] for i in range(d))
+                for e2, c2 in other_items:
+                    e = tuple(map(_add, e1, e2))
                     prod = c1 * c2
                     out[e] = (out[e] + prod) if e in out else prod
             out = {e: c for e, c in out.items() if not c.is_zero()}
-        return TorusLaurent(self.datum, out, sc)
+        return TorusLaurent._clean(self.datum, out, sc)
 
     __rmul__ = __mul__
 
@@ -206,7 +271,7 @@ class TorusLaurent:
         for e, lp in self._t.items():
             s = dat.shift_pairing(c, e)
             out[e] = lp if s == 0 else _s_qshift(lp, s, sc)
-        return TorusLaurent(dat, out, sc)
+        return TorusLaurent._clean(dat, out, sc)
 
     def weyl_act(self, w):
         """`w · (Σ c_λ v^λ) = Σ c_λ v^{wλ}`."""
@@ -215,20 +280,53 @@ class TorusLaurent:
         for e, lp in self._t.items():
             we = dat.act(w, e)
             out[we] = (out[we] + lp) if we in out else lp
-        return TorusLaurent(dat, {e: lp for e, lp in out.items() if not lp.is_zero()},
-                            self._scalar)
+        return TorusLaurent._clean(
+            dat, {e: lp for e, lp in out.items() if not lp.is_zero()},
+            self._scalar)
 
     def bar(self):
         """𝖖 ↦ 𝖖⁻¹ with v fixed (R-side untouched)."""
-        return TorusLaurent(self.datum,
-                            {e: _s_bar(lp, self._scalar) for e, lp in self._t.items()},
-                            self._scalar)
+        return TorusLaurent._clean(
+            self.datum,
+            {e: _s_bar(lp, self._scalar) for e, lp in self._t.items()},
+            self._scalar)
 
     def vinv(self):
         """v ↦ 1/v (𝖖 fixed): negate every weight."""
         return TorusLaurent(self.datum,
                             {tuple(-x for x in e): lp for e, lp in self._t.items()},
                             self._scalar)
+
+    # ----- serialization (the Z-path only; see `to_json`) -----
+    def to_json(self) -> list:
+        """`[[weight, [[𝖖-exponent, coefficient], …]], …]` — JSON-ready, exact.
+
+        **Z-path only** (`scalar=None`, coefficients `LaurentPoly` over `Z`).  An
+        `R[𝖖^±]` coefficient ring honest-fails rather than being flattened: an
+        `RElement` is a combination of `R`'s canonical basis, so writing it out
+        needs the ring's basis labelling as well, and no shipped `AbeKAlgebra`
+        chart uses one (the flavour of the `(G, N)` tier lives in the μ-levels of
+        `MatterWRQTorus`, whose residual scalars are still `Z[𝖖^±]`).  Adding it
+        means declaring the ring in the file header, not guessing here."""
+        if self._scalar is not None:
+            raise NotImplementedError(
+                "TorusLaurent.to_json: only the Z-path (scalar=None) is "
+                f"serialized; this element carries scalar={self._scalar!r}.  "
+                "An R[𝖖^±] coefficient needs R's basis labelling written into "
+                "the file header — declare it there rather than flattening it "
+                "here.")
+        return [[list(e), sorted((int(k), int(c)) for k, c in lp._coeffs.items())]
+                for e, lp in sorted(self._t.items())]
+
+    @classmethod
+    def from_json(cls, datum: RootDatum, obj) -> "TorusLaurent":
+        """Inverse of `to_json` against the SAME `datum` (the weights are raw
+        coordinates in that datum's basis, so a different datum silently
+        reinterprets them — which is why the cache header fingerprints the
+        datum; see `abe_kalgebra.AbeKAlgebra.load_cache`)."""
+        return cls(datum,
+                   {tuple(e): LaurentPoly({int(k): int(c) for k, c in coeffs})
+                    for e, coeffs in obj})
 
     def __eq__(self, other):
         o = self._coerce(other)
@@ -249,6 +347,9 @@ class TorusLaurent:
 # ===========================================================================
 # division by a single factor (1 − 𝖖^k v^β), β a root
 # ===========================================================================
+#: `β·β` per root — datum-independent (it is a plain dot product on the weight
+#: coordinates) and bounded by the number of roots across all data in a process.
+_BETA_NORM: dict = {}
 def _divide_by_factor(terms: dict, beta: Weight, k: int, d: int, scalar=None):
     """Exact division `(Σ c_λ v^λ) / (1 − 𝖖^k v^β)`; returns the quotient dict, or
     `None` if the factor does not divide exactly.
@@ -259,12 +360,26 @@ def _divide_by_factor(terms: dict, beta: Weight, k: int, d: int, scalar=None):
     if not terms:
         return {}
     zero = _s_zero(scalar)
-    D = sum(b * b for b in beta)                    # φ(β) = β·β > 0 (β ≠ 0)
+    # `φ(β) = β·β > 0` depends only on the root, and `β` ranges over the finitely
+    # many roots of the datum — but this was recomputed on EVERY call (measured:
+    # ~48k calls in a single SU(3) dressed build).  Memoized on the root tuple.
+    D = _BETA_NORM.get(beta)
+    if D is None:
+        D = _BETA_NORM[beta] = sum(b * b for b in beta)
     lines: dict = {}
     for lam, lp in terms.items():
-        g = sum(lam[t] * beta[t] for t in range(d))
-        key = tuple(lam[t] * D - g * beta[t] for t in range(d))
-        lines.setdefault(key, {})[g] = (lam, lp)
+        # the two dot products below were `sum(... for t in range(d))` genexps run
+        # once per term per call — together the single largest `sum()` consumer in
+        # the tier.  `zip` keeps the arithmetic identical and drops the generator
+        # frame and the `range` indexing.
+        g = 0
+        for lt, bt in zip(lam, beta):
+            g += lt * bt
+        key = tuple(lt * D - g * bt for lt, bt in zip(lam, beta))
+        line = lines.get(key)
+        if line is None:
+            line = lines[key] = {}
+        line[g] = (lam, lp)
     quo: dict = {}
     for gmap in lines.values():
         gmin, gmax = min(gmap), max(gmap)
@@ -448,7 +563,7 @@ class TorusRational:
                 q = _divide_by_factor(num._t, a, k, self._d, self._sc)
                 if q is None:
                     break
-                num = TorusLaurent(self.datum, q, self._sc)
+                num = TorusLaurent._clean(self.datum, q, self._sc)
                 mult -= 1
             if mult <= 0:
                 del den[(a, k)]
@@ -477,6 +592,24 @@ class TorusRational:
         """v ↦ 1/v (𝖖 fixed): on `num` and on each denominator root (`α ↦ −α`)."""
         new_den = {(tuple(-x for x in a), k): m for (a, k), m in self._den.items()}
         return TorusRational(self.datum, self._num.vinv(), new_den)
+
+    # ----- serialization -----
+    def to_json(self) -> dict:
+        """`{"num": …, "den": [[root, k, multiplicity], …]}` — JSON-ready, exact.
+
+        Serializes the element AS STORED, without simplifying: `__init__`
+        canonicalizes each denominator root to `Φ⁺` and `simplify()` is memoized
+        rather than applied, so round-tripping the stored form is what makes
+        `from_json(to_json(x)) == x` an identity rather than a normalization."""
+        return {"num": self._num.to_json(),
+                "den": [[list(a), int(k), int(m)]
+                        for (a, k), m in sorted(self._den.items())]}
+
+    @classmethod
+    def from_json(cls, datum: RootDatum, obj) -> "TorusRational":
+        """Inverse of `to_json` against the SAME `datum`."""
+        return cls(datum, TorusLaurent.from_json(datum, obj["num"]),
+                   {(tuple(a), int(k)): int(m) for a, k, m in obj["den"]})
 
     def __eq__(self, other):
         o = self._coerce(other)

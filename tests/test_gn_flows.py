@@ -41,11 +41,12 @@ from abe_kalgebra import AbeKAlgebra
 def test_H_pure_g_any_datum():
     """`PureGAbeKAlgebra` is the abelianized tier at an **arbitrary** root datum,
     not just type A.  The anchor is a group with **no minuscule cocharacter**
-    (`Spin(5)`), where product-and-peel has nothing to start from, so the
-    canonical is reached by the **(★)-guarded** route — (★) being the
+    (`Spin(5)`), where there is no dressed-minuscule generator to start from, so
+    the canonical is reached by the **(★)-guarded** route — (★) being the
     affine-Weyl residue cancellation, equivalently *the element's `𝖖`-difference
-    operator preserves the Neumann module* `Λ = R(G)`.  `route(label)` reports
-    which route fired, so the licence is visible rather than implicit."""
+    operator preserves* `Λ = R(G)`, the representation ring of this form.
+    `route(label)` reports which route fired, so the build is visible rather
+    than implicit."""
     import root_datum as rd
     from pure_g_abe_kalgebra import PureGAbeKAlgebra
     A = PureGAbeKAlgebra(rd.b_n_simply_connected(2))          # Spin(5)
@@ -66,54 +67,149 @@ def test_H_pure_g_any_datum():
           % routes)
 
 
-def test_H_star_licence_fires():
-    """The **licensed (★)-guarded solve**, seen firing — and seen *not* firing
-    where a constructive route reaches.  Constructive routes are always
-    preferred; `star` is the last rung of the ladder, and it is what opens
-    groups with no minuscule cocharacter at all.  The guard is applied inside one
-    auditable module before anything is returned — unique and verified exactly
-    over `Z`, W1 bar-palindromicity, (★), and a pad+1 box certificate — which is
-    why a solve is admissible *here* while the tier still exposes no solve entry
-    point.
+def test_H_one_route_and_the_declared_optimizations():
+    """**One route builds every label** (2026-08-25), and the two general
+    optimizations are speed, never a different answer.
 
-    The witness is chosen **structurally, not by name**: `star` is required
-    exactly at a cone generator the undressed closed form does not reach, so the
-    test establishes that precondition rather than hard-coding a label that a
-    future constructive route might absorb.  (An earlier revision hard-coded
-    `SO(5) L_((1,1),(0,0))`, and that is precisely what happened to it — the
-    charge now builds by `closed_form`.)"""
+    This replaces an earlier test of a *route ladder* — `wilson → minuscule →
+    cone → peel → monoid → star`, with `star` as "the last resort".  That ladder
+    is retired: the axioms alone (the W2 seed, bar, `O(𝖖)`, and (★)) build every
+    `L_{m,e}` at every datum, `m = 0` included, where the tropical support is the
+    single cell `{0}`, the system has no unknowns and the seed **is** the answer.
+    So Wilson follows from the axioms rather than from a special case.
+
+    Two halves, and the first is the load-bearing one:
+
+    * with `optimizations=()` the claim is **runnable**, not merely asserted —
+      every route reported is `star`, at a Wilson label, a minuscule label and a
+      bubbled one;
+    * with the defaults on, `theta_twist` and `monoid` must return the
+      **identical element**.  An optimization that returned a merely similar
+      answer would be the exact failure mode the constructive-build rule exists
+      to prevent, so equality is what is asserted, not agreement of some
+      invariant.
+
+    The constructive zoo is retired-not-erased behind `constructive_routes=True`,
+    and it is kept for the reason the peel `S`-recursion is kept: it is an
+    *independent* construction of the same element, which is what makes agreement
+    evidence rather than a restatement.
+    """
+    import root_datum as rd
+    from pure_g_abe_kalgebra import PureGAbeKAlgebra
+
+    # --- half 1: the axioms alone, nothing else switched on -----------------
+    bare = PureGAbeKAlgebra(rd.su_n(3), optimizations=())
+    labels = [((0, 0), (1, 0)),        # Wilson  — support is the single cell {0}
+              ((1, 0), (0, 0)),        # minuscule — no bubbling
+              ((1, 1), (0, 0))]        # bubbled  — the general case
+    routes = {}
+    for m, e in labels:
+        lab = bare.fold(m, e)
+        bare.chart(lab)
+        routes[lab] = bare.route(lab)
+        assert routes[lab] == "star", ("with no optimizations every label must "
+                                       "be built by the axiom route", lab,
+                                       routes[lab])
+        assert bare.certify_canonical(lab) == lab, ("W1+W2 acceptance", lab)
+
+    # --- half 2: the declared optimizations agree ELEMENTWISE ----------------
+    fast = PureGAbeKAlgebra(rd.su_n(3))
+    assert PureGAbeKAlgebra.DEFAULT_OPTIMIZATIONS == ("theta_twist", "monoid")
+    checked = 0
+    for m, e in labels:
+        lab = fast.fold(m, e)
+        assert fast.chart(lab) == bare.chart(lab), ("an optimization returned a "
+                                                    "different element", lab)
+        checked += 1
+
+    # The θ-twist is general in `e`: one known point gives the whole `m̄`-line,
+    # so a DRESSED neighbour of an already-built charge must come back twisted
+    # rather than re-solved.  Asking for it after the undressed anchor above is
+    # what exercises that; the element is still checked against the bare build.
+    twisted = fast.fold((1, 1), (1, 1))
+    assert fast.chart(twisted) == bare.chart(twisted), "θ-twist changed the element"
+    tw = fast.route(twisted)
+    # Non-vacuous: the twist must actually have FIRED here.  Its route name
+    # carries the shift and the charge it twisted from (`twist[k=.. from ..]`),
+    # so `startswith` pins the mechanism rather than merely accepting any answer
+    # — and the same label under `optimizations=()` must come back from the
+    # axiom route instead, or the comparison above is between two twists.
+    assert tw.startswith("twist["), ("the θ-twist must fire at a dressed "
+                                     "neighbour of a cached charge", tw)
+    assert bare.route(twisted) == "star", bare.route(twisted)
+    print("  PASS: test_H_one_route_and_the_declared_optimizations  "
+          "(SU(3): %d labels all route='star' at optimizations=(); "
+          "%d identical under the defaults; θ-twist fired as %s)"
+          % (len(labels), checked, tw))
+
+
+def test_H_the_five_axioms_and_their_negative_controls():
+    """The axioms are **executable in one place** — `star_bubbling.verify_axioms`
+    runs all five against a *finished* element and returns
+    `{condition: (ok, detail)}` over `bar (W1)`, `seed (W2)`, `support`, `O(𝖖)`
+    and `(★)`.  It exists apart from the solver's internal guard because the
+    guard runs on what the solver just built, whereas this runs on **anything** —
+    in particular on an independently constructed element, which is what makes
+    checking a build against the axioms a test rather than a restatement.
+
+    What makes the list non-redundant is the **negative controls**: each
+    condition has to catch something the others do not, or it is decoration.
+    Positive controls run first — a checklist that accepts everything certifies
+    nothing.
+
+    * A **bubbling-stripped** canonical (keep only the leading Weyl orbit) passes
+      W1, W2, support and `O(𝖖)` and is rejected by **(★) alone**.  That is the
+      whole reason a solve is licensed here, and it is the same fact as the
+      derivation of orthonormality: `I[𝖖⁰]` reads only the leading orbit, so the
+      `𝖖⁰` self-norm **cannot see the bubbling at all** and passes on exactly
+      this content, while (★) — a membership condition on `Λ = R(G)`, not a
+      pairing inside the span — rejects it.
+    * A good element under the **wrong `e`** is rejected by W2.
+    * `L_1·L_1` asked as `L_1` is rejected by support, W2 and `O(𝖖)` together.
+    """
     import root_datum as rd
     import star_bubbling as SB
-    from pure_g_abe_kalgebra import PureGAbeKAlgebra, cone_generators
+    import wrq_torus as W
+    from pure_g_abe_kalgebra import PureGAbeKAlgebra
 
-    dat, m = rd.g_2(), (2, 3)
-    assert m in cone_generators(dat), "G2 (2,3) must be a cone generator"
-    reached = True
-    try:
-        SB.closed_form_undressed(dat, m)
-    except NotImplementedError:
-        reached = False
-    assert not reached, ("the witness must be a generator the closed form does "
-                         "NOT reach, else `star` is not the last resort here")
+    # --- positive controls, across three data ------------------------------
+    for dat, lab in [(rd.su_2(), ((1,), (0,))),
+                     (rd.su_n(3), ((0, 0), (1, 1))),
+                     (rd.b_n_simply_connected(2), ((1, 1), (0, 0)))]:
+        A = PureGAbeKAlgebra(dat)
+        lb = A.fold(*lab)
+        rep = SB.verify_axioms(dat, lb[0], lb[1], A.chart(lb))
+        assert all(ok for ok, _ in rep.values()), \
+            (dat.name, lab, {k: v for k, v in rep.items() if not v[0]})
+
+    dat = rd.su_2()
     A = PureGAbeKAlgebra(dat)
-    lab = A.fold(m, (0, 0))
-    A.chart(lab)
-    route = A.route(lab)
-    assert route == "star", ("expected the licensed solve to fire", route)
-    assert A.certify_canonical(lab) == lab
+    good = A.chart(((2,), (0,)))
 
-    # The control, and the half that makes this more than an existence claim:
-    # at a datum whose generators the closed form DOES reach, the licence fires
-    # nowhere.  Spin(5) is such a datum (it was not, before the closed form
-    # landed), so this pins `star` as a last resort rather than a default.
-    sp = rd.b_n_simply_connected(2)
-    B = PureGAbeKAlgebra(sp)
-    for h in cone_generators(sp):
-        SB.closed_form_undressed(sp, h)          # raises if it does not reach
-        r = B.route(B.fold(h, (0, 0)))
-        assert r != "star", ("Spin(5) must need no solve at %s" % (h,), r)
-    print("  PASS: test_H_star_licence_fires  (G2 L_((2,3),(0,0)) via route=star; "
-          "Spin(5) needs no solve at any generator)")
+    # (a) strip the bubbling — (★) ALONE must reject
+    orb = {tuple(dat.act_cochar(w, (2,))) for w in dat.weyl_elements()}
+    stripped = W.WRQTorus(dat, {n: f for n, f in good.residuals().items()
+                                if tuple(n) in orb})
+    rep = SB.verify_axioms(dat, (2,), (0,), stripped)
+    assert not rep["(★)"][0], ("(★) must reject the bubbling-stripped element",
+                               rep)
+    assert all(ok for k, (ok, _) in rep.items() if k != "(★)"), \
+        ("every OTHER axiom must pass on it — that is what makes (★) the guard",
+         {k: v[0] for k, v in rep.items()})
+
+    # (b) the wrong electric label — W2 sees it
+    rep = SB.verify_axioms(dat, (2,), (1,), good)
+    assert not rep["seed (W2)"][0], {k: v[0] for k, v in rep.items()}
+
+    # (c) a product asked as a generator — support + W2 + O(𝖖) together
+    one = A.chart(((1,), (0,)))
+    rep = SB.verify_axioms(dat, (1,), (0,), one * one)
+    assert not rep["support"][0] and not rep["seed (W2)"][0] \
+        and not rep["O(𝖖)"][0], {k: v[0] for k, v in rep.items()}
+
+    print("  PASS: test_H_the_five_axioms_and_their_negative_controls  "
+          "(3 positive controls; bubbling-stripped rejected by (★) alone; "
+          "wrong `e` by W2; L_1·L_1 by support+W2+O(q))")
 
 
 def test_H_odd_height_builds():
@@ -336,6 +432,114 @@ def test_J_parity_character_decides_the_frame():
 # K. The Schur pairing in vacuum-state form
 # ===========================================================================
 
+def test_J_generalized_global_forms():
+    """A global form need not be a **product** of a magnetic and an electric
+    lattice.  The label space is the Weyl quotient of a lattice `Λ` between
+    `Q^∨ × Q` and `P^∨ × P` on which the Dirac pairing is integral, so `Λ` is the
+    preimage of a finite subgroup `L = Λ/(Q^∨ × Q)` of centre-class **pairs** —
+    and *admissible ⟺ `L` isotropic*, *maximal ⟺ `L` Lagrangian*, with
+    **maximality not required**: a non-maximal isotropic `L` is a consistent,
+    merely incomplete, set of lines.
+
+    At `su(2)` that gives **three** forms, not two.  Beside `SU(2) = (Q^∨, P)`
+    and `SO(3) = (P^∨, Q)` there is the *correlated* one — a discrete theta angle
+    — generated by the **pair** `((1,), (1,))`: odd magnetic class requires odd
+    electric class.  Its one extra line is the dyon `(ω^∨, ω)`, which neither
+    product form admits — `SU(2)` has no `ω^∨`, `SO(3)` has no `ω`.
+
+    So `admits` is **not** `mag_admits and elec_admits`.  That conjunction is
+    right only for a product form, and the two side predicates are now its
+    *fibres* over `e = 0` and `m = 0`; the correlated form is exactly where the
+    difference shows, which is why it is the witness here.
+    """
+    import root_datum as rd
+    from global_form import (LineLattice, adjoint_lines, simply_connected_lines,
+                             fundamental_coweights, fundamental_weights)
+
+    D = rd.su_n(2)
+    sc, adj = simply_connected_lines(D), adjoint_lines(D)
+    cor = LineLattice(D, classes=[((1,), (1,))], name="su(2) correlated")
+
+    hm = tuple(fundamental_coweights(D)[0])       # ω^∨, in the coroot basis
+    w = tuple(fundamental_weights(D)[0])          # ω,  in the weight basis
+    assert cor.admits(hm, w), "the correlated form must admit the dyon (ω^∨, ω)"
+    assert not sc.admits(hm, w), "SU(2) has no ω^∨"
+    assert not adj.admits(hm, w), "SO(3) has no ω"
+
+    # the three are genuinely different sets of lines, not renamings
+    probe = [((0,), (0,)), ((0,), w), (hm, (0,)), (hm, w), ((1,), (0,))]
+    sigs = {name: tuple(lat.admits(*l) for l in probe)
+            for name, lat in (("SU(2)", sc), ("SO(3)", adj), ("correlated", cor))}
+    assert len(set(sigs.values())) == 3, ("the three forms must differ", sigs)
+
+    print("  PASS: test_J_generalized_global_forms  (su(2) has THREE forms; the "
+          "correlated one admits the dyon (ω^∨,ω) that neither product form "
+          "does; three distinct admission signatures)")
+
+
+def test_J_line_lattice_tori():
+    """The line lattice's own rational quantum tori (`line_lattice_torus`).
+
+    `conventional_quantum_torus(lines)` reads the Dirac matrix on a `Z`-basis of
+    `Λ` and hands it to the `QuantumTorusKAlg` Step 1 already ships, so an
+    **inadmissible** lattice is refused by *arithmetic* — a non-integral `𝖖`
+    power — rather than by a check bolted on beside it.
+
+    `DRationalTorus` represents `Σ_m d_m(𝖖^m v)·u^m` on the plain generators and
+    `FRationalTorus` represents `Σ_m f_m(𝖖^m v)·U_m` on the **dressed** atoms;
+    the *only* difference is the cocycle, since `U_a` commutes past a function of
+    `v` exactly as `u^a` does.  So the `F` side exercises the primitive cocycle
+    `CC` directly.
+
+    The load-bearing check is the **residual splitting**, and the correlated form
+    is where it bites.  Only the bare residual is stored, as `v^e` times a
+    rational function of the *root* characters, so the whole fractional content
+    sits in one scalar per residual: `⟨ω^∨, ω⟩ = ½` is a genuine half-integer,
+    and yet the dyon **squared** carries only integral `𝖖` powers, because in the
+    product law the two such scalars combine into the Dirac pairing — an integer
+    exactly by admissibility.  Without that split the frame would not close over
+    `Z[𝖖, 𝖖⁻¹]` at a correlated form at all.
+
+    And the algebra depends on the **lattice**, not just the datum: the same
+    residual is legal in one form and refused at construction in another.
+    """
+    import root_datum as rd
+    from global_form import (LineLattice, simply_connected_lines,
+                             fundamental_coweights, fundamental_weights)
+    from line_lattice_torus import (DRationalTorus, FRationalTorus,
+                                    conventional_quantum_torus)
+
+    D = rd.su_n(2)
+    sc = simply_connected_lines(D)
+    cor = LineLattice(D, classes=[((1,), (1,))], name="su(2) correlated")
+    assert conventional_quantum_torus(sc) is not None
+    assert FRationalTorus(sc) is not None            # the dressed-atom sibling
+
+    hm = tuple(fundamental_coweights(D)[0])
+    w = tuple(fundamental_weights(D)[0])
+    Fc, Fs = DRationalTorus(cor), DRationalTorus(sc)
+
+    from fractions import Fraction
+    assert Fraction(Fc.pair(hm, w)).denominator == 2, \
+        ("the dyon's own shift must be a HALF-integer", Fc.pair(hm, w))
+
+    dyon = Fc.monomial(hm, w)
+    sq = Fc.multiply(dyon, dyon)
+    assert sq, "the dyon must square inside the correlated form"
+
+    refused = False
+    try:
+        Fs.monomial(hm, w)
+    except ValueError:
+        refused = True
+    assert refused, ("the dyonic residual must be REFUSED in the simply "
+                     "connected form — the algebra depends on the lattice")
+
+    print("  PASS: test_J_line_lattice_tori  (conventional QT from the Dirac "
+          "matrix on a Z-basis of Λ; ⟨ω^∨,ω⟩ = 1/2 yet the dyon squares "
+          "integrally; the same residual refused at SU(2))")
+
+
 def test_K_aux_space_pairing():
     """The **primary definition** of the Schur pairing on the enriched rational
     quantum torus: states are plain torus products `L_a|1⟩ = chart(a)·|1⟩`
@@ -488,7 +692,8 @@ def test_M_one_quiver_two_embeddings():
 
 if __name__ == "__main__":
     test_H_pure_g_any_datum()
-    test_H_star_licence_fires()
+    test_H_one_route_and_the_declared_optimizations()
+    test_H_the_five_axioms_and_their_negative_controls()
     test_H_odd_height_builds()
     test_H_odd_height_against_bps_oracle()
     test_I_gn_abe_kalgebra()
@@ -496,6 +701,8 @@ if __name__ == "__main__":
     test_I_type_a_seam_is_a_surjection()
     test_J_lattices_are_dual()
     test_J_parity_character_decides_the_frame()
+    test_J_generalized_global_forms()
+    test_J_line_lattice_tori()
     test_K_aux_space_pairing()
     test_M_one_quiver_two_embeddings()
     test_contract_surface_at_a_general_G()

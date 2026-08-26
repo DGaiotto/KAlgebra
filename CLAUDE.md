@@ -129,7 +129,7 @@ src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py bps_factor_spect
                factor_order_search.py fs_builder.py … the realisation spine   (23 .py)
 src/abe/       abe_kalgebra.py pure_un_kalgebra.py un_nf_kalgebra.py … the abelianized tier + object layer   (63 .py)
 src/skein/     skein_kalgebra.py skein_algebra.py skein_atlas.py … the skein tier + flip-atlas   (70 .py)
-src/gn/        pure_g_abe_kalgebra.py gn_abe_kalgebra.py star_bubbling.py global_form.py pure_so3.py global_form_bridge.py … the general-G tier   (15 .py)
+src/gn/        pure_g_abe_kalgebra.py gn_abe_kalgebra.py star_bubbling.py global_form.py line_lattice_torus.py pure_so3.py global_form_bridge.py … the general-G tier   (16 .py)
 src/iso/       pentagon_/u1square_/u1a1d2_…_sample_cone_iso.py
 tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py + test_abe_flows.py + test_skein_flows.py + test_gn_flows.py
 docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4,5,6,7}-*.md

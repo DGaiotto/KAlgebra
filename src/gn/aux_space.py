@@ -22,37 +22,13 @@ cocycle at the half-shifted argument; the prefactor exponent is the GNO
 monopole dimension).  Then
 
     I_{a,b}  =  Tr(rho(a).b)  =  <L_a.1, L_b.1>        (Schur / Gram pairing)
-    (a|Pi]   =  <L_a.1, Pi>                            (half-index)          [*]
-    (Pi|Pi') =  <Pi, Pi'>                              (3d index)            [*]
+This module ships ONE row: `I_{a,b}`, a 4d quantity -- the Schur pairing of two
+bulk line defects, certified `== inner_product` at U(1)/U(2)/U(3).
 
-✅ [*] RESOLVED (user ruling, 2026-07-27; retires the 2026-07-25 "defective
-    -- do not trust" ruling) ✅
-
-    The two rows marked [*] ARE inner products, against the SOLVED pure-U(2)
-    Neumann wavefunction (the design notes Sections 2k-2l; battery
-    a probe in the source repository):
-
-        f_m = (-q^-1 x^-1)^k / [(q^2;q^2)^rk prod_alpha (q^{2+|<m,alpha>|} v^alpha;q^2)],
-        k = (m1-m2)/2, constant along the U(1) centre, f_odd = 0 (user ruling),
-        f_0 = 1/|1>  (physical normalization -- the exact reciprocal of THIS
-        module's vacuum residual; in main's [1]=1 convention f carries one
-        extra 1/(q^2;q^2), and the 42/42 class-map match below is stated in
-        that convention).
-
-    (a|N] = I(a, f) reproduces main's rank-one class-map (L|N] on 42/42
-    labels; (a|N(k)] = I(a, v^{km} f); and [N|N(k)] is the boundary
-    flux sum verbatim (letter map x_flux = q, kappa(m) = k m, q^{-Delta_GNO} =
-    the squared tail prefactor; exactly 1 at k >= h_dual, matching).
-    The rk exponent is confirmed at U(3) against the affine Weyl-Kac
-    Wilson row.  The historical "measured obstruction" (w_m = q^{2tr(m)}
-    Z_gauge M^(0)_m vs |Delta_m|^2 = q^{(N-1)tr(m)} Z_gauge) is understood:
-    one Delta_m per Delta-dressed slot of the superseded Pi_f candidate
-    (|Delta_m|^2 in all across the pairing's two slots) -- a property of the
-    dead candidate, not of the pairing.
-
-    Still open as an ordinary Plan-23 item (stage gamma, H5): the B2 trade
-    axiom -- DERIVING the boundary state from the axiomatics; the solved f
-    is a verified representative anchored on the quotient ground truth.
+The same pairing with one or both slots carrying a boundary state computes a
+half-index or a 3d index, but that machinery belongs to a LATER release: no
+boundary state is constructed anywhere in this package.  What this module is for
+is the 4d pairing and the derivation of its weight.
 
 NOT affected by the above: the Schur pairing row `I_{a,b}` (certified
 `== inner_product` at U(1)/U(2)/U(3), the suite in the source repository), the weight

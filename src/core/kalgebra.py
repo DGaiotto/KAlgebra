@@ -1115,17 +1115,21 @@ class KAlgebra(ABC):
         own = cls.inner_product
         if own is KAlgebra.inner_product:
             return True
-        ref = None
+        direct = self.inner_product(a, b, K)
         for base in cls.__mro__[1:]:
             cand = base.__dict__.get("inner_product")
-            if cand is not None and cand is not own:
-                ref = base
-                break
-        if ref is None:
-            return True
-        direct = self.inner_product(a, b, K)
-        default = ref.inner_product(self, a, b, K)
-        return (direct - default).is_zero()
+            if cand is None or cand is own:
+                continue
+            try:
+                default = cand(self, a, b, K)
+            except NotImplementedError:
+                # an intermediate base that honestly declines on this
+                # realisation (e.g. a flavour refinement its route cannot
+                # express) is not a reference -- walk on down to the root
+                # definition, which always computes
+                continue
+            return (direct - default).is_zero()
+        return True
 
     def verify_embed_section_roundtrip(self, label: Label) -> bool:
         """Faithfulness axiom of the free-R-module encoding:

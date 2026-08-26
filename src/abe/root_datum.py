@@ -61,8 +61,20 @@ def _identity(d: int) -> Mat:
 
 
 def _matvec(M: Mat, x: Vec) -> Vec:
-    d = len(M)
-    return tuple(sum(M[i][j] * x[j] for j in range(len(x))) for i in range(d))
+    """`M·x`.
+
+    Written with explicit loops rather than nested `sum(... for ...)` genexps
+    because this is the innermost primitive of every Weyl action in the
+    abelianized tier: profiling a single dressed SU(3) chart build measured
+    **396k calls** here, spawning 1.19M generator frames and ~2.2 s — the largest
+    single `sum()` consumer in the process.  The arithmetic is unchanged."""
+    out = []
+    for row in M:
+        acc = 0
+        for a, b in zip(row, x):
+            acc += a * b
+        out.append(acc)
+    return tuple(out)
 
 
 def _matmul(A: Mat, B: Mat) -> Mat:
@@ -172,7 +184,8 @@ class RootDatum:
 
     __slots__ = ("dim", "simple_roots", "simple_coroots", "_positive",
                  "_pos_set", "_root_set", "weyl", "weyl_cochar", "name", "_pairing",
-                 "_atom_phase", "_rho_sign", "_phase_is_canonical")
+                 "_atom_phase", "_rho_sign", "_phase_is_canonical",
+                 "_act_memo", "_orient_memo")
 
     def __init__(self, dim: int, simple_roots, simple_coroots, name: str,
                  positive_roots=None, pairing: Mat | None = None,
@@ -196,6 +209,12 @@ class RootDatum:
         #: conjunction over those, or it would claim canonicity at a component's
         #: odd-height coweight.  See `atom_phase_is_canonical`.
         self._phase_is_canonical = phase_is_canonical
+        #: memo for `act` — see there for why.  Pure function of `(w, x)`, so this
+        #: can only ever change speed, never results.
+        self._act_memo: dict = {}
+        #: memo for `orient` — pure function of a root, and the root set is finite,
+        #: so this is bounded by |Φ| × (k-values seen).  See `orient`.
+        self._orient_memo: dict = {}
         gens = [_simple_reflection(a, c, self.dim)
                 for a, c in zip(self.simple_roots, self.simple_coroots)]
         self.weyl = _close_weyl(gens, self.dim) if gens else [(_identity(self.dim), 1)]
@@ -221,11 +240,22 @@ class RootDatum:
         by the monomial `−𝖖^k v^α` (since `1 − 𝖖^k v^α = −𝖖^k v^α·(1 − 𝖖^{−k}v^{−α})`).
         """
         alpha = tuple(alpha)
+        # Memoized: called once per denominator key on EVERY `TorusRational`
+        # construction — measured 139k constructions in one dressed SU(3) build.
+        # Pure function of `alpha`, and `alpha` ranges over the finite root set,
+        # so the memo is bounded by |Φ|.
+        hit = self._orient_memo.get(alpha)
+        if hit is not None:
+            return hit
         if alpha in self._pos_set:
-            return alpha, False
+            out = (alpha, False)
+            self._orient_memo[alpha] = out
+            return out
         neg = tuple(-x for x in alpha)
         if neg in self._pos_set:
-            return neg, True
+            out = (neg, True)
+            self._orient_memo[alpha] = out
+            return out
         raise ValueError(f"{alpha} is not a root of {self.name}")
 
     def shift_pairing(self, c, alpha) -> int:
@@ -243,9 +273,38 @@ class RootDatum:
         """Indices into `self.weyl`; pass to `act` / `sign`."""
         return list(range(len(self.weyl)))
 
+    #: cap on `_act_memo`; on overflow it is dropped wholesale rather than grown
+    #: without bound.  Nothing rests on a hit — `act` is a pure function — so the
+    #: cap is a memory guard, not a correctness one.
+    _ACT_MEMO_CAP = 200_000
+
     def act(self, w: int, x) -> Vec:
-        """`w · x` — applies to weights and roots alike (same matrices)."""
-        return _matvec(self.weyl[w][0], tuple(x))
+        """`w · x` — applies to weights and roots alike (same matrices).
+
+        Memoized: this is called hundreds of thousands of times per dressed chart
+        build (measured 396k `_matvec` calls in ONE SU(3) build), overwhelmingly on
+        repeated `(w, weight)` pairs, because `weyl_act` sweeps the same supports
+        for every Weyl element.  `act` is a pure function of its arguments, so the
+        memo can only change speed."""
+        xt = x if type(x) is tuple else tuple(x)
+        # Memoize ONLY all-int vectors.  Python hashes `1.5 == Fraction(3,2)` as
+        # equal, so a float-typed and a Fraction-typed query for the same
+        # mathematical weight would collide and return the other one's TYPE — and
+        # `ρ` really is float-valued at the half-integral forms (SO(3) `(0.5,)`,
+        # SO(5) `(1.5, 0.5)`), so this is reachable, not hypothetical.  Numerically
+        # the answers agree; a downstream `.denominator` would not survive it.
+        if not all(type(v) is int for v in xt):
+            return _matvec(self.weyl[w][0], xt)
+        key = (w, xt)
+        memo = self._act_memo
+        hit = memo.get(key)
+        if hit is not None:
+            return hit
+        val = _matvec(self.weyl[w][0], xt)
+        if len(memo) >= self._ACT_MEMO_CAP:
+            memo.clear()
+        memo[key] = val
+        return val
 
     def sign(self, w: int) -> int:
         return self.weyl[w][1]
@@ -802,7 +861,16 @@ def so_n(N: int) -> RootDatum:
     odd-`⟨Σ⁺,m⟩` cocharacters — which **build** since ruling D31, the
     half-integral atom phase reaching the cocycle only through its integral
     coboundary.  For the simply connected `B_n` theory use
-    `b_n_simply_connected` / `sp_n` (`Spin(5) ≅ Sp(2)`)."""
+    `b_n_simply_connected` / `sp_n` (`Spin(5) ≅ Sp(2)`).
+
+    **This datum's coordinates make that lattice INTEGRAL**, which is why it is
+    the frame to sweep in.  `so_n(3)` has `⟨Σ⁺,(1,)⟩ = 1`, so `m = 1` is the
+    minuscule spinorial monopole — the line SU(2) does not have (`su_2()` has no
+    non-trivial minuscule cocharacter: its `m = 1` is height 2).  The same
+    lattice written as `global_form.adjoint_lines(su_2())` puts that line at the
+    *fractional* `m = 1/2`, so an integer sweep there misses it entirely; see
+    that function's coordinates warning, and
+    a probe in the source repository for the axioms measured on this frame."""
     return from_gauge_datum(_gauge_datum_module().GaugeDatum.so(int(N)))
 
 

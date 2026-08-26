@@ -2,7 +2,7 @@
 **WRQTorus** substrate (`root_datum.su_n(N)`, ω-basis, `d = N−1`).
 
 Pure SU(N) is pure U(N) restricted to the **trace-zero magnetic sublattice**
-`{m⃗ : Σ mᵢ = 0}` with the central U(1)/det frozen (Plan 24's U(N)→SU(N)
+`{m⃗ : Σ mᵢ = 0}` with the central U(1)/det frozen (the design record's U(N)→SU(N)
 microscope).  SU(N) has **no minuscule coweight**, so the canonicals cannot be
 built from dressed minuscules as in the U(N) keystone; the minimal monopole is
 the **adjoint** `m⃗ = (1,0,…,0,−1)`, which bubbles.
@@ -221,11 +221,38 @@ class PureSUNKAlgebra(AbeKAlgebra):
                                       f"well-formed")
         return self._sun_to_un(wf)
 
+    def _rho_closed_form(self, a: Label, inverse: bool) -> Label:
+        """The explicit label-level ρ^{±1} (promoted 2026-08-23; the twist
+        route is the verifier `verify_rho_via_twist`), written directly in
+        this class's ambient frame — the type-A specialisation of
+        `wrq_torus.rho_label`.  Stored labels are the joint ANTI-dominant
+        representative (`m` ascending, `e` the Levi-lowest, det-collapsed),
+        so the closed form is a plain negate-and-shift:
+
+            ρ:   (m, e) ↦ fold( −m, −e − E_g(−m) )
+            ρ⁻¹: (m, e) ↦ fold( −m, −e + E_g(−m) )
+
+        with `E_g(n) = Σ_{i<j} (n_i − n_j)·(e_i − e_j)` (ambient positive
+        roots; all terms ≥ 0 at the dominant `n = −m`) and `fold` the class's
+        own `_su_label` canonicalisation.  The input is `_su_label`-folded
+        first, so any joint Weyl spelling is accepted."""
+        m, e = self._su_label(*a)
+        N = self._N
+        n = tuple(-x for x in m)
+        Eg = [0] * N
+        for i in range(N):
+            for j in range(i + 1, N):
+                c = n[i] - n[j]
+                Eg[i] += c
+                Eg[j] -= c
+        s = 1 if inverse else -1
+        return self._su_label(n, tuple(-e[i] + s * Eg[i] for i in range(N)))
+
     def rho(self, a: Label) -> Label:
-        return self._wf_label(self.chart(a).rho(), "rho")
+        return self._rho_closed_form(a, inverse=False)
 
     def rho_inverse(self, a: Label) -> Label:
-        return self._wf_label(self.chart(a).rho_inverse(), "rho_inverse")
+        return self._rho_closed_form(a, inverse=True)
 
     # ----- trace / inner product (SU(N) measure) ----------------------------
     def trace(self, a: Label, K: int = 12) -> RPowerSeries:

@@ -271,10 +271,13 @@ from abe_kalgebra import AbeKAlgebra, TorusShape
 from kalgebra import Element, Label
 from laurent_poly import LaurentPoly
 from root_datum import RootDatum
-from wrq_torus import decompose as _wrq_decompose
+from wrq_torus import (decompose as _wrq_decompose,
+                       rho_label as _wrq_rho_label,
+                       rho_level_star as _wrq_rho_level_star)
 from zplus_ring import RElement, RPowerSeries, TensorZPlusRing, UNZPlusRing
 
-from pure_g_abe_kalgebra import PureGAbeKAlgebra
+from pure_g_abe_kalgebra import (PureGAbeKAlgebra,
+                                 _normalize_optimizations)
 
 
 __all__ = ["GNAbeKAlgebra"]
@@ -290,12 +293,49 @@ class GNAbeKAlgebra(AbeKAlgebra):
     argument takes the same declarations as `GMatterOverPure` (a bare highest
     weight, a list of weights, or `(weight, multiplicity)` pairs)."""
 
+    #: The declared optimizations, and **which sector of this theory each one
+    #: governs**.  The register is shared with `PureGAbeKAlgebra` so that one
+    #: switch means one thing everywhere: `optimizations=()` turns everything off
+    #: in both sectors, and a name switched on is on wherever it is sound.
+    #:
+    #: | name | governs | why there and not elsewhere |
+    #: |---|---|---|
+    #: | `theta_twist` | **both** the matter towers and the inner pure charts | it assumes nothing about `G` or `N` — the universal entry (user, 2026-08-25: *"the θ-twist applied to general `(m,e)` is a useful optimization, and other obsolete optimizations should be left maybe to specific specializations of `AbeKAlgebra` which make assumptions on `G` and `N`"*).  It survives matter as `matter_star_bubbling.matter_theta_twist` (ruling TM10) |
+    #: | `monoid` | the **inner pure sector only**, never the matter towers | the monoid law's proof is the pure-gauge spectral form, and a free monoid cannot carry Littlewood–Richardson multiplicities, so `L^N_{m,0}·L^N_{m',0} = L^N_{m+m',0}` at `(G, Adj)` would be *"very suspicious and suggests something badly wrong"* (user ruling, 2026-07-30).  `self._pure` genuinely IS the `N = 0` theory, which is the specialization the law belongs to |
+    #:
+    #: So `monoid` is accepted here as a name — turning it off must be possible
+    #: from the object the caller holds — while `_base_tower` never consults it.
+    DEFAULT_OPTIMIZATIONS = PureGAbeKAlgebra.DEFAULT_OPTIMIZATIONS
+    KNOWN_OPTIMIZATIONS = PureGAbeKAlgebra.KNOWN_OPTIMIZATIONS
+
     def __init__(self, datum: RootDatum, matter, nf: int | None = None,
                  allow_solve: bool = True, strict_guard: bool = False,
                  pad: int = 1, lines=None, pad_escalate: int = 2,
-                 pad_retry_budget: float = 60.0) -> None:
+                 pad_retry_budget: float = 60.0,
+                 constructive_routes: bool = False,
+                 optimizations=None) -> None:
         from g_matter_over_pure import _normalize_matter
         self.datum = datum
+        # Stage 1 (2026-08-25): the axioms are the whole production surface, so
+        # the θ-twist shortcut is OFF by default here exactly as the pure tier's
+        # constructive zoo is — the twist law is MEASURED, not proved, which is
+        # precisely the kind of special case stage 1 removes and stage 2 may
+        # reintroduce as a declared optimization.  `constructive_routes=True`
+        # restores it (and the inner pure algebra's zoo with it).
+        self.constructive_routes = bool(constructive_routes)
+        # Stage 2 (user direction, 2026-08-25: "restore some of the
+        # optimizations, leaving the option to turn them off").  The declared
+        # optimizations of the matter tier are the SAME register as the pure
+        # tier's — `PureGAbeKAlgebra.DEFAULT_OPTIMIZATIONS` — because the one
+        # entry, the θ-twist, survives matter: `matter_star_bubbling.
+        # matter_theta_twist` carries `L^N_{m,0}` to `L^N_{m,k·m̄}` exactly as the
+        # pure `theta_twist` does, and it had to commute with the `Z`-division
+        # and the μ-grading to do so (ruling TM10, measured 7/7).  The set is
+        # handed to the inner pure algebra too, so one switch governs both
+        # sectors rather than two that can disagree.
+        self.optimizations = _normalize_optimizations(
+            optimizations, self.DEFAULT_OPTIMIZATIONS,
+            self.KNOWN_OPTIMIZATIONS, type(self).__name__)
         # The **4d gauge group data** — `lines`, a `global_form.LineLattice`:
         # a MAXIMAL set of mutually compatible Kapustin `(m, e)` labels (user,
         # 2026-07-28), which is the same convention `PureGAbeKAlgebra` takes and
@@ -371,9 +411,16 @@ class GNAbeKAlgebra(AbeKAlgebra):
         facs = [UNZPlusRing(len(idxs)) for _lam, idxs in self._groups]
         self._facs = tuple(facs)
         self._R = facs[0] if len(facs) == 1 else TensorZPlusRing(facs)
+        # The inner algebra is genuinely pure gauge, so the whole set is handed
+        # through unchanged — `monoid` included, and sound there.  One switch,
+        # one meaning: `optimizations=()` here turns everything off in both
+        # sectors.  What keeps the ruling is not a filter but `_base_tower`,
+        # which consults `theta_twist` and nothing else.
         self._pure = PureGAbeKAlgebra(datum, allow_solve=allow_solve,
                                       strict_guard=strict_guard,
-                                      lines=self.lines)
+                                      lines=self.lines,
+                                      constructive_routes=self.constructive_routes,
+                                      optimizations=tuple(sorted(self.optimizations)))
         self._base: dict = {}          # {(m, e): MatterWRQTorus} — the towers
         self._route: dict = {}         # {(m, e): which route built it}
 
@@ -443,6 +490,41 @@ class GNAbeKAlgebra(AbeKAlgebra):
         per_group = tuple(per_group)
         return per_group[0] if len(self._facs) == 1 else per_group
 
+    def _slot_weight_sets(self) -> tuple:
+        """One expanded weight set per hypermultiplet slot (the `slots` of
+        `wrq_torus.rho_label` / `rho_level_star`)."""
+        if not hasattr(self, "_slot_wts"):
+            from matter_wrq_torus import rep_weights
+            self._slot_wts = tuple(rep_weights(self.datum, lam)
+                                   for lam in self._matter)
+        return self._slot_wts
+
+    def _rho_closed_form(self, a: Label, inverse: bool) -> Label:
+        """The explicit label-level ρ^{±1} (promoted 2026-08-23; the twist
+        route is the verifier `verify_rho_via_twist`): gauge part by
+        `wrq_torus.rho_label` with this theory's matter slots; flavour irrep
+        by `w_i ↦ w_i^⋆ ⊗ det_i^{−D_i}` — the ring's ⋆ (rep-ring duality,
+        `star_basis`) and the level star's per-group rung count `D_i`
+        (`rho_level_star`; slots of one group carry the same representation,
+        so `D` is constant across them)."""
+        (m, e), w = a
+        slots = self._slot_weight_sets()
+        g = _wrq_rho_label(self.datum, m, e, slots=slots, inverse=inverse)
+        D = _wrq_rho_level_star(slots, m, inverse=inverse)
+        per = []
+        for R, lam, (_l, idxs) in zip(self._facs, self._factor_bases(w),
+                                      self._groups):
+            dual = R.star_basis(lam)
+            Di = D[idxs[0]]
+            per.append(R.reduce(tuple(x - Di for x in dual)))
+        return (g, self._mk_flav(per))
+
+    def rho(self, a: Label) -> Label:
+        return self._rho_closed_form(a, inverse=False)
+
+    def rho_inverse(self, a: Label) -> Label:
+        return self._rho_closed_form(a, inverse=True)
+
     def _flav_levels(self, w) -> dict:
         """`{μ-level k⃗ ∈ Z^M: multiplicity}` — the weight diagram of the
         character `χ_w`, with each group's weights placed on that group's
@@ -501,6 +583,30 @@ class GNAbeKAlgebra(AbeKAlgebra):
 
         raw = rec(0, {k: int(c) for k, c in levels.items() if c})
         return {self._mk_flav(b): c for b, c in raw.items() if c}
+
+    def flavour_levels(self, w) -> dict:
+        """`{μ-level k⃗ ∈ Z^M: multiplicity}` — the weight diagram of `χ_w`,
+        placed on the hypermultiplet slots.  The public face of the ring ⇄
+        substrate translation this class runs on.
+
+        Exposed because consumers outside this class genuinely need it: the
+        substrate grades everything by μ-level while the coefficient ring is
+        graded by irreps of `∏_i U(n_i)`, so anything that reads a chart and
+        reports an `RElement` has to cross that seam (any consumer that reads a
+        chart's flavour content does).  Without a public face the only route is the private
+        helper, which is exactly the internals-tunnelling the design notes names
+        as the recurrent failure mode."""
+        return self._flav_levels(w)
+
+    def flavour_from_levels(self, levels: dict) -> dict:
+        """`{μ-level k⃗: int} → {ring basis element: int}` — the inverse
+        direction, un-branching μ-graded content into `∏_i U(n_i)` characters.
+
+        Honest-fails (via the ring's own `from_abelian`) on content that is not
+        a genuine character combination, which is the useful behaviour: a
+        consumer that has assembled flavour content wrongly finds out here
+        rather than reporting a plausible `RElement`."""
+        return self._flav_unbranch(levels)
 
     def _split(self, label):
         """`((m, e), w)` → the folded gauge label and the flavour irrep."""
@@ -642,6 +748,41 @@ class GNAbeKAlgebra(AbeKAlgebra):
 
     # ----- the contract triple ------------------------------------------
 
+    def _twist_source(self, m, e):
+        """`(source gauge label, k)` with `T^k·L^N_source = L^N_{(m,e)}`, or
+        `None` — the general θ-twist over the MATTER tier's own memo of towers.
+
+        The same statement as `PureGAbeKAlgebra.twist_source`, and for the same
+        reason (user, 2026-08-25: *"every known `(m,e)` means we also know its
+        θ-twists, not just `m,0`"*): `matter_theta_twist` carries `L^N_{m,e}` to
+        `L^N_{m,e+k·m̄}` at any `e`, so the electric labels at fixed `m` fall into
+        `m̄`-lines and one known point gives the whole line, in both directions.
+
+        That the twist survives matter at all is ruling TM10 and was not
+        automatic: the matter chart is the quotient `Q` of `F = Z·Q` and the
+        dressing `Z(m)` carries `v`-dependence, so `T^k` had to commute with the
+        `Z`-division and with the μ-grading (measured 7/7).  What is *not*
+        assumed here is that a matter tower's line matches the pure one's: the
+        arithmetic of which pairs are `T`-related is a fact about `m̄` alone
+        (`twist_shift`), which is why that rule is shared while the memo scanned
+        is this tier's."""
+        m, e = tuple(m), tuple(e)
+        best = None
+        for (mc, ec) in self._base:
+            if mc != m or ec == e:
+                continue
+            k = self._pure.twist_shift(m, tuple(a - b for a, b in zip(e, ec)))
+            if k is None:
+                continue
+            if best is None or abs(k) < abs(best[1]):
+                best = ((m, ec), k)
+        if best is not None:
+            return best
+        k0 = self._pure.twist_level(m, e)
+        if k0:
+            return ((m, (0,) * self.datum.dim), k0)
+        return None
+
     def _base_tower(self, g):
         """`L_{(m,e),0⃗}` as a `MatterWRQTorus` — **the quotient `Q`**, cached.
 
@@ -689,19 +830,29 @@ class GNAbeKAlgebra(AbeKAlgebra):
             # Guarded exactly like the pure routes: build the undressed
             # canonical, twist it, and accept only if W1 + `well_formed()` name
             # the intended label; anything else falls through to the solve.
-            k = None
-            try:
-                k = self._pure.twist_level(m, e)
-            except NotImplementedError:
-                k = None          # m̄ undefined (central direction) — no cone
-            if k:
-                z = (0,) * self.datum.dim
+            # `theta_twist` is a DECLARED optimization (stage 2) rather than
+            # part of the retired zoo: it produces the same tower and its
+            # advantage grows with charge depth, and — the point that earns it
+            # its place — it extends the reach of the chart memo, since ONE
+            # cached undressed tower covers its whole `e`-cone.  Still guarded
+            # exactly as before (W1 + `well_formed()` naming the intended label,
+            # else honest fall-through to the solve): the twist law is measured,
+            # not proved.  `constructive_routes=True` also enables it, so the
+            # historical combined switch keeps its old meaning.
+            src = None
+            if "theta_twist" in self.optimizations or self.constructive_routes:
                 try:
-                    base = self._base_tower((m, z))
+                    src = self._twist_source(m, e)
+                except NotImplementedError:
+                    src = None    # m̄ undefined (central direction) — no line
+            if src is not None:
+                src_g, k = src
+                try:
+                    base = self._base_tower(src_g)
                     tw = matter_theta_twist(base, k)
                     cert = tw.well_formed()
                     if cert and tuple(cert[0]) == (tuple(m), tuple(e)):
-                        self._route[g] = f"twist[k={k}]"
+                        self._route[g] = f"twist[k={k} from {src_g[1]}]"
                         self._base[g] = tw
                         return tw
                 except Exception:
@@ -790,6 +941,54 @@ class GNAbeKAlgebra(AbeKAlgebra):
             x = self.torus().element(res)
             self._base[g] = x
         return x
+
+    # ----- chart memo + persistence (the tier's hooks) ------------------
+    def chart_cache(self) -> dict:
+        """The live `{(m, e): MatterWRQTorus}` memo of **neutral towers** —
+        `_base`, what `_base_tower` fills.
+
+        Keyed by the GAUGE label alone, not by the full `((m, e), w)`: the
+        flavour irrep multiplies the neutral tower by `χ_w(μ)` written out on the
+        substrate (`chart` above), so caching per `w` would store the same tower
+        many times over.  One tower per gauge label is the whole content."""
+        return self._base
+
+    def route_cache(self) -> dict:
+        return self._route
+
+    def nested_cache_algebras(self) -> dict:
+        """The inner pure-`G` algebra's charts travel in the same file.
+
+        `decompose` reads its lowest μ-level slice with `self._pure` (ruling D3,
+        `Q[0⃗] = pure`), so a matter cache that did not carry the pure charts
+        would still pay to rebuild them on the first read — the exact cost the
+        file exists to avoid."""
+        return {"pure": self._pure}
+
+    def _verify_loaded_chart(self, label: Label, x) -> dict:
+        """W1 + the W2 read naming THIS gauge label, on a tower loaded rather
+        than built.
+
+        Weaker than the pure tier's battery, and the reason is stated rather than
+        papered over: the five-condition battery `star_bubbling.verify_axioms`
+        runs is pure-gauge — its support bound is `conv(W·m)` on the gauge
+        lattice and its (★) tests `criterion` against `R(G)`, neither of which is
+        the matter tier's condition (the matter element is the quotient `Q` of
+        `F = Z·Q`, graded by μ-level).  So what is checked here is what is
+        *exactly* checkable on `MatterWRQTorus`: whole-element bar-invariance
+        across all μ-levels, and the base-level slice reading back precisely the
+        label the entry is filed under — which is what catches a chart stored
+        against the wrong label, the failure a cache can actually introduce.
+        The matter analogue of the full battery is a real piece of work
+        (`matter_star_bubbling` has no `verify_axioms`) and is recorded as open
+        rather than approximated here."""
+        wf = x.well_formed()
+        out = {"bar (W1)": (bool(x.well_formed_w1()), "")}
+        ok = wf is not False and tuple(wf[0][0]) == tuple(label[0]) \
+            and tuple(wf[0][1]) == tuple(label[1])
+        out["seed (W2) names the label"] = (
+            ok, f"well_formed() = {wf}, filed under {label}")
+        return out
 
     def chart(self, label: Label):
         """`L_label` as a `MatterWRQTorus`: `L_{(g,w)} = χ_w(μ)·L_{(g,1)}`.

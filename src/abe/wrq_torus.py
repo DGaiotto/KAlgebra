@@ -44,9 +44,37 @@ and the Levi/recognize layer:
     questions need a difference-operator export, that is a separate, future
     surface (`abelianized_torus`, demoted by D9).
   * `dressing_psi_inv(datum, m)` — `1/ψ_m` (a Laurent times a monomial).
-  * `cocycle_R(datum, a, b)` — `R_{a,b} = ψ_a · S_a(ψ_b) · ψ_{a+b}^{-1}` with the
-    full normal-ordering shift `S_a : v ↦ 𝖖^{2a} v`; the cocycle of
-    `U_a U_b = R_{a,b}(v)·U_{a+b}`.
+  * **`CC(datum, a, b)` — the cocycle `CC_{a,b}`, THE PRIMITIVE** (user
+    rulings, 2026-08-24: *"In the definition of the rational quantum torus for
+    `Σ_m f_m(𝖖^m v)·U_m`, `R̃` is clearly the truly primitive object"*, and then
+    the name — *"`CC` is fine for cocycle.  `CC` for pure gauge, `CC[N]`
+    combining gauge and matter"*, so `CC = CC[0]`).  It is
+    what the product law is written in, it is defined by a closed form with no
+    `ψ` in it, and it — not `R` — satisfies the bar axiom at torus level,
+    `bar(CC_{a,b}) = CC_{b,a}` (measured; `R` fails it on most charge pairs).
+
+    A product over the positive roots, supported exactly on those where `⟨a,α⟩`
+    and `⟨b,α⟩` have **opposite signs**.  With `A = ⟨a,α⟩`, `B = ⟨b,α⟩`,
+    `z = v^α`, and the **Clebsch–Gordan range** `d = ||A|−|B||`, `D = |A|+|B|`:
+
+        𝖖^{|A||B|} · z^{min(|A|,|B|)}
+        ────────────────────────────────────────────────────────
+        (1 − 𝖖^d z)·∏_{k=d+2,…,D−2}(1 − 𝖖^k z)²·(1 − 𝖖^D z)
+
+    — the CLOSED range, ends once and interior twice; `A < 0 < B` is the bar
+    image.  **`CC[N]`, gauge and matter together, is
+    `matter_wrq_torus.CC_N`**; the matter-only piece is the ratio
+    `CC[N]/CC[0]`, the exact analogue on the same range with its NUMERATOR
+    factors spanning the STRICT INTERIOR, once each
+    (`matter_wrq_torus.matter_factor_exponents`).
+
+  * `cocycle_R(datum, a, b)` — **derived**, `R = T_{a+b}(CC)`; the cocycle of
+    `U_a U_b = R_{a,b}(v)·U_{a+b}`, with the bare argument because the atom is
+    `ψ_m(v)·u^m` (dressing on the left — measured, not assumed).
+  * `cocycle_R_via_psi(datum, a, b)` — the `ψ`-built route,
+    `R_{a,b} = ψ_a · T_{2a}(ψ_b) · ψ_{a+b}^{-1}` with the full normal-ordering
+    shift `T_p : v^λ ↦ 𝖖^{⟨p,λ⟩} v^λ` (`q_shift`), here at `p = 2a`.  Kept as the
+    **trivialization** (`δψ = R`) and no longer the definition.
 
 Dominant `m` (`⟨α,m⟩ ≥ 0 ∀α>0`) uses the closed form; non-dominant `m` is the
 Weyl transport `ψ_{w·m_dom} = w·ψ_{m_dom}`.  The multiply / ρ / trace / inner /
@@ -286,9 +314,18 @@ def _phase_coboundary(datum, a, b) -> int:
     return int(v)
 
 
-def cocycle_R(datum, a, b):
-    """`R_{a,b} = (−𝖖)^{δ(S_honest−S_used)(a,b)} · ψ_a · S_a(ψ_b) · ψ_{a+b}^{-1}`,
-    `S_a : v ↦ 𝖖^{2a} v`.
+def cocycle_R_via_psi(datum, a, b):
+    """`R_{a,b} = (−𝖖)^{δ(S_honest−S_used)(a,b)} · ψ_a · T_{2a}(ψ_b) · ψ_{a+b}^{-1}`
+    — the TRIVIALIZATION route, no longer the definition (user, 2026-08-24).
+    `T_p : v^λ ↦ 𝖖^{⟨p,λ⟩} v^λ` (`q_shift`), so `T_{2a} : v ↦ 𝖖^{2a} v`.
+
+    (This shift was written `S_a` until 2026-08-25.  Retired: `S` already names
+    the atom phase `S(m)` — which appears in this very formula as
+    `S_honest`/`S_used` — as well as the spectrum generator `S` and the flow's
+    `S_RG`, so an `S_`-subscripted shift is a collision waiting to happen
+    (user, 2026-08-25).  `T_p` was already the spelling used for the same
+    operator in the matter cocycle `W_{m,m'} = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}`,
+    so this removes an alias rather than introducing a symbol.)
 
     **The prefactor is the honest atom phase, restored** (D31, 2026-07-29), and
     it is what lets the tier carry 't Hooft lines at odd `⟨Σ⁺, m⟩` — SO(3),
@@ -341,11 +378,173 @@ def cocycle_R(datum, a, b):
     return (red * phase).simplify()
 
 
-def cocycle_Rtilde(datum, a, b):
-    """`R̃_{a,b} = T_{−(a+b)}(R_{a,b})` — the cocycle in the f-representation (the
-    half-shift `v ↦ 𝖖^{−(a+b)} v` passing from the bare `c_m` to the public `f_m`)."""
+# ---------------------------------------------------------------------------
+# The cocycle as a PRIMITIVE — a product over the charged directions
+# ---------------------------------------------------------------------------
+#
+# User ruling, 2026-08-24: *"The key is the cocycle in `U_m` products.  Ideally
+# it would be a primitive object instead of being built from pieces like `ψ`"*,
+# and then *"`R` should be defined by the closed form … `ψ` and `Z` should have
+# the property that they trivialize it in an appropriate sense"*, whose *"main
+# role … is to allow the formulation of the star axiom"*.
+#
+# So `R_{a,b}` is DEFINED below, directly, and `ψ` is demoted to a
+# trivialization of it (`cocycle_R_via_psi`, checked by
+# `verify_psi_trivializes_cocycle`).  Nothing in the definition mentions `ψ`,
+# the atom phase `S`, the Weyl transport, or the D31 phase coboundary — the
+# closed form absorbs all of them, including at odd `⟨Σ⁺,m⟩` (measured at
+# SO(5)/SO(7), where the phase prefactor used to be needed).
+#
+# The support rule is the user's own (2026-08-24): *"the (gauge) cocycle
+# receives contributions from roots for which `m` and `m'` inner products have
+# opposite signs"* — measured exhaustively, and it holds for the matter cocycle
+# too (`matter_wrq_torus`), with numerators there where the gauge factor has
+# denominators.
+
+
+def cocycle_range(A, B):
+    """`(d, D)` — the **Clebsch–Gordan range** the cocycle factors live on:
+    `d = ||A| − |B||`, `D = |A| + |B|`, stepping by 2.
+
+    Both charged sectors sit on this one range, which is what makes them
+    manifestly analogous:
+
+    * the **vector multiplet** takes the CLOSED range as *denominators*, ends
+      once and interior twice;
+    * **matter** takes the STRICT INTERIOR as *numerators*, once each
+      (`matter_wrq_torus.matter_factor_exponents`).
+
+    Measured for every `|A|, |B| ≤ 5`."""
+    return abs(abs(A) - abs(B)), abs(A) + abs(B)
+
+
+def CC_root_factor(datum, alpha, A, B):
+    """The one-root factor of `CC_{a,b}` at `α`, with `A = ⟨a,α⟩`, `B = ⟨b,α⟩`.
+
+    **This is the primitive** (user ruling, 2026-08-24: *"In the definition of
+    the rational quantum torus for `Σ_m f_m(𝖖^m v)·U_m`, `R̃` is clearly the
+    truly primitive object"*).  `CC` is what the product law is written in; `R`
+    only ever appears as `T_{a+b}(CC)`, so `R` is derived below rather than the
+    other way round.
+
+    Trivial unless `A` and `B` have **opposite signs**.  For `A > 0 > B`, with
+    `(d, D) = cocycle_range(A, B)` and `z = v^α`:
+
+        𝖖^{|A||B|} · z^{min(|A|,|B|)}
+        ─────────────────────────────────────────────────────────
+        (1 − 𝖖^d z) · ∏_{k = d+2, d+4, …, D−2} (1 − 𝖖^k z)² · (1 − 𝖖^D z)
+
+    — the closed Clebsch–Gordan range, ends once and interior twice.  For
+    `A < 0 < B` it is `bar` of the charge-conjugate, `bar(r̃(−A,−B))`; conjugating
+    both charges is the bar involution, *not* the swap."""
+    A, B = int(A), int(B)
+    if A * B >= 0:
+        return TorusRational.one(datum)
+    if A < 0 < B:
+        return CC_root_factor(datum, alpha, -A, -B).bar()
+    d, D = cocycle_range(A, B)
+    alpha = tuple(alpha)
+    c = min(abs(A), abs(B))
+    out = TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, tuple(int(c * x) for x in alpha),
+        LaurentPoly({int(abs(A) * abs(B)): 1})))
+    out = out * TorusRational.factor_inv(datum, alpha, d)
+    for k in range(d + 2, D, 2):
+        f = TorusRational.factor_inv(datum, alpha, k)
+        out = out * f * f
+    return out * TorusRational.factor_inv(datum, alpha, D)
+
+
+def CC(datum, a, b):
+    """`CC_{a,b}` — **the primitive** cocycle, as the `f`-representation uses it.
+
+    `CC` is the pure-gauge case; `CC[N]` (`matter_wrq_torus.CC_N`) combines gauge
+    and matter, so `CC = CC[0]` (user ruling, 2026-08-24).
+
+    A product of `CC_root_factor` over the positive roots, so it is
+    manifestly supported on the roots where `⟨a,α⟩` and `⟨b,α⟩` have opposite
+    signs, and manifestly `1` when `a`, `b` and `a+b` share a closed Weyl
+    chamber.  The product law of `Σ_m f_m(𝖖^m v)·U_m` is written directly in it:
+
+        [fg]_n(v) = Σ_a f_a(𝖖^{a−n} v)·g_{n−a}(𝖖^{a} v)·R̃_{a,n−a}(v)"""
+    out = TorusRational.one(datum)
+    for al in datum.positive_roots():
+        al = tuple(al)
+        out = out * CC_root_factor(
+            datum, al, datum.shift_pairing(tuple(a), al),
+            datum.shift_pairing(tuple(b), al))
+    return out.simplify()
+
+
+def cocycle_R(datum, a, b):
+    """`R_{a,b}` of `U_a U_b = R_{a,b}(v)·U_{a+b}` — **derived** from `CC`.
+
+    `R = T_{a+b}(CC)`, the inverse of the half-shift that takes the bare atom
+    frame to the `f`-representation.  The atom ordering is what fixes that the
+    cocycle here carries the *bare* argument: with `U_m = ψ_m(v)·u^m` (dressing
+    on the left, measured — see the suite in the source repository),
+
+        U_a U_b = ψ_a(v)·ψ_b(𝖖^{2a}v)·u^{a+b} = R_{a,b}(v)·U_{a+b}
+
+    Certified equal to the `ψ`-built route (`cocycle_R_via_psi`); see
+    `verify_psi_trivializes_cocycle`."""
     tot = tuple(a[i] + b[i] for i in range(datum.dim))
-    return cocycle_R(datum, a, b).q_shift(tuple(-x for x in tot))
+    return CC(datum, a, b).q_shift(tot).simplify()
+
+
+def psi_floor_defect_exponent(datum, a, b) -> int:
+    """The exponent `e` with `R_{a,b} = (−𝖖)^e · δψ_floored(a,b)`.
+
+    Two `ψ`s have to be kept apart (user, 2026-08-24):
+
+    * the **honest** `ψ` trivializes `R` on the nose, but carries a *fractional*
+      power of `(−𝖖)` at odd `⟨Σ⁺,m⟩` — it does not live in `Z[𝖖^{±1}]` and
+      cannot be represented here at all;
+    * the **floored** `ψ` — *"`ψ` with a fractional power of `(−𝖖)` stripped
+      off"* (user) — is what `dressing_psi` returns.  It stays integral and
+      therefore **does not trivialize `R`**.
+
+    This is the whole of that failure, and it is a `v`-free scalar `(−𝖖)^e`,
+    which is what makes the floor safe where `ψ` is still used: *"which does not
+    affect the star axiom because it is an overall factor"* (user), and (★) is a
+    homogeneous residue-cancellation condition, so an overall scalar is
+    invisible to it.  `e` is an integer — that is D31, and it is why the floored
+    `ψ` keeps every surface in integral powers of `𝖖`."""
+    return _phase_coboundary(datum, a, b)
+
+
+def verify_floored_psi_defect_is_a_v_free_scalar(datum, a, b) -> bool:
+    """The floored `ψ` fails to trivialize `R` only by an overall `𝖖`-scalar.
+
+    Checked by rebuilding `R` from `δψ_floored` times `(−𝖖)^e` and requiring
+    equality: if the defect had any `v`-dependence, no such scalar would exist
+    and this would fail."""
+    a, b = tuple(a), tuple(b)
+    tot = tuple(a[i] + b[i] for i in range(datum.dim))
+    delta_psi = (dressing_psi(datum, a)
+                 * dressing_psi(datum, b).q_shift(tuple(2 * x for x in a))
+                 * dressing_psi_inv(datum, tot)).simplify()
+    e = psi_floor_defect_exponent(datum, a, b)
+    scal = TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, (0,) * datum.dim, LaurentPoly({e: (-1) ** (e % 2)})))
+    return (delta_psi * scal).simplify() == cocycle_R(datum, a, b)
+
+
+def verify_psi_trivializes_cocycle(datum, a, b) -> bool:
+    """`δψ · (phase) = R` — the `ψ` route reproduces the primitive cocycle.
+
+    ⚠ Read the name carefully: what trivializes `R` on the nose is the **honest**
+    `ψ`, which is not representable here (fractional `(−𝖖)` powers).  What this
+    checks is the floored `ψ` *together with* the integral phase coboundary that
+    `cocycle_R_via_psi` restores — the two combined are the honest `ψ`.  The
+    bare floored `ψ` does **not** trivialize `R`; that defect is
+    `psi_floor_defect`, and it is a pure scalar.
+
+    Since `R` is now defined independently of `ψ`, this equality is **emergent
+    evidence** rather than a tautology — which is the point of the demotion."""
+    return cocycle_R_via_psi(datum, a, b).simplify() == cocycle_R(datum, a, b)
+
+
 
 
 # ===========================================================================
@@ -397,6 +596,113 @@ def _rho_G(datum, m, inverse=False):
 def _rho_Gtilde(datum, m, inverse=False):
     """`G̃_m = T_m(G_m)` — the twist factor in the f-representation (half-shift)."""
     return _rho_G(datum, m, inverse).q_shift(tuple(m))
+
+
+# ===========================================================================
+# ρ on LABELS — the explicit closed form (promoted to primary, user ruling
+# 2026-08-23; the chart→twist→decompose route is the demoted verification
+# route, `AbeKAlgebra.verify_rho_via_twist`)
+# ===========================================================================
+def rho_level_star(slots, m, inverse=False):
+    """The per-slot rung counts `D_i` of the label-level flavour star
+    `k_i ↦ −k_i − D_i` (`matter_wrq_torus.rho`'s level star, read at the
+    star atom): for ρ, `D_i = Σ_{w∈wt(N_i)} max(0, +⟨w,m⟩)`; for ρ⁻¹ the
+    `−⟨w,m⟩` half.  Weyl-invariant in `m` (the slot weight sets are
+    Weyl-stable), so any representative of the magnetic orbit may be passed."""
+    s = -1 if inverse else 1
+    out = []
+    for wts in slots:
+        tot = 0
+        for w in wts:
+            c = s * sum(x * y for x, y in zip(m, w))
+            if c > 0:
+                tot += c
+        out.append(tot)
+    return tuple(out)
+
+
+def rho_label(datum, m, e, slots=(), inverse=False):
+    """`ρ^{±1}` on a canonical label `(m, e)` — the explicit label-level
+    closed form (derived 2026-08-23 from the tier's definitions; promoted to
+    the PRIMARY ρ by user ruling the same day, with the torus-twist route
+    demoted to the verifier `AbeKAlgebra.verify_rho_via_twist`).
+
+    On Weyl orbits of pairs `[(m, e)]` — no chamber assumed on the input;
+    both shift sums are Weyl-covariant so the map is well-defined mod W:
+
+        ρ^{±1}[(m, e)] = [( −m,  −e  +  Σ_{α ∈ Φ:  ±⟨α,m⟩ > 0} |⟨α,m⟩|·α
+                                      −  Σ_{w ∈ wt(N): ±⟨w,m⟩ > 0} |⟨w,m⟩|·w )]
+
+    (ρ uses the roots / matter weights positive on `m`, ρ⁻¹ the negative
+    half; vector multiplet with `+`, hypermultiplet with `−` — the
+    weight-valued analogue of the scalar monopole-dimension combination.)
+    Flavour levels star as `rho_level_star` above.  Two corollaries pinned in
+    the suite in the source repository: at `N = Adj` (`wt(Adj) = Φ ∪ {0}`) the two
+    sums cancel identically and `ρ[(m,e)] = [(−m,−e)]`, the antipode
+    (`ρ² = id` on the gauge charges); at a minuscule `ω_k` of U(N) the gauge
+    sum is `pure_un_kalgebra.witten_shift`, so this generalises the U(N)
+    keystone's `rho_label` maps to any datum.
+
+    Derivation, in two steps.  (1) At an anti-dominant source atom the twist
+    factor `G_k` (`_rho_G`) is a PURE MONOMIAL: substituting `β = −w₀α`
+    matches the dressing ladder of `ψ_k(1/v)` with the ladder of
+    `ψ_{−k}^{-1}` factor by factor, so they cancel exactly; the leftover
+    monomial's v-weight is the gauge sum above, and its q-power/sign are
+    pinned by ρ's own normalization (the doubled atom phase — "ρ is defined
+    so the seed contributes exactly 1"), so they never reach the label.
+    (2) The W1+W2 acceptance reads a label off the leading Weyl orbit at the
+    most cochar-dominant atom; the magnetic antipode sends the image's
+    dominant atom back to the source's ANTI-dominant atom, where (1)
+    applies.  With matter, `matter_wrq_torus.rho` divides by the image
+    atom's zero-mode-ladder top `v^{E}` and stars the levels (image atom for
+    ρ, source atom for ρ⁻¹), giving the matter sum and `rho_level_star`.
+
+    Input: any joint Weyl representative `(m, e)` with `e` the electric
+    extremal weight aligned to `m`'s chamber (the stored label of the native
+    dominant frame qualifies).  Output: the image in the native dominant
+    frame (`m` cochar-dominant, `e` Levi-dominant).  `slots` = one weight
+    set per hypermultiplet slot (`matter_wrq_torus.slot_weights`).
+    Fraction-safe (non-simply-connected forms carry Fraction coweights)."""
+    m, e = tuple(m), tuple(e)
+    d = datum.dim
+    # joint anti-dominant representative (m₋, e₋); e₋ = the Levi-lowest
+    # transport of the electric extremal weight
+    m_minus = None
+    cands = []
+    for w in datum.weyl_elements():
+        mm = tuple(datum.act_cochar(w, m))
+        if datum.is_dominant_cochar(tuple(-x for x in mm)):
+            if m_minus is None:
+                m_minus = mm
+            if mm == m_minus:
+                cands.append(tuple(datum.act(w, e)))
+    levi_coroots = [cor for a, cor in zip(datum.simple_roots,
+                                          datum.simple_coroots)
+                    if sum(a[i] * m_minus[i] for i in range(d)) == 0]
+    e_minus = None
+    for ee in cands:
+        if all(sum(ee[i] * cor[i] for i in range(d)) <= 0
+               for cor in levi_coroots):
+            e_minus = ee
+            break
+    if e_minus is None:                            # pragma: no cover
+        raise ValueError(f"rho_label: no Levi-lowest transport for {(m, e)}")
+    n = tuple(-x for x in m_minus)
+    Eg = [0] * d
+    for a in datum.positive_roots():
+        an = datum.shift_pairing(n, a)             # ⟨α, n⟩ ≥ 0 (n dominant)
+        for i in range(d):
+            Eg[i] += an * a[i]
+    atom = m_minus if inverse else n               # the matter star atom
+    En = [0] * d
+    for wts in slots:
+        for w in wts:
+            c = sum(x * y for x, y in zip(atom, w))
+            if c < 0:
+                for i in range(d):
+                    En[i] += (-c) * w[i]
+    sgn = -1 if inverse else 1
+    return (n, tuple(-e_minus[i] - sgn * Eg[i] - En[i] for i in range(d)))
 
 
 # ===========================================================================
@@ -458,7 +764,7 @@ class WRQTorus:
                 tot = tuple(m[i] + mp[i] for i in range(d))
                 term = (fm.q_shift(tuple(-x for x in mp))
                         * gmp.q_shift(m)
-                        * cocycle_Rtilde(self.datum, m, mp)).simplify()
+                        * CC(self.datum, m, mp)).simplify()
                 out[tot] = term if tot not in out else (out[tot] + term).simplify()
         return WRQTorus(self.datum, out)
 

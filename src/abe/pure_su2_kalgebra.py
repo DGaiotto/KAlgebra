@@ -8,8 +8,10 @@ the **trace-zero magnetic sublattice** `m·(1,−1)` = SU(2) (the central U(1)/d
 frozen) loses the minuscules: the simplest monopole is the **adjoint** `H = L_{1,0}`,
 which **bubbles**.
 
-The build is **fully native on `WRQTorus(su_2())`** (D9/D10: WRQTorus universally).
-Labels `(m, e)` in the `su2_fold` frame, unflavoured (`R = Z`).  The single irreducible input is the
+The build is **fully native on `WRQTorus(su_2())`** (D9/D10: WRQTorus universally
+— this class absorbs the former `SU2WRQKAlgebra`, and the earlier trace-zero-U(2)
+`SU2RQTorus` engine is retired to the archived tree).  Labels `(m, e)` in
+the `su2_fold` frame, unflavoured (`R = Z`).  The single irreducible input is the
 **adjoint-monopole fiber `{L_{1,e}}`** (elementary closed form `_seed_dyon1`, in
 ω-coordinates `v² = v₀/v₁`):
 
@@ -31,7 +33,7 @@ cyclic dependency or non-terminating peel.  Certified `==` the BPS Kronecker cha
 (`pure_su2_bps_iso`) on multiply / ρ / trace / orthonormality (Goal 2.1), and
 `well_formed` (W1+W2 KL acceptance) on every chart.
 
-This is the SU(2) instance of Plan 24's "U(N)→SU(N) microscope": the single input
+This is the SU(2) instance of the design record's "U(N)→SU(N) microscope": the single input
 is the adjoint-monopole bubbling, everything else native.  The general-`N` engine
 (`PureSUNKAlgebra`) takes the same shape with the adjoint fiber from the
 `PureUNKAlgebra(N)` oracle.
@@ -58,7 +60,8 @@ from zplus_ring import ZPlusRing, TrivialZPlusRing, RPowerSeries
 from root_datum import su_2
 from weyl_torus_ring import TorusLaurent, TorusRational
 from wrq_torus import (WRQTorus, wilson, decompose as _wrq_decompose,
-                       peel_to_canonical, kl_bar_correct)
+                       peel_to_canonical, kl_bar_correct,
+                       rho_label as _wrq_rho_label)
 
 
 __all__ = ["PureSU2KAlgebra", "su2_fold"]
@@ -185,10 +188,17 @@ class PureSU2KAlgebra(AbeKAlgebra):
         return su2_fold(mv[0], ev[0])
 
     def rho(self, a: Label) -> Label:
-        return self._wf_label(self.chart(a).rho(), "rho")
+        """The explicit label-level closed form (`wrq_torus.rho_label`;
+        promoted 2026-08-23 — the twist route is the verifier,
+        `verify_rho_via_twist`).  In this frame: `ρ(m, e) = (m, e − 4m)`."""
+        (m,), (e,) = _wrq_rho_label(self.datum, (a[0],), (a[1],))
+        return su2_fold(m, e)
 
     def rho_inverse(self, a: Label) -> Label:
-        return self._wf_label(self.chart(a).rho_inverse(), "rho_inverse")
+        """`ρ⁻¹(m, e) = (m, e + 4m)` — the closed form (see `rho`)."""
+        (m,), (e,) = _wrq_rho_label(self.datum, (a[0],), (a[1],),
+                                    inverse=True)
+        return su2_fold(m, e)
 
     # ----- trace / inner: WRQ LaurentPoly (pure gauge, unflavoured) ----------
     def trace(self, a: Label, K: int = 20) -> RPowerSeries:

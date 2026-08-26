@@ -49,7 +49,68 @@ entry point. A canonical is assembled constructively, as a polynomial in
 already-built bar-invariant generators (dressed minuscules, `det`, Wilson lines),
 never solved for — a solve can land *outside* the canonical span, where both
 orthonormality and the internal span-pairing test would pass on off-span content.
-Every decomposition is certified by exact reconstruction.
+Every decomposition is certified by exact reconstruction. (The tier's *own*
+surface is unchanged by Step 7's licensed solve: that licence lives in one
+auditable module and carries the guard the ban presupposes absent —
+[`step7-GNKAlgebra.md`](step7-GNKAlgebra.md).)
+
+## The product law, and the cocycle that is primitive
+
+Atoms multiply by a cocycle, and **the cocycle is the primitive** — defined by a
+closed form, with everything else derived from it:
+
+    U_m · U_{m'}  =  CC[N]_{m,m'} · U_{m+m'},        R = T_{a+b}(CC)
+
+`CC = CC[0]` is the pure-gauge case, a genuine specialisation matching the
+`(G, N)` / `(G, 0)` convention, and `CC[N]` is what the product law multiplies
+by. Both charged sectors are products over the charged directions, and a
+direction contributes exactly when the two magnetic charges pair with it in
+**opposite signs**. Writing `A`, `B` for the two pairings, both factors live on
+one Clebsch–Gordan range `d = ||A|−|B||` to `D = |A|+|B|` stepping by 2, and the
+vector/matter parallel is exact: the vector multiplet spans the **closed** range
+as denominators (ends once, interior twice), the matter spans its **strict
+interior** as numerators (once each).
+
+Two consequences worth having. `CC_{a,b} = 1` whenever `a`, `b` and `a+b` share a
+closed Weyl chamber — all the content is chamber-crossing. And `CC` satisfies the
+bar axiom at torus level, `bar(CC_{a,b}) = CC_{b,a}`, because every ingredient is
+symmetric in `|A|, |B|` so the swap and the charge conjugation coincide. The
+bare-argument `R` does **not** (measured: it fails on 28 of 81 charge pairs at
+SU(3) where `CC` fails on none), and that is the second reason `CC` is the
+primitive rather than a convenience.
+
+Nothing in the closed form mentions the atom dressing, the atom phase or the
+Weyl transport: it absorbs them all, including the half-integral-height case. So
+the dressing `ψ` and the matter numerator `Z` are demoted to **trivializations**,
+whose role is to let the (★) condition be stated — and since `R` and the matter
+cocycle are now defined independently, `δψ = R` and `δZ = W` become *emergent*
+evidence rather than definitions.
+
+## `ρ` on labels, and the memo
+
+`ρ`/`ρ⁻¹` are the **explicit label-level closed form**. On Weyl orbits of pairs,
+with no chamber assumed,
+
+    ρ^{±1}[(m, e)] = [( −m,  −e + Σ_{α∈Φ: ±⟨α,m⟩>0} |⟨α,m⟩|·α
+                              − Σ_{w∈wt(N): ±⟨w,m⟩>0} |⟨w,m⟩|·w )]
+
+— `ρ` uses the roots and matter weights *positive* on `m`, `ρ⁻¹` the negative
+half; vector multiplet with `+`, hypermultiplet with `−`. At `N = Adj` the two
+sums cancel identically and `ρ` is the antipode `[(m,e)] ↦ [(−m,−e)]`, with
+`ρ² = id` on gauge charges. The former route — read the torus twist back through
+`decompose` — is demoted to a **verifier**, which is the honest place for it.
+
+The charts are memoized, and the memo **persists**: `save_cache(path)` /
+`load_cache(path)`, the same names and shape as the RG tier's. A realisation opts
+in by exposing its live `{label: element}` memo, and one file can carry a
+delegated algebra's charts too. The file is exact — an integer numerator over an
+explicit denominator multiset — so a round trip is an identity, not a
+re-derivation. Two guards, because a cache file is untrusted input: the header
+fingerprints the presentation (with the phase convention *probed*, since it is a
+callable and cannot be compared otherwise) and refuses a mismatch, and every
+admitted chart is re-verified against the axioms. Memoization itself is
+deliberately **not** a switch — the memo is structural — but `clear_cache()`
+reclaims it.
 
 ## The seven blocks
 
@@ -111,10 +172,12 @@ abelianized pure SU(2).
 
 ## What's included (`src/abe/`)
 
-The tier and its substrate: `abe_kalgebra.py`, the rational-quantum-torus engines
-(`urq_torus`, `wrq_torus`, `matter_urq_torus`, `matter_wrq_torus`,
-`quiver_urq_torus`, `quiver_wrq_torus`, `qtorus_1d`, `sun_rq_torus`,
-`abelianized_torus`, `weyl_torus_ring`), and the Lie-theoretic data (`root_datum`,
+The tier and its substrate: `abe_kalgebra.py` (the contract, and the persistable
+chart memo), the rational-quantum-torus engines (`urq_torus`, `wrq_torus` — which
+carries the primitive cocycle `CC` and the label-level `ρ` — `matter_urq_torus`,
+`matter_wrq_torus`, `quiver_urq_torus`, `quiver_wrq_torus`, `qtorus_1d`,
+`sun_rq_torus`, `abelianized_torus`, `weyl_torus_ring`), and the Lie-theoretic
+data (`root_datum`,
 `pure_ade`, `pure_ade_lattice`, `sun_cartan_reduction`, `so2nf_characters`).
 
 Pure gauge: `pure_un_kalgebra`, `pure_sun_kalgebra`, `pure_su2_kalgebra`, plus the
@@ -142,7 +205,12 @@ certifies against (`bps_su2_nf1/2/3`, `su2_nf1_bps_decoder`, `su2_nf1_bps_rform`
 python3 run_tests.py        # the full gate; test_abe_flows.py runs last
 ```
 
-`tests/test_abe_flows.py` exercises all seven blocks: the keystone contract and
+`tests/test_abe_flows.py` exercises all seven blocks plus the tier's own
+substrate — the primitive cocycle's bar axiom (and the measured *failure* of the
+same axiom for the derived `R`, without which that check would be vacuous), the
+label-level `ρ` round trip on dominant representatives, the chart cache's exact
+round trip and its fingerprint refusal, and `LaurentPoly`'s refusal of a
+non-integral coefficient. The seven blocks: the keystone contract and
 orthonormality (A), matter as native Abe and the flow ↔ BPS iso (B), the N=2\*
 builder and SU(2) N=2\* flow (C), the object layer with certified `KAlgebraIso`s and
 coherence (D), the SU(2) family with its RG-flow legs and coherence (E), SU(3)/U(3)

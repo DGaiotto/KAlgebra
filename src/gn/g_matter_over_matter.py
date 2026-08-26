@@ -53,10 +53,9 @@ the IR algebra's Wilson sector to be the character ring `R(G)` — with the *sam
     chart of `L_{(0,e)}` (single μ-level `0⃗`, identical residuals), and
     `L_{(0,e)}·L_{(0,e')}` in `(G, N_keep)` is plain Littlewood–Richardson
     (`χ₁² = χ₀ + χ₂` at SU(2)+1, no matter correction);
-  * and structural — it is the content of (★) as the user states it: the
-    canonical elements are `𝖖`-difference operators **acting on `G` characters /
-    symmetric Laurent polynomials**, i.e. preserving the Neumann module
-    `Λ = R(G)`, and `L_{(0,e)}|N] = χ_e` exactly.  The Wilson sector *is* `R(G)`
+  * and structural — it is the content of (★): the canonical elements are
+    `𝖖`-difference operators **acting on `G` characters / symmetric Laurent
+    polynomials**, i.e. preserving `Λ = R(G)`.  The Wilson sector *is* `R(G)`
     whatever the matter is.
 
 So `matter_weights` / `single_hyper_character_expansion` / `fuse_characters`

@@ -375,6 +375,173 @@ def test_G_su2a1d4_forgetful_ladder():
     print("  PASS: test_G_su2a1d4_forgetful_ladder  (RG ladder SU2A1D4 → SU2A1D3, flow witness)")
 
 
+def test_H_the_primitive_cocycle():
+    """**`CC` is the primitive**, and `R` is derived from it — not the other way
+    round.  The product law on the enriched torus is written in `CC`:
+
+        U_m · U_{m'}  =  CC[N]_{m,m'} · U_{m+m'},     R = T_{a+b}(CC)
+
+    with `CC = CC[0]` the pure-gauge case, a genuine specialisation matching the
+    `(G, N)` / `(G, 0)` convention.  Its closed form absorbs the atom phase, the
+    Weyl transport and the half-integral-height correction, so nothing in it
+    mentions `ψ`; `ψ` and `Z` are demoted to **trivializations**, which makes
+    `δψ = R` and `δZ = W` emergent evidence rather than definitions.
+
+    The reason `CC` is the primitive and not `R` is measurable, and this test is
+    that measurement: **`CC` satisfies the bar axiom `bar(CC_{a,b}) = CC_{b,a}`
+    and `R` does not.**  Every ingredient of `CC` is symmetric in `|A|, |B|`, so
+    the swap and the charge conjugation coincide.  The `R` half is asserted to
+    **fail** somewhere — otherwise the `CC` half tests nothing.
+    """
+    import itertools
+    import root_datum as rd
+    import wrq_torus as W
+
+    D = rd.su_n(3)
+    charges = list(itertools.product(range(-1, 2), repeat=2))
+    cc_bad = [(a, b) for a in charges for b in charges
+              if W.CC(D, a, b).bar() != W.CC(D, b, a)]
+    r_bad = [(a, b) for a in charges for b in charges
+             if W.cocycle_R(D, a, b).bar() != W.cocycle_R(D, b, a)]
+    assert not cc_bad, ("CC must satisfy the bar axiom everywhere", cc_bad[:3])
+    assert r_bad, ("the R half must FAIL somewhere, or the CC half is vacuous")
+
+    print("  PASS: test_H_the_primitive_cocycle  (SU(3): bar(CC_ab) = CC_ba on "
+          "%d/%d charge pairs, while R fails on %d — which is why CC is the "
+          "primitive)" % (len(charges) ** 2 - len(cc_bad), len(charges) ** 2,
+                          len(r_bad)))
+
+
+def test_H_rho_is_a_label_level_closed_form():
+    """`ρ`/`ρ⁻¹` on this tier are now the **explicit label-level closed form**,
+    promoted to primary; the old route — read the torus `G`-twist back through
+    `decompose` — is demoted to the verifier `verify_rho_via_twist`.
+
+    On Weyl orbits of pairs, with no chamber assumed,
+
+        ρ^{±1}[(m, e)] = [( −m, −e + Σ_{α: ±⟨α,m⟩>0} |⟨α,m⟩|·α
+                                  − Σ_{w∈wt(N): ±⟨w,m⟩>0} |⟨w,m⟩|·w )]
+
+    — `ρ` uses the roots positive on `m`, `ρ⁻¹` the negative half.  The check
+    that costs nothing and catches a sign error is the **round trip**: `ρ⁻¹ρ` must
+    be the identity on labels, for the ρ-automorphism axiom to have a chance.
+
+    A label is a **Weyl orbit of a pair**, not a tuple, so the comparison is on
+    the dominant representative.  That is not a technicality: at SU(3),
+    `dominant_cochar_rep((1,0)) = (1,1)`, so `L_{(1,0),0}` and `L_{(1,1),0}` are
+    the *same line*, and a round trip checked on raw tuples reports a spurious
+    failure — which is what happened while writing this test.
+    """
+    import root_datum as rd
+    import wrq_torus as W
+
+    checked = 0
+    for datum in (rd.su_2(), rd.su_n(3), rd.sp_n(2)):
+        n = datum.dim
+        labels = [((1,) + (0,) * (n - 1), (0,) * n),
+                  ((1,) * n, (0,) * n),
+                  ((0,) * n, (1,) + (0,) * (n - 1))]
+        for m, e in labels:
+            fwd = W.rho_label(datum, m, e)
+            back = W.rho_label(datum, fwd[0], fwd[1], inverse=True)
+            want = tuple(datum.dominant_cochar_rep(m))
+            got = tuple(datum.dominant_cochar_rep(back[0]))
+            assert got == want, ("ρ⁻¹ρ moved the magnetic label",
+                                 datum.name, (m, e), fwd, back)
+            checked += 1
+    print("  PASS: test_H_rho_is_a_label_level_closed_form  (ρ⁻¹ρ = id on %d "
+          "labels at SU(2) / SU(3) / Sp(4), compared on dominant "
+          "representatives)" % checked)
+
+
+def test_H_chart_cache_round_trip_and_its_guards():
+    """The `L_{m,e}` are **memoized and persistable** — `save_cache` / `load_cache`,
+    the same names and shape as `RGKAlgebra`'s, so the chart tier's caches persist
+    the way the flow tier's already did.
+
+    The file is **exact**: a residual is an integer numerator over an explicit
+    denominator multiset, so a round trip is an identity, not a re-derivation.
+
+    Two guards, because a cache file is untrusted input — it lets an `L_{m,e}`
+    enter the algebra without having been built by the guarded solve, and on this
+    tier a *fast wrong answer* is the dangerous failure mode:
+
+    * **provenance** — the header fingerprints the presentation, including the
+      phase convention **probed rather than described** (a datum's phase is a
+      callable and cannot be compared any other way).  This matters because a
+      chart is a residual vector in raw coordinates: cross-loading SU(3)'s charts
+      into Sp(4) would not raise anywhere downstream, it would simply be wrong.
+      So a mismatch must **refuse the file**, which is what is asserted here;
+    * **re-verification** — every admitted chart is re-run through the axioms.
+      Affordable precisely because verifying is not solving (measured at ~5% of a
+      rebuild), and worth it because (★) is exactly the condition that rejects a
+      plausible impostor the `𝖖⁰` self-norm cannot see.
+    """
+    import os
+    import tempfile
+    import root_datum as rd
+    from pure_g_abe_kalgebra import PureGAbeKAlgebra
+
+    A = PureGAbeKAlgebra(rd.su_n(3))
+    lab = A.fold((1, 1), (0, 0))
+    built = A.chart(lab)
+
+    tmp = tempfile.mkdtemp()
+    path = os.path.join(tmp, "su3_charts.json")
+    assert A.save_cache(path) >= 1
+
+    B = PureGAbeKAlgebra(rd.su_n(3))
+    assert B.load_cache(path) >= 1
+    assert B.chart(lab) == built, "the round trip must be an identity"
+
+    refused = False
+    try:
+        PureGAbeKAlgebra(rd.sp_n(2)).load_cache(path)
+    except ValueError:
+        refused = True
+    assert refused, ("a fingerprint mismatch must REFUSE the file — a "
+                     "cross-loaded chart would not raise downstream, it would "
+                     "simply be wrong")
+    print("  PASS: test_H_chart_cache_round_trip_and_its_guards  (SU(3) charts "
+          "save/load exactly; a Sp(4) instance refuses the SU(3) file)")
+
+
+def test_H_laurent_poly_refuses_a_non_integral_coefficient():
+    """`LaurentPoly` is over `Z[q, q⁻¹]`, and it now **says so**.
+
+    Two defects shipped, and both are the same failure class as the `int()`
+    truncation that once sent `SO(5)`'s spinor weight `(½,½)` to `v^0`:
+
+    * a non-integral coefficient was **silently truncated** — the zero-test read
+      the original `c` while the store kept `int(c)`, so `Fraction(1,2)` passed
+      the test and landed as **0**, and `3/2` as `1`;
+    * that stored zero then broke this class's documented invariant (a sparse
+      dict of *non-zero* coefficients), and `__add__`'s two paths disagreed about
+      it — the general path raised `KeyError` where the monomial fast path did
+      not, so the same sum crashed or not depending on how many terms the right
+      operand happened to have.
+
+    Refusing is the fix for the first; making the paths agree is free.
+    """
+    from fractions import Fraction
+    from laurent_poly import LaurentPoly
+
+    for bad in (Fraction(1, 2), Fraction(3, 2), 0.5):
+        raised = False
+        try:
+            LaurentPoly({0: bad})
+        except TypeError:
+            raised = True
+        assert raised, ("a non-integral coefficient must raise, not truncate", bad)
+
+    # both `__add__` paths agree on an explicit zero entry
+    dirty = LaurentPoly._from_clean_dict({0: 0, 1: 2})
+    assert LaurentPoly({0: 1}) + dirty == LaurentPoly({0: 1, 1: 2})
+    assert LaurentPoly({1: 5}) + dirty == LaurentPoly({1: 7})
+    print("  PASS: test_H_laurent_poly_refuses_a_non_integral_coefficient  "
+          "(Fraction/float refused; both __add__ paths agree on a stored zero)")
+
+
 def main():
     test_A_pure_keystone_contract()
     test_B_matter_native_abe()
@@ -393,6 +560,10 @@ def main():
     test_G_subquiver_flow_object()
     test_G_su2a1d3_rg_object()
     test_G_su2a1d4_forgetful_ladder()
+    test_H_the_primitive_cocycle()
+    test_H_rho_is_a_label_level_closed_form()
+    test_H_chart_cache_round_trip_and_its_guards()
+    test_H_laurent_poly_refuses_a_non_integral_coefficient()
     print("\nALL AbeKAlgebra (Step 5) export self-tests passed (Abe tier + matter "
           "Abe+RG + N=2* + object layer + SU(2)/SU(3) families + RGKAlgebraObjects).")
 

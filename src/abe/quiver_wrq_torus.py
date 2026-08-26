@@ -20,7 +20,7 @@ cross-block roots, per-block atom phases and ρ signs):
     prefactor and `|W| = ∏ N_a!` all come out of the datum).
 
 Certified against the certified `QuiverURQTorus` at U(2)×U(1) and U(2)×U(2)
-(`tests/test_quiver_wrq_torus.py`): transport `vr_to_tr` is an isomorphism on
+(the suite in the source repository): transport `vr_to_tr` is an isomorphism on
 multiply, ρ/ρ⁻¹, W1, and the μ-refined pairing traces.
 """
 from __future__ import annotations
@@ -35,7 +35,7 @@ if _HERE not in sys.path:
 from laurent_poly import LaurentPoly
 from root_datum import u_n, product_datum
 from weyl_torus_ring import TorusLaurent, TorusRational
-from wrq_torus import cocycle_Rtilde, _rho_Gtilde, trace_residual, WRQTorus
+from wrq_torus import CC, _rho_Gtilde, trace_residual, WRQTorus
 
 
 __all__ = ["QuiverWRQTorus", "quiver_datum"]
@@ -246,7 +246,7 @@ class QuiverWRQTorus:
             for mp, row2 in other._f.items():
                 t = tuple(x + y for x, y in zip(m, mp))
                 W = _quiver_w_cocycle(self.datum, m, mp, self.ranks, self.Nf)
-                Rt = cocycle_Rtilde(self.datum, m, mp)
+                Rt = CC(self.datum, m, mp)
                 neg_mp = tuple(-x for x in mp)
                 dst = out.setdefault(t, {})
                 for k1, f1 in row1.items():

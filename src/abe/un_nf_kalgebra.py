@@ -92,6 +92,41 @@ class UNNfKAlgebra(AbeKAlgebra):
     def _mk_label(self, g, w):
         return g if self._Nf == 1 else (g, tuple(w))
 
+    def _rho_closed_form(self, label, inverse: bool):
+        """The explicit label-level ρ^{±1} (promoted 2026-08-23; the twist
+        route is the verifier `verify_rho_via_twist`).  Gauge part: the pure
+        U(N) class's own certified label maps (`PureUNKAlgebra.rho` /
+        `rho_inverse` — the Witten-shift closed form, so the lower-Kapustin
+        frame stays that class's business) followed by the matter shift of
+        the general closed form (`wrq_torus.rho_label`) expressed at the
+        image magnetic `n`:
+
+            λ'_i −= N_f · max(0, −n_i)   for ρ      (the image-atom ladder)
+            λ'_i −= N_f · max(0, +n_i)   for ρ⁻¹    (the source-atom ladder,
+                                                     `n = −m₋` slot-aligned)
+
+        (`N_f` defining slots; the shift is constant on equal-`n` blocks, so
+        the stored Levi-dominant sorting is untouched).  Flavour: `w ↦ w^⋆`
+        (the ring's rep-ring duality `star_basis`; the det twist dies under
+        the D8b central specialization)."""
+        (m, lam), w = self._gauge_w(label)
+        Nf = self._Nf
+        if inverse:
+            n, lam2 = self._P.rho_inverse((tuple(m), tuple(lam)))
+            shift = [Nf * max(0, x) for x in n]
+        else:
+            n, lam2 = self._P.rho((tuple(m), tuple(lam)))
+            shift = [Nf * max(0, -x) for x in n]
+        g = (tuple(n), tuple(x - s for x, s in zip(lam2, shift)))
+        wf = w if self._Nf == 1 else self._R.star_basis(w)
+        return self._mk_label(g, wf)
+
+    def rho(self, label):
+        return self._rho_closed_form(label, inverse=False)
+
+    def rho_inverse(self, label):
+        return self._rho_closed_form(label, inverse=True)
+
     def _label_section_decompose(self, label):
         """**Aspirationally obsolete** — superseded by
         `r_label_decompose` (same gauge section + the single SU(N_f) irrep,
@@ -360,10 +395,24 @@ class UNNfKAlgebra(AbeKAlgebra):
     # ----- flavour packaging (D8b) ------------------------------------
 
     def _flavour_element(self, ring, lev, c):
-        # N_f = 1 (SU(1) trivial): every level sums.  N_f >= 2 traces are
-        # packaged by the overrides below (the SU peel needs all levels
-        # at once, not one at a time).
-        return c
+        """Per-μ-level flavour packaging — HONEST-FAIL at `N_f ≥ 2`.
+
+        The SU(N_f) refinement cannot be expressed one level at a time (the
+        un-branching into SU characters needs the whole weight diagram per
+        q-order — `_package_levels`), so this class's traces/pairings go
+        through the overrides below.  This hook used to silently return the
+        bare coefficient, which made the TIER's chart-side `trace` /
+        `inner_product` fabricate the flavour-collapsed (dimension) series on
+        this class — caught 2026-08-23 when `verify_inner_product_consistent`
+        compared the SU-refined pairing against that collapsed reference.
+        Fabrication is never acceptable; a route that cannot refine must
+        raise."""
+        if self._Nf == 1:
+            return c
+        raise NotImplementedError(
+            "UNNfKAlgebra: per-level flavour packaging cannot express the "
+            "SU(N_f) refinement — use this class's trace/inner_product "
+            "(the _package_levels route)")
 
     def _package_levels(self, levels: dict, K: int):
         from zplus_ring import RElement, RPowerSeries

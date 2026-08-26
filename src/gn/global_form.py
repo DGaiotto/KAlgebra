@@ -58,22 +58,28 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-def _center(vec) -> int:
-    return sum(int(x) for x in vec) % len(vec)
-
-
 def _is_integral(x) -> bool:
     """Whether a coordinate or pairing value is an integer — **exactly**.
 
     The coordinates here are `int` where integral and `Fraction` otherwise (the
     denominators divide the centre order), so `Fraction(x).denominator == 1` is
-    the whole test — the same idiom `fundamental_coweights` normalises its own
-    coordinates with below.  This is a
-    lattice-membership predicate: `mag_admits` and `verify_mutually_local` decide
-    what a global form contains by asking it, and a float round-trip is not a
-    sound way to decide membership of a lattice."""
+    the whole test — the same idiom `fundamental_coweights` normalises with.
+
+    This is a **lattice-membership predicate**, which is why the float round-trip
+    it replaces was not merely inelegant: `verify_mutually_local` and
+    `mag_admits` decide what a global form *contains* by asking it, so a wrong
+    answer admits a line that is not mutually local — i.e. corrupts the 4d gauge
+    group data itself.  And the float route can be wrong:
+    `float(Fraction(2**53 + 1, 2**53)).is_integer()` is `True` for a value whose
+    denominator is not 1, and `float()` of a large `Fraction` raises
+    `OverflowError` rather than answering.  (No floating-point arithmetic in the
+    algebra core is a standing rule; this is that rule at a decision point.)"""
     from fractions import Fraction
     return Fraction(x).denominator == 1
+
+
+def _center(vec) -> int:
+    return sum(int(x) for x in vec) % len(vec)
 
 
 @dataclass(frozen=True)
@@ -765,22 +771,33 @@ def parity_character(datum):
       atom construction at all;
     * at even order the kernel of `π` is an index-2 subgroup, so the charges this
       frame carries are those of an intermediate form: at `SU(4)`, `ker π = {0,2}`,
-      which is exactly **SU(4)/Z_2**."""
+      which is exactly **SU(4)/Z_2**.
+
+    Generalised to an arbitrary finite abelian centre (2026-08-24).  The classes
+    are keyed by an **int** when the centre is cyclic — every pre-existing caller
+    reads them that way — and by a class **tuple** otherwise, the same convention
+    `LineLattice`'s `H` uses.  The lift is `mag_class_lift`, which goes through
+    the Smith labelling rather than through `centre_generators`, so `Spin(4k)`'s
+    `Z_2 × Z_2` is covered.
+
+    `⟨Σ⁺, ·⟩` is well defined on classes because `Σ⁺ ∈ Q` and `⟨Q, P^∨⟩ ⊆ Z`, so
+    changing the lift by an element of `Q^∨` changes the value by an even
+    integer — `⟨Σ⁺, α_i^∨⟩ = 2`."""
     from fractions import Fraction
-    inv = centre_invariants(datum)
-    if not inv:
+    divisors = centre_labelling(datum)[0]
+    if not divisors:
         return {0: 0}
-    n = inv[0]
-    gv, _ = centre_generators(datum)
     sigma_plus = [0] * datum.dim
     for a in datum.positive_roots():
         for i, x in enumerate(a):
             sigma_plus[i] += x
+    cyclic = len(divisors) == 1
     out = {}
-    for k in range(n):
-        m = tuple(k * Fraction(x) for x in gv)
+    for k in _all_classes(divisors):
+        m = mag_class_lift(datum, k)
         h = Fraction(datum.shift_pairing(m, tuple(sigma_plus)))
-        out[k] = None if h.denominator != 1 else int(h) % 2
+        key = k[0] if cyclic else k
+        out[key] = None if h.denominator != 1 else int(h) % 2
     return out
 
 
@@ -899,6 +916,372 @@ def in_coweight_lattice(datum, m) -> bool:
     return True
 
 
+# ---------------------------------------------------------------------------
+# General centres — labelling `P^∨/Q^∨` and `P/Q` by Smith normal form
+# ---------------------------------------------------------------------------
+#
+# `centre_generators` above labels a class by a single integer, which works
+# only when the centre is cyclic; `Spin(4k)`'s `Z_2 × Z_2` honest-fails there.
+# The machinery below labels a class by a TUPLE, one entry per elementary
+# divisor, and works for every finite abelian centre.
+#
+# It also removes the search: `centre_generators` *hunts* for a fundamental
+# coweight of full order and then for a weight pairing invertibly with it,
+# honest-failing when neither exists.  Smith normal form produces both
+# labellings at once, and their duality is a THEOREM about the decomposition
+# rather than a normalisation imposed afterwards --
+#
+#     U C V = D  (D diagonal, U/V unimodular)  =>  C^{-1} = V D^{-1} U
+#
+# so, in the fundamental-(co)weight coordinates where `Q^∨ = C·Z^r ⊆ P^∨ = Z^r`
+# and `Q = C^T·Z^r ⊆ P = Z^r`,
+#
+#     ⟨m, e⟩  =  e^T C^{-1} m  =  Σ_t (V^T e)_t · (U m)_t / d_t          (†)
+#
+# and the two class maps `m ↦ U·m mod D`, `e ↦ V^T·e mod D` pair to
+# `Σ_t k_t l_t / d_t` in `Q/Z` by construction.  Measured against the datum's
+# own `shift_pairing` on every fundamental (co)weight pair: 88/88 exact across
+# SU(2..5), SO(5), SO(7), Sp(4), G2, Spin(7) and **SO(8)** -- the `Z_2 × Z_2`
+# case that has no cyclic labelling at all.
+
+
+def _smith_with_transforms(M):
+    """`(D, U, V)` with `U·M·V = D` diagonal, `U`/`V` unimodular.
+
+    The elementary-divisor-only `_smith_invariants` above cannot be reused: the
+    class maps need the *transforms*, since `U` is the magnetic labelling and
+    `V^T` the electric one.  Same algorithm, carrying `U` and `V` along."""
+    A = [list(map(int, row)) for row in M]
+    n = len(A)
+    m = len(A[0]) if A else 0
+    U = [[1 if i == j else 0 for j in range(n)] for i in range(n)]
+    V = [[1 if i == j else 0 for j in range(m)] for i in range(m)]
+
+    def rsub(i, k, q):
+        A[i] = [x - q * y for x, y in zip(A[i], A[k])]
+        U[i] = [x - q * y for x, y in zip(U[i], U[k])]
+
+    def csub(j, k, q):
+        for r in A:
+            r[j] -= q * r[k]
+        for r in V:
+            r[j] -= q * r[k]
+
+    def rswap(i, k):
+        A[i], A[k] = A[k], A[i]
+        U[i], U[k] = U[k], U[i]
+
+    def cswap(j, k):
+        for r in A:
+            r[j], r[k] = r[k], r[j]
+        for r in V:
+            r[j], r[k] = r[k], r[j]
+
+    for t in range(min(n, m)):
+        piv = None
+        for i in range(t, n):
+            for j in range(t, m):
+                if A[i][j] and (piv is None
+                                or abs(A[i][j]) < abs(A[piv[0]][piv[1]])):
+                    piv = (i, j)
+        if piv is None:
+            break
+        rswap(t, piv[0])
+        cswap(t, piv[1])
+        # Each pass either zeroes an off-pivot entry or strictly decreases
+        # |A[t][t]|, so the loop terminates.
+        while True:
+            for i in range(t + 1, n):
+                if A[i][t]:
+                    rsub(i, t, A[i][t] // A[t][t])
+                    if A[i][t]:
+                        rswap(t, i)
+            if any(A[i][t] for i in range(t + 1, n)):
+                continue
+            for j in range(t + 1, m):
+                if A[t][j]:
+                    csub(j, t, A[t][j] // A[t][t])
+                    if A[t][j]:
+                        cswap(t, j)
+            if (not any(A[t][j] for j in range(t + 1, m))
+                    and not any(A[i][t] for i in range(t + 1, n))):
+                break
+        if A[t][t] < 0:
+            A[t] = [-x for x in A[t]]
+            U[t] = [-x for x in U[t]]
+
+    # Enforce the divisibility chain d_1 | d_2 | ... so the elementary divisors
+    # agree with `_smith_invariants` (and with `centre_invariants`).
+    changed = True
+    while changed:
+        changed = False
+        for t in range(min(n, m) - 1):
+            a, b = A[t][t], A[t + 1][t + 1]
+            if a and b % a:
+                csub(t, t + 1, -1)
+                while A[t + 1][t]:
+                    rsub(t + 1, t, A[t + 1][t] // A[t][t])
+                    if A[t + 1][t]:
+                        rswap(t, t + 1)
+                while A[t][t + 1]:
+                    csub(t + 1, t, A[t][t + 1] // A[t][t])
+                    if A[t][t + 1]:
+                        cswap(t, t + 1)
+                for s in (t, t + 1):
+                    if A[s][s] < 0:
+                        A[s] = [-x for x in A[s]]
+                        U[s] = [-x for x in U[s]]
+                changed = True
+    return A, U, V
+
+
+_CENTRE_LABELLING_CACHE = {}
+
+
+def centre_labelling(datum):
+    """`(divisors, U, V, slots)` — the dual labelling of `P^∨/Q^∨` and `P/Q`.
+
+    * `divisors` — the elementary divisors `> 1`, i.e. `centre_invariants(datum)`;
+    * `slots` — which Smith positions those divisors occupy;
+    * `U`, `V` — the Smith transforms of the Cartan matrix, so that the magnetic
+      class of `m` is `(U·m)_t mod d_t` and the electric class of `e` is
+      `(V^T·e)_t mod d_t`, both read in fundamental-(co)weight coordinates.
+
+    The two labellings are dual by construction — identity `(†)` in the comment
+    above — which is what makes "the electric class annihilates the magnetic
+    one" a meaningful statement.  `centre_generators` achieves the same duality
+    for a cyclic centre by searching for a generator and rescaling its partner;
+    this derives it, and is not restricted to cyclic centres."""
+    key = (datum.name, tuple(tuple(r) for r in cartan_matrix(datum)))
+    hit = _CENTRE_LABELLING_CACHE.get(key)
+    if hit is not None:
+        return hit
+    C = cartan_matrix(datum)
+    r = len(C)
+    D, U, V = _smith_with_transforms(C)
+    diag = [D[i][i] for i in range(r)]
+    slots = tuple(i for i in range(r) if diag[i] != 1)
+    out = (tuple(diag[i] for i in slots), U, V, slots)
+    _CENTRE_LABELLING_CACHE[key] = out
+    return out
+
+
+def _coweight_omega_coords(datum, m):
+    """`m` in the fundamental-**coweight** basis: `c_i = ⟨α_i, m⟩`.
+
+    Exact by `⟨α_j, ω_i^∨⟩ = δ_ij`, and read through the datum's own
+    `shift_pairing`, so no coordinate convention is assumed (the constructors
+    disagree — see `fundamental_weights`)."""
+    from fractions import Fraction
+    return tuple(Fraction(datum.shift_pairing(tuple(m), tuple(a)))
+                 for a in datum.simple_roots)
+
+
+def _weight_omega_coords(datum, e):
+    """`e` in the fundamental-**weight** basis: `c_i = ⟨α_i^∨, e⟩`."""
+    from fractions import Fraction
+    return tuple(Fraction(datum.shift_pairing(tuple(c), tuple(e)))
+                 for c in datum.simple_coroots)
+
+
+def coweight_classes(datum, m):
+    """The class of `m` in `P^∨/Q^∨` as a **tuple**, one entry per elementary
+    divisor — or `None` if `m ∉ P^∨`.
+
+    The general-centre counterpart of `coweight_class` (which returns a single
+    integer and is defined only for a cyclic centre).  `()` when the centre is
+    trivial."""
+    divisors, U, _V, slots = centre_labelling(datum)
+    c = _coweight_omega_coords(datum, m)
+    if any(x.denominator != 1 for x in c):
+        return None                     # not in `P^∨` at all
+    r = len(c)
+    return tuple(int(sum(U[t][j] * c[j] for j in range(r))) % d
+                 for t, d in zip(slots, divisors))
+
+
+def weight_classes(datum, e):
+    """The class of `e` in `P/Q` as a **tuple**, dual to `coweight_classes` —
+    or `None` if `e ∉ P`."""
+    divisors, _U, V, slots = centre_labelling(datum)
+    c = _weight_omega_coords(datum, e)
+    if any(x.denominator != 1 for x in c):
+        return None
+    r = len(c)
+    return tuple(int(sum(V[j][t] * c[j] for j in range(r))) % d
+                 for t, d in zip(slots, divisors))
+
+
+def centre_pairing_classes(datum, k, l):
+    """`Σ_t k_t·l_t / d_t` in `Q/Z`, as a `Fraction` in `[0, 1)`.
+
+    The perfect pairing `P^∨/Q^∨ × P/Q → Q/Z` read on the dual labellings.  It
+    is the *fractional part* of `⟨m, e⟩` for any lifts `m`, `e`, which is why
+    integrality of the Dirac pairing is a statement about classes alone."""
+    from fractions import Fraction
+    divisors, _U, _V, _slots = centre_labelling(datum)
+    tot = sum(Fraction(int(a) * int(b), d)
+              for a, b, d in zip(k, l, divisors)) if divisors else Fraction(0)
+    return tot - int(tot)
+
+
+def _as_class_tuple(x, divisors):
+    """Normalise a centre class to a tuple, one entry per elementary divisor.
+
+    A bare `int` is accepted when the centre is cyclic (or trivial), which is
+    what keeps every pre-2026-08-24 caller — and the `H=` product forms — working
+    unchanged."""
+    if isinstance(x, int):
+        if not divisors:
+            return ()
+        if len(divisors) != 1:
+            raise ValueError(
+                f"centre {divisors} is not cyclic, so the class {x} is not a "
+                f"single integer — pass a tuple of length {len(divisors)}")
+        return (x % divisors[0],)
+    t = tuple(int(a) for a in x)
+    if len(t) != len(divisors):
+        raise ValueError(
+            f"class {x} has length {len(t)}, expected {len(divisors)} "
+            f"(centre {divisors})")
+    return tuple(a % d for a, d in zip(t, divisors))
+
+
+def _all_classes(divisors):
+    """Every element of `⊕_t Z/d_t`, as tuples."""
+    out = [()]
+    for d in divisors:
+        out = [c + (k,) for c in out for k in range(d)]
+    return out
+
+
+def _add_classes(a, b, divisors):
+    return tuple((x + y) % d for x, y, d in zip(a, b, divisors))
+
+
+def _generated_subgroup(gens, divisors):
+    """The subgroup of class **pairs** generated by `gens`, materialised.
+
+    Centres are small (`|Z| ≤ N` for `SU(N)`, `4` for `Spin(4k)`), so the whole
+    subgroup fits comfortably in memory and membership becomes a set lookup."""
+    zero = (tuple(0 for _ in divisors), tuple(0 for _ in divisors))
+    seen = {zero}
+    frontier = [zero]
+    while frontier:
+        cur = frontier.pop()
+        for (gk, gl) in gens:
+            nxt = (_add_classes(cur[0], gk, divisors),
+                   _add_classes(cur[1], gl, divisors))
+            if nxt not in seen:
+                seen.add(nxt)
+                frontier.append(nxt)
+    return frozenset(seen)
+
+
+def _product_class_pairs(datum, H, divisors):
+    """The class pairs of the **product** form cut out by a centre subgroup `H`.
+
+    `H` is the magnetic half — a set of classes, given as ints for a cyclic
+    centre — and the electric half is its annihilator for the linking pairing.
+    This reproduces the pre-2026-08-24 `mag_admits` / `elec_admits` exactly:
+    `H` trivial gives `Q^∨ × P` (simply connected), `H` the whole centre gives
+    `P^∨ × Q` (adjoint), and an intermediate `H` gives the intermediate form."""
+    zero = tuple(0 for _ in divisors)
+    if not divisors:
+        return frozenset({(zero, zero)})
+    mag_gens = [_as_class_tuple(h, divisors) for h in H] or [zero]
+    mags = _generated_subgroup([(g, zero) for g in mag_gens], divisors)
+    mag_set = {k for (k, _l) in mags}
+    from fractions import Fraction
+    elec_set = [l for l in _all_classes(divisors)
+                if all(Fraction(centre_pairing_classes(datum, k, l)) % 1 == 0
+                       for k in mag_set)]
+    return frozenset((k, l) for k in mag_set for l in elec_set)
+
+
+def is_semisimple(datum) -> bool:
+    """Whether the datum has no central torus — `#simple roots == dim`.
+
+    `U(N)` is the standing counterexample in this repo, and it matters here:
+    its cocharacter lattice `Z^N` surjects onto `P^∨/Q^∨` (the minuscule
+    monopole `(1,0)` has centre class 1 and is nonetheless an ordinary `U(2)`
+    line), so a class filter on the magnetic side would reject genuine lines.
+    A datum with a central torus therefore keeps the pre-2026-08-24 integral
+    tests, which are the correct ones for it."""
+    return len(datum.simple_roots) == datum.dim
+
+
+def mag_class_lift(datum, k):
+    """A coweight of centre class `k`, in the **datum's own** coordinates.
+
+    Well defined up to `Q^∨`, which is integral in those coordinates, so
+    "`m − lift` is integral" does not depend on the choice."""
+    from fractions import Fraction
+    divisors, U, _V, slots = centre_labelling(datum)
+    r = len(cartan_matrix(datum))
+    if not divisors:
+        return tuple(Fraction(0) for _ in range(datum.dim))
+    Uinv = _integer_inverse(U)
+    y = [0] * r
+    for t, slot in enumerate(slots):
+        y[slot] = int(k[t])
+    coeffs = [sum(Uinv[i][j] * y[j] for j in range(r)) for i in range(r)]
+    fcw = fundamental_coweights(datum)
+    return tuple(sum(Fraction(coeffs[i]) * Fraction(fcw[i][d])
+                     for i in range(r)) for d in range(datum.dim))
+
+
+def _integer_inverse(M):
+    """Inverse of a unimodular integer matrix."""
+    from fractions import Fraction
+    n = len(M)
+    A = [[Fraction(M[i][j]) for j in range(n)]
+         + [Fraction(1 if i == k else 0) for k in range(n)] for i in range(n)]
+    for c in range(n):
+        piv = next((i for i in range(c, n) if A[i][c] != 0), None)
+        if piv is None:
+            raise ValueError("singular matrix")
+        A[c], A[piv] = A[piv], A[c]
+        pv = A[c][c]
+        A[c] = [x / pv for x in A[c]]
+        for i in range(n):
+            if i != c and A[i][c] != 0:
+                f = A[i][c]
+                A[i] = [x - f * y for x, y in zip(A[i], A[c])]
+    return [[int(A[i][n + j]) for j in range(n)] for i in range(n)]
+
+
+def magnetic_classes_of(datum, m):
+    """Every centre class `k` with `m ∈ M_0 + lift(k)`, `M_0` the datum's own
+    integral cocharacter lattice.
+
+    Usually a single class (or none).  For a datum with a central torus it can
+    be several — at `U(2)` the lattice already meets every class — which is
+    exactly why the magnetic side is tested by **coset** rather than by class:
+    classes *grow* `Q^∨` towards `P^∨`, and a lattice that already reaches a
+    class must not be cut back by it."""
+    from fractions import Fraction
+    divisors, _U, _V, _slots = centre_labelling(datum)
+    integral = all(Fraction(x).denominator == 1 for x in m)
+    if not divisors:
+        return [()] if integral else []
+    if not is_semisimple(datum):
+        # A central torus makes the cocharacter lattice `M_0` meet every class
+        # (at `U(N)` the minuscule monopole already has class 1), so
+        # `M_0 + lift(k) = M_0` for every `k` and the coset test degenerates to
+        # integrality — which is precisely the pre-2026-08-24 behaviour, and the
+        # correct one for such a datum.  `fundamental_coweights` is not even
+        # defined here, so this branch is required, not merely an optimisation.
+        return list(_all_classes(divisors)) if integral else []
+    out = []
+    for k in _all_classes(divisors):
+        lift = mag_class_lift(datum, k)
+        if all(Fraction(m[d]) - lift[d] == int(Fraction(m[d]) - lift[d])
+               for d in range(datum.dim)):
+            out.append(k)
+    return out
+
+
 class LineLattice:
     """A 4d global form as a **sublattice of Kapustin `(m, e)` labels**.
 
@@ -929,13 +1312,121 @@ class LineLattice:
     `src/gn/pure_so3.py`, remains a correct independent presentation — it is
     the oracle D31 was certified against — but it is no longer *needed* here.)"""
 
-    def __init__(self, datum, H=(), name=None):
+    def __init__(self, datum, H=(), classes=None, name=None):
+        """`H` — a subgroup of the centre, giving the **product** lattice
+        `{m : [m] ∈ H} × {e : [e] ⊥ H}`; `classes` — generators of an arbitrary
+        subgroup of centre-class **pairs**, for a lattice that need not be a
+        product.
+
+        Exactly one of the two says what the lattice is (`H` is the default, and
+        `H=()` is the simply connected form).  `classes` is the general case
+        directed by the user (2026-08-24): *"the label space of `L_{m,e}` should
+        be the Weyl quotient of a lattice which is a sublattice of coweights x
+        weights containing coroots x roots"*, with the admissibility condition
+        *"as long as the pairing is integral"*.
+
+        Each generator is a pair `(k, l)` of class tuples in the labelling of
+        `coweight_classes` / `weight_classes`; a bare `int` is accepted for a
+        cyclic centre.  The subgroup they generate is materialised (centres are
+        small), so membership is a set lookup.
+
+        **Maximality is not required** (user ruling, 2026-08-24) — a non-maximal
+        isotropic subgroup is a consistent, merely incomplete, set of lines, and
+        `is_maximal()` reports rather than enforces.  Integrality of the Dirac
+        pairing is likewise *reported* by `verify_dirac_integral`, not imposed:
+        a caller may build an inadmissible lattice and be told so."""
         self.datum = datum
-        self.H = tuple(sorted(set(int(h) for h in H)))
+        # `H` entries are ints for a cyclic centre (every pre-2026-08-24
+        # caller) and class tuples for a general one.
+        if not H:
+            self.H = ()
+        elif all(isinstance(h, int) for h in H):
+            self.H = tuple(sorted(set(int(h) for h in H)))
+        else:
+            self.H = tuple(sorted(set(tuple(int(x) for x in h) for h in H)))
         self.invariants = centre_invariants(datum)
-        self.name = name or (
-            f"{datum.name}"
-            + ("" if not self.H else f"/Z_{self.H}"))
+        self.divisors = centre_labelling(datum)[0]
+        if classes is not None and H:
+            raise ValueError(
+                "LineLattice: give `H` (a product form) or `classes` (a general "
+                "class-pair subgroup), not both")
+        if classes is not None:
+            gens = [(_as_class_tuple(k, self.divisors),
+                     _as_class_tuple(l, self.divisors)) for (k, l) in classes]
+            self._pairs = _generated_subgroup(gens, self.divisors)
+            self.name = name or f"{datum.name}[{len(self._pairs)} classes]"
+        else:
+            self._pairs = _product_class_pairs(self.datum, self.H, self.divisors)
+            self.name = name or (
+                f"{datum.name}"
+                + ("" if not self.H else f"/Z_{self.H}"))
+
+    # ----- the class-pair subgroup ----------------------------------------
+    def class_pairs(self) -> frozenset:
+        """The finite subgroup `Λ / (Q^∨ × Q)` of centre-class pairs.
+
+        This *is* the lattice: `Λ` is its preimage in `P^∨ × P`, which is why a
+        finite set determines an infinite lattice.  Every such preimage contains
+        `Q^∨ × Q` by construction, so the containment the user requires is
+        structural rather than checked."""
+        return self._pairs
+
+    def label_classes(self, m, e):
+        """`([m], [e])` as class tuples, or `None` if `(m, e) ∉ P^∨ × P`.
+
+        Informational.  Membership goes through `admits`, which tests the
+        magnetic side by coset rather than by this class — the two differ when
+        the datum has a central torus (`magnetic_classes_of`)."""
+        k = coweight_classes(self.datum, tuple(m))
+        if k is None:
+            return None
+        l = weight_classes(self.datum, tuple(e))
+        if l is None:
+            return None
+        return (k, l)
+
+    def verify_dirac_integral(self) -> bool:
+        """The user's admissibility condition, made executable: the Dirac
+        pairing is integral on the whole lattice.
+
+        Checked on **classes**, not on sampled labels, which makes it a proof
+        rather than a spot check: `⟨Q^∨, P⟩ ⊆ Z` and `⟨P^∨, Q⟩ ⊆ Z`, so the
+        fractional part of `⟨m, e'⟩ − ⟨m', e⟩` depends only on the four classes.
+        Hence integrality on the lattice **is** isotropy of the finite subgroup,
+        and the finite check is exhaustive."""
+        from fractions import Fraction
+        pairs = list(self._pairs)
+        for (k, l) in pairs:
+            for (k2, l2) in pairs:
+                val = (centre_pairing_classes(self.datum, k, l2)
+                       - centre_pairing_classes(self.datum, k2, l))
+                if Fraction(val) % 1 != 0:
+                    return False
+        return True
+
+    def is_maximal(self) -> bool:
+        """Whether the lattice is a genuine global form — maximal among mutually
+        local ones, i.e. the class subgroup is Lagrangian for the linking pairing.
+
+        The order of a Lagrangian subgroup of `Z × Ẑ` is `|Z|`, so this is a
+        counting test.  Reported, never required: see `__init__`."""
+        order = 1
+        for d in self.divisors:
+            order *= d
+        return len(self._pairs) == order
+
+    def is_product(self) -> bool:
+        """Whether the lattice is a product `(magnetic) × (electric)` — the
+        *traditional* global forms (user, 2026-08-24: *"the traditional global
+        forms will be (coweights of G) x (weights of G) but other options are
+        possible as long as the pairing is integral"*).
+
+        False exactly for the correlated lattices — the ones carrying a discrete
+        theta angle, where a purely magnetic and a purely electric line may both
+        be absent although their sum is a line."""
+        ks = {k for (k, _l) in self._pairs}
+        ls = {l for (_k, l) in self._pairs}
+        return len(self._pairs) == len(ks) * len(ls)
 
     # ----- the pairing -----------------------------------------------------
     def dirac(self, label, other) -> int:
@@ -956,77 +1447,43 @@ class LineLattice:
 
     # ----- membership ------------------------------------------------------
     def mag_admits(self, m) -> bool:
-        """Magnetic charges: `Q^∨` when `H` is trivial, `P^∨` when `H` is the full
-        centre (the adjoint form).
+        """The **purely magnetic** lines: `(m, 0) ∈ Λ`.
 
-        **Corrected 2026-07-28** (user: *"make sure all G's work, not just
-        simply-connected"*).  This used to return `all(is_integer(x))`
-        unconditionally — i.e. `Q^∨` for *every* form — so a non-simply-connected
-        global form was only half modelled: its electric lattice correctly shrank
-        to `Q`, but its magnetic lattice never grew to `P^∨` and the fractional
-        coweights it is *defined* by were silently refused.
+        Generalised 2026-08-24 as the fibre of `admits` over `e = 0`; on every
+        product form it returns exactly what it did before — `Q^∨` at the simply
+        connected form, `P^∨` at the adjoint form, the class filter at an
+        intermediate one.  The fibre, not the projection `{m : ∃e, (m,e) ∈ Λ}`:
+        the fibre is the cocharacter lattice of the gauge group (charges of
+        genuine 't Hooft lines), while the projection also counts the magnetic
+        charge of a dyon whose own 't Hooft line is not a line.  A discrete theta
+        angle is exactly where the two differ.
 
-        The two factory forms are now exact:
-
-        * `H` trivial (simply connected) — `Q^∨`, the integral vectors;
-        * `H` the full centre (adjoint) — `P^∨`, i.e. integral against every root
-          (`in_coweight_lattice`).
-
-        An **intermediate** `H` (e.g. `SU(4)/Z_2`) is decided by the magnetic
-        centre-class filter `[m] ∈ H` in `P^∨/Q^∨`, via `coweight_class`
-        (implemented 2026-07-29).  Being permissive instead of exact here would
-        admit charges that are not mutually compatible and quietly break the
-        defining property of the lattice.
-
-        Which *frame* presents an admitted label is a separate question
-        (`abe_representable`) — and since ruling D31 it has a uniform answer: the
-        coweight torus of this tier carries **every** admitted label, odd
-        `⟨Σ⁺, m⟩` included."""
-        m = tuple(m)
-        if not self.H:
-            return all(_is_integral(x) for x in m)
-        if self.invariants and set(self.H) == set(range(self.invariants[0])):
-            return in_coweight_lattice(self.datum, m)
-        # INTERMEDIATE H (e.g. SU(4)/Z_2): `m ∈ P^∨` with its class in `P^∨/Q^∨`
-        # lying in `H`.  Implemented 2026-07-28 after the user pointed out that
-        # `SU(4)/Z_2` is a sensible — indeed SELF-DUAL — 4d gauge group, and that
-        # "if a 4d gauge group data is sensible, all the corresponding L_{m,e}
-        # should be buildable".  They are: its only extra magnetic class is 2,
-        # represented by `ω_2^∨` with `⟨Σ⁺,m⟩ = 4` (EVEN), so the whole form sits
-        # in the coweight torus's reach — measured
-        # end-to-end in the suite in the source repository, pure and with adjoint
-        # matter.  Refusing it was purely a missing feature.
-        if not in_coweight_lattice(self.datum, m):
-            return False
-        k = coweight_class(self.datum, m)
-        return k is not None and k in set(self.H)
+        Tested by **coset** (`m ∈ M_0 + lift(k)`), not by class — see
+        `magnetic_classes_of` for why `U(N)` forces that."""
+        zero = tuple(0 for _ in self.divisors)
+        return any((k, zero) in self._pairs
+                   for k in magnetic_classes_of(self.datum, tuple(m)))
 
     def elec_admits(self, e) -> bool:
-        """Electric charges must annihilate `H`.  Trivial `H` ⇒ the full weight
-        lattice `P`; `H = Z` (the adjoint form) ⇒ the root lattice `Q`.
+        """The **purely electric** lines: `(0, e) ∈ Λ` — the character lattice of
+        the gauge group, i.e. which representations are representations *of this
+        form*.
 
-        The adjoint case is decided by `in_root_lattice` — a direct integer solve —
-        **not** by `centre_class`, which was measured wrong on non-simply-laced data:
-        at `B₂` it graded the roots `(−1,2)` and `(1,0)` as centre-charged and so
-        refused the **adjoint representation as matter for SO(5)**, although the
-        adjoint is a representation of every global form.  See `in_root_lattice`.
+        The `e = 0` mirror of `mag_admits`, but tested by **class**: weights are
+        stored in the fundamental-weight basis, so `P` is the ambient lattice and
+        the classes *cut it down* towards `Q` — the opposite direction to the
+        magnetic side, where they grow `Q^∨` towards `P^∨`.  `P` at the simply
+        connected form, `Q` at the adjoint form (so the adjoint representation is
+        admitted at every form, as it must be), the annihilator of `H` at an
+        intermediate one — unchanged on every product form.
 
-        An intermediate `H` needs the genuine class in `P/Q` (`weight_class`), for
-        the same reason `mag_admits` needs `coweight_class`: the exact class, not a
-        guessed functional."""
-        if not self.H:
-            return True
-        if self.invariants and set(self.H) == set(range(self.invariants[0])):
-            return in_root_lattice(self.datum, tuple(e))
-        # INTERMEDIATE H: the electric charges are those ANNIHILATING H, i.e.
-        # class(e)·h ≡ 0 (mod n) for every h ∈ H.  Uses `weight_class`, which
-        # searches the classes with an exact integer solve rather than trusting the
-        # centre functional that `centre_class` guesses (measured wrong at B₂).
-        n = self.invariants[0]
-        k = weight_class(self.datum, tuple(e))
-        if k is None:
+        This is the reading its callers need: `gn_abe_kalgebra` and
+        `star_bubbling` ask it whether a matter weight is a weight of the gauge
+        group, a question about the `m = 0` fibre and not about the projection."""
+        l = weight_classes(self.datum, tuple(e))
+        if l is None:
             return False
-        return all((k * h) % n == 0 for h in self.H)
+        return (tuple(0 for _ in self.divisors), l) in self._pairs
 
     def _centre_pairing(self, e, h) -> int:
         """The `Z`-valued pairing of a weight class with a centre element.
@@ -1093,7 +1550,20 @@ class LineLattice:
         return int((val * n) % n)
 
     def admits(self, m, e) -> bool:
-        return self.mag_admits(m) and self.elec_admits(e)
+        """Whether `(m, e)` is a line of this lattice.
+
+        ⚠ **This is not `mag_admits(m) and elec_admits(e)`** once the lattice is
+        allowed to be non-product (2026-08-24).  It used to be defined as that
+        conjunction, which is correct exactly for the traditional product forms;
+        a correlated lattice can contain `(m, e)` while containing neither
+        `(m, 0)` nor `(0, e)`.  The two side predicates are now the *fibres* of
+        this one (see `mag_admits`), so on a product form all three agree with
+        the old behaviour, label for label."""
+        l = weight_classes(self.datum, tuple(e))
+        if l is None:
+            return False
+        return any((k, l) in self._pairs
+                   for k in magnetic_classes_of(self.datum, tuple(m)))
 
     # ----- the DEFINING property (user, 2026-07-28) ------------------------
     #
@@ -1343,6 +1813,24 @@ class LineLattice:
         if not self.invariants:
             # trivial centre ⇒ a single global form, necessarily self-dual (G₂, F₄, E₈)
             return self
+        # GENERAL CASE (2026-08-24): `S` exchanges magnetic and electric, so on
+        # class pairs it is simply the SWAP `(k, l) ↦ (l, k)` — which is defined
+        # for a correlated lattice and a non-cyclic centre alike, where the
+        # `H`-and-annihilator algebra below is not.  Isotropy is preserved
+        # because the linking pairing is antisymmetric under the swap, so the
+        # image is again a legal lattice; and the swap is an involution, which
+        # is `S² = 1` at the level of the lattice.
+        if (not self.is_product()) or len(self.divisors) > 1:
+            dual_datum = langlands_dual_datum(self.datum)
+            if centre_labelling(dual_datum)[0] != self.divisors:
+                raise NotImplementedError(
+                    f"{self.name}: the Langlands dual datum has centre "
+                    f"{centre_labelling(dual_datum)[0]}, not {self.divisors}, so "
+                    f"the class-pair swap is not a map between their class "
+                    f"groups.")
+            swapped = [(l, k) for (k, l) in sorted(self.class_pairs())]
+            return LineLattice(dual_datum, classes=swapped,
+                               name=f"{self.name} (Langlands dual)")
         full = tuple(range(self.invariants[0]))
         if not self.H:
             return adjoint_lines(langlands_dual_datum(self.datum))
@@ -1411,7 +1899,49 @@ def adjoint_lines(datum) -> LineLattice:
 
     Presented on the coweight torus since ruling D10 — PSU(3), PSU(4) `ω_2^∨`,
     PSU(5), Sp(6)/Z₂ — and since D31 the odd-`⟨Σ⁺,m⟩` charges too (SO(3), PSU(4)
-    `ω_1^∨`/`ω_3^∨`, SO(5), Sp(4)/Z₂, SO(7)), so this form is carried whole."""
-    inv = centre_invariants(datum)
-    H = tuple(range(inv[0])) if inv else ()
+    `ω_1^∨`/`ω_3^∨`, SO(5), Sp(4)/Z₂, SO(7)), so this form is carried whole.
+
+    ⚠ **COORDINATES: the extra cocharacters are FRACTIONAL here, and an
+    integer-only sweep silently omits exactly the lines that make the form
+    interesting** (trap hit and recorded 2026-08-25).  Charges are in the
+    datum's coroot coordinates, so `Q^∨` is the integer lattice; this form's
+    magnetic lattice is the strictly larger `P^∨`, and the cocharacters in
+    `P^∨ \ Q^∨` are therefore **not integral**.  At `adjoint_lines(su_2())`
+    the minimal 't Hooft line — the spinorial `ω^∨`, the whole point of SO(3) —
+    is `m = Fraction(1, 2)`, and `⟨Σ⁺, (1,)⟩ = 2` there, i.e. integer `m = 1` is
+    the *even-height* SU(2) adjoint monopole, not a new line at all.
+
+    So a sweep over integer `m` on this lattice tests the SU(2) magnetic sector
+    with the adjoint form's electric restriction — a real algebra, but **not**
+    the spinorial sector, and every odd-`⟨Σ⁺,m⟩` phenomenon is invisible in it.
+    Two ways not to be caught:
+
+      * sweep `mag_admits` over fractional `m` as well (it accepts `Fraction`);
+      * or work in a datum whose own coordinates make the lattice integral —
+        for SO(3) that is `root_datum.so_n(3)`, where `⟨Σ⁺,(1,)⟩ = 1` and
+        integer `m` covers the whole lattice, `m = 1` being the minuscule
+        spinorial monopole.  This is the frame the BPS oracle
+        `src/gn/pure_so3.py` uses.
+
+    The two are the same lattice, so neither is "right"; what is wrong is
+    enumerating one in the other's coordinates.  Worked example, with the
+    axioms measured on both sides:
+    a probe in the source repository.
+
+    Generalised 2026-08-24 to a non-cyclic centre.  `H` used to be
+    `range(invariants[0])`, which enumerates only the *first* invariant factor —
+    at `Spin(8)` two of the four classes of `Z_2 × Z_2`.  That was a degenerate
+    *encoding* rather than a wrong answer: `mag_admits` special-cased
+    `set(H) == set(range(invariants[0]))` and took the `P^∨` branch, so the form
+    came out right anyway.  The whole class group is now named explicitly, so the
+    subgroup means what it says and the special case is not load-bearing."""
+    divisors = centre_labelling(datum)[0]
+    if not divisors:
+        H = ()
+    elif len(divisors) == 1:
+        # Cyclic: keep the integer encoding, which every pre-2026-08-24 consumer
+        # of `.H` reads (`langlands_dual`'s annihilator, the parity diagnostics).
+        H = tuple(range(divisors[0]))
+    else:
+        H = tuple(k for k in _all_classes(divisors) if any(k))
     return LineLattice(datum, H=H, name=f"{datum.name} (adjoint)")

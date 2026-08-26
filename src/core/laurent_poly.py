@@ -1,7 +1,9 @@
 """LaurentPoly — elements of Z[q, q^{-1}].
 
-Self-contained (stdlib only).  This is the universal coefficient
-ring for K_𝖖-algebras.
+Canonical-surface migration of `quantum_torus.LaurentPoly` (the design record
+Stage A1).  Self-contained: no imports from the preliminary stack.
+This is the universal coefficient ring for K-theoretic Coulomb
+branch algebras.
 
 A `LaurentPoly` is a finite formal sum `Σ_n c_n q^n` with
 `c_n ∈ Z`, stored as a sparse `dict[int, int]` of non-zero
@@ -22,8 +24,32 @@ class LaurentPoly:
         self._coeffs: dict[int, int] = {}
         if coeffs:
             for exp, c in coeffs.items():
-                if c != 0:
-                    self._coeffs[int(exp)] = int(c)
+                if c == 0:
+                    continue
+                ic = int(c)
+                if ic != c:
+                    # This ring is `Z[q, q^{-1}]`, so a non-integral coefficient
+                    # is a caller error — but it used to be TRUNCATED silently,
+                    # because the zero-test read the original `c` while the store
+                    # kept `int(c)`.  `Fraction(1,2)` therefore passed the test
+                    # and landed as **0**, and `3/2` as `1`.
+                    #
+                    # Two harms, both measured.  The value is simply wrong; and
+                    # the stored zero breaks this class's documented invariant
+                    # ("a sparse dict of NON-ZERO coefficients"), which the
+                    # arithmetic paths rely on — `__add__`'s general path then
+                    # raised `KeyError` on it, while its monomial fast path did
+                    # not, so the same sum crashed or not depending on how many
+                    # terms the right operand had.
+                    #
+                    # Same failure class as the `_norm_weight` truncation that
+                    # sent SO(5)'s spinor weight `(½,½)` to `v^0`: an `int()`
+                    # applied where exactness was assumed.  Refuse instead.
+                    raise TypeError(
+                        f"LaurentPoly is over Z[q, q^-1]: coefficient {c!r} at "
+                        f"exponent {exp!r} is not an integer.  It used to be "
+                        f"silently truncated to {ic!r}.")
+                self._coeffs[int(exp)] = ic
 
     @classmethod
     def _from_clean_dict(cls, d: dict[int, int]) -> LaurentPoly:
@@ -92,7 +118,19 @@ class LaurentPoly:
         for e, c in other._coeffs.items():
             v = result.get(e, 0) + c
             if v == 0:
-                del result[e]
+                # `pop`, not `del`: `v == 0` with `e` ABSENT from `result` means
+                # the other side carried an explicit zero coefficient there, and
+                # `del` raises `KeyError` on it.  The monomial fast path above
+                # already guards this (`if e in result`); the two paths simply
+                # disagreed, so the same addition crashed or not depending on
+                # how many terms the right operand happened to have.
+                #
+                # Unreachable while every `_coeffs` is clean — which is the
+                # invariant, not a guarantee: it is broken by any caller that
+                # builds a `LaurentPoly` with a zero entry, and (measured) by
+                # `Fraction` coefficients, whose arithmetic can leave a
+                # `Fraction(0)` behind.  Making the paths agree is free.
+                result.pop(e, None)
             else:
                 result[e] = v
         return LaurentPoly._from_clean_dict(result)
@@ -260,9 +298,16 @@ class QuantumTorus:
 
     Internally stored as a dict mapping (a, b) -> LaurentPoly coefficient.
 
-    Note: the canonical `A_𝖖[T]` quantum torus is `QuantumTorusKAlg`
+    SCOPE NOTE — *not* dead, despite the canonical surface not using it.
+    The canonical `A_𝖖[T]` quantum torus is `QuantumTorusKAlg`
     (`quantum_torus_kalgebra.py`); this rank-2 `QuantumTorus` is a separate,
-    lower-level Laurent-arithmetic helper type kept alongside it.
+    preliminary type used by the kept-at-root primitive `mutation.py` (the
+    `_decompose`/`mutate`/`complete` machinery), which `lattice_mutation.py`
+    — and hence `bps_kalgebra` / `bps_okmodule` — depend on, plus the
+    `quantum_torus` shim and its legacy regression tests.  The public
+    `KAlgebra` export (a 16-file subset with no `mutation.py`) correctly drops
+    this class as unused *there*; do **not** mirror that deletion here — it is
+    load-bearing in Cluster.
     """
 
     __slots__ = ("_terms",)

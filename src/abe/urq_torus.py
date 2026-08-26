@@ -15,13 +15,13 @@ The **residual vector `(f_m)` is the primary content** other algorithms consume
 `U_m` form a rational-2-cocycle-twisted quantum torus,
 ``U_a U_b = R_{a,b}(v) U_{a+b}`` (single u-power, NO sum), so the algebra is carried
 by the closed forms `ψ, R` (multiply) and a **G-cocycle** (the √measure ρ); the
-Schur trace is the magnetic-0 measure residue; the design covers ρ²-cyclicity,
-the inner-product picture, and the q²-Levi-Vandermonde weight.
+Schur trace is the magnetic-0 measure residue.  See the design notes for the
+full design (ρ²-cyclicity, the inner-product picture, the q²-Levi-Vandermonde weight).
 
 Conventions
 -----------
 `q = 𝖖`; `v_1..v_N` abelianized gauge variables; magnetic `m` an integer N-tuple,
-*dominant* = descending.  Two shifts: the **full** normal-ordering `S_m: v→q^{2m}v`
+*dominant* = descending.  Two shifts: the **full** normal-ordering `T_{2m}: v→q^{2m}v`
 (used by the cocycles) and the **half**-shift `v→q^m v` (used to pass between the
 algebra-internal *bare* residual `c_m = d_m/ψ_m` and the public `f_m`, `c_m(v) =
 f_m(q^m v)`).
@@ -49,7 +49,7 @@ operates on); `f_m` is produced at the boundary by the half-shift, so callers se
 half-shift convention while the algebra stays direct.  *How* `f_m` is stored/computed
 is deliberately behind this surface — the engine rework is free to replace the
 reference closed forms below without changing the public class.  Legacy access
-(`experiments/pun_ubasis_multiply.py`, `to_U`) remains available in the interim.
+(a probe in the source repository, `to_U`) remains available in the interim.
 """
 from __future__ import annotations
 
@@ -147,7 +147,9 @@ _R: dict = {}
 
 
 def _Rcoc(a, b, N):
-    """The multiply cocycle: U_a U_b = R_{a,b} U_{a+b}, R = ψ_a·S_a(ψ_b)/ψ_{a+b}."""
+    """The multiply cocycle: U_a U_b = R_{a,b} U_{a+b}, R = ψ_a·T_{2a}(ψ_b)/ψ_{a+b}
+    (`T_p : v^λ ↦ 𝖖^{⟨p,λ⟩}v^λ`; written `S_a` until 2026-08-25 — see
+    `wrq_torus.cocycle_R` for why the `S_` spelling was retired)."""
     key = (N, tuple(a), tuple(b))
     if key in _R:
         return _R[key]
@@ -500,7 +502,7 @@ class URQTorus:
         element obtained as a polynomial in canonicals with leading orbit `L_{m,e}`
         and `O(q)` bubbling already IS `L_{m,e}` by Kazhdan-Lusztig uniqueness, §6c —
         the `δ` follows for free) and *useless* off-span (it auto-passes correct-
-        leading + arbitrary `O(q)` bubbling, and off-span garbage — the
+        leading + arbitrary `O(q)` bubbling, and off-span garbage — the design notes
         constructive-build rule).  The trace-free `well_formed()` (bar-invariance + `O(q)`
         bubbling *shape*) is the better and faster post-build certificate.
 
@@ -531,7 +533,7 @@ class URQTorus:
 
         **Scope.**  It presupposes in-span, single-target.  It does *not* detect a
         superposition of canonicals with distinct leadings, nor an off-span element —
-        **no post-hoc test does** (the constructive-build rule).  The only guard against bad
+        **no post-hoc test does** (the design notes constructive-build rule).  The only guard against bad
         bubbling / leaving the span is **constructive building** itself."""
         if self.bar() != self:                     # (W1) bar-invariance — palindrome
             return False
@@ -559,7 +561,7 @@ class URQTorus:
         # must resolve to the in-frame dominant representative — the Levi
         # e-read below is frame-dependent.  Previously implicit via dict
         # insertion order (constructors insert the dominant rep first);
-        # explicit since Plan 30 T1.  When no dominant rep is present the
+        # explicit since ruling T1.  When no dominant rep is present the
         # historical first-max pick is kept (Weyl-closed supports always
         # carry it in practice).
         best = max(_dominance_key(m) for m in self._f)
@@ -742,7 +744,7 @@ class HeldURQTorus:
         components are never combined.  Same lower-Kapustin output as
         `URQTorus.recognize_leading`."""
         N = self._N
-        # same tie-break as the eager class (Plan 30 T1): among equal
+        # same tie-break as the eager class (ruling T1): among equal
         # dominance keys, materialise the in-frame dominant representative
         # first — the Levi e-read is frame-dependent.
         for m_dom in sorted(

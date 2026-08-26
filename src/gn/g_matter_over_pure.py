@@ -386,15 +386,35 @@ def fuse_characters(datum: RootDatum, e1, e2, cache: dict | None = None) -> dict
 
 
 def single_hyper_character_expansion(datum: RootDatum, lam, k: int,
-                                     cache: dict | None = None) -> dict:
+                                     cache: dict | None = None,
+                                     conjugate: bool = False) -> dict:
     """One hypermultiplet in the representation `lam`, at flavour level `k`:
     `[∏_{w ∈ wt(lam)} E_𝖖(μ v^w)]_{μ^k}` as `{dominant weight e: HabiroElement}`
     over the Wilson-line characters `χ_e`.
+
+    With `conjugate=True` the other admissible orientation of `S` is used (user,
+    2026-08-02: *"`∏_{w ∈ wt(lam)} E_𝖖(μ^{-1} v^{-w})` also works as an `S`, with
+    appropriate positive cone."*), i.e. `[∏_w E_𝖖(μ⁻¹v^{−w})]_{μ^{−k}}`.
+
+    **That is exactly the DUAL representation**, which is the whole content of the
+    `N` vs `N*` care the user flagged: negating every weight of `lam` gives the
+    weight multiset of `lam*`, so
+
+        expansion(lam, k, conjugate=True)  ==  expansion(lam*, k)
+
+    and the flavour level is re-indexed by `|k|` rather than the cone being moved —
+    the two descriptions differ only in bookkeeping.  For a **self-conjugate** `lam`
+    the flag is therefore a no-op (SU(2) fundamental, any adjoint), which is why a
+    comparison run only at SU(2)+1 cannot see the orientation at all; SU(3)+1 is the
+    cheapest place it bites.  `E_𝖖` itself is untouched — the conjugation is in the
+    argument, never `E_{𝖖⁻¹}` (standing user ruling).
 
     The group-general analogue of
     `un_nf_over_pure_rgflow.single_hyper_wilson_expansion`."""
     cache = {} if cache is None else cache
     weights = matter_weights(datum, lam)
+    if conjugate:
+        weights = [tuple(-x for x in w) for w in weights]
     zero = (0,) * datum.dim
     levels = {0: {zero: HabiroElement.one()}}
     for w in weights:
@@ -442,7 +462,19 @@ class GMatterOverPure(RGKAlgebra):
     """
 
     def __init__(self, datum: RootDatum, matter, nf: int | None = None,
-                 allow_solve: bool = True, strict_guard: bool = False) -> None:
+                 allow_solve: bool = True, strict_guard: bool = False,
+                 conjugate_S: bool = False) -> None:
+        """`conjugate_S` selects the other admissible orientation of `S`
+        (`∏_w E_𝖖(μ⁻¹v^{−w})` rather than `∏_w E_𝖖(μ v^w)`) — see
+        `single_hyper_character_expansion`, where it is shown to be the **dual**
+        matter representation and hence a no-op at self-conjugate `lam`.
+
+        Defaulted to the existing orientation, so no current caller changes; it
+        exists so a consumer that fixes an orientation on its own side (the
+        boundary's matter letter is the conjugated one) can be compared against
+        this flow **at a non-self-conjugate rep**, where the two genuinely differ.
+        Without it such a comparison is only ever run where the flag cannot
+        matter, and agreement there says nothing about the orientation."""
         self.datum = datum
         if nf is not None:
             matter = ((tuple(matter), int(nf)),)
@@ -450,6 +482,7 @@ class GMatterOverPure(RGKAlgebra):
         if not self._matter:
             raise ValueError(
                 "GMatterOverPure: no matter — use PureGAbeKAlgebra directly")
+        self.conjugate_S = bool(conjugate_S)
         self._M = len(self._matter)
         self._pure = PureGAbeKAlgebra(datum, allow_solve=allow_solve,
                                       strict_guard=strict_guard)
@@ -511,7 +544,8 @@ class GMatterOverPure(RGKAlgebra):
         got = self._level_cache.get(key)
         if got is None:
             got = single_hyper_character_expansion(
-                self.datum, self._matter[i], int(k), self._chi_cache)
+                self.datum, self._matter[i], int(k), self._chi_cache,
+                conjugate=self.conjugate_S)
             self._level_cache[key] = got
         return got
 

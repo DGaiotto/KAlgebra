@@ -1,0 +1,162 @@
+{
+ "id": "conj:upper",
+ "labels": [
+  "conj:upper"
+ ],
+ "date": "2026-09-27T03:18:22Z",
+ "commit": "cc2e068c4c42a736f2d331dcaaff74ee5b179a2f",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "lineup": [
+   "pentagon",
+   "A_3",
+   "[A_1,D_4]",
+   "Kronecker (pure SU(2))",
+   "SU(2)+1",
+   "SU(2)+2",
+   "SU(2)+3",
+   "Markov"
+  ],
+  "labels": "node charges, pairwise sums and minus the first node (Markov: the nodes)",
+  "mutation sequences": {
+   "pentagon": "length <= 5, 8 charts reached",
+   "A_3": "length <= 4, 30 charts reached",
+   "[A_1,D_4]": "length <= 3, 36 charts reached",
+   "Kronecker (pure SU(2))": "length <= 5, 9 charts reached",
+   "SU(2)+1": "length <= 4, 36 charts reached",
+   "SU(2)+2": "length <= 3, 39 charts reached",
+   "SU(2)+3": "length <= 2, 20 charts reached",
+   "Markov": "length <= 4, 43 charts reached"
+  },
+  "K_q axioms": {
+   "pentagon": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": true,
+    "ax:trace rho^2-twisted cyclicity": true
+   },
+   "A_3": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": true,
+    "ax:trace rho^2-twisted cyclicity": true
+   },
+   "[A_1,D_4]": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": "not reached in 30 s",
+    "ax:trace rho^2-twisted cyclicity": "not reached in 30 s"
+   },
+   "Kronecker (pure SU(2))": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": true,
+    "ax:trace rho^2-twisted cyclicity": true
+   },
+   "SU(2)+1": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": true,
+    "ax:trace rho^2-twisted cyclicity": "not reached in 30 s"
+   },
+   "SU(2)+2": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": true,
+    "ax:trace rho^2-twisted cyclicity": "not reached in 30 s"
+   },
+   "SU(2)+3": {
+    "ax:bar": true,
+    "ax:rho": true,
+    "RG multiplicative": true,
+    "ax:rhotr": true,
+    "ax:trace orthonormality": true,
+    "ax:trace rho^2-twisted cyclicity": "not reached in 30 s"
+   }
+  },
+  "dictionary sample": "11 charts; skipped (no stored spec, so no finite rho on the BPS route): [[[0, 2, -2], [-2, 0, 2], [2, -2, 0]]]",
+  "seconds": 173.4
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "F·S = X + O(q) on every label (sec:rg/F-unique)",
+  "negative": "bare node monomials and truncated F fail the mutation test"
+ },
+ "elapsed_s": 173.413,
+ "notes": "D7's second half -- every mutation-covariant Laurent polynomial supported in a box lies in the span of the RG_gamma -- is not implemented.",
+ "checks": [
+  {
+   "name": "finiteness on the lineup: where the repo's F ends below the recursion's depth the independent recursion ends there too -- pentagon 4/4 labels (depth 6, at least 4 empty degrees); A_3 7/7 labels (depth 5, at least 2 empty degrees); [A_1,D_4] 11/11 labels (depth 4, at least 1 empty degrees); Kronecker (pure SU(2)) 3/4 labels (depth 6, at least 4 empty degrees); SU(2)+1 5/7 labels (depth 5, at least 1 empty degrees); SU(2)+2 9/11 labels (depth 4, at least 2 empty degrees); SU(2)+3 15/16 labels (depth 4, at least 2 empty degrees); Markov 3/3 labels (depth 6, at least 2 empty degrees); F reaching the depth, not confirmed: {'Kronecker (pure SU(2))': [(-1, 0)], 'SU(2)+1': [(0, 1, 1), (-1, 0, 0)], 'SU(2)+2': [(0, 0, 1, 1), (-1, 0, 0, 0)], 'SU(2)+3': [(-1, 0, 0, 0, 0)]}",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "the operational statement, first half: RG_gamma stays a Laurent polynomial after every mutation along every sequence of bounded length (no node twice in a row), on node charges, pairwise sums and minus the first node -- pentagon 40/40 conjugations, length <= 5, 8 charts; A_3 315/315 conjugations, length <= 4, 30 charts; [A_1,D_4] 572/572 conjugations, length <= 3, 36 charts; Kronecker (pure SU(2)) 40/40 conjugations, length <= 5, 9 charts; SU(2)+1 315/315 conjugations, length <= 4, 36 charts; SU(2)+2 572/572 conjugations, length <= 3, 39 charts; SU(2)+3 400/400 conjugations, length <= 2, 20 charts; Markov 135/135 conjugations, length <= 4, 43 charts",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative controls: a bare node monomial X_gamma_j fails after one mutation (pentagon 1/2, A_3 2/3, [A_1,D_4] 1/4, Kronecker (pure SU(2)) 1/2, SU(2)+1 3/3, SU(2)+2 2/4, SU(2)+3 4/5, Markov 3/3), and F with its top-degree terms dropped fails on some sequence (pentagon 3/3, A_3 5/5, [A_1,D_4] 4/4, Kronecker (pure SU(2)) 3/3, SU(2)+1 7/7, SU(2)+2 8/8, SU(2)+3 15/15, Markov 3/3)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "ax:bar on the labels 1 and three nodes: holds on pentagon, A_3, [A_1,D_4], Kronecker (pure SU(2)), SU(2)+1, SU(2)+2, SU(2)+3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "ax:rho on the labels 1 and three nodes: holds on pentagon, A_3, [A_1,D_4], Kronecker (pure SU(2)), SU(2)+1, SU(2)+2, SU(2)+3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "RG multiplicative on the labels 1 and three nodes: holds on pentagon, A_3, [A_1,D_4], Kronecker (pure SU(2)), SU(2)+1, SU(2)+2, SU(2)+3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "ax:rhotr (regression guard: inherited on RGKAlgebra) on the labels 1 and three nodes: holds on pentagon, A_3, [A_1,D_4], Kronecker (pure SU(2)), SU(2)+1, SU(2)+2, SU(2)+3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "ax:trace orthonormality on the labels 1 and three nodes: holds on pentagon, A_3, Kronecker (pure SU(2)), SU(2)+1, SU(2)+2, SU(2)+3; not reached within 30 s on [A_1,D_4]",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "ax:trace rho^2-twisted cyclicity on the labels 1 and three nodes: holds on pentagon, A_3, Kronecker (pure SU(2)); not reached within 30 s on [A_1,D_4], SU(2)+1, SU(2)+2, SU(2)+3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the dictionary sample (11 charts, n <= 3): finiteness confirmed by the recursion on 43 labels (34 with F reaching the depth); node products close over Z[q^+-1], are RG-multiplicative, and satisfy ax:bar and ax:rho",
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

@@ -4,13 +4,28 @@
 This is the production, BPS-free trace backend for `su3_ad_kalg`: it computes
 the ρ²-twisted Schur trace entirely from
 
-  * **Tr_1** — the closed-form Kac–Wakimoto vacuum character of
-    `\\widehat{sl}(3)_{-3/2}` (`vacuum_character`), an exact SU(3)-character
-    q-series;
-  * **Tr_T, Tr_D** — the two remaining elementary traces, obtained from the
-    **orthonormality bootstrap** seeded by Tr_1 (`SU3ElemTraces`): Layer-1
+  * **Tr_1** — since 2026-09-24 (later the same day as Tr_T, Tr_D below)
+    from the same closed forms: the identity goes to the empty section of
+    `A1DevenKAlg(1)`, whose gauged traces are Creutzig's gauge tower, so Tr_1
+    is that tower summed over the gauge charge with the measure restored
+    (`_deven_seed_z((), 0, K)`), 𝖖¹⁰⁰ in under a second.  The closed-form
+    Kac–Wakimoto vacuum character of `\\widehat{sl}(3)_{-3/2}`
+    (`vacuum_character`), an exact SU(3)-character q-series, served it until
+    then and is its witness: the two agree through 𝖖¹⁰⁰
+    (the suite in the source repository);
+  * **Tr_T, Tr_D** — the two remaining elementary traces, since 2026-09-24
+    from the **closed forms of the U(1)-gauged even-D family at k = 1**
+    (`u1a1deven_seed_characters`): `SU3ADKAlg` restricted to
+    SU(2)×U(1) is the ungauged `A1DevenKAlg(1)`, a generator goes to a
+    generator of it (the curves of `su3_ad_kalg`'s "Geometric labels" block,
+    with a U(1) offset), and its trace is the gauge-charge sum of the gauged
+    seed traces with the measure restored (`_deven_seed_z`,
+    `_ClosedFormSeeds`); arbitrary q-order, 𝖖⁸⁰ in about a second.  The
+    **orthonormality bootstrap** seeded by Tr_1 (`SU3ElemTraces`: Layer-1
     forces `Tr(seed^a) = O(𝖖^a)`, which deconvolves order-by-order into Tr_T
-    and ⋆Tr_D (a single forward pass in Cartan fugacities); arbitrary q-order;
+    and ⋆Tr_D, a single forward pass in Cartan fugacities) served them until
+    then and is kept as the independent witness: the two agree through 𝖖⁸⁰
+    (the suite in the source repository);
   * the **Layer-1 reduction** of any canonical monomial to those three seeds
     (`seed_z_fast` / `fug_multiply`), carried out in **Cartan fugacities**
     (z-Laurent over the SU(3) weight lattice) so non-self-dual product content
@@ -18,8 +33,10 @@ the ρ²-twisted Schur trace entirely from
     happens only on the *total* (`sym_to_char`).
 
 No BPS / RG / quantum-torus engine is touched.  Everything below uses only
-`zplus_ring.SU3ZPlusRing` (weight diagrams / characters) and the letter
-machinery of `su3_ad_kalg` (cone relations; lazily, no import cycle).
+`zplus_ring.SU3ZPlusRing` (weight diagrams / characters), the letter
+machinery of `su3_ad_kalg` (cone relations; lazily, no import cycle) and the
+closed-form functions of `u1a1deven_seed_characters` (no class of the even-D
+family is built).
 
 This module is the consolidated, engine-free production implementation
 of the character/fugacity bootstrap.
@@ -158,61 +175,58 @@ def char_to_zlaurent(char):                           # {(p,q):c} -> {weight:c}
     return {w: v for w, v in out.items() if v}
 
 
+# The Weyl denominator Δ = Σ_w sign(w)·e^{w(ρ)}, as (sign, w(ρ)) pairs.
+_RHO_ORBIT = tuple((sign, _apply(word, RHO)) for sign, word in WEYL)
+
+
 def antisym_to_char(R):
     """Divide an antisymmetric z-Laurent by the Weyl denominator A(ρ):
-    returns {(p,q): coeff} (the symmetric SU(3) virtual character)."""
-    R = dict(R)
-    char = {}
-    guard = 0
-    while R:
-        guard += 1
-        if guard > 5000:
-            raise RuntimeError("antisym_to_char did not terminate")
-        dom = [w for w, c in R.items() if w[0] >= 1 and w[1] >= 1 and c]
-        if not dom:
-            raise RuntimeError(f"antisym residue off dominant chamber: {R}")
-        nu = max(dom, key=lambda w: ip(w, RHO))
-        a = R[nu]
-        lam = (nu[0] - 1, nu[1] - 1)
-        char[lam] = char.get(lam, 0) + a
-        for sign, word in WEYL:
-            wv = _apply(word, nu)
-            R[wv] = R.get(wv, 0) - a * sign
-        R = {w: c for w, c in R.items() if c}
-    return {k: v for k, v in char.items() if v}
+    returns {(p,q): coeff} (the symmetric SU(3) virtual character).
+
+    R is a combination of alternants Σ_w sign(w)·e^{w(ν)}, ν strictly
+    dominant, whose supports are disjoint, so the coefficient of χ_{ν−ρ} is
+    R's coefficient at ν.  Raises unless R is Weyl-antisymmetric."""
+    R = {w: c for w, c in R.items() if c}
+    for w, c in R.items():
+        if R.get(_s1(w), 0) != -c or R.get(_s2(w), 0) != -c:
+            raise RuntimeError(f"antisym_to_char: not Weyl-antisymmetric at "
+                               f"{w} (coefficient {c})")
+    return {(w[0] - 1, w[1] - 1): c for w, c in R.items()
+            if w[0] >= 1 and w[1] >= 1}
 
 
 def sym_to_char(z):
     """Weyl-**symmetric** z-Laurent -> {(p,q): coeff} SU(3) (virtual)
-    character.  Peel the highest dominant weight, subtract its full irrep
-    weight diagram, repeat.  Used to symmetrize the *total* of a trace only
-    at the very end (never per intermediate term)."""
+    character.  By the Weyl character formula χ_λ·Δ = Σ_w sign(w)·e^{w(λ+ρ)},
+    and w(λ+ρ) is strictly dominant only for w = 1, so the coefficient of χ_λ
+    is z·Δ's coefficient at λ+ρ (one pass over z; it replaced a highest-weight
+    peel on 2026-09-26, whose cost grew quadratically with the number of
+    irreps).  Raises unless z is Weyl-symmetric.  Used to symmetrize the
+    *total* of a trace only at the very end (never per intermediate term)."""
     z = {w: c for w, c in z.items() if c}
+    for w, c in z.items():
+        if z.get(_s1(w), 0) != c or z.get(_s2(w), 0) != c:
+            raise RuntimeError(f"sym_to_char: not Weyl-symmetric at {w} "
+                               f"(coefficient {c})")
     char = {}
-    guard = 0
-    while z:
-        guard += 1
-        if guard > 20000:
-            raise RuntimeError("sym_to_char did not terminate")
-        dom = [w for w, c in z.items() if w[0] >= 0 and w[1] >= 0 and c]
-        if not dom:
-            raise RuntimeError(f"sym residue off dominant chamber: {z}")
-        hw = max(dom, key=lambda w: ip(w, RHO))
-        c = z[hw]
-        char[hw] = char.get(hw, 0) + c
-        for w, m in weight_diagram(hw).items():
-            z[w] = z.get(w, 0) - c * m
-        z = {w: cc for w, cc in z.items() if cc}
+    for w, c in z.items():
+        for sign, r in _RHO_ORBIT:
+            m1, m2 = w[0] + r[0], w[1] + r[1]
+            if m1 >= 1 and m2 >= 1:
+                lam = (m1 - 1, m2 - 1)
+                char[lam] = char.get(lam, 0) + sign * c
     return {k: v for k, v in char.items() if v}
 
 
 # ---------------------------------------------------------------------------
 # Tr_1 — the Kac–Wakimoto vacuum character of \widehat{sl}(3)_{-3/2}
 # ---------------------------------------------------------------------------
-# Conventions: q_paper = 𝖖² (BPS index variable), no
-# q^{-c/24} prefactor (vacuum starts at 1).  ch = N/D solved order-by-order;
-# /D_0 (= /Weyl-denominator) turns an antisymmetric z-Laurent into a symmetric
-# SU(3) character.
+# The witness of the served Tr_1 since 2026-09-24 (the served one: the
+# ungauged gauge tower, `_ClosedFormSeeds`), and the Tr_1 the forward pass
+# `SU3ElemTraces` is seeded by.  Conventions: q_paper = 𝖖² (BPS index
+# variable), no q^{-c/24} prefactor (vacuum starts at 1).  ch = N/D solved
+# order-by-order; /D_0 (= /Weyl-denominator) turns an antisymmetric z-Laurent
+# into a symmetric SU(3) character.
 
 def vacuum_character(Kmax):
     """{q_paper grade: {(p,q): coeff}} — exact, BPS-free."""
@@ -427,6 +441,8 @@ def fug_multiply(letter_seq, z, q_factor, depth=0):
 # a single forward pass closes the tower.  The whole tower runs on the cheap
 # D-seeds (D^a, a≡0 mod3 → Tr_T scalar lead; a≡2 mod3 → ⋆Tr_D scalar lead);
 # the larger D-seed re-derivation is a BPS-free over-determination certificate.
+# Off the serving path since 2026-09-24 (the closed forms below serve): the
+# independent witness of the closed forms in the source repository's tests.
 
 
 def _seed_layer1_z(lab):
@@ -439,7 +455,8 @@ def _seed_layer1_z(lab):
 class SU3ElemTraces:
     """Cache of the three elementary trace seeds to a given 𝖖-order, all
     BPS-free: Tr_1 (vacuum char), Tr_T, ⋆Tr_D (=SD).  Indexed by 𝖖-power
-    (q_paper grade k sits at 𝖖^{2k})."""
+    (q_paper grade k sits at 𝖖^{2k}).  The witness of the served closed
+    forms (`_ClosedFormSeeds`) since 2026-09-24, not on the serving path."""
 
     def __init__(self):
         self.K = 0
@@ -531,8 +548,148 @@ class SU3ElemTraces:
         raise KeyError(key)
 
 
-# one process-wide cache (the seeds are universal for SU3AD)
-_PROVIDER = SU3ElemTraces()
+# ---------------------------------------------------------------------------
+# Tr_1, Tr_T, Tr_D — served from the even-D k = 1 closed forms (2026-09-24)
+# ---------------------------------------------------------------------------
+# `SU3ADKAlg` restricted to SU(2)×U(1) is the ungauged `A1DevenKAlg(1)`, and
+# its generators go to generators of that class up to a U(1) offset (the
+# "Geometric labels" block of `su3_ad_kalg`: `T_0 ↦ {(0,4), (1,2)}` with
+# offset 0, `D_0 ↦ {(1,3)}` with offset 1, `D_1 ↦ {(2,3)}` with offset 2, in
+# units of the branching charge `Y`).  The ungauged trace of an E-free section
+# is the gauge-charge sum of the gauged traces with the U(1) vector-multiplet
+# measure restored (`UngaugedKAlgebra.trace`),
+#
+#     Tr(L_F) = [Σ_n z^n·Tr_G(L_F·E^n)] / (𝖖²;𝖖²)²_∞,
+#
+# and every gauged trace needed is a seed of the closed forms
+# `u1a1deven_seed_characters.seed_trace` (k = 1: the opposite-charge pair for
+# T, the odd curve for D) or, for Tr_1 (the identity: the empty section,
+# offset 0), its gauge tower `gauge_trace` (Creutzig's).  A term `χ_κ·z^f` is
+# the `Y = 3f + Δ` part of the SU(3) character; its SU(2) weights `w` are the
+# SU(3) weights `(m1, m2) = (−w, (Y + w)/2)` in Dynkin coordinates
+# (`su3_to_su2u1_hom`'s branching `(a, b) ↦ (a − b, a + b)` read through
+# `weight_diagram`'s `(m1, m2) = (b − a, a)`).  So no Weyl symmetrization is
+# needed: the result is the restriction to the common maximal torus, and the
+# totals are symmetrized as before.  The window `|n| ≤ K + 1` is
+# `UngaugedKAlgebra`'s; a contribution at its edge raises instead of being
+# truncated.
+
+
+def _inverse_measure(K):
+    """`1/(𝖖²;𝖖²)²_∞` through 𝖖^K, `{𝖖-power: int}`."""
+    inv = {0: 1}
+    for _ in range(2):
+        for j in range(1, K // 2 + 1):
+            nxt = {}
+            for e, c in inv.items():
+                m = 0
+                while e + 2 * j * m <= K:
+                    nxt[e + 2 * j * m] = nxt.get(e + 2 * j * m, 0) + c
+                    m += 1
+            inv = nxt
+    return inv
+
+
+def _deven_seed_z(curves, delta, K):
+    """`{𝖖-power: z-Laurent over SU(3) weights}` through 𝖖^K of the trace of
+    the `SU3ADKAlg` element whose image in `A1DevenKAlg(1)` is the E-free
+    section `curves` with `Y`-offset `delta` (the block comment above):
+    the gauge-charge sum of the closed-form seed traces at k = 1, the measure
+    restored, restricted to the SU(3) Cartan torus.  The empty section
+    `curves = ()` is the identity: its gauged traces are Creutzig's gauge
+    tower (`gauge_trace`), and with `delta = 0` the result is the served
+    `Tr_1` (equal to the Kac–Wakimoto vacuum character, its witness).
+    `ValueError` if `curves` is not a seed of the closed forms, or if the
+    window of gauge charges is too small."""
+    from u1a1deven_seed_characters import seed_trace, gauge_trace
+    acc = {}                                      # 𝖖-power -> {(κ, f): c}
+    for n in range(-(K + 1), K + 2):
+        t = seed_trace(1, curves, n, K) if curves else gauge_trace(1, n, K)
+        if t is None:
+            raise ValueError(f"_deven_seed_z: {curves!r} is not a seed of the "
+                             f"k = 1 closed forms")
+        if t and abs(n) == K + 1:
+            raise ValueError(f"_deven_seed_z({curves!r}): the gauge charge "
+                             f"{n} contributes through q^{K}; the window "
+                             f"|n| <= K + 1 is too small")
+        for q, row in t.items():
+            slot = acc.setdefault(q, {})
+            for kap, c in row.items():
+                slot[(kap, n)] = slot.get((kap, n), 0) + c
+    inv = _inverse_measure(K)
+    tot = {}                                      # the measure, still in (κ, f)
+    for q, row in acc.items():
+        for dq, c2 in inv.items():
+            if q + dq > K:
+                continue
+            slot = tot.setdefault(q + dq, {})
+            for key, c in row.items():
+                slot[key] = slot.get(key, 0) + c * c2
+    out = {}
+    for q, row in tot.items():                    # then the weights, once
+        z = {}
+        for (kap, f), c in row.items():
+            if not c:
+                continue
+            Y = 3 * f + delta
+            for w in range(-kap, kap + 1, 2):
+                if (Y + w) % 2:
+                    raise ValueError(f"_deven_seed_z({curves!r}): Y = {Y} "
+                                     f"and SU(2) weight {w} of different "
+                                     f"parity (not an SU(3) weight)")
+                key = (-w, (Y + w) // 2)
+                z[key] = z.get(key, 0) + c
+        z = {w: c for w, c in z.items() if c}
+        if z:
+            out[q] = z
+    return out
+
+
+class _ClosedFormSeeds:
+    """The serving seeds (same interface as `SU3ElemTraces`), all three from
+    the even-D k = 1 closed forms (`_deven_seed_z`): `Tr_1` the gauge-charge
+    sum of Creutzig's gauge tower (the identity, whose image is the empty
+    section with offset 0; since 2026-09-24, later the same day as the other
+    two), `Tr_T` / `Tr_D` through the generator images of `su3_ad_kalg`.
+    `Tr_T` from `T_0` (every `T_i` has the same, self-dual trace), `Tr_D`
+    parity 0 / 1 from `D_0` / `D_1` (each from its own image; they are
+    ⋆-conjugate).  Each series is exact through `self.K` and holds nothing
+    beyond it.  Recomputed at a larger depth when asked for one, in steps of
+    at least 8 orders.  The Kac–Wakimoto vacuum character (`vacuum_character`)
+    served `Tr_1` until then and is its witness
+    (the suite in the source repository)."""
+
+    def __init__(self):
+        self.K = -1
+        self.Tr1 = {}
+        self._series = {}
+
+    def ensure(self, K):
+        if K <= self.K:
+            return self
+        K = max(K, self.K + 8)
+        from su3_ad_kalg import _deven_letter_images
+        img = _deven_letter_images()
+        self.Tr1 = _deven_seed_z((), 0, K)
+        self._series = {("Tr_T",): _deven_seed_z(*img[("T", 0)], K),
+                        ("Tr_D", 0): _deven_seed_z(*img[("D", 0)], K),
+                        ("Tr_D", 1): _deven_seed_z(*img[("D", 1)], K)}
+        self.K = K
+        return self
+
+    def series(self, key):
+        if key == ("Tr_1",):
+            return self.Tr1
+        if key in self._series:
+            return self._series[key]
+        raise KeyError(key)
+
+
+# one process-wide cache (the seeds are universal for SU3AD); the forward pass
+# `SU3ElemTraces` above and the Kac–Wakimoto `vacuum_character` are off the
+# serving path since 2026-09-24 and stay the witnesses of the closed forms
+# (the suite in the source repository)
+_PROVIDER = _ClosedFormSeeds()
 
 
 def _provider(K):
@@ -563,11 +720,19 @@ def _assemble(total_z, chi_z, K):
     return out
 
 
-def _single_label_trace_z(prov, tab, K):
+def _single_label_trace_z(prov, tab, K, red=None):
     """{𝖖-power: z-Laurent} BPS-free trace of a flavour-trivial canonical
-    monomial (tile,a,b).  Seeds must already cover the required depth."""
+    monomial (tile,a,b) through 𝖖^K (`red`: its Layer-1 reduction, if already
+    computed).  The seeds must reach 𝖖^(K + d), `d ≥ 0` minus the most
+    negative 𝖖-power of the reduction's dressings; `ValueError` if they do not
+    (never a silent truncation)."""
     tile, a, b = tab
-    red = seed_z_fast((tile, a, b, 0, 0))
+    if red is None:
+        red = seed_z_fast((tile, a, b, 0, 0))
+    need = K + _seed_depth(*(qd.keys() for qd in red.values()))
+    if prov.K < need:
+        raise ValueError(f"SU3AD trace of {tab} through q^{K}: the seeds reach "
+                         f"q^{prov.K}, the reduction needs q^{need}")
     out = {}
     for seedkey, qd in red.items():
         if seedkey[0] in ("Tr_irreducible", "Tr_max_depth"):
@@ -640,15 +805,21 @@ def product_trace(alg, factors, K=8):
         if (p, q) != (0, 0):
             chi_z = zmul(chi_z, wd((p, q)))
     prod = fug_multiply(tuple(letters_all), {(0, 0): 1}, qf)
-    # depth needed: most-negative q across product monomials + their traces
-    margin = _seed_depth(*(qd.keys() for qd in prod.values()))
-    # plus the single-label trace depth of each monomial; pad generously
-    prov = _provider(K + margin + max((b for (_, _, b) in prod), default=0) ** 2
-                     + max((a for (_, a, _) in prod), default=0) ** 2 + 4)
+    # the seed depth needed, exactly: a monomial at 𝖖^minq is traced through
+    # 𝖖^(K − minq), which reads its seeds below that by the most negative
+    # 𝖖-power of its own Layer-1 dressings.  (Until 2026-09-24 a padded guess,
+    # `K + margin + a² + b² + 4`, which is one order short on 8 of the 15,424
+    # monomials of the products of two labels with a + b ≤ 3 and of three
+    # generators — e.g. (T₀²D₀)·(T₀²D₀) — so a fresh process got the top
+    # order of those traces wrong, as the source repository's tests measure.)
+    reds = {tab: seed_z_fast(tab + (0, 0)) for tab in prod}
+    need = max((K - min(qd) + _seed_depth(*(d.keys() for d in reds[tab].values()))
+                for tab, qd in prod.items() if qd), default=0)
+    prov = _provider(max(need, 0))
     total = {}
     for tab, qd in prod.items():
         minq = min(qd) if qd else 0
-        base = _single_label_trace_z(prov, tab, K - minq)
+        base = _single_label_trace_z(prov, tab, K - minq, reds[tab])
         for q1, z1 in qd.items():
             for q2, z2 in base.items():
                 qp = q1 + q2

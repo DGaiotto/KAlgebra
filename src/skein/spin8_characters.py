@@ -20,7 +20,7 @@ Work in **doubled** e-coordinates (2·e_i, all integers) so spinor weights
 
 Relationship to `so2nf_characters.SO2NfZPlusRing(4)` (the repo's generic
 R(Spin(2N)), orthogonal-coords): same ring, **cross-validated** (dims + tensor,
-`tests/test_spin8_characters.py`).  This module is the **Dynkin-basis,
+the suite in the source repository).  This module is the **Dynkin-basis,
 triality-manifest** presentation — triality is a permutation of the three labels
 (a,c,d), whereas in orthogonal coords it is a nontrivial lattice rotation — which
 is what the SL(2,Z)→triality structure of SU(2)+N_f=4 wants.  Self-contained

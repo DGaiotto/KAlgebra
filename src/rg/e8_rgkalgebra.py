@@ -25,8 +25,9 @@ position 2 (arms 2-4-1; `E_8 = T_{2,3,5}`).  Compare the warm-up's `[A_1, A_8]`
 `S_RG = E_𝖖(L)`; **which chord `L` is dropped selects A₈ vs E₈**:
 
 * end attachment — a **short** (type-1) mag-1 chord ⇒ `[A_1, A_8]`;
-* off-centre attachment — the mag-1 chord `L = (3, 0)` (a type-3 chord crossing
-  the A₇ chain at its position-2 node) ⇒ `[A_1, E_8]`.
+* off-centre attachment — a type-3 mag-1 chord `L` crossing the A₇ chain at
+  its position-2 node, selected by the E₈ Cartan determinant 1 (`(3, 5)` in
+  the labels of `U1A1AoddKAlg(3)`) ⇒ `[A_1, E_8]`.
 
 (Unlike E₆ — where the central node sits at the *symmetric* centre of A₅ and `L`
 is the diameter — E₈'s arms 2,4 are asymmetric, so the E₈ node is off-centre and
@@ -35,10 +36,10 @@ attachment of A₇ would be the affine `T_{2,4,4}`, Cartan det 0.)
 
 Spectrum generator
 ------------------
-    S_RG  =  E_𝖖(X_L),   L = the central mag-1 chord (3, 0),
+    S_RG  =  E_𝖖(X_L),   L = that type-3 mag-1 chord,
 
 `[S_RG]_{(m,)} = c_m · L^m`, `c_m = (−q)^m/(q²;q²)_m` — `L` q-commutes with itself
-so `L^m = (((3, 0, m),), 0)` is a single cone monomial (verified).  Grading
+so `L^m = (((La, i0, m),), 0)` is a single cone monomial (verified).  Grading
 `Γ_RG = Z` by the magnetic charge; positive cone `Z_{≥0}`, height 1; identity apex.
 
 Validation
@@ -67,21 +68,43 @@ from a1aeven_to_u1aodd_rgkalgebra import _e_q_coeff       # c_m = (−q)^m/(q²;
 class E8RGKAlgebra(RGKAlgebra):
     """`[A_1, E_8]` as a directional `RGKAlgebra` over the gauged-odd
     standalone `U1A1AoddKAlg(3) = u(1)-gauged [A_1, A_7]`, with `S_RG = E_𝖖(L)`
-    for `L` the central mag-1 chord `(3, 0)` (the off-centre-of-A₇ attachment that
-    distinguishes E₈ from the warm-up's A₈).  See the module docstring."""
+    for `L` the type-3 mag-1 chord of the off-centre-of-A₇ attachment that
+    distinguishes E₈ from the warm-up's A₈.  See the module docstring."""
 
     def __init__(self):
         self._aux = U1A1AoddKAlg(3)
         self._cd = self._aux.cone_data()
         self._n = self._cd._n                       # = 8 (B_GAUGED lattice rank)
         self._mag_index = self._n - 1               # the F coord = magnetic charge
-        # central dressing chord (3, 0): mag +1, crosses the A₇ chain at its
-        # position-2 node → Cartan det 1 (E₈); found by the attachment analysis
-        # (verified by verify_is_E8).
+        # Central dressing chord: type 3 (the off-centre-of-A₇ attachment that
+        # distinguishes E₈ from the warm-up's A₈), magnetic charge +1.
+        #
+        # Selected by the DEFINING PROPERTY — UV Cartan determinant 1 — not by
+        # a literal index.  A literal index is not stable under a relabelling
+        # of the auxiliary's chords, and charge alone does not pin it either:
+        # measured at k = 3, the five mag-+1 type-3 chords give Cartan
+        # determinants -15, -23, 1, -7, 1 at i = 1, 3, 5, 7, 9.  They are a
+        # single ρ²-orbit and ρ is an algebra automorphism, so one might expect
+        # all five to work; they do not, because `_a7_chain()` finds its
+        # reference chain by search and the chord moves relative to it.  So the
+        # determinant is measured per candidate, and the first that verifies
+        # is taken.
         self._La = 3
-        self._i0 = 0
-        if self._cd._chg[(self._La, self._i0)][self._mag_index] != 1:
-            raise RuntimeError("E8 dressing chord (3,0) is not magnetic charge +1")
+        cands = sorted(i for i in self._cd._types[self._La]
+                       if self._cd._chg[(self._La, i)][self._mag_index] == 1)
+        if not cands:
+            raise RuntimeError(
+                "no magnetic-charge-+1 type-3 chord in U1A1AoddKAlg(3)")
+        self._i0 = cands[0]
+        for i in cands:
+            self._i0 = i
+            if self.uv_cartan_determinant() == 1:
+                break
+        else:
+            raise RuntimeError(
+                "no magnetic-charge-+1 type-3 chord of U1A1AoddKAlg(3) has UV "
+                f"Cartan determinant 1 (tried {cands}) — the E8 attachment is "
+                "not present in this auxiliary")
 
     # ----- magnetic grading helper ---------------------------------------
 
@@ -108,8 +131,9 @@ class E8RGKAlgebra(RGKAlgebra):
         return (a[0], a[1])
 
     def _chord_power(self, m: int):
-        """`L^m` as a `U1A1AoddKAlg` cone label: the central mag-1 chord `(3, 0)`
-        raised to `m` (a single q-commuting generator power)."""
+        """`L^m` as a `U1A1AoddKAlg` cone label: the dressing chord
+        `(self._La, self._i0)` raised to `m` (a single q-commuting generator
+        power)."""
         return (((self._La, self._i0, m),), 0)
 
     def _s_rg_component(self, p):

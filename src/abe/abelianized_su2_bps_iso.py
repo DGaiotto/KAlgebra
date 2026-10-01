@@ -1,5 +1,6 @@
 """`KAlgebraIso` between the **abelianized** pure-SU(2) realisation
-(`AbelianizedSU2KAlg`, a light wrapper of `PureUNKAlgebra(2)`, labels
+(`AbelianizedSU2KAlg`, a light wrapper of `PureGAbeKAlgebra(u_n(2))` — of the
+retired `PureUNKAlgebra(2)` until 2026-09-19 — labels
 `L_{m,e}`) and the **BPS** pure-SU(2) realisation
 (`pure_ade_kalgebra([("A", 1)])`, labels = lower tropical charges
 `γ ∈ ℤ²`).
@@ -18,7 +19,7 @@ Wilson `χ_e = (0, -e)` (negative-electric lowest weight); bare monopole
 `L_{m,0} = (m, 0)`; the BPS dyon node `γ₂ = (-1, 2)` is `L_{1,2}` (magnetic
 **+1**).
 
-Certified (see `tests/test_abelianized_su2_iso.py`) on the photon-independent
+Certified (see the suite in the source repository) on the photon-independent
 structure: `verify_unit`, `verify_round_trip`, `verify_multiplicative`
 (the w₁-ladder + principal-cone Plückers), `verify_rho_equivariant`.  The
 inherited `trace` differs by the decoupled U(1) photon factor (U(2) vs pure

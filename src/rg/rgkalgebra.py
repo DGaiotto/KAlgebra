@@ -1792,6 +1792,67 @@ class RGKAlgebra(KAlgebra):
         leading = [(lab, _q0(c)) for lab, c in fs.terms.items() if _q0(c) != 0]
         return len(leading) == 1 and leading[0][1] == 1
 
+    def verify_rg_inherits_rho_star(self, a, b, K: int = 8) -> bool:
+        """Axiom 5 (`I_{b,a} = ⋆(I_{a,b})`, user 2026-09-18) is **inherited**
+        along an RG flow, and this verifier certifies the MECHANISM, not only
+        the conclusion.
+
+        The generic pairing is the bilinear expansion (`_inner_product_uncached`)
+
+            I_{a,b} = Σ_{c,d} [RG(a)·S_RG]_c · [RG(b)·S_RG]_d · I^aux_{c,d}.
+
+        Swap `a ↔ b` and relabel `c ↔ d`:  `I_{b,a} = Σ [RG(a)S]_c [RG(b)S]_d ·
+        I^aux_{d,c}`.  The coefficients `[·]_c` lie in `Z[𝖖^±]`, which `⋆`
+        fixes, so
+
+            I^aux_{d,c} = ⋆(I^aux_{c,d}) on the FS supports   ⟹   I_{b,a} = ⋆(I_{a,b}).
+
+        There is no coefficient-ring mismatch: `coefficient_ring()` IS the
+        auxiliary's (the matter-removal flows build the auxiliary as the IR
+        algebra flavoured by the integrated-out slots for exactly this reason),
+        so `⋆` is one operation on both sides.  The base case is the quantum
+        torus, where `ρ_Q(γ) = −γ` and the flavour direction is central, so the
+        property is immediate.
+
+        The argument has exactly two hypotheses, both stated so a subclass can
+        be checked against them: (H1) `inner_product` is computed by the
+        bilinear hook (this tier's default, or a closed form of the same sum
+        such as `BPSKAlgebra`'s Nahm-sum hook); (H2) `coefficient_ring()` equals
+        `auxiliary().coefficient_ring()`, so `⋆` is one operation on both sides
+        (the default here, `coefficient_ring` at the top of this class; the
+        matter-removal flows return the auxiliary's).  Until 2026-09-19 `UNNfViaRG` was
+        the RG subclass where neither held (UV ring `R(SU(N_f))` over an abelian
+        auxiliary ring, chart-side `inner_product`); it is retired to the source repository's archive
+        with the type-A layer (the audit), so every live `RGKAlgebra`
+        subclass satisfies both hypotheses.
+
+        Checks (i) the hypothesis — the auxiliary satisfies the pairing form on
+        every pair of FS-support labels that can contribute through `𝖖^K`
+        (same `𝖖`-order skip as the bilinear body) — and (ii) the conclusion on
+        the UV pair.  Caveat on (i): the supports are read at order `K`, while
+        `_inner_product_uncached` widens to an internal order `M > K`; the
+        hypothesis loop is complete when no FS component has a negative leading
+        `𝖖`-order (true on every flow measured: pentagon, flavoured A3,
+        `GMatterOverPure` u(2)+1), and should be read with that in mind.
+
+        On `BPSKAlgebra` the CONCLUSION leg is a tautology of the Nahm-sum
+        route (swapping `a ↔ b` negates `mu_exp = −f_a + f_b` identically and
+        the Habiro product commutes), so there the content-carrying check is
+        the trace form, `verify_trace_intertwines_rho_star`."""
+        aux = self.auxiliary()
+        X = self.rg_times_s_rg(a, K)
+        Y = self.rg_times_s_rg(b, K)
+        for c, xc in X.terms.items():
+            if xc.is_zero():
+                continue
+            lc = min(xc._coeffs)
+            for d, yd in Y.terms.items():
+                if yd.is_zero() or lc + min(yd._coeffs) > K:
+                    continue
+                if not aux.verify_pairing_rho_star_symmetric(c, d, K):
+                    return False
+        return self.verify_pairing_rho_star_symmetric(a, b, K)
+
     def verify_rg_twist(
         self, a, cutoff: int, K_expand: int | None = None,
     ) -> bool:

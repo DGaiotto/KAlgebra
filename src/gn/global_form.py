@@ -1,9 +1,8 @@
 """`global_form` — the type-A global forms U(N) / SU(N) / PSU(N) and their
 't Hooft–Wilson charge lattices, in the U(N) `e`-basis `Z^N` (the basis the
-enriched torus and the `pure_via_n2star` builder use).
+enriched torus uses, as did the `pure_via_n2star` builder retired 2026-09-19).
 
-Infrastructure to **talk about PSU(N)'s L's** (user, 2026-07-02: *"it would*
-*be useful to have infrastructure to at least talk about PSU(N)'s L's"*) on
+Infrastructure to **talk about PSU(N)'s L's** on
 the same footing as U(N)/SU(N), and to relate them to what the U(N) engine
 builds.
 
@@ -28,11 +27,12 @@ center charge trivial:
 **S-duality** `S: SU(N) ↔ PSU(N)` swaps magnetic ↔ electric, i.e. the coroot
 (`Σm=0`) magnetic lattice of SU(N) with the root (`Σe=0`) electric lattice of
 PSU(N), and the full electric of SU(N) with the mod-`𝟙` magnetic of PSU(N).
-This is why the N=2\* slope constructor (`pure_via_n2star`, S-covariant) is
+This is why the N=2\* slope constructor (`pure_via_n2star`, S-covariant; retired
+2026-09-19 with the type-A layer) was
 the natural tool for the **minuscule sector of either form**: SU(N)'s
 minuscule *Wilson* lines and PSU(N)'s minuscule *'t Hooft* lines are S-dual.
 
-**No fractional powers of 𝖖 are needed** (user, 2026-07-02).  PSU(N)'s
+**No fractional powers of 𝖖 are needed**.  PSU(N)'s
 minuscule monopoles are fractional *cocharacters* (coweights, the `1/N·𝟙`
 shifts), but PSU(N)'s electric charges are the **root lattice** (`Σe = 0`),
 so the diagonal/trace part of the magnetic charge **pairs to zero** against
@@ -80,6 +80,20 @@ def _is_integral(x) -> bool:
 
 def _center(vec) -> int:
     return sum(int(x) for x in vec) % len(vec)
+
+
+def _is_integral(x) -> bool:
+    """Whether a coordinate or pairing value is an integer — **exactly**.
+
+    The coordinates here are `int` where integral and `Fraction` otherwise (the
+    denominators divide the centre order), so `Fraction(x).denominator == 1` is
+    the whole test — the same idiom `fundamental_coweights` normalises its own
+    coordinates with below.  This is a
+    lattice-membership predicate: `mag_admits` and `verify_mutually_local` decide
+    what a global form contains by asking it, and a float round-trip is not a
+    sound way to decide membership of a lattice."""
+    from fractions import Fraction
+    return Fraction(x).denominator == 1
 
 
 @dataclass(frozen=True)
@@ -194,7 +208,7 @@ def s_dual(form: GlobalForm) -> GlobalForm:
 
 
 # ---------------------------------------------------------------------------
-# Datum-general global forms — the 4d notion (user, 2026-07-27)
+# Datum-general global forms — the 4d notion
 #
 # **In 4d the global form is NOT "which cocharacter lattice".**  That reading is
 # the 3d-appropriate one.  The 4d datum is a **sublattice of the Kapustin
@@ -354,7 +368,7 @@ def langlands_self_dual_permutation(datum):
     A root datum is Langlands **self-dual** exactly when its transposed Cartan matrix
     is its own, up to relabelling the nodes — `C^∨ = Cᵀ`, and a relabelling is an
     isomorphism of root data.  This is strictly weaker than *simply laced* and that
-    matters here (user, 2026-07-28, asking for the rank-2 cases):
+    matters here:
 
     * simply laced (A, D, E): `Cᵀ = C`, `σ = id`;
     * `B₂ ≅ C₂`: `C = [[2,−2],[−1,2]]`, `Cᵀ = [[2,−1],[−2,2]]`, and swapping the two
@@ -505,7 +519,7 @@ def langlands_label_map(datum):
         SU(2):   m ∈ Z   (= Q^∨)          e ∈ Z   (= P)
         SO(3):   m ∈ ½Z  (= P^∨, gen ω^∨)  e ∈ 2Z  (= Q, gen α)
 
-    so in **this** notation the map reads (user ruling, 2026-07-28)
+    so in **this** notation the map reads
 
         L^{SU(2)}_{m,e}  ⟼  L^{SO(3)}_{e/2, −2m}.
 
@@ -754,8 +768,7 @@ def parity_character(datum):
     `class -> 0/1` (`{0: 0}` for a trivial centre).
 
     **Provisional name, pending ratification.**  The repo had a *per-charge* claim —
-    "odd `⟨Σ⁺, m⟩` needs a forbidden `𝖖^{1/2}`" — but that claim is **retracted**
-    (ruling D31): the phase is only ever needed through its integral coboundary, so
+    "odd `⟨Σ⁺, m⟩` needs a forbidden `𝖖^{1/2}`" — but that claim is **retracted**: the phase is only ever needed through its integral coboundary, so
     those charges build.  What `π` names is the object the parity still descends to,
     which is what makes it decidable per *form* rather than charge by charge:
 
@@ -1292,7 +1305,7 @@ class LineLattice:
     fundamental-weight basis (`P`), and `⟨Q^∨, P⟩ ⊆ Z` — mutually local, as it
     must be.
 
-    **Which forms this class covers** (updated 2026-07-29, ruling D10).  A form
+    **Which forms this class covers** (updated 2026-07-29).  A form
     with `H ≠ 1` needs magnetic charges in `P^∨ ⊋ Q^∨`, i.e. *fractional*
     coordinates in the coroot basis, and those are presented on the coweight torus:
     PSU(3) at both fractional coweights, PSU(4) at `ω_2^∨`, PSU(5) at all four, the
@@ -1301,16 +1314,14 @@ class LineLattice:
 
     `admits(m, e)` decides **membership** — whether the label is a line of *this*
     form; `abe_representable(m)` decides **which frame presents it**, and that is a
-    routing fact about presentations, *not* a claim that a line cannot be built
-    (user, 2026-07-29: *"if a 4d gauge group data is sensible, all the corresponding
-    `L_{m,e}` should be buildable"*).  **Since ruling D31 the coweight torus carries
+    routing fact about presentations, *not* a claim that a line cannot be built.  **The coweight torus carries
     them all**, odd `⟨Σ⁺, m⟩` included — PSU(2), PSU(4) `ω_1^∨`/`ω_3^∨`, SO(5),
     Sp(4)/Z₂, SO(7) — because the half-integral atom phase reaches the cocycle only
     through its integral coboundary.  `abe_representable` is therefore `True`
     everywhere; what the parity still decides is whether the **default** phase
     convention needs that correction.  (The standard-`Z²` BPS chart at SU(2)/SO(3),
     `src/gn/pure_so3.py`, remains a correct independent presentation — it is
-    the oracle D31 was certified against — but it is no longer *needed* here.)"""
+    the oracle the fix was certified against — but it is no longer *needed* here.)"""
 
     def __init__(self, datum, H=(), classes=None, name=None):
         """`H` — a subgroup of the centre, giving the **product** lattice
@@ -1320,7 +1331,7 @@ class LineLattice:
 
         Exactly one of the two says what the lattice is (`H` is the default, and
         `H=()` is the simply connected form).  `classes` is the general case
-        directed by the user (2026-08-24): *"the label space of `L_{m,e}` should
+        directed by the author (2026-08-24): *"the label space of `L_{m,e}` should
         be the Weyl quotient of a lattice which is a sublattice of coweights x
         weights containing coroots x roots"*, with the admissibility condition
         *"as long as the pairing is integral"*.
@@ -1330,7 +1341,7 @@ class LineLattice:
         cyclic centre.  The subgroup they generate is materialised (centres are
         small), so membership is a set lookup.
 
-        **Maximality is not required** (user ruling, 2026-08-24) — a non-maximal
+        **Maximality is not required** — a non-maximal
         isotropic subgroup is a consistent, merely incomplete, set of lines, and
         `is_maximal()` reports rather than enforces.  Integrality of the Dirac
         pairing is likewise *reported* by `verify_dirac_integral`, not imposed:
@@ -1367,7 +1378,7 @@ class LineLattice:
 
         This *is* the lattice: `Λ` is its preimage in `P^∨ × P`, which is why a
         finite set determines an infinite lattice.  Every such preimage contains
-        `Q^∨ × Q` by construction, so the containment the user requires is
+        `Q^∨ × Q` by construction, so the containment the author requires is
         structural rather than checked."""
         return self._pairs
 
@@ -1386,7 +1397,7 @@ class LineLattice:
         return (k, l)
 
     def verify_dirac_integral(self) -> bool:
-        """The user's admissibility condition, made executable: the Dirac
+        """The author's admissibility condition, made executable: the Dirac
         pairing is integral on the whole lattice.
 
         Checked on **classes**, not on sampled labels, which makes it a proof
@@ -1417,9 +1428,7 @@ class LineLattice:
 
     def is_product(self) -> bool:
         """Whether the lattice is a product `(magnetic) × (electric)` — the
-        *traditional* global forms (user, 2026-08-24: *"the traditional global
-        forms will be (coweights of G) x (weights of G) but other options are
-        possible as long as the pairing is integral"*).
+        *traditional* global forms.
 
         False exactly for the correlated lattices — the ones carrying a discrete
         theta angle, where a purely magnetic and a purely electric line may both
@@ -1565,7 +1574,7 @@ class LineLattice:
         return any((k, l) in self._pairs
                    for k in magnetic_classes_of(self.datum, tuple(m)))
 
-    # ----- the DEFINING property (user, 2026-07-28) ------------------------
+    # ----- the DEFINING property ------------------------
     #
     # "4d gauge group data is a maximal set of mutually compatible `(m, e)`
     # labels, Kapustin style."  `verify_mutually_local` above is the
@@ -1576,7 +1585,7 @@ class LineLattice:
         """The two charge lattices are **dual to each other** — the sharp form of
         "a maximal set of mutually compatible Kapustin `(m, e)` labels".
 
-        User framing (2026-07-29), correcting a story this module had been telling
+        The author's framing (2026-07-29), correcting a story this module had been telling
         itself: a 4d gauge group's charge data is simply *a lattice and its dual*.
         With `L` the character lattice of the form, the magnetic lattice is `L^*`:
 
@@ -1664,7 +1673,7 @@ class LineLattice:
         of the datum wrongly rejected the entire pure-U(N) keystone — caught by
         the battery.
 
-        ⚠ **SINCE ruling D31 (2026-07-29) THIS RETURNS `True` EVERYWHERE, and
+        ⚠ **SINCE 2026-07-29 THIS RETURNS `True` EVERYWHERE, and
         the "theorem" recorded below is RETRACTED.**  The argument was that the
         effective (Weyl-symmetrized) phase `g` is pinned to `−½⟨Σ⁺,m⟩`, which is
         not an integer at odd `⟨Σ⁺,m⟩`, so the tier cannot carry those charges —
@@ -1704,7 +1713,7 @@ class LineLattice:
         a different tier, where the quiver nodes are the charge basis and the atom
         phase never enters.
 
-        Note what is **not** going on there (user correction, 2026-07-29).  Nothing
+        Note what is **not** going on there.  Nothing
         is rescaled, and no charge is fractional: the charge data of a form is just
         **a lattice and its dual** (`verify_lattices_are_dual`), so SO(3)'s minimal
         't Hooft is the ordinary generator of `P^∨`.  The halves appear only because
@@ -1713,22 +1722,20 @@ class LineLattice:
         halved".  That is a description of the two lattices, not a construction, and
         there is nothing in it to carry to higher rank.
 
-        **So this predicate is about the frame, never about the line** (user,
-        2026-07-29: *"if a 4d gauge group data is sensible, all the corresponding
-        `L_{m,e}` should be buildable"*).  Every label the lattice `admits` is a
-        line of the theory and has a presentation.  Since D31 the coweight torus of
+        **So this predicate is about the frame, never about the line**.  Every label the lattice `admits` is a
+        line of the theory and has a presentation.  The coweight torus of
         the abelianized tier presents them **all**, odd `⟨Σ⁺,m⟩` included (the
         half-integral atom phase is restored through its integral coboundary), so
         this predicate is `True` everywhere and the old "even height here, a
         non-atom presentation for odd height" split is retracted.  Reading a
         `False` — from this or from `abe_representable_lattice` — as "this line
-        cannot be built" is the error the user's principle forbids."""
+        cannot be built" is the error the author's principle forbids."""
         # Asked of the datum via `atom_phase_is_canonical`, NOT by catching an
         # exception from `atom_phase` and NOT by testing the parity of `⟨Σ⁺,m⟩`
         # here.  Both of those were wrong (2026-07-29):
         #   * `atom_phase` is now TOTAL — it applies the parity correction `ε` and
         #     never raises, because a convention has no business producing
-        #     `𝖖^{1/2}` (user ruling).  So there is no exception left to catch.
+        #     `𝖖^{1/2}`.  So there is no exception left to catch.
         #   * a parity test would refuse `u_n`: `U(2)` at `m=(1,0)` has odd
         #     `⟨Σ⁺,m⟩ = 1` yet builds on its own certified convention.  The
         #     question is whether THIS datum's convention needed a correction.
@@ -1739,14 +1746,13 @@ class LineLattice:
         is the private ψ a character of this form's torus?  Decided from the centre
         alone; no charge is built, and none has to be.
 
-        ⚠ **This is NO LONGER the same question as `abe_representable`, and since ruling
-        D31 the two deliberately disagree.**  The per-charge predicate is `True`
+        ⚠ **This is NO LONGER the same question as `abe_representable`, and the two deliberately disagree.**  The per-charge predicate is `True`
         everywhere (the honest half-integral phase is restored at the cocycle through
         its integral coboundary), so a `False` here does **not** mean any line is
         outside the tier — it names the forms on which `wrq_torus.cocycle_R`'s
         correction actually fires.  The old phrasing, "does the coweight-torus frame
-        present every line of this form", is retracted with D31; reading a `False` as
-        a line the tier cannot carry is the error D19/D31 forbid.
+        present every line of this form", is retracted; reading a `False` as
+        a line the tier cannot carry is an error.
 
         It collapses to the centre because `⟨Σ⁺, ·⟩ mod 2` is a **character**
         `π: P^∨/Q^∨ → Z/2` (`parity_character`).  The magnetic charges of `G̃/H` are
@@ -1759,8 +1765,7 @@ class LineLattice:
         PSU(3), SU(4), **SU(4)/Z_2**, PSU(5), Spin(5), Sp(4), Sp(6), Sp(6)/Z_2,
         Spin(7), G₂ carried whole; SO(3), PSU(4), SO(5), Sp(4)/Z_2, SO(7) not.
 
-        A `False` therefore names the forms whose **phase convention** needs the D31
-        coboundary correction, not forms with lines the tier cannot build — every
+        A `False` therefore names the forms whose **phase convention** needs the coboundary correction, not forms with lines the tier cannot build — every
         admitted charge of every form in that list is carried (asserted per form in
         the suite in the source repository)."""
         pi = parity_character(self.datum)
@@ -1768,11 +1773,11 @@ class LineLattice:
 
     def legal_lines(self, labels) -> list:
         """The sublattice of `labels` **this frame** presents — historically the
-        `m`-even ("legal") span in the sense of the standing C3/C4 ruling for SU(2)
+        `m`-even ("legal") span in the sense of the standing ruling for SU(2)
         (the design notes: work in the legal lattice, with odd magnetic
         singletons dropped or paired into it).
 
-        ⚠ **Since D31 this filter removes nothing**, because it filters on
+        ⚠ **This filter removes nothing**, because it filters on
         `abe_representable`, which is now `True` for every admitted charge — the
         odd-height lines are ordinary atoms of this torus.  That is deliberate and
         pinned (the suite in the source repository, "legal_lines no longer removes
@@ -1784,8 +1789,7 @@ class LineLattice:
 
     # ----- Langlands duality on the 4d gauge group data -------------------
     def langlands_dual(self) -> "LineLattice":
-        """`L^∨` — the Langlands dual 4d gauge group data (user, 2026-07-28: *"the
-        Langlands dual notion seems to extend cleanly to 4d gauge group data"*).
+        """`L^∨` — the Langlands dual 4d gauge group data.
 
         It does, and this is the natural home for it.  `S: (m, e) ↦ (e, −m)` acts on
         the Kapustin label lattice and is **symplectic** for the Dirac pairing, so it
@@ -1808,7 +1812,7 @@ class LineLattice:
         For an **intermediate `H`** the dual is the annihilator
         `H^⊥ = {k : k·h ≡ 0 ∀ h ∈ H}` under the centre pairing — the electric
         condition `elec_admits` imposes, which is what `S` turns into the magnetic
-        one.  So `SU(4)/Z_2` is **self-dual** (user, 2026-07-28), `H = {0,2} ⊂ Z_4`
+        one.  So `SU(4)/Z_2` is **self-dual**, `H = {0,2} ⊂ Z_4`
         being its own annihilator."""
         if not self.invariants:
             # trivial centre ⇒ a single global form, necessarily self-dual (G₂, F₄, E₈)
@@ -1838,7 +1842,7 @@ class LineLattice:
             return simply_connected_lines(langlands_dual_datum(self.datum))
         # INTERMEDIATE H: the dual is the ANNIHILATOR `H^⊥ = {k : k·h ≡ 0 ∀h∈H}`
         # under the centre pairing.  Note `SU(4)/Z_2` is therefore SELF-DUAL
-        # (user, 2026-07-28): `H = {0,2} ⊂ Z_4` and `H^⊥ = {k : 2k ≡ 0 mod 4} =
+        # `H = {0,2} ⊂ Z_4` and `H^⊥ = {k : 2k ≡ 0 mod 4} =
         # {0,2} = H`.
         n = self.invariants[0]
         perp = tuple(k for k in range(n) if all((k * h) % n == 0
@@ -1897,8 +1901,8 @@ def adjoint_lines(datum) -> LineLattice:
     the simply connected one (`SU(2) ↔ SO(3)`, `SU(N) ↔ PSU(N)`), which is what
     `LineLattice.langlands_dual` returns.
 
-    Presented on the coweight torus since ruling D10 — PSU(3), PSU(4) `ω_2^∨`,
-    PSU(5), Sp(6)/Z₂ — and since D31 the odd-`⟨Σ⁺,m⟩` charges too (SO(3), PSU(4)
+    Presented on the coweight torus — PSU(3), PSU(4) `ω_2^∨`,
+    PSU(5), Sp(6)/Z₂ — and the odd-`⟨Σ⁺,m⟩` charges too (SO(3), PSU(4)
     `ω_1^∨`/`ω_3^∨`, SO(5), Sp(4)/Z₂, SO(7)), so this form is carried whole.
 
     ⚠ **COORDINATES: the extra cocharacters are FRACTIONAL here, and an

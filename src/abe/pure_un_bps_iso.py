@@ -1,11 +1,12 @@
 """`pure_un_bps_iso` — the N-general `KAlgebraIso` between the pure-U(N)
-**AbeKAlgebra keystone** (`PureUNKAlgebra`) and the **BPS** chart
+**abelianized algebra** `PureGAbeKAlgebra(u_n(N))` (the retired `PureUNKAlgebra`
+keystone until 2026-09-19) and the **BPS** chart
 (`BPSKAlgebra` on `pure_ade.UN_Nf(N, 0)` — rank `2N` with the free photon),
-on the anchored + rigidified `UNTropicalMap` (`un_bps_chamber`; user
+on the anchored + rigidified `UNTropicalMap` (`un_bps_chamber`; the author's
 direction 2026-07-02, validated at U(2) and — via the same architecture —
 at SU(2)/SU(3)).
 
-Certified at U(3) in `tests/test_pure_un_bps_iso_u3.py` (anchors, crossed
+Certified at U(3) in the suite in the source repository (anchors, crossed
 products, σ-transport, round-trips).  The BPS trace on the free-photon chart
 stays impractical (the documented U(2) caveat), so trace-equivariance is not
 claimed on this edge — the trace legs are certified through the SU(N)
@@ -25,7 +26,8 @@ from kalgebra_iso import KAlgebraIso
 from laurent_poly import LaurentPoly
 from bps_kalgebra import BPSKAlgebra
 import pure_ade as pa
-from pure_un_kalgebra import PureUNKAlgebra, default_rays
+from pure_g_abe_kalgebra import PureGAbeKAlgebra
+from root_datum import u_n
 from un_bps_chamber import UNTropicalMap
 
 
@@ -43,10 +45,13 @@ def pure_un_bps_chart(N: int) -> BPSKAlgebra:
                        verify="off").shorten_spec()
 
 
-def pure_un_bps_iso(N: int, abe: PureUNKAlgebra | None = None,
+def pure_un_bps_iso(N: int, abe: PureGAbeKAlgebra | None = None,
                     max_len: int = 2, K: int = 8) -> KAlgebraIso:
-    A = abe if abe is not None else PureUNKAlgebra(
-        N, default_rays(N), max_len=max_len, K=K)
+    """`PureGAbeKAlgebra(u_n(N)) ≅ BPS pure U(N)` (the abe side was the retired
+    `PureUNKAlgebra(N)` until 2026-09-19; same `(m, λ)` labels on the
+    fundamental domain, measured equal 411/411 at N=2,3).  `max_len` / `K` are
+    accepted for source compatibility and ignored."""
+    A = abe if abe is not None else PureGAbeKAlgebra(u_n(N))
     B = pure_un_bps_chart(N)
     T = UNTropicalMap(A, B, N=N)
 
@@ -57,6 +62,6 @@ def pure_un_bps_iso(N: int, abe: PureUNKAlgebra | None = None,
         return Element({T.label(g): _ONE})
 
     iso = KAlgebraIso(A, B, forward, inverse,
-                      name=f"PureUNKAlgebra({N}) ≅ BPS pure U({N}) [anchored]")
+                      name=f"PureGAbeKAlgebra(u_n({N})) ≅ BPS pure U({N}) [anchored]")
     iso.tropical_map = T
     return iso

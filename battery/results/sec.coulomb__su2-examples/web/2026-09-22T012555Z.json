@@ -1,0 +1,79 @@
+{
+ "id": "sec:coulomb/su2-examples",
+ "labels": [
+  "eq:su2thooft",
+  "eq:su2dform",
+  "eq:su2res",
+  "eq:su2dyonic"
+ ],
+ "date": "2026-09-22T01:25:55Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "lines": "L_02, L_20, L_21 (SU(2)); L_10 (SO(3))"
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed residuals reproduced exactly",
+  "negative": "the bare 't Hooft line fails the residue rule"
+ },
+ "elapsed_s": 0.026,
+ "notes": "Draft units: m = 2 is the repository's coroot coordinate m = 1 on su_2(); the printed U_±2 are the repository's atoms at m = ±1.",
+ "checks": [
+  {
+   "name": "eq:su2thooft  L_02 = v^-2 + 1 + v^2 and L_20 = U_2 + (q+q^-1) v^2/((1-q^2v^2)(1-q^-2v^2)) + U_-2, residual by residual",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "L_20 = L_10^2 in the SO(3) form where the minuscule 't Hooft line exists: PureGAbeKAlgebra(so_n(3)).multiply(L_10, L_10) = L_20",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:su2dform  d_a = f_a(q^a v) cocha_a(v) from the printed f's and cocha reproduces the printed d_-2, d_0, d_2",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the class's d-form (star_bubbling.conventional) equals the printed d's",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:su2res  the three residue cancellations: d_-2 + d_2, d_-2 + d_0, d_0 + d_2 equal the printed sums, in which the offending factor has disappeared",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the residue rule (★) holds for L_20 by exact division (star_bubbling.criterion)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "without the bubbling correction the residue cancellation fails (U_2 + U_-2 alone)",
+   "ok": true,
+   "note": "[((2,), -2, 'a=(-1,) <-> (0,): pole SURVIVES'), ((2,), 2, 'a=(1,) <-> (0,): pole SURVIVES')]"
+  },
+  {
+   "name": "f_0 is bar-invariant, O(q) as a series, and not a Laurent polynomial (so rigid: no Laurent polynomial is both bar-invariant and O(q))",
+   "ok": true,
+   "note": "f_0 = q^1:[-1m(0,)] q^3:[-1m(-2,) -1m(0,) -1m(2,)] +O(q^4)"
+  },
+  {
+   "name": "rigidity: the axiom route built L_20 as the unique solution of the (★)-guarded solve (route 'star', certify_canonical passes)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:su2dyonic  L_21 = q v U_2 + v(1+v^2)/((1-q^2v^2)(1-q^-2v^2)) + q v^-1 U_-2 (residuals f_±1 = v^±1, whose U-coefficients f(q^±1 v) carry the printed q)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

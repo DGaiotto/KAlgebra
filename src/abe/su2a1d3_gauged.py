@@ -2,7 +2,7 @@
 n = 3 case of "gauge the SU(2) flavour of [A_1, D_n]", with its two
 single-node-drop RG flows and the **completed standalone-IR swap**.
 
-Theory (user = Gaiotto, 2026-06-16).  Gauging the SU(2) flavour of the
+Theory.  Gauging the SU(2) flavour of the
 [A_1, D_n] Argyres-Douglas theory replaces the two short-leg (fork) nodes
 of D_n by a single matter node coupled to a **pure-SU(2) Kronecker** quiver
 the way an N_f = 1 fundamental is, leaving the D_n stem (an A_{n-2} chain)
@@ -38,10 +38,10 @@ Completed standalone-IR swap (this module's headline)
 -----------------------------------------------------
 The tail-drop auxiliary (a BPSKAlgebra) is replaced by the repo's
 **certified U(2) N_f=1** realisation ``flavour_free_un_nf_bps(2,1)``
-(PR #522) via a verified ``KAlgebraIso`` ``phi`` — the node-charge
+(PR) via a verified ``KAlgebraIso`` ``phi`` — the node-charge
 correspondence ``e0|->n1, e1|->n2, e2|->n3`` (the two share the *identical*
 3-node generating quiver ``[[0,2,-1],[-2,0,1],[1,-1,0]]``; the det-4 vs
-det-1 difference is only the spurious 4th-direction embedding).  PR #522 in
+det-1 difference is only the spurious 4th-direction embedding).  PR in
 turn certifies that BPS realisation against the fast Abelianized keystone
 ``UNNfKAlgebra(2,1)`` (the ``un_bps_chamber`` ``(m,lambda) <-> gamma`` map),
 so all IR quantities are computable on the fast standalone.
@@ -61,8 +61,8 @@ SQED_1 *monopole* (``u_pm = U_{pm 1}``) is the dropped node-2 magnetic
 direction, **off the positive cone** — so this is ``pure SU(2) x SQED_1`` with
 the monopole in the off-cone sector; the full-SQED_1 presentation is a follow-up.
 
-Run ``PYTHONPATH=. python implementations/su2a1d3_gauged.py`` for the full
-certificate.  Companion: ``experiments/su2a1d3_subalgebra.py`` (the
+Run ``PYTHONPATH=$(ls -d src/* | paste -sd:) python3 src/abe/su2a1d3_gauged.py`` for the full
+certificate.  Companion: `a probe in the source repository` (the
 SU(2) N_f=1 ⊂ U(2) N_f=1 global-form / Z2 study).
 """
 from __future__ import annotations
@@ -148,7 +148,7 @@ def su2_gauged_a1dn_quiver(n: int):
 
 def su2_gauged_a1dn_spec(n: int):
     """The SU(2)-gauged [A_1, D_n] (+ tail) spectrum generator, built
-    **explicitly from the [A_1, D_n] spec** via the user's recipe (2026-06-16) —
+    **explicitly from the [A_1, D_n] spec** via the author's recipe (2026-06-16) —
     no search.
 
     The [A_1, D_n] spec is the `n` simple BPS states (the D_n nodes): the stem
@@ -244,7 +244,7 @@ def _node_charge_iso(aux: BPSKAlgebra, target_bps: BPSKAlgebra) -> KAlgebraIso:
         return Element({(g[0] + a1, a1, g[3] + a1, 0): _ONE})
 
     return KAlgebraIso(aux, target_bps, fwd, inv,
-                       name="SU2A1D3 tail-drop aux -> U(2)+Nf=1 (PR#522 chart)")
+                       name="SU2A1D3 tail-drop aux -> U(2)+Nf=1 (PR chart)")
 
 
 def tail_drop_iso_to_u2nf1(A: BPSKAlgebra | None = None):
@@ -259,7 +259,7 @@ def tail_drop_iso_to_u2nf1(A: BPSKAlgebra | None = None):
 
 def tail_drop_to_u2nf1(A: BPSKAlgebra | None = None) -> IsoComposedRGKAlgebra:
     """The tail-drop flow with its wrapped BPS IR **swapped for the certified
-    U(2) N_f=1 standalone** (PR #522).  An `IsoComposedRGKAlgebra` whose
+    U(2) N_f=1 standalone** (PR).  An `IsoComposedRGKAlgebra` whose
     auxiliary is `flavour_free_un_nf_bps(2,1)`; reproduces the UV product."""
     flow, phi, _u2 = tail_drop_iso_to_u2nf1(A)
     return IsoComposedRGKAlgebra(flow, phi)
@@ -277,7 +277,7 @@ def matter_drop_iso_to_pure_su2_qt1d(A: BPSKAlgebra | None = None):
     **pure SU(2) x SQED_1** — but SQED_1's *monopole* (`u_pm = U_{pm 1}`) is the
     *dropped* node-2 magnetic direction, **off the positive cone** of the bare
     directional aux; the full-SQED_1 (with monopole) presentation is a follow-up.
-    The pure-SU(2) leg uses the PR #522-style node-charge bridge `e0,e1 -> the
+    The pure-SU(2) leg uses the PR-style node-charge bridge `e0,e1 -> the
     Kronecker nodes of the pure-SU(2) standalone` (shared det-4 Kronecker quiver;
     a lattice `find_isomorphism` can't bridge the standalone's det-1 charge frame)."""
     from pure_su2_object import pure_su2_object
@@ -325,7 +325,7 @@ def matter_drop_to_pure_su2_qt1d(A: BPSKAlgebra | None = None) -> IsoComposedRGK
 # The applet build above (`su2a1d3_gauged`) lives on the COARSE det-4 node-charge
 # sublattice: there the gauge Wilson line `W = -1/2(n1+n2)` is half-integral, so
 # it is not even a label.  The PHYSICAL Gamma is the finer **det-1 line lattice**
-# (user, 2026-06): `Gamma = Z2 (+) Z2` (two elementary weight lattices), pairing
+# `Gamma = Z2 (+) Z2` (two elementary weight lattices), pairing
 # `J (+) J`, with the BPS quiver nodes
 #
 #     n1 = (1,0;0,0)  n2 = (-1,2;0,0)   [SU(2) Kronecker, <n1,n2>=2]
@@ -362,10 +362,10 @@ def su2a1d3_det1(verify: str = "off") -> BPSKAlgebra:
                        spec=[list(g) for g in DET1_SPEC], verify=verify)
 
 
-# --- SU2A1D4 (n=4) det-1 line lattice: Z^2 (+) Z^2 (+) Z (user, 2026-06-20) ---
+# --- SU2A1D4 (n=4) det-1 line lattice: Z^2 (+) Z^2 (+) Z ---
 # Same shape as the n=3 det-1 build, one tail node longer.  Gamma = Z^2(+)Z^2(+)Z;
 # pairing J(+)J(+)0 -- the 5th coordinate is ker(P) = the residual U(1) FLAVOUR of
-# [A_1, D_4] (n even).  Nodes (user): pure SU(2) {n1,n2} in the first Z^2; matter n3
+# [A_1, D_4] (n even).  Nodes: pure SU(2) {n1,n2} in the first Z^2; matter n3
 # + first tail n4 in the second Z^2; the pentagon tail {n4,n5} with n5 carrying the
 # flavour e5.  Gram(nodes) = the coarse SU2A1D4 quiver (verified).
 J_PLUS_J_PLUS_0 = [[0, 1, 0, 0, 0], [-1, 0, 0, 0, 0], [0, 0, 0, 1, 0],
@@ -382,8 +382,7 @@ FLAVOUR_D4 = (0, 0, 0, 0, 1)   # e5 = ker(J(+)J(+)0): the residual U(1) flavour
 
 
 def su2a1d4_det1(verify: str = "off") -> BPSKAlgebra:
-    """SU(2)-gauged [A_1, D_4] on the **det-1 line lattice** `Z^2 (+) Z^2 (+) Z`
-    (user, 2026-06-20): pairing `J (+) J (+) 0` (the 5th coordinate is `ker(P)` =
+    """SU(2)-gauged [A_1, D_4] on the **det-1 line lattice** `Z^2 (+) Z^2 (+) Z`: pairing `J (+) J (+) 0` (the 5th coordinate is `ker(P)` =
     the residual **U(1) flavour** of [A_1, D_4]), nodes `n1..n5` (`DET1_NODES_D4`).
 
     The n=4 analogue of `su2a1d3_det1`: pure SU(2) `{n1,n2}` (first `Z^2`, Kronecker),
@@ -561,7 +560,7 @@ class SU2A1D3MatterDropAbeRG(IsoComposedRGKAlgebra):
     Same UV + RG data as `matter_drop_det1_to_pure_su2_sqed1` (the swap iso is
     multiplicative / ρ-equivariant, and grades the SQED_1 monopole `(0,0,1,0)`);
     only the IR *presentation* of the pure-SU(2) leg changes — BPS Kronecker →
-    abelianized rational quantum torus (`AbelianizedSU2KAlg` over `PureUNKAlgebra(2)`).
+    abelianized rational quantum torus (`AbelianizedSU2KAlg` over `PureGAbeKAlgebra(u_n(2))`).
     The abelianized trace is the U(2) Schur index (decoupled-photon factor), so this
     is NOT trace-equivariant with the SU(2) version — by design (see
     `AbelianizedSU2KAlg`)."""
@@ -627,13 +626,13 @@ def det1_cone_fan(max_charts: int = 40):
 
 
 # ---------------------------------------------------------------------------
-# The necklace chart and  rho = phi^4  (user, 2026-06-20)
+# The necklace chart and  rho = phi^4
 # ---------------------------------------------------------------------------
 # A mutation (necklace) chart of SU2A1D3 in which the BPS quiver becomes the
 # all-(+/-1) 4-node quiver `B_NEWCHART`.  Its charges in the OLD (coarse) Gamma
 # are `NEWCHART_CHARGES_IN_OLD` (the iso to `su2a1d3_gauged()` at the
 # charge/quantum-torus level; the canonical-label iso is the necklace transport).
-# Here the cluster automorphism phi = "necklace at the spec head" (= the user's
+# Here the cluster automorphism phi = "necklace at the spec head" (= the author's
 # mutation symmetry: mutating node 0/1 returns the same quiver up to an ORDER-8
 # permutation whose charge action has perm^4 = -I) satisfies, VERIFIED:
 #
@@ -665,7 +664,7 @@ def verify_rho_is_phi4(labels=None) -> dict:
     """Verify, on the necklace chart, that `rho = -(nu_0 . nu_2 . nu_3 . nu_1)`
     (the spec `[0,2,3,1]` = four necklace/phi actions, composed, then charge
     conjugation `-I` = the order-8 restoring perm to the 4th power).  This is the
-    `rho = phi^4` statement (user, 2026-06-20).  Returns `{label: bool}`."""
+    `rho = phi^4` statement.  Returns `{label: bool}`."""
     from chart_graph import _mu_g
     A = su2a1d3_newchart()
     Pm = [list(r) for r in A.lattice.pairing]
@@ -891,11 +890,14 @@ def det1_certify(verbose: bool = True) -> dict:
         and all(v == _ONE for v in WW.values()))
 
     # 2. special sector ~= [A1,D3] = A1DnKAlg(3): matter n3 = doublet, tail n4 = stem.
+    #    On A1DnKAlg(3)'s curves: the doublet is the short curve (0, 2) at
+    #    kappa = 1, the stem the loop (0, 3) at 0 around the puncture.
     M = A1DnKAlg(3)
     n3n3 = A.multiply(MATTER, MATTER).terms
     n4n4 = A.multiply(TAIL, TAIL).terms
-    dd = M.multiply((0, 1, 0), (0, 1, 0)).terms      # doublet^2 = singlet (+) triplet
-    ss = M.multiply((1, 0, 0), (1, 0, 0)).terms      # stem^2 = single
+    doublet, stem = M.curve(0, 2, kappa=1), M.curve(0, 3)
+    dd = M.multiply(doublet, doublet).terms          # doublet^2 = singlet (+) triplet
+    ss = M.multiply(stem, stem).terms                # stem^2 = single
     out["matter_sq_is_doublet_clebsch"] = (len(n3n3) == 2 == len(dd))   # 1 (+) 3
     out["tail_sq_is_stem_single"] = (len(n4n4) == 1 == len(ss))
     n34 = A.multiply(MATTER, TAIL).terms
@@ -948,7 +950,7 @@ if __name__ == "__main__":
     print(f"[{time.time() - t1:.1f}s]")
 
     # demonstrate the fast IR (the swap's payoff)
-    from un_nf_kalgebra import UNNfKAlgebra
-    abe = UNNfKAlgebra(2, 1)
-    print("\nU(2) N_f=1 IR vacuum Schur index (fast standalone):")
+    from g_matter_roster import roster
+    abe = roster("u2-nf1")          # the general (G, N) tier's U(2)+1 preset
+    print("\nU(2) N_f=1 IR vacuum Schur index (general tier):")
     print("  Tr(1) =", abe.trace(abe.identity(), K=8))

@@ -1,0 +1,62 @@
+{
+ "id": "sec:a1d3/traces",
+ "labels": [
+  "eq:a1d3trace"
+ ],
+ "date": "2026-09-22T00:05:21Z",
+ "commit": "8da697afb50102e74e4b0745297e9de689c480a6",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "K": 14,
+  "traces": "1, T_0, D_0 (and the Z_3 images)"
+ },
+ "counts": {
+  "pass": 7,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed expansion of Tr 1",
+  "negative": "a factor of the denominator omitted is detected"
+ },
+ "elapsed_s": 0.012,
+ "notes": "Closed forms and the Weyl-Kac denominator recomputed independently as series in q with μ-Laurent coefficients; the class's SU(2)-character coefficients are expanded in μ.",
+ "checks": [
+  {
+   "name": "positive control: the printed expansion Tr 1 = 1 + χ_2 q^2 + (χ_0 + χ_2 + χ_4) q^4 + ... (independent series)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr 1 = (1/D) Σ (-1)^n χ_2n q^(3n(n+1)) through q^14",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr D_0 = (1/D) Σ_p (-1)^p χ_2p-1 (q^(p(3p-1)-1) - q^(p(3p+1)-1)) through q^14",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr T_0 = (1/D) Σ_m (-1)^m χ_2m (q^(3m(m+1)-1) - q^(m(3m+1)-1) - q^((m+1)(3m+2)-1)) through q^14",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Z_3 invariance of the trace: Tr T_i and Tr D_i independent of i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the sharp leading constraint: Tr T_0 = -q + O(q^2), [q^2] Tr T_0 = 0, [q^1] Tr D_0 = -χ_1 (the note's C7)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the Weyl-Kac denominator with (μ^2 q^2;q^2) omitted is detected",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

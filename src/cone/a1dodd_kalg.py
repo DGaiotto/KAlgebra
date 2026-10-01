@@ -3,8 +3,12 @@ a1dodd_kalg.py
 ==============
 
 `A1DoddKAlg(k)` — the **odd** D-type Argyres–Douglas family
-`A_𝖖([A_1, D_{2k+3}])` with **SU(2) flavour symmetry**, as a K_𝖖-algebra
-over `R(SU(2))`, in the **RG-flow frame** of the fast, BPS-free RG engine
+`A_𝖖([A_1, D_{2k+3}])` with **SU(2) flavour symmetry**.  The factory's default
+presentation is, since 2026-09-23, the closed-form cone class
+`A1DoddConeKAlg` (the `(a,p,i)` frame of the once-punctured polygon; see its
+class and `a1dodd_cone_data`).  The rest of this docstring describes the other
+presentation, `A1DoddEngineKAlg` (`presentation="engine"`): a self-contained
+K-algebra over `R(SU(2))`, in the **RG-flow frame** of the fast, BPS-free
 `A1DoddRGKAlgebra(k)` (whose auxiliary is the stand-alone
 `U1A1AoddKAlg(k).add_flavour(SU2ZPlusRing())`, `S_RG = E_𝖖(μL)·E_𝖖(μ⁻¹L)` an
 SU(2) doublet).  The engine module is an RG-flow derivation **not included
@@ -106,8 +110,8 @@ class A1DoddEngineKAlg(KAlgebra):
     BPS-free oracle/fallback.  The genuine **closed-form D-type cone
     presentation** (the `(a,p,i)` cluster frame, a `ConeKAlgebra`) is
     `A1DoddConeKAlg`; the public factory `A1DoddKAlg(k, presentation=...)`
-    dispatches between them (default `"engine"` so existing callers/tests are
-    byte-unchanged; pass `presentation="cone"` for the closed-form Ptolemy).
+    dispatches between them (default `"cone"` since 2026-09-23; pass
+    `presentation="engine"` for this class).
 
     Labels: `((factors, e_E), κ)` (a `U1A1AoddKAlg` cone monomial × SU(2) index
     `κ`).  `k = 1` is `[A_1, D_5]`."""
@@ -477,7 +481,15 @@ class A1DoddConeKAlg(ConeKAlgebra):
 
           * `()`               → `vacuum_trace(k, K)` (the sl(2) vacuum char);
           * `(((a,p,i),1),)`   → `seed_trace_ap(k, a, p, K)` (ρ²-invariant, so
-                                  position-independent)."""
+                                  position-independent).
+
+        `a1dodd_layer2` has a closed-form recipe for EVERY seed at every k
+        (the 2026-08-31 window rule for p=1 and ladder form for p=0), so there
+        is no fallback: a recipe that failed its ladder-law guard would raise.
+        (Until 2026-09-23 a fallback to an orthonormality bootstrap sat
+        here; it could no longer fire and was removed.  The bootstrap stays
+        in the source repository as the certification instrument: through
+        𝖖⁴⁰ it reproduces every seed at k = 1 and k = 2.)"""
         from a1dodd_layer2 import vacuum_trace, seed_trace_ap
         if seed_word == ():
             qmu = vacuum_trace(self.k, K)
@@ -566,6 +578,24 @@ class A1DoddConeKAlg(ConeKAlgebra):
         """The central SU(2) character `χ_κ` (the identity word at flavour κ)."""
         return ((), kappa)
 
+    # ----- geometry: the curves of the once-punctured (2k+3)-gon ----------
+
+    def geometric_label(self, label):
+        """The label `(word, κ)` as the `A1DnKAlg(2k+3)` label `(curves, κ)` of
+        the same element: each generator `(a, p, i)` of the word read as its
+        curve `(x, ℓ)` of the once-punctured `(2k+3)`-gon — from marked point
+        `x` to `x + ℓ`, ℓ boundary edges on the side away from the puncture,
+        ℓ = 2k+3 the loop around it — through `A1DnKAlg`'s curve dictionary,
+        with its power; the curves sorted, `κ` unchanged.  `A1DnKAlg`
+        multiplies through that same dictionary, so
+        `A1DnKAlg(2k+3).L(self.geometric_label(lab))` is the element
+        `self.L(lab)`; ρ, the rotation `i ↦ i + 1`, is `x ↦ x + 1` on the
+        curves."""
+        from a1dn_kalg import _ap_to_arc
+        word, kappa = self.canonicalise(label)
+        return (tuple(sorted((_ap_to_arc(g, self.k), m) for g, m in word)),
+                kappa)
+
     def __repr__(self):
         return f"A1DoddConeKAlg(k={self.k})  # [A_1, D_{2*self.k+3}], cone frame"
 
@@ -575,24 +605,20 @@ class A1DoddConeKAlg(ConeKAlgebra):
 # ===========================================================================
 
 
-def A1DoddKAlg(k: int = 1, presentation: str = "engine"):
+def A1DoddKAlg(k: int = 1, presentation: str = "cone"):
     """`[A_1, D_{2k+3}]` (odd-D AD, SU(2) flavour) over `R(SU(2))`.
 
     `presentation`:
-      * ``"engine"`` (default) — the BPS-free RG-flow / u1a1aodd-auxiliary
-        realisation `A1DoddEngineKAlg` (the original `A1DoddKAlg`; labels
-        `((factors, e_E), κ)`).  Self-contained on all sectors; multiply is
-        closed-form on the clean sector and engine-backed on the dressed
-        sector.  Kept as the oracle/fallback — existing callers/tests are
-        byte-unchanged.
-      * ``"cone"`` — the genuine closed-form **D-type cone presentation**
-        `A1DoddConeKAlg` (labels `(word, κ)` in the `(a,p,i)` cluster frame;
-        closed-form Ptolemy multiply via `a1dodd_cone_data(k)`).  `k=0 → D_3`,
-        `k=1 → D_5`.
-
-    Default is ``"engine"`` purely for backward compatibility; the cone
-    presentation is the new genuine-cluster deliverable (verified to reproduce
-    a1d5 at k=1 and a1d3 at k=0)."""
+      * ``"cone"`` (default since 2026-09-23) — the closed-form
+        **D-type cone presentation** `A1DoddConeKAlg` (labels `(word, κ)` in the
+        `(a,p,i)` frame of the once-punctured polygon; closed-form products via
+        `a1dodd_cone_data(k)`, closed-form traces via `a1dodd_layer2`, checked to
+        𝖖⁴⁰ at k = 1, 2).  `k=0 → D_3`, `k=1 → D_5`.
+      * ``"engine"`` — the BPS-free RG-flow / u1a1aodd-auxiliary realisation
+        `A1DoddEngineKAlg` (labels `((factors, e_E), κ)`; closed-form on the
+        clean sector, engine-backed on the dressed sector).  Kept as an
+        independent route; callers that use its engine-specific methods pass
+        `presentation="engine"` explicitly."""
     if presentation == "engine":
         return A1DoddEngineKAlg(k)
     if presentation == "cone":
@@ -608,16 +634,20 @@ def A1DoddKAlg(k: int = 1, presentation: str = "engine"):
 # ===========================================================================
 #
 # `A1D{3,5,7}ConeKAlg` are the genuine closed-form D-type cone presentations of
-# `[A_1, D_n]` for n = 2k+3 at fixed k = 0, 1, 2 — complete standalone
-# `[A_1, D_n]` presentations with BOTH closed-form multiply AND closed-form
-# trace.  They are *truly self-contained*: the
-# multiply (`a1dodd_cone_data`, frozen i=0 table in `a1dodd_cone_tables`) needs
-# neither the generated `finite_a1d{5,7}_kalg` tables nor any external
-# decomposer, and the engine auxiliary
+# `[A_1, D_n]` for n = 2k+3 at fixed k = 0, 1, 2 — the **first complete standalone
+# `[A_1, D_n]` with BOTH closed-form multiply AND closed-form trace** (the older
+# `A1D5KAlg`/`A1D7KAlg` lack the trace).  They are *truly self-contained*: the
+# multiply (`a1dodd_cone_data`: every k from the closed-form builder, with
+# `a1dodd_skein`'s puncture-crossing rules; the stored i=0 tables were removed
+# 2026-09-23, so the export port must add `a1dodd_skein.py`) needs no
+# a1d5_kalg / a1d5_decomposer / finite_a1d7_kalg, and the engine auxiliary
 # (u1a1aodd) is never imported on the cone path.  Runtime deps are only the cone
 # framework (`cone_kalgebra`, `cone_data`, `kalgebra`, `zplus_ring`,
-# `laurent_poly`) and the closed-form SU(2) trace (`a1dodd_layer2`, with the
-# shared `a1d3_kalg` Verma/Laurent helpers) — all in `src/cone/`.
+# `laurent_poly`), the closed-form arc rules (`a1dodd_skein`,
+# `A1A2k_plucker_closed_form`, `A1A2k_naming_audit`) and the closed-form SU(2)
+# trace (`a1dodd_layer2`, with the shared `a1d3_kalg` Verma/Laurent helpers) —
+# all in `export/ConeKAlgebra/` except `a1dodd_skein`, which the next export
+# port adds (the export copies still carry the removed stored table).
 #
 # multiply reproduces the references exactly (a1d3 k=0, a1d5 k=1,
 # `FiniteA1D7KAlgebra` k=2);

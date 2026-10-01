@@ -1,0 +1,108 @@
+{
+ "id": "comp:u1a1aodd/traces",
+ "labels": [
+  "comp:u1a1aodd"
+ ],
+ "date": "2026-09-26T17:41:56Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": [
+   1,
+   2,
+   3
+  ],
+  "K": 40,
+  "seconds": 0.1
+ },
+ "counts": {
+  "pass": 15,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed rule equals the served code through q^80",
+  "negative": "the retired printed form differs from q^39"
+ },
+ "elapsed_s": 0.08,
+ "notes": "The rule eq:comp-longchord transcribed from the companion (2026-09-23 version); the class serves the seeds through u1_pgon_layer2.singlet_chord_trace.",
+ "checks": [
+  {
+   "name": "the printed rule eq:comp-longchord equals the served singlet_chord_trace for p = 3..7, every even type, n = -4..4, through q^80; at m = 0 it is eq:comp-singlet",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: the retired printed long chord differs from the rule, first at q^39 (p = 4, n = 0)",
+   "ok": true,
+   "note": "[39, 43]"
+  },
+  {
+   "name": "k=1 (p=3): Tr(E^n) = the printed singlet partial-theta characters for n = -3..3 through q^40",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1 (p=3): Tr(L_2m;i E^e) = the printed rule eq:comp-longchord at n = -(-1)^i g, every even type, i = 0, 1, e = -4..4 (18 seeds) through q^40",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1 (p=3): at the other positions, Tr(L_2m;i E^e) = the printed rule at i = 0, 1 after the rho^2 steps of eq:comp-drift (5 seeds, e = -2..2, through q^12)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control (k=1): read at face value at i = 2 (the chord {2,5}), the index rule fails, as the text says",
+   "ok": true,
+   "note": "[(2, 2)]"
+  },
+  {
+   "name": "k=1: Tr(L_t;i) = 0 for every odd-type chord (6 letters; gauge-charged rho^2-orbits)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2 (p=4): Tr(E^n) = the printed singlet partial-theta characters for n = -3..3 through q^40",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2 (p=4): Tr(L_2m;i E^e) = the printed rule eq:comp-longchord at n = -(-1)^i g, every even type, i = 0, 1, e = -4..4 (18 seeds) through q^40",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2 (p=4): at the other positions, Tr(L_2m;i E^e) = the printed rule at i = 0, 1 after the rho^2 steps of eq:comp-drift (30 seeds, e = -2..2, through q^12)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: Tr(L_t;i) = 0 for every odd-type chord (12 letters; gauge-charged rho^2-orbits)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3 (p=5): Tr(E^n) = the printed singlet partial-theta characters for n = -3..3 through q^40",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3 (p=5): Tr(L_2m;i E^e) = the printed rule eq:comp-longchord at n = -(-1)^i g, every even type, i = 0, 1, e = -4..4 (36 seeds) through q^40",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3 (p=5): at the other positions, Tr(L_2m;i E^e) = the printed rule at i = 0, 1 after the rho^2 steps of eq:comp-drift (55 seeds, e = -2..2, through q^12)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: Tr(L_t;i) = 0 for every odd-type chord (20 letters; gauge-charged rho^2-orbits)",
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

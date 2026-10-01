@@ -1,0 +1,163 @@
+{
+ "id": "sec:skein/kq-structure",
+ "labels": [
+  "sec:skein"
+ ],
+ "date": "2026-09-27T05:34:56Z",
+ "commit": "a4a0540697e55bad5b05cd939d5297b03c1e5007",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "skein-computing roster windows (labels)": {
+   "u1square": 5,
+   "pentagon": 5,
+   "u1hexagon": 5,
+   "heptagon": 5,
+   "u1octagon": 5,
+   "nonagon": 5,
+   "u1decagon": 5,
+   "hendecagon": 5,
+   "annulus-pure-su2": 5,
+   "sphere-su2-nf4": 6
+  },
+  "rho-orders on the windows": {
+   "u1square": [
+    ">12",
+    ">12",
+    2,
+    ">12"
+   ],
+   "pentagon": [
+    5,
+    5,
+    5,
+    5
+   ],
+   "u1hexagon": [
+    ">12",
+    ">12",
+    ">12",
+    ">12"
+   ],
+   "heptagon": [
+    7,
+    7,
+    7,
+    7
+   ],
+   "u1octagon": [
+    ">12",
+    ">12",
+    ">12",
+    ">12"
+   ],
+   "nonagon": [
+    9,
+    9,
+    9,
+    9
+   ],
+   "u1decagon": [
+    ">12",
+    ">12",
+    ">12",
+    ">12"
+   ],
+   "hendecagon": [
+    11,
+    11,
+    11,
+    11
+   ],
+   "annulus-pure-su2": [
+    ">12",
+    1,
+    ">12",
+    1
+   ],
+   "sphere-su2-nf4": [
+    1,
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "roster instances with no skein computation": [
+   "u1gauged-su2-nf1 (rgflow-anchored)",
+   "a1d3 (cone-anchored)",
+   "u1a1d4 (cone-anchored)",
+   "annulus-su2-nf1 (bordered-chart-anchored)",
+   "disk-su2-nf2 (bordered-chart-anchored)",
+   "disk-su2-nf3 (bordered-chart-anchored)",
+   "su2-2punct-a1d3 (bordered-chart-anchored)"
+  ],
+  "tower": "channels a, b, c, k <= 2",
+  "rho boxes": "[-2,2]^6 (four punctures), [-1,1]^9 (five), [-3,3]^2 (pentagon)",
+  "seconds": 207.8
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the ten skein-computing roster instances; the sphere charts' boxes",
+  "negative": "the fundamental-character sample class fails the three-term tower law; the pentagon's rho^2 != 1"
+ },
+ "elapsed_s": 207.958,
+ "notes": "The axioms are checked only on the sphere, where they are emergent; elsewhere they are the underlying presentation's.  The flavour inversion in rho is imposed by the code; what (c) measures is that the spec-derived sigma fixes every label up to a flavour charge.  On the roster's sphere instance rho is wired as the identity, so (c) reads the sphere through its atlas charts.",
+ "checks": [
+  {
+   "name": "(a) every product on the window reproduced by the skein computation, on 10 of 10 skein-computing roster instances (261 products); not in the population, no skein computation: 7 instances",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "(a) on the four-punctured sphere (Kauffman product, Askey-Wilson trace): ax:bar (the mirror), 6-label window",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(a) on the four-punctured sphere (Kauffman product, Askey-Wilson trace): orthonormality of the Askey-Wilson trace, 6-label window",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(a) on the four-punctured sphere (Kauffman product, Askey-Wilson trace): cyclicity of the Askey-Wilson trace, 6-label window",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(b) L_g L_kg = L_(k+1)g + L_kg + L_(k-1)g, unit coefficients, on the four-punctured sphere's chart: 6 of 6 (channels a, b, c; k <= 2)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control (b): the package's fundamental-character sample class obeys the two-term law L^2 = L_2 + 1 on 3 of 3 channels, so the three-term check rejects that normalisation",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(c) four-punctured sphere, box [-2,2]^6: rho^2 = 1 on 15625 of 15625 labels, rho(g) - g a flavour charge on 15625 of 15625, rho(f_p) = -f_p for the four punctures: True",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(c) five-punctured sphere (the stored 20-factor spec), box [-1,1]^9: rho^2 = 1 on 19683 of 19683, rho(g) - g a flavour charge on 19683 of 19683, rho(f_p) = -f_p: True",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(d) negative control: the pentagon (an irregular puncture), box [-3,3]^2: rho^2 != 1 on 48 of 49 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "(d) every skein-computing roster instance with an irregular puncture (9: all but the sphere) has a window label of rho-order above 2: 9 of 9; the polygons' orders pentagon 5, heptagon 7, nonagon 9, hendecagon 11 (n for the n-gon, the draft's table)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

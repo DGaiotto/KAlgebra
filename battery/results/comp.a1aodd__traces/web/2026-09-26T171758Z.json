@@ -1,0 +1,78 @@
+{
+ "id": "comp:a1aodd/traces",
+ "labels": [
+  "comp:a1aodd"
+ ],
+ "date": "2026-09-26T17:17:58Z",
+ "commit": "d37bb95f341a2d6079f0d792ca0c4606d3d344dc",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "formula labels k=1": 32,
+  "formula labels k=2": 46,
+  "formula labels k=3": 88,
+  "window label-orders": 42,
+  "slack labels": 380,
+  "closed-form comparisons": 37,
+  "seconds": 83.7
+ },
+ "counts": {
+  "pass": 9,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "at k = 1, Tr 1 and the generator traces are the paper's [A_1,D_3] ones (A1D3KAlg) restricted, through q^30",
+  "negative": "the measure (q^2;q^2)^-1, the reflected orientation, and the E-power window alone are each caught"
+ },
+ "elapsed_s": 83.695,
+ "notes": "eq:comp-aodd-trace, eq:comp-aodd-closed and eq:comp-aodd-heads transcribed from the companion; the gauged seeds eq:comp-singlet / eq:comp-longchord are the comp:u1a1aodd transcriptions (_singlet, _chord_rule), the measure is expanded here.  The gauge-charge window was added to UngaugedKAlgebra.trace on 2026-09-26 (the E-power window alone dropped terms of the k = 3 pair powers).",
+ "checks": [
+  {
+   "name": "eq:comp-aodd-trace transcribed (the gauged traces summed with z^n over a wide window, times an independent (q^2;q^2)^-2, times z^-e) equals the class's trace through q^10 on 166 labels at k = 1, 2, 3 (identity, E^2, every generator, E-shifted generators, terms of generator products)",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "the window covers |g + n| <= K+1: on the powers 2..4 of the pairs L_{1;8,3;7}, L_{1;9,3;8} at k = 3 (42 label-order pairs, K = 1..7) the class equals the wide sum, and its gauge charge equals g of the printed charges",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "Tr_gauged L_(F,n) = O(q^|g+n|), g the e_1-component of the printed charge of L_(F,0): on 380 labels (the generators and their powers 2..4 at k = 1, 2, 3), n within 12 of -g, through q^16",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "eq:comp-aodd-closed: Tr 1 = (q^2;q^2)^-2 sum_n z^n Tr_gauged(E^n) from eq:comp-singlet, Tr L_2m;1 from eq:comp-longchord at index n (the chords L_2m;0, L_2m;1 have gauge charge 0), Tr L_2m;0 with z -> 1/z, and Tr L_2m;i+2 = z^(d(2m,i+1)-d(2m,i)) Tr L_2m;i at every position; k = 1, 2, 3 through q^30 (37 comparisons)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "the printed heads eq:comp-aodd-heads: Tr 1 at k = 1, 2, 3, Tr L_2;0 and Tr L_{1;0,1;3} at k = 1",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "positive control and the k = 1 statement: Tr 1 is A1D3KAlg's Tr 1 (the paper's [A_1,D_3]) restricted, chi_n -> z^(-n/2) + ... + z^(n/2); Tr L_2;0 = z^(1/2) Tr D_0 and Tr L_{1;0,1;3} = z Tr T_0 after restriction; through q^30",
+   "ok": true,
+   "note": "vacuum True, D True, T True"
+  },
+  {
+   "name": "negative control: the measure (q^2;q^2)^-1 in place of (q^2;q^2)^-2 fails Tr 1 at k = 1 through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: Tr L_2;0 at k = 1 with the orientation of L_2;1 (index n instead of -n) fails through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: with the gauge-charge window hidden (the E-power window alone, the class before 2026-09-26), the cube of L_{1;8,3;7} at k = 3 loses -q^3 z^-6 at K = 4",
+   "ok": true,
+   "note": "with the window -1, without None"
+  }
+ ]
+}

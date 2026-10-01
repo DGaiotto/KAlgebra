@@ -1,0 +1,33 @@
+{
+ "id": "comp:e6/is-kalgebra",
+ "labels": [
+  "comp:e6"
+ ],
+ "date": "2026-09-23T02:56:53Z",
+ "commit": "008b80f0e3383560f8d3b0bb943a333bcb1e9e88",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "labels": 8,
+  "K": 4,
+  "seconds": 39.6
+ },
+ "counts": {
+  "pass": 1,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity row",
+  "negative": "n.a."
+ },
+ "elapsed_s": 39.568,
+ "notes": "",
+ "checks": [
+  {
+   "name": "K1-K5 verifiers on all pairs of a window of 8 labels (identity, the six seeds, a product) at K=4",
+   "ok": true,
+   "note": "verify_bar_involution fails 0; verify_identity_in_basis fails 0; verify_unit_law fails 0; verify_associativity fails 0; verify_rho_fixes_identity fails 0; verify_rho_inverse fails 0; verify_rho_is_automorphism fails 0; verify_orthonormality fails 0; verify_trace_pairing_faces fails 0; verify_rho_twisted_trace fails 0; verify_trace_intertwines_rho fails 0; verify_pairing_rho_star_symmetric fails 0"
+  }
+ ]
+}

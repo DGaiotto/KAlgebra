@@ -73,6 +73,88 @@ from __future__ import annotations
 from laurent_poly import LaurentPoly
 
 
+# ---------------------------------------------------------------------------
+# THE UNIFORM RULE (2026-09-23) — every chord seed from singlet characters
+# ---------------------------------------------------------------------------
+#
+# Supersedes the per-family fitted forms below (the long chord's log branches,
+# the conjectural negative-n family `_tr_L_long_neg`, the two-branch diameter,
+# the atypical-only even chord), which were fitted to BPS / oracle windows and
+# are wrong from about fq^26-43 (measured; see `singlet_chord_trace`).
+
+
+def singlet_chord_trace(p: int, j: int, n: int, K: int) -> LaurentPoly:
+    """`Tr(L_{2j} · E^n)` for the u(1)-gauged `[A_1, A_{2k+1}]`, `p = k + 2`,
+    truncated to `fq^K` — ONE formula for every even chord type `2j` (`j = 0`
+    the `E`-tower, `j = 1` the length-3 chord, `j = (p-1)/2` the diameter at
+    odd `k`) and every integer `n` (odd chord types are gauge-charged and
+    vanish; that is decided upstream by the cone data, not here).
+
+    With `r = n + 1` and the atypical `M(1, p)` singlet modules `M_{r,s}`,
+    whose character numerators (the `1/eta` stripped) are the false thetas
+    `Σ_{i≥0} [q^{p(i + r/2 - s/2p)^2} - q^{p(i + r/2 + s/2p)^2}]`
+    (`q_paper = fq^2`), write `chihat_{r,s}` for that numerator in `fq`
+    divided by its leading power `fq^{2p(r/2 - s/2p)^2}`.  Then
+
+        Tr(L_{2j} E^n) = (-1)^{(p-1)n + j + 1} · fq^{(p-1-2j) n - j}
+                         · ( chihat_{r,j} - chihat_{r,j+1} ),   chihat_{r,0} := 0,
+
+    the same formula continued to `r <= 0` for `n < 0`.  In integers:
+    `chihat_{r,s}` contributes `fq^{2p i^2 + 2i(pr - s)}` (sign +) and
+    `fq^{2p i^2 + 2i(pr + s) + 2rs}` (sign -) for `i >= 0`.
+
+    At `n = 0` this reads `(-1)^{j+1} fq^{-j} (chihat_{1,j} - chihat_{1,j+1})`
+    — the even family's `T_a = (-1)^{m+1} fq^{-m} (chi_m - chi_{m+1})`
+    (`a1a2k_kalg.A1A2kKAlg`) with the Virasoro `M(2, 2k+3)` characters
+    replaced by the singlet `M(1, p)` ones; the gauge charge enters only
+    through `r = n + 1` and the factor `(-1)^{(p-1)n} fq^{(p-1-2j)n}`.
+
+    Consequences built in, not imposed: `j = 0` is `tr_v_n` (symmetric in
+    `n`); the diameter is reflection-symmetric `n <-> -1-n` (its self-duality);
+    every seed is a power series with `Tr = 1 + O(fq)` at `(j, n) = (0, 0)`
+    and `O(fq)` otherwise.
+
+    Verification record (2026-09-23):
+    * EXACT RG TRANSPORT down the flow `U1A1AoddToEvenQTRGKAlgebra(k)`
+      (`Tr_UV(b) = Tr_aux(rho(S) Phi(b) S)`, `S = E_fq(X_{0,1} L)` with the
+      dressing chord `i0 = 2k+1`, into `A1A2kKAlg(k) ⊗ QT`): agrees at
+      k = 2 (7 long seeds through fq^42) and k = 3 (14 long seeds through
+      fq^32, diameter through fq^44);
+    * the ORTHONORMALITY BOOTSTRAP trusting only `tr_v_n`: k = 2 through
+      fq^84, k = 3 through fq^64, k = 4 (the class's intermediate-chord
+      bootstrap, 40/40 seeds of types 2 and 4 through fq^20);
+    * every BPS anchor of the suite in the source repository (13/13) and the p = 7
+      oracle diameter anchors (4/4).
+    The previous forms are wrong at: p = 4 long n = 0 from fq^39, n = -1 from
+    fq^34; p = 5 long n = 0 from fq^43, n = -1 from fq^41; p = 5 diameter
+    n in {0,1} from fq^26 (transport and bootstrap agree on each)."""
+    r = n + 1
+    d = (p - 1 - 2 * j) * n - j
+    sign = -1 if ((p - 1) * n + j + 1) % 2 else 1
+    out: dict[int, int] = {}
+    for s, sigma in ((j, 1), (j + 1, -1)):
+        if s == 0:
+            continue
+        for lin, const, sg in ((p * r - s, 0, 1), (p * r + s, 2 * r * s, -1)):
+            # exponent(i) = d + const + 2p i^2 + 2 i lin; for lin < 0 the
+            # quadratic dips before rising, so walk past its vertex.
+            ivert = max(0, -lin // (2 * p) + 1)
+            i = 0
+            while True:
+                e = d + const + 2 * p * i * i + 2 * i * lin
+                if e <= K:
+                    out[e] = out.get(e, 0) + sign * sigma * sg
+                elif i >= ivert:
+                    break
+                i += 1
+    out = {e: c for e, c in out.items() if c != 0}
+    if out and min(out) < 0:
+        raise ArithmeticError(
+            f"singlet_chord_trace(p={p}, j={j}, n={n}): negative power "
+            f"fq^{min(out)} — a trace is a power series")
+    return LaurentPoly(out)
+
+
 def _partial_theta(out: dict, level: int, b: int, c: int, sign: int, K: int) -> None:
     """Accumulate sign * sum_{j>=0} fq^{level j^2 + b j + c} into `out`,
     truncated to fq^K."""
@@ -99,7 +181,12 @@ def tr_v_n(p: int, n: int, K: int) -> LaurentPoly:
 
 
 def _tr_L_long_neg(p: int, n: int, K: int) -> LaurentPoly:
-    """Tr(L_long · v^n), n < 0, for p >= 4 — the spectral-flow mirror of
+    """RETIRED 2026-09-23 (kept so the defect measurement stays reproducible;
+    nothing on a production path calls it): wrong at p = 4 from fq^34
+    (n = -1) and at p = 5 from fq^41 (n = -1) — see `singlet_chord_trace`,
+    which is exact for every n.
+
+    Tr(L_long · v^n), n < 0, for p >= 4 — the spectral-flow mirror of
     the n >= 0 branches.
 
     The n < 0 character is a |n|-linear 4-partial-theta family (m = |n|):
@@ -152,16 +239,26 @@ def _tr_L_long_neg(p: int, n: int, K: int) -> LaurentPoly:
 
 
 def tr_L_long_v_n(p: int, n: int, K: int) -> LaurentPoly:
-    """Closed-form long-chord defect Tr(L_long · v^n) for U1Pgon at
-    p = k + 2, truncated to fq^K — valid for ALL integer n.
+    """Long-chord (length-3 chord, chord type 2) seed `Tr(L_long · v^n)` for
+    U1Pgon at p = k + 2, truncated to fq^K, every integer n: the uniform rule
+    `singlet_chord_trace(p, 1, n, K)` (at p = 3 the long chord is the hexagon
+    diameter and the rule's n <-> -1-n reflection is built in)."""
+    return singlet_chord_trace(p, 1, n, K)
+
+
+def _fitted_tr_L_long_v_n(p: int, n: int, K: int) -> LaurentPoly:
+    """RETIRED 2026-09-23 (kept so the defect measurement stays reproducible):
+    the per-family fit that `tr_L_long_v_n` used to be.  Exact at p = 3; at
+    p >= 4 its two log branches carry the b-offsets 2p+8 / 2p+10 where the
+    truth is 6p-4 / 6p-2 (wrong from fq^39 at p = 4, n = 0), and its n < 0
+    branch is `_tr_L_long_neg`.
 
     n >= 0: the general-p cross-rung 4-partial-theta pattern.
     n <  0: p = 3 (hexagon diameter) is the reflection n <-> -1-n;
-            p >= 4 is the spectral-flow mirror family `_tr_L_long_neg`
-            (verified vs BPS at p = 4 and p = 5)."""
+            p >= 4 is the spectral-flow mirror family `_tr_L_long_neg`."""
     if n < 0:
         if p == 3:
-            return tr_L_long_v_n(3, -1 - n, K)   # diameter reflection
+            return _fitted_tr_L_long_v_n(3, -1 - n, K)   # diameter reflection
         return _tr_L_long_neg(p, n, K)
     po = (p % 2 == 1)
     overall = 1 if po else (-1 if (n + 1) % 2 == 1 else 1)
@@ -184,7 +281,25 @@ def tr_L_long_v_n(p: int, n: int, K: int) -> LaurentPoly:
 
 
 def tr_L_diameter_v_n(p: int, n: int, K: int) -> LaurentPoly:
-    """Closed-form diameter-chord defect Tr(L_diam · v^n) for U1Pgon —
+    """Diameter seed `Tr(L_diam · v^n)` for U1Pgon at odd p = k + 2 >= 5
+    (the diameter is chord type k+1 = 2j with j = (p-1)/2): the uniform rule
+    `singlet_chord_trace(p, (p-1)/2, -n, K)`.  In this function's index the
+    reflection is n <-> 1-n (the rule's n <-> -1-n).  The k = 1 diameter is
+    the long chord (`tr_L_long_v_n`); even k has no physical diameter."""
+    if p < 5 or p % 2 == 0:
+        raise NotImplementedError(
+            f"diameter seed is for odd p >= 5 (odd k >= 3); got p={p}. "
+            f"(k=1 diameter is the long chord -> tr_L_long_v_n.)"
+        )
+    return singlet_chord_trace(p, (p - 1) // 2, -n, K)
+
+
+def _fitted_tr_L_diameter_v_n(p: int, n: int, K: int) -> LaurentPoly:
+    """RETIRED 2026-09-23 (kept so the defect measurement stays reproducible):
+    the two-branch fit `tr_L_diameter_v_n` used to be — wrong at p = 5 from
+    fq^26 (n in {0, 1}); `singlet_chord_trace` has the other two branches.
+
+    Closed-form diameter-chord defect Tr(L_diam · v^n) for U1Pgon —
     general odd p (= k+2), i.e. all odd k >= 3.
 
     The diameter (type k+1) survives only for odd k; for k=1 it *is* the

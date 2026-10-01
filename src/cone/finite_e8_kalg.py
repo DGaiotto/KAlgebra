@@ -1099,6 +1099,10 @@ def _rho_pow_word(word, k):
     return tuple(_rho_pow(i, k) for i in word)
 
 class _ExportedE8ConeData(FiniteConeData):
+    # Layer 1 on canonical labels (`ConeData.layer1_on_labels`): the word
+    # route's memo ran out of memory on deep labels.
+    layer1_on_labels = True
+
     def mult_gens(self):
         return tuple(range(len(E8_MULT_GENS_LATTICE)))
 

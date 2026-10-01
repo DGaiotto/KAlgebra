@@ -1,0 +1,58 @@
+{
+ "id": "sec:uqsl2/trace",
+ "labels": [
+  "eq:uqsl2trace"
+ ],
+ "date": "2026-09-22T00:03:43Z",
+ "commit": "8da697afb50102e74e4b0745297e9de689c480a6",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "n": "|n| <= 6",
+  "K": 12,
+  "realisation": "SQED_2 as GNAbeKAlgebra(u_n(1),(1,),nf=2) after base_change(un_to_sun_hom(2))"
+ },
+ "counts": {
+  "pass": 6,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed leading terms of Tr K^0",
+  "negative": "opposite sign in E_q detected"
+ },
+ "elapsed_s": 3.571,
+ "notes": "G(x,μ) is expanded independently as a two-variable series; the class's SU(2)-character coefficients are expanded in μ for the comparison.  The SQED_2 realisation computes the trace from eq:measure at (U(1), 2 fundamentals), the draft's own derivation of eq:uqsl2trace.",
+ "checks": [
+  {
+   "name": "positive control: [x^0]G = 1 + q^2(χ_2 - 1) + O(q^4) (the U(1) vector multiplet's -1)",
+   "ok": true,
+   "note": "[x^0]G through q^4: q^0:[+1m(0,)] q^2:[+1m(-2,) +1m(2,)] q^4:[+1m(-4,) +2m(-2,) +2m(0,) +2m(2,) +1m(4,)] +O(q^5)"
+  },
+  {
+   "name": "G is symmetric under x -> x^-1 and under μ -> μ^-1 (Weyl / charge conjugation)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr K^n = [x^n] G(x,μ) on the SQED_2 Wilson lines (GNAbeKAlgebra(u_n(1),(1,),nf=2), R(U(2)) -> R(SU(2))), |n| <= 6, through q^12",
+   "ok": true,
+   "note": "n=-6: ok; n=-5: ok; n=-4: ok; n=-3: ok; n=-2: ok; n=-1: ok; n=0: ok; n=1: ok; n=2: ok; n=3: ok; n=4: ok; n=5: ok; n=6: ok"
+  },
+  {
+   "name": "measured: Tr K^n = O(q^|n|) exactly, 1 <= |n| <= 6",
+   "ok": true,
+   "note": "{-6: 6, -5: 5, -4: 4, -3: 3, -2: 2, -1: 1, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}"
+  },
+  {
+   "name": "the trace vanishes on the charged sector (E_{a,b}, F_{a,b}: magnetic charge != 0 in SQED_2), 7 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: E_q with the opposite sign (q y; q^2)^-1 is detected at n = 1",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

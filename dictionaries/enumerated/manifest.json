@@ -1,0 +1,617 @@
+{
+ "plan": "41_enumerated_quiver_dictionary",
+ "format": 3,
+ "strongly_connected": true,
+ "tier": "permanent \u2014 every strongly connected BPS quiver with total arrow weight e <= E, up to node permutation, with one accepted spec each (the shortest known) or the crystalline certification; every other quiver is answered by composition (coverage)",
+ "E": 12,
+ "build_E": 12,
+ "completeness": "every strongly connected BPS quiver with total arrow weight e = sum_(i<j)|b_ij| <= 12, up to node permutation",
+ "coverage": "every BPS quiver \u2014 connected or not, of any rank and any total weight \u2014 whose strongly connected components have total arrow weight <= 12: its spec is its components' specs concatenated in a source-first order, a single node contributing its own charge (strongly_connected_redesign.md \u00a71.1; dictionary_loader.lookup_enumerated)",
+ "composed_record": "the record of a composed answer, over its components of two or more nodes (a single node satisfies the constraint exactly, at every depth): green iff every one is; axioms@D at the least depth among them; crystalline_only@D (no spec) if one is, at the least such depth; a component's axiom_mismatch@D is carried (D36).  An acyclic quiver \u2014 every component a single node \u2014 is answered `green`, its source/sink order, and its S satisfies the constraint at every depth by \u00a71.2, a theorem",
+ "accept_depth": 5,
+ "verify_depth": 0,
+ "content_depth": 6,
+ "shard_shape": "a dict {plan, format, strongly_connected, n, e, completeness, entry_keys, count, stored, spec_verified, crystalline_only, accept_depth, verify_depth, content_depth, entries: [...]}, gzipped",
+ "entry_keys": [
+  "q",
+  "s",
+  "v",
+  "c"
+ ],
+ "certification": "green | green;axioms@D | green;axiom_mismatch@D | axioms@D | crystalline_only@D",
+ "certification_semantics": "green = the spec replays as a negating sequence (exact, finite); the S axioms are ASSUMED for it.  axioms@D = the BPS quiver constraint (every non-node coefficient of S is O(q^2)) and the crystalline agreement checked on cone charges of degree <= D only; no all-degree certificate exists (RESEARCH_GOALS 3.12).  A green spec failing the check is a conjecture counterexample (axiom_mismatches).",
+ "search": {
+  "producers": "seeds (an earlier tier, the weak dictionaries and harvests: the green replay decides), propagation (necklace moves and node drops, tail cap max_tail_entries), BFS (find_negating_sequence; every spec-less entry searched at least to depth bfs_depth for bfs_time_limit_s, the deeper passes in spec_less_entries_by_bfs_attempt); the order search not run",
+  "bfs_depth": 12,
+  "bfs_time_limit_s": 60,
+  "n_spec_less_unsearched": 0,
+  "max_tail_entries": 5000,
+  "spec_less_entries_by_bfs_attempt": {
+   "none at depth 12, 60 s": 47724,
+   "none at depth 30, 120 s, auto": 16,
+   "none at depth 30, 1200 s, auto": 31,
+   "none at depth 30, 600 s, auto": 653,
+   "timeout at depth 30, 120 s, auto": 4117,
+   "timeout at depth 30, 1200 s, auto": 1111,
+   "timeout at depth 30, 300 s, auto": 97,
+   "timeout at depth 30, 600 s, auto": 575
+  },
+  "note": "crystalline_only@D means no accepted spec was FOUND by these producers, and the crystalline S was computed to depth D.  It is NOT a proof that no spec exists, at ANY rank: a depth-bounded search rules out only sequences up to its depth, and the shortest negating sequence can be far longer than 2n - 2, which holds for the oriented n-cycle, not in general.  Measured 2026-09-26 on SC12: of 156 specs at rank <= 7 found by propagation from weight 13, on quivers where a depth-12 BFS had exhausted, 154 are longer than 12 (up to 21 at rank 7).  spec_less_entries_by_bfs_attempt says how deeply each spec-less entry was searched, and by which strategy."
+ },
+ "certifications_kept_from": "dictionaries/enumerated",
+ "n_certifications_kept_deeper": 585,
+ "n_entries_kept_shorter": 2,
+ "n_entries_kept_with_their_spec": 327,
+ "census_of_every_connected_quiver": {
+  "E": 10,
+  "from": "/Users/claude/Claude/Cluster/dictionaries/enumerated",
+  "note": "count = every connected quiver of the cell, acyclic = those with no directed cycle; a record of the retired format-2 tier, the cross-check of the composition (strongly_connected_redesign.md \u00a76.1)",
+  "cells": {
+   "n=1,e=0": {
+    "quivers": 1,
+    "acyclic": 0,
+    "stored": 1
+   },
+   "n=2,e=1": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=2": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=3": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=4": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=5": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=6": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=7": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=8": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=9": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=2,e=10": {
+    "quivers": 1,
+    "acyclic": 1,
+    "stored": 0
+   },
+   "n=3,e=2": {
+    "quivers": 3,
+    "acyclic": 3,
+    "stored": 0
+   },
+   "n=3,e=3": {
+    "quivers": 6,
+    "acyclic": 5,
+    "stored": 1
+   },
+   "n=3,e=4": {
+    "quivers": 11,
+    "acyclic": 10,
+    "stored": 1
+   },
+   "n=3,e=5": {
+    "quivers": 16,
+    "acyclic": 14,
+    "stored": 2
+   },
+   "n=3,e=6": {
+    "quivers": 25,
+    "acyclic": 21,
+    "stored": 4
+   },
+   "n=3,e=7": {
+    "quivers": 32,
+    "acyclic": 27,
+    "stored": 5
+   },
+   "n=3,e=8": {
+    "quivers": 43,
+    "acyclic": 36,
+    "stored": 7
+   },
+   "n=3,e=9": {
+    "quivers": 54,
+    "acyclic": 44,
+    "stored": 10
+   },
+   "n=3,e=10": {
+    "quivers": 67,
+    "acyclic": 55,
+    "stored": 12
+   },
+   "n=4,e=3": {
+    "quivers": 8,
+    "acyclic": 8,
+    "stored": 0
+   },
+   "n=4,e=4": {
+    "quivers": 30,
+    "acyclic": 27,
+    "stored": 3
+   },
+   "n=4,e=5": {
+    "quivers": 86,
+    "acyclic": 73,
+    "stored": 13
+   },
+   "n=4,e=6": {
+    "quivers": 207,
+    "acyclic": 163,
+    "stored": 44
+   },
+   "n=4,e=7": {
+    "quivers": 428,
+    "acyclic": 319,
+    "stored": 109
+   },
+   "n=4,e=8": {
+    "quivers": 815,
+    "acyclic": 576,
+    "stored": 239
+   },
+   "n=4,e=9": {
+    "quivers": 1442,
+    "acyclic": 972,
+    "stored": 470
+   },
+   "n=4,e=10": {
+    "quivers": 2402,
+    "acyclic": 1558,
+    "stored": 844
+   },
+   "n=5,e=4": {
+    "quivers": 27,
+    "acyclic": 27,
+    "stored": 0
+   },
+   "n=5,e=5": {
+    "quivers": 148,
+    "acyclic": 134,
+    "stored": 14
+   },
+   "n=5,e=6": {
+    "quivers": 636,
+    "acyclic": 524,
+    "stored": 112
+   },
+   "n=5,e=7": {
+    "quivers": 2124,
+    "acyclic": 1584,
+    "stored": 540
+   },
+   "n=5,e=8": {
+    "quivers": 6189,
+    "acyclic": 4205,
+    "stored": 1984
+   },
+   "n=5,e=9": {
+    "quivers": 15986,
+    "acyclic": 9940,
+    "stored": 6046
+   },
+   "n=5,e=10": {
+    "quivers": 37934,
+    "acyclic": 21715,
+    "stored": 16219
+   },
+   "n=6,e=5": {
+    "quivers": 91,
+    "acyclic": 91,
+    "stored": 0
+   },
+   "n=6,e=6": {
+    "quivers": 762,
+    "acyclic": 687,
+    "stored": 75
+   },
+   "n=6,e=7": {
+    "quivers": 4341,
+    "acyclic": 3518,
+    "stored": 823
+   },
+   "n=6,e=8": {
+    "quivers": 19616,
+    "acyclic": 14178,
+    "stored": 5438
+   },
+   "n=6,e=9": {
+    "quivers": 75411,
+    "acyclic": 48575,
+    "stored": 26836
+   },
+   "n=6,e=10": {
+    "quivers": 256773,
+    "acyclic": 147569,
+    "stored": 109204
+   },
+   "n=7,e=6": {
+    "quivers": 350,
+    "acyclic": 350,
+    "stored": 0
+   },
+   "n=7,e=7": {
+    "quivers": 3878,
+    "acyclic": 3496,
+    "stored": 382
+   },
+   "n=7,e=8": {
+    "quivers": 28773,
+    "acyclic": 23134,
+    "stored": 5639
+   },
+   "n=7,e=9": {
+    "quivers": 166246,
+    "acyclic": 118263,
+    "stored": 47983
+   },
+   "n=7,e=10": {
+    "quivers": 815175,
+    "acyclic": 510551,
+    "stored": 304624
+   },
+   "n=8,e=7": {
+    "quivers": 1376,
+    "acyclic": 1376,
+    "stored": 0
+   },
+   "n=8,e=8": {
+    "quivers": 20056,
+    "acyclic": 18055,
+    "stored": 2001
+   },
+   "n=8,e=9": {
+    "quivers": 185226,
+    "acyclic": 148440,
+    "stored": 36786
+   },
+   "n=8,e=10": {
+    "quivers": 1328947,
+    "acyclic": 938921,
+    "stored": 390026
+   },
+   "n=9,e=8": {
+    "quivers": 5743,
+    "acyclic": 5743,
+    "stored": 0
+   },
+   "n=9,e=9": {
+    "quivers": 104096,
+    "acyclic": 93706,
+    "stored": 10390
+   },
+   "n=9,e=10": {
+    "quivers": 1170929,
+    "acyclic": 938071,
+    "stored": 232858
+   },
+   "n=10,e=9": {
+    "quivers": 24635,
+    "acyclic": 24635,
+    "stored": 0
+   },
+   "n=10,e=10": {
+    "quivers": 544249,
+    "acyclic": 490213,
+    "stored": 54036
+   },
+   "n=11,e=10": {
+    "quivers": 108968,
+    "acyclic": 108968,
+    "stored": 0
+   }
+  }
+ },
+ "axiom_mismatches": [],
+ "skipped_stages": [],
+ "n_entries": 728921,
+ "n_with_spec": 674597,
+ "n_green": 674597,
+ "n_crystalline_only": 54324,
+ "n_uncertified": 0,
+ "cells": {
+  "n=3,e=3": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=3,e=4": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=3,e=5": {
+   "stored": 2,
+   "spec_verified": 2,
+   "crystalline_only": 0
+  },
+  "n=3,e=6": {
+   "stored": 4,
+   "spec_verified": 3,
+   "crystalline_only": 1
+  },
+  "n=3,e=7": {
+   "stored": 5,
+   "spec_verified": 4,
+   "crystalline_only": 1
+  },
+  "n=3,e=8": {
+   "stored": 7,
+   "spec_verified": 5,
+   "crystalline_only": 2
+  },
+  "n=3,e=9": {
+   "stored": 10,
+   "spec_verified": 6,
+   "crystalline_only": 4
+  },
+  "n=3,e=10": {
+   "stored": 12,
+   "spec_verified": 7,
+   "crystalline_only": 5
+  },
+  "n=3,e=11": {
+   "stored": 15,
+   "spec_verified": 8,
+   "crystalline_only": 7
+  },
+  "n=3,e=12": {
+   "stored": 19,
+   "spec_verified": 9,
+   "crystalline_only": 10
+  },
+  "n=4,e=4": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=4,e=5": {
+   "stored": 3,
+   "spec_verified": 3,
+   "crystalline_only": 0
+  },
+  "n=4,e=6": {
+   "stored": 12,
+   "spec_verified": 12,
+   "crystalline_only": 0
+  },
+  "n=4,e=7": {
+   "stored": 35,
+   "spec_verified": 33,
+   "crystalline_only": 2
+  },
+  "n=4,e=8": {
+   "stored": 85,
+   "spec_verified": 75,
+   "crystalline_only": 10
+  },
+  "n=4,e=9": {
+   "stored": 178,
+   "spec_verified": 144,
+   "crystalline_only": 34
+  },
+  "n=4,e=10": {
+   "stored": 340,
+   "spec_verified": 249,
+   "crystalline_only": 91
+  },
+  "n=4,e=11": {
+   "stored": 602,
+   "spec_verified": 399,
+   "crystalline_only": 203
+  },
+  "n=4,e=12": {
+   "stored": 1005,
+   "spec_verified": 603,
+   "crystalline_only": 402
+  },
+  "n=5,e=5": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=5,e=6": {
+   "stored": 6,
+   "spec_verified": 6,
+   "crystalline_only": 0
+  },
+  "n=5,e=7": {
+   "stored": 46,
+   "spec_verified": 46,
+   "crystalline_only": 0
+  },
+  "n=5,e=8": {
+   "stored": 240,
+   "spec_verified": 232,
+   "crystalline_only": 8
+  },
+  "n=5,e=9": {
+   "stored": 927,
+   "spec_verified": 868,
+   "crystalline_only": 59
+  },
+  "n=5,e=10": {
+   "stored": 2991,
+   "spec_verified": 2611,
+   "crystalline_only": 380
+  },
+  "n=5,e=11": {
+   "stored": 8315,
+   "spec_verified": 6759,
+   "crystalline_only": 1556
+  },
+  "n=5,e=12": {
+   "stored": 20777,
+   "spec_verified": 15415,
+   "crystalline_only": 5362
+  },
+  "n=6,e=6": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=6,e=7": {
+   "stored": 9,
+   "spec_verified": 9,
+   "crystalline_only": 0
+  },
+  "n=6,e=8": {
+   "stored": 135,
+   "spec_verified": 135,
+   "crystalline_only": 0
+  },
+  "n=6,e=9": {
+   "stored": 1141,
+   "spec_verified": 1115,
+   "crystalline_only": 26
+  },
+  "n=6,e=10": {
+   "stored": 6896,
+   "spec_verified": 6603,
+   "crystalline_only": 293
+  },
+  "n=6,e=11": {
+   "stored": 33012,
+   "spec_verified": 30082,
+   "crystalline_only": 2930
+  },
+  "n=6,e=12": {
+   "stored": 132671,
+   "spec_verified": 114698,
+   "crystalline_only": 17973
+  },
+  "n=7,e=7": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=7,e=8": {
+   "stored": 13,
+   "spec_verified": 13,
+   "crystalline_only": 0
+  },
+  "n=7,e=9": {
+   "stored": 312,
+   "spec_verified": 312,
+   "crystalline_only": 0
+  },
+  "n=7,e=10": {
+   "stored": 4188,
+   "spec_verified": 4123,
+   "crystalline_only": 65
+  },
+  "n=7,e=11": {
+   "stored": 37840,
+   "spec_verified": 36651,
+   "crystalline_only": 1189
+  },
+  "n=7,e=12": {
+   "stored": 261754,
+   "spec_verified": 243415,
+   "crystalline_only": 18339
+  },
+  "n=8,e=8": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=8,e=9": {
+   "stored": 17,
+   "spec_verified": 17,
+   "crystalline_only": 0
+  },
+  "n=8,e=10": {
+   "stored": 644,
+   "spec_verified": 644,
+   "crystalline_only": 0
+  },
+  "n=8,e=11": {
+   "stored": 12702,
+   "spec_verified": 12550,
+   "crystalline_only": 152
+  },
+  "n=8,e=12": {
+   "stored": 165193,
+   "spec_verified": 161044,
+   "crystalline_only": 4149
+  },
+  "n=9,e=9": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=9,e=10": {
+   "stored": 22,
+   "spec_verified": 22,
+   "crystalline_only": 0
+  },
+  "n=9,e=11": {
+   "stored": 1184,
+   "spec_verified": 1184,
+   "crystalline_only": 0
+  },
+  "n=9,e=12": {
+   "stored": 33432,
+   "spec_verified": 32961,
+   "crystalline_only": 471
+  },
+  "n=10,e=10": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=10,e=11": {
+   "stored": 27,
+   "spec_verified": 27,
+   "crystalline_only": 0
+  },
+  "n=10,e=12": {
+   "stored": 2049,
+   "spec_verified": 1471,
+   "crystalline_only": 578
+  },
+  "n=11,e=11": {
+   "stored": 1,
+   "spec_verified": 1,
+   "crystalline_only": 0
+  },
+  "n=11,e=12": {
+   "stored": 33,
+   "spec_verified": 12,
+   "crystalline_only": 21
+  },
+  "n=12,e=12": {
+   "stored": 1,
+   "spec_verified": 0,
+   "crystalline_only": 1
+  }
+ },
+ "builder": "dictionaries/build_enumerated.py (ship_strongly_connected)"
+}

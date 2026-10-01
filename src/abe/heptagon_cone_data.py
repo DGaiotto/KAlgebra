@@ -4,9 +4,10 @@ The heptagon's structure (mirroring pentagon, but larger and with two
 orbit-types of mult-gens):
 
   * **Multiplicative generators**: `L((k, i))` for `k ∈ {1, 2}`,
-    `i ∈ ℤ/7` — 14 total.  Orbit `k=1` is the short-diagonal chord
-    `(i, i+2)` of the heptagon; orbit `k=2` is the long-diagonal
-    chord `(i+3, i+6)`.
+    `i ∈ ℤ/7` — 14 total.  Orbit `k=1` is the short diagonal
+    `{i, i+2}` of the heptagon; orbit `k=2` is the long diagonal
+    `{i, i+4}` — `A1A2kKAlg(2)`'s letter `(2, i+4)`
+    (`kalgebra_samples.HeptagonKAlg`'s docstring).
   * **Cones** (maximal q-commuting subsets of mult-gens): the non-
     crossing chord arrangements of the heptagon, computed at instance
     init via a Bron-Kerbosch maximal-clique enumeration on the
@@ -18,6 +19,7 @@ orbit-types of mult-gens):
     exponent `c` with `L_g L_h = q^{2c} L_h L_g`.  `_hept_qcommute_factor`
     only takes even values `{-2, 0, 2}`, so the halving is exact.
   * **Cross-products** (Plücker pairs): `_hept_pair_product(g, h)`
+    (`A1A2kKAlg(2)`'s generator product under that relabelling)
     returns a list of `(kind, c)` summands where `kind` is one of
     `('I',)` (identity), `('letter', (k, i))` (single letter), or
     `('pair', ((k1, i1), (k2, i2)))` (two-letter q-commuting product).

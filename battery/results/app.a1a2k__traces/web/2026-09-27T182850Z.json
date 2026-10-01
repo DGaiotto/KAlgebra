@@ -1,0 +1,59 @@
+{
+ "id": "app:a1a2k/traces",
+ "labels": [
+  "app:a1a2k"
+ ],
+ "date": "2026-09-27T18:28:50Z",
+ "commit": "1f82fe55cfdafe90f86a24a863e24c96aa8249a5",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "BPS chart": {
+   "k=1": {
+    "Tr(1) to fq^12": true,
+    "Tr(L_(a;i)) = T_a for every i": "[5] of 5 each",
+    "reduction on labels of <= 2 letters to fq^10": "16/16"
+   },
+   "k=2": {
+    "Tr(1) to fq^10": true,
+    "Tr(L_(a;i)) = T_a for every i": "[7, 7] of 7 each",
+    "reduction on labels of <= 2 letters to fq^8": "85/85"
+   }
+  },
+  "seconds": 111.9
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "Andrews-Gordon products against sums; the formula against the independent chart",
+  "negative": "the formula with m(a) = a"
+ },
+ "elapsed_s": 111.887,
+ "notes": "The class's own traces ARE this formula (its Layer 2), so (a) is a transcription check; the BPS chart, whose trace comes from its quiver and spec, is the independent comparison.  k = 3 is in the extensive sweep (its chart traces take minutes).",
+ "checks": [
+  {
+   "name": "positive control: the Andrews-Gordon products equal the Andrews-Gordon sums, k <= 3, every s, through q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the draft's T_0..T_k equal the class's elementary traces through fq^40, k = 1..6: 6 of 6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the BPS chart's Tr(1) and Tr(L_(a;i)) equal the draft's T_0 and T_a for every rotation index i, and the reduction algorithm's Sum c_s T_s equals the BPS chart's trace on every label of at most two letters: k=1: {'Tr(1) to fq^12': True, 'Tr(L_(a;i)) = T_a for every i': '[5] of 5 each', 'reduction on labels of <= 2 letters to fq^10': '16/16'}; k=2: {'Tr(1) to fq^10': True, 'Tr(L_(a;i)) = T_a for every i': '[7, 7] of 7 each', 'reduction on labels of <= 2 letters to fq^8': '85/85'}",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: with m(a) = a in place of the draft's m(a), the formula disagrees with the BPS chart on k=1: 0 of 1, k=2: 2 of 2 elementary traces (at k = 1 the two coincide)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

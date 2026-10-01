@@ -1,0 +1,293 @@
+{
+ "id": "conj:abeKalgebra/existence-uniqueness",
+ "labels": [
+  "conj:abeKalgebra",
+  "ab:bar",
+  "ab:ofq",
+  "ab:res",
+  "eq:star"
+ ],
+ "date": "2026-09-23T11:53:48Z",
+ "commit": "2c92eb065c7cf683eac7bfd676baa2a424582c9d",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "labels": 13,
+   "pinned": 13,
+   "equal_to_chart": 13,
+   "unknown_cells": {
+    "((0,), (0,))": 0,
+    "((0,), (1,))": 0,
+    "((0,), (2,))": 0,
+    "((1,), (-1,))": 1,
+    "((1,), (-2,))": 1,
+    "((1,), (0,))": 1,
+    "((1,), (1,))": 1,
+    "((1,), (2,))": 1,
+    "((2,), (-1,))": 3,
+    "((2,), (-2,))": 3,
+    "((2,), (0,))": 3,
+    "((2,), (1,))": 3,
+    "((2,), (2,))": 3
+   },
+   "wilson": 3,
+   "negative": {
+    "perturbed": 20,
+    "other_conditions_hold": 20,
+    "star_rejects": 20
+   },
+   "seconds": 0.3
+  },
+  "pure SO(3)": {
+   "labels": 13,
+   "pinned": 13,
+   "equal_to_chart": 13,
+   "unknown_cells": {
+    "((0,), (0,))": 0,
+    "((0,), (1,))": 0,
+    "((0,), (2,))": 0,
+    "((1,), (-1,))": 0,
+    "((1,), (-2,))": 0,
+    "((1,), (0,))": 0,
+    "((1,), (1,))": 0,
+    "((1,), (2,))": 0,
+    "((2,), (-1,))": 1,
+    "((2,), (-2,))": 1,
+    "((2,), (0,))": 1,
+    "((2,), (1,))": 1,
+    "((2,), (2,))": 1
+   },
+   "wilson": 3,
+   "negative": {
+    "perturbed": 10,
+    "other_conditions_hold": 10,
+    "star_rejects": 10
+   },
+   "seconds": 0.1
+  },
+  "pure SU(3)": {
+   "labels": 8,
+   "pinned": 8,
+   "equal_to_chart": 8,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (0, 1))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((1, 1), (-1, 1))": 1,
+    "((1, 1), (0, 0))": 1,
+    "((1, 1), (0, 1))": 1,
+    "((1, 1), (1, -1))": 1,
+    "((1, 1), (1, 0))": 1
+   },
+   "wilson": 3,
+   "negative": {
+    "perturbed": 10,
+    "other_conditions_hold": 10,
+    "star_rejects": 10
+   },
+   "seconds": 1.0
+  },
+  "pure Sp(4)": {
+   "labels": 5,
+   "pinned": 5,
+   "equal_to_chart": 5,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((1, 0), (0, 0))": 1,
+    "((1, 0), (0, 1))": 1,
+    "((1, 0), (1, 0))": 1
+   },
+   "wilson": 2,
+   "negative": {
+    "perturbed": 6,
+    "other_conditions_hold": 6,
+    "star_rejects": 6
+   },
+   "seconds": 0.6
+  },
+  "pure G2": {
+   "labels": 4,
+   "pinned": 4,
+   "equal_to_chart": 4,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((2, 3), (-1, 1))": 7,
+    "((2, 3), (0, 0))": 7
+   },
+   "wilson": 2,
+   "negative": {
+    "perturbed": 4,
+    "other_conditions_hold": 4,
+    "star_rejects": 4
+   },
+   "seconds": 42.9
+  },
+  "SU(2) + 1 fund. (roster su2-nf1)": {
+   "labels": 5,
+   "pinned": 5,
+   "equal_to_chart": 5,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 0.1
+  },
+  "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour)": {
+   "labels": 5,
+   "pinned": 5,
+   "equal_to_chart": 5,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 0.1
+  },
+  "SO(3) + adjoint (N=2*)": {
+   "labels": 5,
+   "pinned": 5,
+   "equal_to_chart": 5,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 0.0
+  },
+  "SU(3) + 1 fund. (roster su3-nf1)": {
+   "labels": 4,
+   "pinned": 4,
+   "equal_to_chart": 4,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 0.9
+  }
+ },
+ "counts": {
+  "pass": 23,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the Wilson lines: a single support cell and no unknowns (the seed is the answer)",
+  "negative": "in pure gauge, every window line with bubbling perturbed two ways (bubbling removed; bubbling doubled): bar, the seed, O(q) and the support bound still hold, and (★) rejects"
+ },
+ "elapsed_s": 45.994,
+ "notes": "With matter the solver returns the dressed image F; the chart is F/Z (gn_abe_kalgebra), so the comparison divides first.  The perturbations are Weyl-covariant by construction (the whole bubbling is scaled).  Total 46.0 s.",
+ "checks": [
+  {
+   "name": "pure SU(2): the guarded solver, called directly, pins all 13 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): positive control — the 3 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): negative control — 20 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): the guarded solver, called directly, pins all 13 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): positive control — the 3 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): negative control — 10 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): the guarded solver, called directly, pins all 8 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): positive control — the 3 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): negative control — 10 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): the guarded solver, called directly, pins all 5 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): positive control — the 2 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): negative control — 6 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: the guarded solver, called directly, pins all 4 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: positive control — the 2 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: negative control — 4 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): the guarded solver, called directly, pins all 5 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): the guarded solver, called directly, pins all 5 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): the guarded solver, called directly, pins all 5 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): the guarded solver, called directly, pins all 4 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

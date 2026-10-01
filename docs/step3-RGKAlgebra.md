@@ -154,7 +154,7 @@ whole A/E distinction):
 |---|---|---|---|
 | `E6RGKAlgebra()` | `[A₁, E₆]` | `U1A1AoddKAlg(2)` = u(1)-gauged `[A₁,A₅]` (Step 2) | `E_𝖖(L_diam)` |
 | `E8RGKAlgebra()` | `[A₁, E₈]` | `U1A1AoddKAlg(3)` = u(1)-gauged `[A₁,A₇]` (Step 2) | `E_𝖖(L_diam)` |
-| `U1A1E7RGKAlgebra()` | u(1)-gauged `[A₁, E₇]` | `A1A2kKAlg(3) ⊗ QT(Z²)` (Step 2 ⊗ Step 1) | `E_𝖖(X_{(0,1)}·L_{(2,2)})` |
+| `U1A1E7RGKAlgebra()` | u(1)-gauged `[A₁, E₇]` | `A1A2kKAlg(3) ⊗ QT(Z²)` (Step 2 ⊗ Step 1) | `E_𝖖(X_{(0,1)}·L_{(3,0)})` |
 
 All three are pure exact-FS `RGKAlgebra`s (RG solved, no override) with spine-free
 auxiliaries. E₆/E₈ are flavourless (the gauged-odd cone directly, no
@@ -163,9 +163,13 @@ engine to q¹⁰, they agree to q⁸ and diverge at q¹⁰ (E₆: 3, E₈: 4 —
 theories), while the self-test pins the series to q⁶. E₇ is presented via its
 **u(1)-gauged** form: the ungauged `[A₁,E₇] → [A₁,A₆] ⊕ U(1)` carries the U(1) as
 an `add_flavour(1)` spectator with a slow refined trace, so gauging the U(1) (one
-leg of `QT(Z²)`, dressing the interior node-4 chord) puts it on the same exact-FS
-engine — vacuum `1 − q² + q⁶ + … ` (q² = −1, the gauged-U(1) subtraction).
-Self-test: `tests/test_e_type.py`. (E₇ is *also* presented in its **ungauged**
+leg of `QT(Z²)`, dressing the central chord `(3, 0)` — the chord the ungauged
+`E7RGKAlgebra` dresses) puts it on the same exact-FS engine — vacuum
+`1 − q² + q⁶ + O(q¹¹)` (q² = −1, the gauged-U(1) subtraction) and
+`Tr(E^{±1}) = −q³`.  The dressing chord is certified by these traces, not by the
+crossing pattern: earlier releases dressed the chord `(2, 2)`, which also crosses
+the `A₆` chain at a single node, but gives the u(1)-gauged `[A₁, D₇]`
+(`Tr(E^{±1}) = +q²`, vacuum `… + q⁸ + q¹⁰`).  Self-test: `tests/test_e_type.py`. (E₇ is *also* presented in its **ungauged**
 U(1)-flavoured form below — both presentations are pure exact-FS.)
 
 ## The ungauged `add_flavour` fork (`A1Aodd`, `E₇`, `A1Deven`)
@@ -188,8 +192,11 @@ flavour). All are pure exact-FS (RG solved, no override): the trace is the gener
 bilinear exact-FS pairing, keeping the full flavour character natively — `[A₁,A₃]`
 q² = the SU(2) adjoint `μ+1+μ⁻¹`; `[A₁,D₄]` q² = the U(2) currents
 `1 + χ_{(1,−1)} + χ_{(1,1)} + χ_{(2,0)}`. The end-chord `[A₁,A₅]` and central-chord
-E₇ agree through q⁵ and diverge at q⁶ (distinct theories); E₇'s UV BPS quiver is
-certified E₇ (Cartan det 2). Self-test: `tests/test_flavoured_fork.py`.
+E₇ agree through q⁵ and diverge at q⁶ (distinct theories); E₇'s UV BPS quiver has
+the E₇ Cartan determinant 2 — a necessary check, not a certificate (the chord
+`(2, 4)` gives the same determinant and a different vacuum); the vacuum against
+the Nahm sum of the E₇ spectrum identifies the flow. Self-test:
+`tests/test_flavoured_fork.py`.
 
 This is the **ungauged sibling of the D-type ladder**: the gauged even-D rung is
 `U1A1Deven` (in the parallel A1Dodd–U1A1Deven chain); `A1Deven` here is the same

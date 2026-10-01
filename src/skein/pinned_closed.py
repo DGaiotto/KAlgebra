@@ -19,7 +19,7 @@ carry state variables — 2^{#seam crossings} terms instead of
 across curves).  Terms are projected to `Y_Delta` by the standard
 `project_triangle_monomial` (lift-parity + the ccw->global reorder),
 so the result is certified EXACTLY against the closed single-arc
-state-sum engine `quantum_trace` (tests/test_pinned_closed.py: every
+state-sum engine `quantum_trace` (the suite in the source repository: every
 seeded single-arc curve of the tetrahedron and the bipyramid, on
 several cuts).
 

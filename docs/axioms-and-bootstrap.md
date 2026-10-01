@@ -19,7 +19,13 @@ A K_𝖖-algebra is an associative algebra `A_𝖖` over `Z[𝖖^±]`, free as a
    ```
    I_{a,b} = Tr(L_{ρ(a)} L_b) = Tr(L_a L_{ρ⁻¹(b)}) = δ_{a,b} + O(𝖖).
    ```
-   The trace is determined only up to an overall factor `1 + O(𝖖)`.
+   The trace is determined only up to an overall factor `1 + O(𝖖)`;
+5. **ρ-equivariance of the trace**: `Tr ∘ ρ = ⋆ ∘ Tr`, i.e.
+   `Tr(L_{ρ(a)}) = ⋆(Tr(L_a))`, where `⋆` is the duality of the flavour
+   representation ring acting on the coefficients (`χ_r ↦ χ_{r^∨}`; not bar —
+   `𝖖` is untouched). In pairing form, `I_{b,a} = ⋆(I_{a,b})`: at trivial flavour
+   the Gram matrix is symmetric, with flavour it is Hermitian under `μ ↦ μ⁻¹`.
+   Cyclicity already gives `Tr ∘ ρ² = Tr`; this axiom is a square root of it.
 
 A **flavoured** K_𝖖-algebra is enriched to an algebra over `Z[𝖖^±] ⊗ R_{G_f}`
 for a reductive flavour group `G_f`: the canonical basis additionally contains
@@ -42,6 +48,7 @@ base class derives the bilinear product, the pairing `I_{a,b}`, the
 | canonical basis | `verify_identity_in_basis` |
 | automorphism `ρ` | `verify_rho_is_automorphism`, `verify_rho_inverse`, `verify_rho_fixes_identity` |
 | `ρ²`-twisted trace | `verify_rho_twisted_trace`, `verify_trace_pairing_faces` |
+| ρ-equivariance of the trace | `verify_trace_intertwines_rho` (trivial flavour), `verify_trace_intertwines_rho_star`, `verify_pairing_rho_star_symmetric`; along an RG flow, `RGKAlgebra.verify_rg_inherits_rho_star` |
 | orthonormality | `verify_orthonormality` |
 
 Arithmetic is exact (`Z[𝖖^±]` / `R[𝖖^±]`); truncation to `O(𝖖^K)` occurs only
@@ -89,18 +96,26 @@ The `ConeKAlgebra` realisations (`src/cone/`) carry out this determination:
 1. **Reduction** — `ρ²`-twisted cyclicity over the cone data reduces `Tr(L_a)`,
    for any label, to a finite set of elementary seeds (`Tr 1` and the
    single-generator traces).
-2. **Seeds** — each seed is fixed either by a known closed-form character (for
-   example the `M(2,2k+3)` characters in `minimal_model_characters`) or by the
-   orthonormality bootstrap (`trace_uniqueness_proofs` and the per-flavour
-   drivers), solved order by order from the axiom.
-3. **`Tr 1`** — computed as the exact Nahm sum on the BPS spectrum
-   (`vacuum_nahm.py`), to arbitrary `𝖖`-order.
+2. **Seeds** — each seed is fixed by a known closed-form character (for
+   example the `M(2,2k+3)` characters in `minimal_model_characters`, the M(1,p)
+   singlet characters in `u1_pgon_layer2`, the admissible sl(2) characters in
+   `a1dodd_layer2`), by another presentation of the same algebra whose seeds are
+   closed forms (the finite zoo, through generator maps certified at runtime), or
+   by the orthonormality bootstrap (`trace_uniqueness_proofs` and the
+   per-flavour drivers), solved order by order from the axiom.  The closed forms
+   serve every ADE row, `SU3ADKAlg`'s seeds included (the even-D k = 1 closed
+   forms); the bootstraps, and the forward orthonormality pass that served
+   `SU3ADKAlg`'s two non-vacuum seeds in earlier releases, stay as independent
+   witnesses.
+3. **`Tr 1`** — a closed-form vacuum character where one is known, else the exact
+   Nahm sum on the BPS spectrum (`vacuum_nahm.py`), to arbitrary `𝖖`-order.
 
-The bootstrap proceeds order by order with no truncation, so the traces are exact
-and extend to any `𝖖^K`; `test_cones.py` checks this by continuing past any fixed
-order. Because neither the reduction nor the bootstrap consults a BPS or RG
-construction, a passing `test_cones.py` exhibits the traces as consequences of
-the axioms rather than of an external realisation.
+Both routes proceed with no truncation, so the traces are exact and extend to
+any `𝖖^K`; `test_cones.py` checks this by continuing past any fixed order.
+Because neither the reduction nor the seeds consult a BPS or RG construction —
+`test_cones.py` asserts that no module of `src/bps/` or `src/rg/` is imported —
+a passing `test_cones.py` exhibits the traces as consequences of the axioms
+rather than of an external realisation.
 
 ## Two presentations of one algebra
 

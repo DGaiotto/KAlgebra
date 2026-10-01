@@ -24,7 +24,7 @@ Multiply is the intrinsic skein product (`skein_algebra.SkeinAlgebra`,
 Kauffman resolve), re-expressed in the χ-basis by a triangular peel (χ_m leads
 with the m-parallel-copy multicurve).  Validated against the skein algebra and
 the BPS oracle; closure is checked by **associativity**
-(`tests/test_su2_nf4_skein_chars.py`).
+(the suite in the source repository).
 
 The variable is the skein `A`; the Coulomb-branch `q` enters the trace
 (`q_Schur = A⁴`, pinned there).  This module is purely the Z[A^±]-form multiply.

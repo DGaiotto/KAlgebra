@@ -39,7 +39,12 @@ Tr(1)        = known vacuum character             (where it exists)
 Every trace is **exact and arbitrarily q-improvable** — no fixed-K table, no
 BPS/RG backend on the normal path. (Every class included here meets a strict
 bar: *every* operation accepts arbitrary inputs and *every* trace is improvable
-to any q-order — no frozen-K cap, no sector that raises beyond a fixed order.)
+to any q-order — no frozen-K cap.  In the u(1)-gauged `[A₁,D_{2k+2}]` the
+seeds come from closed forms and every other label is reduced onto them by
+Layer 1, so no label reaches the exact transport that traced the products in
+earlier releases; that transport, whose limit on the length of an intermediate
+word is set from measured memory and raises past it rather than truncate, is
+kept as the witness.)
 
 ### Cones — one class, three kinds
 
@@ -65,34 +70,78 @@ exercises a few sample k; there is no k restriction.)
 
 All realisations are spine-free (multiply + trace + orthonormality, no engine)
 and their traces are arbitrarily q-improvable, organised by Dynkin family below.
-The self-test `test_cones.py` runs **31 cone-contract cases** through the generic
-`ConeKAlgebra` API, plus a `check_improvable` battery: trace-improvability probes
-to high q-order for the closed-form families, and explicit-label batteries for
-the realisations the generic cone loop does not reach (the ungauged polygons
-`HexagonKAlg`/…/`DodecagonKAlg`, the ungauged `A1DevenKAlg`, the named
-`A1D3/5/7ConeKAlg` cone presentations, and `SU2Nf2`/`SU2Nf3ConeKAlgebra`).
+For every ADE finite-type algebra — and its u(1)-gauged version where the flavour
+has a u(1) — the class that serves it is self-contained: no frozen trace data and
+no BPS or RG engine on any serving path, products and traces defined on every
+label to any order.  For the A and D families the canonical-basis labels are
+geometric: diagonals of a polygon, or curves of a once-punctured polygon.  The
+self-test `test_cones.py` runs **35 cone-contract cases** through the generic
+`ConeKAlgebra` API, a `check_improvable` battery (trace-improvability probes to
+high q-order, and explicit-label batteries for the realisations the generic cone
+loop does not reach), and `check_ade_rows` (the geometric labels, the complete
+generator sets, the Z-form round trip, and the corrections listed below), and
+ends by asserting that no module of `src/bps/` or `src/rg/` was imported.
 
-**Finite-type zoo** (the closed Argyres–Douglas / minimal theories) — Layer-1
-reduction + the spine-free orthonormality bootstrap seeded by the exact Nahm-sum
-`Tr(1)`:
+**Finite-type zoo** (the closed Argyres–Douglas / minimal theories):
 `FinitePentagonKAlgebra` (A₂), `FiniteA3/A5/A7`, `FiniteA1D3…A1D8`,
-`FiniteE6/E7/E8`, `FiniteHeptagonKAlgebra` (A₄).
+`FiniteE6/E7/E8`, `FiniteHeptagonKAlgebra` (A₄).  Each carries its cone table
+(product data) and reduces a trace by Layer 1 to elementary seeds, which
+`elem_traces` serves from closed forms — `a1d5` / `a1d7` from the sl(2)
+admissible characters (`a1d5_layer2` / `a1d7_layer2`), `e6` / `e8` from W₃(3,7) /
+W₃(3,8) character recipes (`w3_seeds`), `e7` from theta-product recipes and the
+Bershadsky–Polyakov vacuum (`e7_seeds`) — or from a geometric class through a
+generator map built and certified at runtime: `pentagon` / `heptagon` from
+`A1A2kKAlg(1)` / `A1A2kKAlg(2)` (`aeven_seeds`), `a3` / `a5` / `a7` from
+`ungauge_u1a1aodd(k)` (`aodd_seeds`), `a1d3` from `A1DoddConeKAlg(0)`
+(`a1d3_seeds`), `a1d4` from `SU3ADKAlg` restricted to SU(2)×U(1)
+(`a1d4_seeds`), `a1d6` / `a1d8` from `A1DevenKAlg(2)` / `A1DevenKAlg(3)`
+(`a1deven_seeds`).  No frozen trace table remains (`elem_trace_data` is empty)
+and no orthonormality bootstrap is on the serving path; the bootstraps stay as
+witnesses of `elem_traces.generate`.  *Corrections carried by this layer:* the
+frozen `a5` / `a7` tables of earlier releases were wrong near the top of their
+windows (the `a5` flavour tails clipped from 𝖖¹⁵), and their su2u1 route peeled
+the flavour slots of `a1d4` / `a1d6` / `a1d8` the wrong way round (no SU(2)
+triplet at 𝖖² in the `a1d4` vacuum); both are pinned in `check_ade_rows`.
+The `A` and `D` entries name their canonical basis geometrically:
+`geometric_label(label)` is the multiset of curves — diagonals of the polygon,
+or curves of the once-punctured polygon — that names the element in the family
+class, read through the certified generator map that serves the entry's traces
+(`zoo_geometry`); for `a1d5` / `a1d7`, whose traces stay on their closed forms,
+the map onto `A1DoddConeKAlg(1)` / `A1DoddConeKAlg(2)` is found and certified at
+runtime by `a1dodd_seeds`.  The `E` entries have no geometric labelling.
 
 **A1A_even — `A1A2kKAlg(k)`** (the reference family above): geometric cone-ray
-chord labels + full M(2,2k+3) Andrews–Gordon character trace, every k.
+chord labels (`curve(x, ell)`: the diagonal from marked point `x` to `x + ell`
+of the (2k+3)-gon, and `geometric_label(label)` a label's multiset of diagonals;
+ρ is the rotation) + full M(2,2k+3) Andrews–Gordon character
+trace, every k.
 
-**A1A_odd** (the (2k+4)-gons, k=1..4 = hexagon/octagon/decagon/dodecagon):
-- *gauged* — `U1A1AoddKAlg(k)`: the U(1)-gauged family. Trace closes for **all
-  k** — v-tower / long-chord (`a=2`) / diameter (`a=k+1`) seeds are the
-  closed-form M(1,p) singlet characters (`u1_pgon_layer2`), and the k≥4
-  intermediate chords (no closed form yet) are computed to arbitrary q-order by
-  the spine-free orthonormality bootstrap. The multiply cross-products have no
-  known closed form; the frozen tables `u1a1aodd_tables_k{k}.pkl` were computed
-  with an RG-flow derivation not included in this repository (k is bounded by
-  the provided tables).
-- *ungauged* — `HexagonKAlg`/`OctagonKAlg`/`DecagonKAlg`/`DodecagonKAlg` =
-  `[A₁,A_{2k+1}]`: the ungauged twins (centraliser of the gauge generator `E=μ`,
-  measure-restored trace). Spine-free construct + multiply + arbitrary-q trace.
+**A1A_odd** (the (2k+4)-gons; k=1..4 = hexagon/octagon/decagon/dodecagon, and
+any k):
+- *gauged* — `U1A1AoddKAlg(k)`: the U(1)-gauged family, at **every k** with no
+  stored data.  The letters are the diagonals of the (2k+4)-gon plus the gauge
+  letter `E^{±1}` (`geometric_label`); a letter's magnetic charge is set by the
+  parities of its endpoints.  Products are the analytic peel (the even family's
+  two arc rules on a rank-2 torus pairing); traces are Layer 1 plus **one**
+  closed form for every chord seed, `u1_pgon_layer2.singlet_chord_trace` — a
+  difference of two M(1,p) singlet module characters with a 𝖖-power prefactor,
+  the gauged analogue of `A1A2kKAlg`'s minimal-model rule.  *Correction:* the
+  fitted long-chord and diameter forms of earlier releases were wrong from about
+  𝖖²⁶; earlier releases also shipped a frozen predecessor of this class
+  (`u1a1aodd_tables_k{1..4}.pkl`), which capped k at 4.  `U1HexagonKAlg` keeps
+  its own letters and computes through `U1A1AoddKAlg(1)`; its `geometric_label`
+  names each letter by the same diagonal.
+- *ungauged* — `[A₁,A_{2k+1}]`: `ungauge_u1a1aodd(k)` (any k), with the named
+  `OctagonKAlg`/`DecagonKAlg`/`DodecagonKAlg` = `UngaugedPolygonKAlg(2, 3, 4)`
+  and `HexagonKAlg` (over `U1HexagonKAlg`): the centraliser of the gauge letter
+  `E`, `E` promoted to the flavour fugacity, measure-restored trace.  A label is
+  a BALANCED multiset of non-crossing diagonals of the (2k+4)-gon — as many
+  even–even as odd–odd diagonals — which is the geometric labelling of this
+  family (`geometric_label`; `HexagonKAlg` reads it through
+  `ungauge_u1a1aodd(1)`); `mult_generators()` returns the complete set, the
+  mixed-parity diagonals and the non-crossing (even–even, odd–odd) pairs:
+  6 / 24 / 65 / 144 at k = 1..4 (earlier releases listed only the single
+  diagonals, 3 / 8 / 15 / 24).
 
 **A1D_odd** = `[A₁,D_{2k+3}]` = affine sl(2) at admissible level:
 - `A1D3KAlg` — `[A₁,D₃]=[A₁,A₃]` (so(6)≅su(4)), the **explicit closed-form**
@@ -100,37 +149,86 @@ chord labels + full M(2,2k+3) Andrews–Gordon character trace, every k.
   two-layer character trace, *not* a bootstrap.
 - `FiniteA1D5` / `FiniteA1D7` — sl(2)₋₈/₅ / sl(2)₋₁₂/₇ via explicit closed-form
   admissible characters (`a1d5_layer2` / `a1d7_layer2`).
-- `A1D3ConeKAlg` / `A1D5ConeKAlg` / `A1D7ConeKAlg` — the genuine D-type **cone**
-  presentations: closed-form cone multiply off frozen inline Plücker tables +
-  the arbitrary-q admissible-character trace (`a1dodd_layer2`). A1D7 is complete
-  including the diameter seed (`a=3`); for k≥3 the trace raises rather than
-  silently degrading (no known closed form).
+- `A1D3ConeKAlg` / `A1D5ConeKAlg` / `A1D7ConeKAlg` (= `A1DoddConeKAlg(k)`,
+  k = 0, 1, 2, and any k) — the genuine D-type **cone** presentations: closed-form
+  cone multiply from the arc rules of the once-punctured polygon
+  (`a1dodd_cone_data`, built for every k; the stored tables of earlier releases,
+  `a1dodd_cone_tables`, are gone) + the arbitrary-q admissible-character trace
+  (`a1dodd_layer2`, a closed-form recipe for every seed at every k).
+  `geometric_label` reads a label `(word, κ)` as `A1DnKAlg(2k+3)`'s
+  `(curves, κ)`, the curves of the once-punctured polygon (next item).
+- `A1DnKAlg(n)`, n odd ≥ 3 — `[A₁,D_n]` on **geometric labels**: a label is
+  `(curves, κ)`, a multiset of pairwise non-crossing curves of the n-gon with one
+  interior puncture (`curve(x, ell, kappa=0)`: from marked point `x` to `x + ell`,
+  `ell` the number of boundary edges on the side away from the puncture; `ell = n`
+  is the loop around the puncture) and the SU(2) weight κ; ρ is the rotation.
+  Products, ρ and trace go through `A1DoddConeKAlg((n−3)/2)` under the curve
+  dictionary, certified as a `KAlgebraIso` (`a1dn_a1dodd_iso`).  Even n is
+  refused, naming the even-D classes.  (Earlier releases shipped a different
+  class under this name in `src/abe/`: the SU(2)-symmetrised quantum torus of the
+  D_n chamber, whose trace was the flat-torus trace — `Tr 1 = 1 − 2𝖖² − 𝖖⁴` at
+  n = 3, where `[A₁,D₃]` has `1 + χ₂𝖖² + …` — not the Schur index.)
 
-**A1D_even** = `[A₁,D_{2k+2}]`, SU(2) (× U(1) when gauged) flavour:
-- *gauged* — `U1A1DevenConeKAlgebra(1)` (D₄): closed-form multiply (frozen
-  tables, oracle-free load), trace bootstrapped from `Tr(1)` alone (SU(2)
-  per-irrep orthonormality sweep + all-orders monopole cyclicity); gauge sector
-  the exact closed-form character, matter sector re-solvable to any q-order.
-  **Only k = 1 is included**: the k ≥ 2 (D₆/D₈) spine-free matter bootstrap is
-  not tractable at arbitrary order (its frozen tables would fail beyond
-  K ≈ 8–12).
-- *ungauged* — `A1DevenKAlg(k)` (D₄): the U(1) of the gauged D-even ungauged
-  (centraliser of `X_{0,1}`; gauge charge → U(1) fugacity z; SU(2)×U(1)
-  flavour). Trace reproduces `A1DevenRGKAlgebra` term-for-term.
+**A1D_even** = `[A₁,D_{2k+2}]`, SU(2) × U(1) flavour, every k ≥ 1:
+- *gauged* — `U1A1DevenConeKAlgebra(k)`, on **geometric labels** `(curves, e, κ)`:
+  curves of the once-punctured (2k+2)-gon (`A1DnKAlg`'s convention), the power
+  `e` of the gauge letter `E = X_{0,1}`, and the SU(2) weight κ in the label (the
+  Z-form); accessors `curve(x, ell, e=0, kappa=0)` and `geometric_label`.  ρ is
+  the rotation up to a power of `E`; which position carries that power is a
+  documented convention (the full-turn argument in the class docstring).
+  Products are closed forms (the arc rules of the curve frame,
+  `u1a1deven_geometric_frame`).  Traces: the magnetic sector vanishes; the gauge
+  sector is Creutzig's closed form (arbitrary q-order); a SEED — one curve of odd
+  length, or a non-crossing pair of a charge +1 and a charge −1 curve, times a
+  power of `E` — comes from its closed form (`u1a1deven_seed_characters`, any
+  order; measured against the transport, not derived); every other label is
+  reduced onto the seeds by the cone data's Layer-1 reduction
+  (`ConeData.simplify_trace_via_cone_data`, on the `χ`-stripped labels), to any
+  order; the pairing is multiply-then-trace.  (`seed_closed_forms=False` routes
+  every trace with curves, and the pairing, through the exact transport of the
+  class's closed-form RG image into `A1DoddConeKAlg(k−1) ⊗ QT(Z²)`, built
+  without the flow (`u1a1deven_trace_transport`): the witness the closed forms
+  and the reduction are checked against, whose limit on the length of an
+  A1Dodd word raises rather than truncate.)
+  (Earlier releases shipped only k = 1, as a ray-keyed table presentation loaded
+  from two pickles; this class returned `RLaurent` coefficients inside a Z-form
+  `Element`, so `to_R_form` raised.)
+- *ungauged* — `A1DevenKAlg(k)`: the U(1) of the gauged class ungauged
+  (centraliser of `E`; SU(2)×U(1) flavour).  Labels are the gauged labels
+  `(F, e, κ)` in the centraliser, `F` a balanced multiset of curves (as many
+  magnetic charges +1 as −1), `L_{(F,e,κ)} = z^{−e}·χ_κ·L_{(F,0,0)}` (Z-form);
+  `mult_generators()` returns the complete set, the charge-0 curves and the
+  non-crossing (+1, −1) pairs: 8 / 39 / 120 at k = 1 / 2 / 3 (earlier releases
+  missed the pairs).  Trace reproduces `A1DevenRGKAlgebra` term-for-term on
+  `Tr(1)`.
 
 **D₄ / SU(3)** — `SU3ADKAlg` = `[A₁,D₄]` = SU(3)₋₃/₂ with genuine **SU(3)
-flavour** (coefficient ring `R(SU(3))`): `Tr_1` the closed-form Kac–Wakimoto
-vacuum character of ŝl(3)₋₃/₂, `Tr_T`/`Tr_D` the orthonormality bootstrap seeded
-by it. Layer-1 and the product multiply are carried in SU(3) Cartan fugacities
-(weights, not characters; Weyl-symmetrised on the total), so non-self-dual
-content (`T₀·T₂`'s `3+3̄`) is correct.
+flavour** (coefficient ring `R(SU(3))`).  Restricted to SU(2)×U(1) it is the
+ungauged `A1DevenKAlg(1)`, and `geometric_label` names each canonical element
+by that class's labels: `(curves, (p, q))`, `curves` a balanced multiset of
+curves of the once-punctured square (`T_i` the loop at `i` with the curve
+`(i + 1, 2)`, `D_i` the curve `(i + 1, 3)`), `(p, q)` the SU(3) weight.  The
+three trace seeds come from the even-D k = 1 closed forms through that map,
+summed over the gauge charge (`Tr_1` from Creutzig's gauge tower); the
+Kac–Wakimoto vacuum character of ŝl(3)₋₃/₂ and the forward orthonormality pass
+that served them in earlier releases are kept as their witnesses.  Product
+traces ask their seeds for exactly the depth their reductions read (an earlier
+padded depth could get the top order of a product trace wrong).  Layer-1 and
+the product multiply are carried in SU(3) Cartan fugacities (weights, not
+characters; Weyl-symmetrised on the total), so non-self-dual content
+(`T₀·T₂`'s `3+3̄`) is correct.
 
 **E₇ (gauged)** — `U1E7ConeKAlgebra` = the u(1)-gauged E7 SCFT: a quantum-torus
-cone (rank-1 gauge torus on `E=X_{(0,1)}`). Multiply loads frozen tables
+cone (rank-1 gauge torus on `E=X_{(0,1)}`). Multiply loads stored product tables
 (`u1e7_cone_tables.pkl`, computed with a derivation not included in this
-repository); the magnetic sector vanishes and every neutral ray-word
-is fixed by the E7 Nahm-sum vacuum + the forward-triangular orthonormality
-bootstrap; ρ is the spine-free gauge-reflection.
+repository, on the gauged flow dressed with the central chord `(3, 0)`); the
+magnetic sector vanishes and every magnetically neutral label, the `E`-tower
+included, is traced through the ungauged `[A₁,E₇]` algebra's closed forms
+(`FiniteE7KAlgebra`, by a label map certified by products); ρ is the stored
+single-ray table plus the gauge reflection.  *Correction:* the tables of earlier
+releases were learned from a flow dressed with the chord `(2, 2)`, which is the
+u(1)-gauged `[A₁,D₇]` (`Tr(E^{±1}) = +𝖖²`, where the gauged `[A₁,E₇]` has
+`−𝖖³`); the class refuses those tables on load.
 
 **Pure / flavoured SU(2)**:
 - `PureSU2KAlg` — pure SU(2) (`pure_su2_h_trace`, closed-form).
@@ -154,11 +252,19 @@ certified Sample↔Cone `KAlgebraIso` to its Step-1 direct sample — see
   `U_𝖖(𝔰𝔩₂)` straightener exactly.  trace = the SQED₂ index, arbitrary-q.
 
 Trace machinery included: the closed-form characters `ad_characters`
-(full Layer-2 for a3/hexagon) + `minimal_model_characters` (M(2,2k+3)); the
-spine-free orthonormality bootstrap (`trace_uniqueness_proofs` + per-flavour
-drivers); and `vacuum_nahm`, the exact Nahm-sum `Tr(1)` on the embedded BPS spec
-(using only the spine-free `nahm_local`/`snf_kernel`/`qpoch`/`habiro`/`lattice`),
-verified coefficient-for-coefficient against the RG-flow engine (`src/rg/`).
+(a3/hexagon), `minimal_model_characters` (M(2,2k+3)), `a1d5_layer2` /
+`a1d7_layer2` / `a1dodd_layer2` (sl(2) admissible characters), `u1_pgon_layer2`
+(M(1,p) singlet characters), `w3_seeds` and `e7_seeds` (the E-type recipes),
+`exact_characters` (Creutzig's gauged D-even index) and
+`u1a1deven_seed_characters` (the gauged D-even seeds); the generator-map
+modules of the zoo (`aeven_seeds`, `aodd_seeds`, `a1d3_seeds`, `a1d4_seeds`,
+`a1deven_seeds`, and `a1dodd_seeds`, which carries the geometric labels of
+`a1d3` / `a1d5` / `a1d7`) and `zoo_geometry`, the zoo's geometric labels through
+those maps; the spine-free orthonormality bootstraps
+(`trace_uniqueness_proofs` + per-flavour drivers), kept as witnesses; and
+`vacuum_nahm`, the exact Nahm-sum `Tr(1)` on the embedded BPS spec (using only
+the spine-free `nahm_local`/`snf_kernel`/`qpoch`/`habiro`/`lattice`), verified
+coefficient-for-coefficient against the RG-flow engine (`src/rg/`).
 
 ## Quick start
 
@@ -192,9 +298,15 @@ on every included cone algebra, then a `check_improvable` battery that traces to
 high q-order to witness arbitrary q-improvability spine-free — e.g.
 pentagon→q⁷⁰, A1A2k(2)→q⁶⁰, U1A1Aodd→q⁴⁰, U1A1Deven(1)→q⁷⁰, A1D{3,5}ConeKAlg→q⁴⁰,
 SU3AD `Tr_T`→q³⁰, the A1D7 diameter seed→q³⁰, the ungauged polygons→q³⁰⁻⁴⁰,
-A1Deven→q³⁰, SU2Nf2 (Spin(4) index)→q¹². None of its computation paths uses a
-realisation-engine module (the machine-checked `sys.modules` spine-freeness
-assertions live in the Step-3 suites).
+A1Deven→q³⁰, SU2Nf2 (Spin(4) index)→q¹² — then `check_ade_rows` (above),
+`check_seed_routes` (the routes the closed-form seeds serve, each against its
+witness: `SU3ADKAlg`'s geometric labels and seeds, the exact seed depth of its
+product traces, the gauged D-even Layer-1 route against the transport),
+`check_geometric_labels` (the geometric labels of the A and D classes, each
+through its certified map: the named `PentagonKAlg` / `HeptagonKAlg` samples of
+`src/abe/`, `A1A2kKAlg`, `U1HexagonKAlg` / `HexagonKAlg`, `A1DoddConeKAlg`
+against the curves of `A1DnKAlg`, and every A / D entry of the zoo), and
+finally asserts that no module of `src/bps/` or `src/rg/` was imported.
 
 **Step-1↔Step-2 correspondence.** A separate test certifies the cone realisation
 against the Step-1 sample:
@@ -219,11 +331,8 @@ correspondences are certified:
     the label and the `E·F` cross-product carrying `χ_1` as an `RLaurent[SU(2)]`
     daughter).
 
-Two correct-but-slow notes: the U1A1Aodd(4) entry exercises the k≥4
-intermediate-chord trace bootstrap (~30 s for one solve, cached per K); and the
-8-node su2×u1 (a1d8) / 7-node u1 (e7) bootstrap seed-solves are heavy, so those
-are exercised at the multiply/ρ level (their `Tr(1)` is fast and the trace math
-is identical to a1d4/a1d6, which run the full battery).
+Every catalogued algebra runs the full battery; the slowest entry is the zoo's
+a1d8 (about 30 s), whose seeds come through `A1DevenKAlg(3)`.
 
 ## License
 

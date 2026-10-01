@@ -49,13 +49,14 @@ A-power with a 𝖖-power.)
 Orthonormality — HOLDS, every pairing on 𝖖 ≥ 0
 =========================================================
 The canonical basis is orthonormal to leading order with **no negative 𝖖-power in
-front of any Spin(8) character** (the user's hard requirement): `I_{a,b} =
+front of any Spin(8) character** (the author's hard requirement): `I_{a,b} =
 δ_{a,b} + O(𝖖)`, read on the χ₀ (trivial-Spin(8)-irrep) component of the 𝖖⁰
 coefficient (the flavoured orthonormality).  Verified
 across the level-1,2 basis (`test_all_pairings_q_nonneg_and_orthonormal`):
   * diagonal `I(χ_k(X), χ_k(X))|𝖖⁰ = 𝟙` (χ₀-component 1), support 𝖖 ≥ 0;
   * cross-ray `I(χ₁(a), χ₁(b))` supported on **𝖖 ∈ {2,4}** — q⁰ empty, fully
-    orthogonal — matching the U(2)+N_f=4 oracle `UNNfKAlgebra(2,4)` (U(1)-ungauged):
+    orthogonal — matching the U(2)+N_f=4 oracle `UNNfKAlgebra(2,4)` (U(1)-ungauged;
+    retired 2026-09-19):
     `I(H,W) = [2,4]`;
   * higher-k cross-ray `I(χ₂(a), χ₁(b))` supported on **𝖖 ≥ 3** — the spurious
     `𝖖⁻¹·(8c+8v)` of the sign-blind trace cancels exactly under A²=−𝖖 + triality.
@@ -282,7 +283,7 @@ class SU2Nf4SampleKAlgebra(KAlgebra):
         flavour ρ is rep-ring duality ⋆ (every D₄ irrep is self-dual ⇒ id); on the
         curves the SU(2) holonomies are self-dual, and the ungauged-U(2)
         charge-conjugation collapses to the identity on the SU(2) content
-        (confirmed against the `UNNfKAlgebra(2,4)` oracle).  So `ρ² = id` and the
+        (confirmed against the `UNNfKAlgebra(2,4)` oracle, since retired).  So `ρ² = id` and the
         bar involution fixes the basis.  (The old 𝖖⁻¹ in higher-k cross-ray
         pairings was NOT a ρ defect — it was the sign-blind / slope-blind trace;
         fixed by A²=−𝖖 in multiply + the SL(2,ℤ)-triality trace.)"""

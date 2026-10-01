@@ -1,0 +1,35 @@
+{
+ "id": "def:rg/central-charge",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-22T01:28:59Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "atlases": [
+   "pentagon (A_2)",
+   "A_3"
+  ],
+  "seconds": 0.0
+ },
+ "counts": {
+  "pass": 1,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.003,
+ "notes": "The locally constant family and the phases= reproduction of the chamber's S are the extensive tier's (BPSAtlas over the zoo).",
+ "checks": [
+  {
+   "name": "def:rg/central-charge  the full rotation of the central charge (the chart-graph monodromy) is rho^2 on the node labels",
+   "ok": true,
+   "note": "{'pentagon (A_2)': 'monodromy = rho^2 on the node labels', 'A_3': 'monodromy = rho^2 on the node labels'}"
+  }
+ ]
+}

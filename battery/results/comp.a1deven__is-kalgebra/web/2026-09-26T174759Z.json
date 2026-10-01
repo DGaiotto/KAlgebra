@@ -1,0 +1,90 @@
+{
+ "id": "comp:a1deven/is-kalgebra",
+ "labels": [
+  "comp:a1deven"
+ ],
+ "date": "2026-09-26T17:47:59Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": {
+   "1": {
+    "gauged window": 9,
+    "ungauged window": 8,
+    "orthonormality pairs": 81
+   },
+   "2": {
+    "gauged window": 9,
+    "ungauged window": 8,
+    "orthonormality pairs": 1600
+   },
+   "3": {
+    "gauged window": 9,
+    "ungauged window": 8,
+    "orthonormality pairs": 961
+   }
+  },
+  "K": 3,
+  "seconds": 38.4
+ },
+ "counts": {
+  "pass": 9,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity rows",
+  "negative": "n.a."
+ },
+ "elapsed_s": 38.381,
+ "notes": "Emergent: the products are the skein rule, the traces closed forms measured against an independent route; nothing in either is built to satisfy the axioms.",
+ "checks": [
+  {
+   "name": "k=1: U1A1DevenConeKAlgebra: K1-K5 verifiers on all pairs of a window of 9 labels (identity, E^(+-1), odd curves, an SU(2)-weighted E-dressed curve, charged curves and a loop) at K=3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: A1DevenKAlg: K1-K5 verifiers on all pairs of a window of 8 labels (identity, five generators, chi_1, z^-1) at K=3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: A1DevenKAlg: I_(a,b) = delta + O(q) on every ordered pair of the identity and the 8 generators (81 pairs) at K=3",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: U1A1DevenConeKAlgebra: K1-K5 verifiers on all pairs of a window of 9 labels (identity, E^(+-1), odd curves, an SU(2)-weighted E-dressed curve, charged curves and a loop) at K=3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: A1DevenKAlg: K1-K5 verifiers on all pairs of a window of 8 labels (identity, five generators, chi_1, z^-1) at K=3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: A1DevenKAlg: I_(a,b) = delta + O(q) on every ordered pair of the identity and the 39 generators (1600 pairs) at K=3",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: U1A1DevenConeKAlgebra: K1-K5 verifiers on all pairs of a window of 9 labels (identity, E^(+-1), odd curves, an SU(2)-weighted E-dressed curve, charged curves and a loop) at K=3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: A1DevenKAlg: K1-K5 verifiers on all pairs of a window of 8 labels (identity, five generators, chi_1, z^-1) at K=3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: A1DevenKAlg: I_(a,b) = delta + O(q) on every ordered pair of the identity and every 4th of the 120 generators (961 pairs) at K=3",
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

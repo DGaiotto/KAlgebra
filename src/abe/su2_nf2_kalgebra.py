@@ -95,7 +95,7 @@ class SU2Nf2KAlgebra(KAlgebra):
         return tuple(self._cluster_engine.rho_inverse(tuple(label)))
 
     def r_label_decompose(self, label):
-        """Flavour-Weyl-**folding** lift coordinate (user ruling Q1B).  The
+        """Flavour-Weyl-**folding** lift coordinate.  The
         signed Cartan weight `(m_L, m_R)` folds to the dominant
         `Spin(4) = SU(2)×SU(2)` irrep `χ_{(|m_L|,|m_R|)}`; the section keeps the
         gauge slots `(n_1, n_2)`.  Many-to-one — the `Z₂×Z₂` flavour-Weyl orbit
@@ -108,7 +108,7 @@ class SU2Nf2KAlgebra(KAlgebra):
         raise NotImplementedError(
             "SU2Nf2KAlgebra.r_label_compose: the flavour-Weyl fold "
             "(|m_L|,|m_R|) is a non-invertible projection — the Z₂×Z₂ orbit "
-            "has no single inverse label (user ruling Q1B)."
+            "has no single inverse label."
         )
 
     def trace(self, label, K: int = 20):
@@ -147,7 +147,7 @@ class SU2Nf2KAlgebra(KAlgebra):
         # class function).  Pick the Weyl-invariant section by re-centering
         # the Cartan output to the origin — shift the weights by (−mL,−mR) —
         # giving the class function that decomposes into Spin(4) irreps.
-        # (User direction, 2026-06-14: pick a Weyl-invariant section; do NOT
+        # (The author's direction, 2026-06-14: pick a Weyl-invariant section; do NOT
         # sum the orbit.  E.g. Tr(γ_1=(1,0,1,0)) = −χ_{(1,0)}·q + … = the
         # SU(2)_L doublet tower, recovered as the centred section.)
         cartan_rps = self._cluster_engine.trace(tuple(label), K=K)

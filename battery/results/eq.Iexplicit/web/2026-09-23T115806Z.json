@@ -1,0 +1,76 @@
+{
+ "id": "eq:Iexplicit",
+ "labels": [
+  "eq:Iexplicit"
+ ],
+ "date": "2026-09-23T11:58:06Z",
+ "commit": "ea88ac7a710b2a7821d8f9774b089e7ad4baafd0",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) lines": 6,
+  "pairs": 36,
+  "SO(3)+adjoint lines": 5,
+  "K": 10,
+  "SU(3) lines (trace)": 5,
+  "trace-face pairs": 61
+ },
+ "counts": {
+  "pass": 9,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "orthonormality read off the formula",
+  "negative": "the unshifted measure fails; the rank-one prefactor fails at SU(3)"
+ },
+ "elapsed_s": 122.664,
+ "notes": "The repository computes the trace and pairing through the rational sector measure B_m (kalgebra.md, proved equal to the printed infinite products); here the printed formulas are evaluated directly, so this is an independent check of that equality on the lines listed.  The class's pairing is the sector formula, so the comparison with Tr(ρ(f)·g) is a separate check (added 2026-09-23; before that the eq:Iexplicit row's conjectural half was tested only by tests/test_wrq_sector_pairing.py, 72 SU(2) and 32 SU(3) pairs).",
+ "checks": [
+  {
+   "name": "eq:measure  Tr f = (q^2;q^2)^2_∞/|W| ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on six SU(2) lines through q^10 (independent series; contour integral = constant term)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit  I_fg as the sum over m of contour integrals against the |<m,α>|-shifted measure, on all 36 pairs of six SU(2) lines through q^10",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "orthonormality read off the formula: I_ab[q^0] = δ_ab on the six lines (the leading Weyl orbit contributes δ, the bubbling O(q))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure with matter  SO(3) + adjoint: the μ-dependent measure Π_w (-q μ^(w_f) v^w;q^2)^-1 (-q μ^-w_f v^-w;q^2)^-1 reproduces the class's traces of five lines through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit with matter  SO(3) + adjoint on all 25 pairs of five lines through q^8: the shifted vector and matter factors reproduce the class's pairing",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit, the conjectural half  the sum over m of contour integrals equals Tr(ρ(f)·g) (multiply-then-trace: ρ(f)·g by the cocycle convolution, then its magnetic-0 residue) on all 36 SU(2) pairs through q^10 and all 25 SO(3)+adjoint pairs through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure at rank two  SU(3): Tr f = (q^2;q^2)^4_∞/6 ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on 5 lines through q^6 (rk = 2, |W| = 6)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the rank-one prefactor (q^2;q^2)^2_∞/2 at SU(3) is detected",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the pairing formula with the unshifted measure (|<m,α>| dropped) fails at m != 0",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

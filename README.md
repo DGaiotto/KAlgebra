@@ -14,6 +14,8 @@ free as a `Z[𝖖^±]`-module, equipped with
   ```
   I_{a,b} = Tr(L_{ρ(a)} · L_b) = δ_{a,b} + O(𝖖)
   ```
+  and which is **ρ-equivariant**, `Tr ∘ ρ = ⋆ ∘ Tr` (`⋆` the duality of the
+  flavour representation ring on the coefficients; the identity without flavour).
 
 The final relation — orthonormality of the canonical basis to leading order in
 `𝖖` — is the defining constraint, and it is rigid enough to determine the trace
@@ -36,6 +38,25 @@ general-gauge-group tier (`PureGAbeKAlgebra` / `GNAbeKAlgebra`) that carries the
 abelianized presentation to gauge theory at an arbitrary 4d gauge group with
 arbitrary matter.
 
+## The paper
+
+This repository accompanies the paper *K_𝖖-algebras* (Davide Gaiotto,
+[arXiv:2609.38702](https://arxiv.org/abs/2609.38702)).  Its
+companion, `paper_companion.tex`, goes through the paper structure by
+structure: for each it names the class or function that implements it, how the
+repository generates it, the tests that check it, and the standing of that
+evidence.  Its appendix lists every claim of the paper with the checks that bear
+on it; it is generated from the battery (`battery/`: the claim registry and the
+result records, rendered by `battery/render_battery.py`), and any row can be
+re-run.  `CHANGELOG.md` lists what changed since the
+previous public version.
+
+The paper's LaTeX source, as submitted to the arXiv, is under `paper/`
+(`nice_temp.tex`, with its bibliography `nice_temp.bbl`).  The companion takes
+the paper's theorem and equation numbers from it: compile the paper there first
+(`cd paper && pdflatex nice_temp && pdflatex nice_temp`), then run
+`pdflatex paper_companion` twice at the root.
+
 ## Organisation
 
 A single package layered over one contract:
@@ -47,9 +68,9 @@ A single package layered over one contract:
 | `src/cone/` | the `ConeKAlgebra` helper — a `KAlgebra` subclass that reduces the canonical basis to normal-ordered expressions in a set of multiplicative *ray* generators — together with the catalogue of realisations it presents |
 | `src/rg/` | the `RGKAlgebra` engine — a `KAlgebra` whose entire API (`RG`, `multiply`, `ρ`, `trace`) is computed live from an RG flow to a graded auxiliary — and the catalogue of flows it presents (rank-1 Argyres–Douglas chains, Lagrangian SU(2) gauge theories, nested and formal flows) |
 | `src/bps/` | the `BPSKAlgebra` engine — a `KAlgebra` realised from a BPS quiver (the Kontsevich–Soibelman spectrum generator + the `F·S = X_γ + O(𝖖)` discovery relation), with the cluster-mutation `BPSAtlas`, the builder that produces `S` from the quiver alone as one BPS factor `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` per `(γ, s)` pair, a search over the order those factors are placed in, and the joint builder that grows `F_γ` and `S` together out of the discovery relation. This is the realisation **spine**; Steps 1–3 are spine-free and never import it |
-| `src/abe/` | the `AbeKAlgebra` tier — a `KAlgebra` presented faithfully on an enriched rational quantum torus: the abelianized (gauge-fugacity) description of the K-theoretic Coulomb branch algebras of conventional gauge theories (pure U(N)/SU(N), U(N)+N_f matter, linear quivers), the N=2\* canonical finder, and the `KAlgebraObject` capstone that certifies each algebra `≅` its cone / BPS / RG presentation. Relies on Steps 1–4 by design |
+| `src/abe/` | the `AbeKAlgebra` tier — a `KAlgebra` presented faithfully on an enriched rational quantum torus: the abelianized (gauge-fugacity) description of the K-theoretic Coulomb branch algebras of conventional gauge theories: the contract, the group-general torus substrate, `PureSU2KAlgebra`, and the `KAlgebraObject` layer that certifies each algebra `≅` its cone / BPS / RG / skein presentations (the gauge-theory algebras themselves are built by the general-gauge-group tier). Relies on Steps 1–4 by design; its object modules also import the gn and skein tiers |
 | `src/skein/` | the `SkeinKAlgebra` tier — the SU(2) (Kauffman-bracket) skein algebras of marked surfaces realised as `A_𝖖[T[A₁, Σ]]`: an intrinsic (contract-free) topological engine, the two-parent `SkeinKAlgebra(ConeKAlgebra, BPSKAlgebra)` class, a roster of named theories (the `[A₁,Aₙ]` polygons, the four-punctured sphere = SU(2) N_f=4, the SU(2)+N_f family, the D-family), and the `SkeinAtlas` whose diagonal flips are certified quiver mutations. Relies on Steps 1–5 by design |
-| `src/gn/` | the general-gauge-group tier — gauge theory at an arbitrary 4d gauge group with arbitrary matter: `PureGAbeKAlgebra` (pure gauge over any `RootDatum`, where the axioms alone — the leading-orbit seed, bar, `O(𝖖)` and the (★)-guarded solve — build **every** label, Wilson included, which is what opens the groups with no minuscule cocharacter), `GNAbeKAlgebra` (`T^*N` matter at any datum and any matter *representation*, with iterable matter-removal flows), `LineLattice` (the 4d gauge group data as a lattice and its dual — including the *correlated* forms, so `su(2)` has three — with the Langlands family `(G, Adj) ↔ (G^∨, Adj)` as certified `KAlgebraIso`), `line_lattice_torus` (that lattice's own conventional and rational quantum tori), `AuxSpace` (the Schur pairing in vacuum-state form, with `ρ` never constructed), and `PureSO3KAlgebra` (the independent BPS-quiver oracle that checks the odd-height claim from outside the tier — the one module here that imports the Step-4 spine). Relies on Steps 1–6 by design |
+| `src/gn/` | the general-gauge-group tier — gauge theory at an arbitrary 4d gauge group with arbitrary matter: `PureGAbeKAlgebra` (pure gauge over any `RootDatum`, every canonical element built by the (★)-guarded solve — which is also what opens the groups with no minuscule cocharacter; the earlier constructive routes are kept behind `constructive_routes=True` for comparison), `GNAbeKAlgebra` (`T^*N` matter at any datum and any matter *representation*, with iterable matter-removal flows), `LineLattice` (the 4d gauge group data as a lattice and its dual, with the Langlands family `(G, Adj) ↔ (G^∨, Adj)` as certified `KAlgebraIso`), `AuxSpace` (the Schur pairing in vacuum-state form, with `ρ` never constructed), and `PureSO3KAlgebra` (the independent BPS-quiver oracle that checks the odd-height claim from outside the tier — the one module here that imports the Step-4 spine). Relies on Steps 1–6 by design |
 | `src/iso/` | `KAlgebraIso` witnesses identifying a sample algebra with its cone realisation |
 
 Per-layer documentation is in `docs/`: `docs/step1-KAlgebra.md` (the contract and
@@ -65,10 +86,18 @@ and `docs/axioms-and-bootstrap.md` (how the axioms determine the traces).
 Two notes bound what the gate establishes:
 `docs/verification-scope.md` (what a green gate does *not* certify — the two
 best-effort RG checkers it omits, and the one search bound that is proven only
-in the pointed case) and `docs/frozen-data-provenance.md` (where the eight
-`.pkl` tables and the fourteen generated `finite_*_kalg.py` modules came from,
-their content hashes, and what validates them here given that their builders
-are not shipped).
+in the pointed case) and `docs/frozen-data-provenance.md` (where the two
+`.pkl` product tables and the fourteen generated `finite_*_kalg.py` modules came
+from, their content hashes, and what validates them here given that their
+builders are not shipped — none of them is trace data).
+
+Beside `src/`: `battery/` (the claim registry, runner, renderer, adapters and
+result records), `dictionaries/` (the BPS-quiver dictionaries — the enumerated
+tier of strongly connected quivers and the flavoured family — with their
+builders), `notes/` (the design notes the paper's derived claims cite, verbatim),
+`experiments/` (the research probes the battery's adapters import), and
+`scripts/` (scripts the companion cites or its cited tests call).  Each has a
+`README.md`.
 
 ## Tests
 
@@ -76,10 +105,10 @@ are not shipped).
 python3 run_tests.py
 ```
 
-is the validation gate. (`pytest` also runs, but does not cover the full gate:
-it skips `test_cones.py` and `test_sample_cone_iso.py`, and importing the BPS
-suite at collection time defeats the spine-freeness assertions of the Step-3
-suites — use `python3 run_tests.py` to certify everything.) The gate
+is the validation gate. (`pytest` is refused by `conftest.py`: it would skip
+`test_cones.py` and `test_sample_cone_iso.py`, and importing the BPS suite at
+collection time defeats the spine-freeness assertions of the Step-3 suites.) The
+gate
 runs `tests/test_samples.py`, `tests/test_cones.py`,
 `tests/test_sample_cone_iso.py`, the eight Step-3 RG self-tests
 (`tests/test_rg_flows.py`, `test_a1an_chain.py`, `test_dn_chain.py`,
@@ -100,8 +129,20 @@ no realisation-spine module is imported; `test_bps_flows.py`, `test_abe_flows.py
 import the spine and Step 7 reaches it through the one module that must — the
 `PureSO3KAlgebra` oracle it checks its odd-height claim against.
 
-The modules import one another by unqualified name; `conftest.py` and
-`run_tests.py` place each `src/` subdirectory on `sys.path`. The modules must
+The tests the paper companion cites form a second tier, run each in its own
+process and too long for the default gate:
+
+```
+python3 run_tests.py --cited --jobs 3     # both tiers
+python3 run_tests.py --cited-only         # the cited tier alone (tests/cited.txt)
+```
+
+The battery re-runs the checks behind each claim of the paper, row by row
+(`PYTHONPATH=. python3 battery/runner.py --list`); see `battery/README.md`.
+
+The modules import one another by unqualified name; `run_tests.py` and, for runs
+from the root with `PYTHONPATH=.`, `sitecustomize.py` place each `src/`
+subdirectory on `sys.path`. The modules must
 therefore not be nested further, nor given `__init__.py` files.
 
 ## Arithmetic

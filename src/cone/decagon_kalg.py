@@ -2,39 +2,36 @@
 decagon_kalg.py
 ===============
 
-`DecagonKAlg` — ungauged decagon K-algebra (k=3), μ-flavoured wrapper around
-the standalone `U1DecagonKAlg` (u(1)-gauged [A_1, A_7]).  The k=3 sibling of
-`HexagonKAlg`.
+`DecagonKAlg` — the ungauged μ-flavoured `[A_1, A_7]` on the decagon (10-gon) (k = 3), the
+k = 3 member of `ungauged_polygon_kalg.UngaugedPolygonKAlg`: the centralizer
+of the gauge generator `E` in the closed-form `u1a1aodd_kalg.U1A1AoddKAlg(3)`,
+with `E` the flavour fugacity μ.  No frozen data, no BPS and no bootstrap:
+products are the gauged closed-form peel, traces the measure-restored sum of
+the gauged closed-form traces (see `ungauged_polygon_kalg`).
 
-The shared construction lives in `ungauged_polygon_kalg.UngaugedPolygonKAlg`
-(centralizer of the gauge generator E=μ + measure-restored, **BPS-free**,
-ungauged trace):
-
-    Tr_ung(a)(z)  =  [ Σ_n z^n · Tr_gauged(a·μ^n) ] / (fq²;fq²)_∞²
-                  =  ungauge_kalgebra.ungauge_u1polygon(3).trace .
-
-Physical chord families (mag-zero / flavour-neutral): types 2 and 4
-(10 + 5 chords); the type-1 / type-3 chords are magnetic.  (k=3 is odd, so the
-type-4 diameter is physical.)
+Labels: `U1A1AoddKAlg(3)`'s balanced multisets of non-crossing diagonals of
+the decagon (10-gon) with the μ-charge; physical single
+chords (magnetic charge 0) are the even types {2, 4} (10 + 5 chords; at odd k the diameter is physical).  They replaced, on
+2026-09-23, the letters of the retired stand-alone `U1DecagonKAlg`;
+the dictionary is in `ungauged_polygon_kalg`'s docstring.
 """
 from __future__ import annotations
 
 import sys, os
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+    sys.path.append(_HERE)
 
 from ungauged_polygon_kalg import UngaugedPolygonKAlg
-from u1_decagon_kalg import U1DecagonKAlg
-import u1a1aodd_k3_chord_charges as _charges
 
 
 class DecagonKAlg(UngaugedPolygonKAlg):
-    """Ungauged decagon K-algebra (k=3), μ-flavoured."""
+    """Ungauged decagon K-algebra (k=3), μ-flavoured: `UngaugedPolygonKAlg(3)`."""
 
     k = 3
-    _GAUGED_CLASS = U1DecagonKAlg
-    _CHARGES = _charges
+
+    def __init__(self) -> None:
+        super().__init__(3)
 
 
 if __name__ == "__main__":
@@ -44,3 +41,4 @@ if __name__ == "__main__":
     print(f"  physical chord types= {A.physical_chord_types()}")
     print(f"  #mult-generators    = {len(A.mult_generators())}")
     print(f"  Tr_ung(1, K=6)      = {A.trace(((), 0), 6)}")
+    print(f"  Tr_ung(L_long(0), K=6) = {A.trace(A.L_long(0), 6)}")

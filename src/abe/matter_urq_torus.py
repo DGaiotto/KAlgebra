@@ -23,12 +23,20 @@ Verified structure this class encodes:
 * bar is the q-flip of each `f` component (the W1 frame); `well_formed_w1`
   is the first half of the O(𝔮) acceptance;
 * the trace inserts the matter Schur factor `M(μ,v)` into the pure
-  measure residue (user directive, certified in
-  `un_nf_dressed_generators.matter_schur_trace`).
+  measure residue (the author's directive, certified in
+  `un_nf_dressed_generators.matter_schur_trace`, retired 2026-09-19).
 
 `rho` is the pure GTwist followed by the per-image-atom matter factor
 (q-free top-monomial division + flavour star) — the per-atom extension of
 the certified label closed form.
+
+RETIRED ROUTES (2026-09-19).  `from_family` / `rg_image_from_pure` / `_recognize_chart`
+/ `_build_inner` are the chart-assembly routes of the type-A U(N)+N_f layer
+(`UNNfKAlgebra`, `UNNfViaRG`, `pure_via_n2star`) that was retired to the source repository's archive
+that day; their chart recognition imports lazily from
+`legacy.pure_un_closed_form` — the one lazy spine→legacy edge, kept only so
+the archived tree still runs.  Nothing on the canonical
+surface (`kalgebra_samples.Sqed1KAlg`, `aux_space`) reaches them.
 """
 from __future__ import annotations
 
@@ -47,7 +55,7 @@ from abelianized_torus import VRational, VLaurent
 def _matter_rung_levels(atom, Nf: int, N: int) -> dict:
     """The matter normalization of the atom, per flavour level
     `{k_vec: VRational}` — the finite bar-centered rung expansion.
-    Delegates to the quiver-torus core (Plan 30 T1): the fundamental
+    Delegates to the quiver-torus core: the fundamental
     cells are the 1-node case of the cell table (`_rung_levels` with
     shape `((N,), (Nf,))`); keys coincide (flavour slots = the N_f
     slots)."""
@@ -65,8 +73,7 @@ def _matter_cocycle(m, mp, Nf: int, N: int) -> dict:
 
         U_m·U_{m′} = R̃_{m,m′}·W_{m,m′}·U_{m+m′}.
 
-    Finite (net numerators).  Delegates to the quiver-torus core
-    (Plan 30 T1): `_quiver_cocycle` with shape `((N,), (Nf,))` — same
+    Finite (net numerators).  Delegates to the quiver-torus core: `_quiver_cocycle` with shape `((N,), (Nf,))` — same
     triangular division, same cache, same rung-budget honest-fail."""
     from quiver_urq_torus import _quiver_cocycle
     return _quiver_cocycle(m, mp, (N,), (Nf,))
@@ -100,8 +107,7 @@ class MatterURQTorus:
 
     @classmethod
     def rg_image_from_pure(cls, x: URQTorus, Nf: int) -> "MatterURQTorus":
-        """**A statement about `RG(a)`, not a native constructor** (user
-        ruling, 2026-06-11): the absorption theorem says the flow image
+        """**A statement about `RG(a)`, not a native constructor**: the absorption theorem says the flow image
         of an anti-dominant-cone canonical has the pure residuals
         verbatim on U atoms (`f = f^{pure}`, flavour level 0) — so this
         map *describes* `RG(L_{(m,e)})` for those labels.  It is a
@@ -151,7 +157,7 @@ class MatterURQTorus:
         # for the (possibly det-shifted) dominant weight — reuse the
         # certified Kostka machinery
         sys.path.insert(0, os.path.join(_HERE, "implementations"))
-        from un_nf_dressed_generators import _schur_monomials
+        from urq_torus import _schur_monomials
         terms = {}
         for ve, z in _schur_monomials(tuple(sorted(e, reverse=True))).items():
             terms[ve] = LaurentPoly({0: z})
@@ -223,7 +229,7 @@ class MatterURQTorus:
 
     def _as_quiver(self):
         """The 1-node quiver-core view (same residual dict, shape
-        `((N,), (Nf,))`) — Plan 30 T1 delegation."""
+        `((N,), (Nf,))`) — delegation."""
         from quiver_urq_torus import QuiverURQTorus
         return QuiverURQTorus(self._f, (self._N,), (self._Nf,))
 
@@ -306,7 +312,7 @@ class MatterURQTorus:
         of the leading canonical at the lowest nonempty flavour level."""
         if not self._f:
             return None
-        from pure_un_closed_form import _recognize_leading
+        from legacy.pure_un_closed_form import _recognize_leading   # retired route (see module note)
         levels = sorted({k for row in self._f.values() for k in row},
                         key=lambda k: (sum(k), k))
         k0 = levels[0]
@@ -405,7 +411,7 @@ class MatterURQTorus:
                  for mm, row in x._f.items()}, N, Nf)
         seed = _win(seed)
         seed_rev = _win(seed_rev)
-        from pure_un_closed_form import _struct_const
+        from urq_torus import _struct_const
         # phase 0: the seed's level-0 leading canonical can sit dominance-
         # ABOVE the target (cross-orbit atom sums, e.g. (1,0,-2) over
         # (1,-1,-1)) — peel those first, as the pure engine does
@@ -450,7 +456,7 @@ class MatterURQTorus:
         # constants are bar-conjugates — P − P_rev exposes shadowed seeds
         L_rev = seed_rev._scaled(LaurentPoly({-p: sgn}), (0,) * Nf)
         P_rev = L_rev + lead_t._scaled(LaurentPoly({0: -1}), (0,) * Nf)
-        from pure_un_closed_form import _recognize_leading
+        from legacy.pure_un_closed_form import _recognize_leading   # retired route (see module note)
         done_levels: set = set()
         for _ in range(256):
             live = sorted({k for row in P._f.values() for k in row
@@ -525,7 +531,7 @@ class MatterURQTorus:
             Lc = cls.build(mb, eb, N, Nf, _depth + 1,
                            top=max(eff_top - sum(k_bad), 0))
             chartL = L._level_chart(k_bad)
-            from pure_un_closed_form import _recognize_leading as _rl
+            from legacy.pure_un_closed_form import _recognize_leading as _rl   # retired route (see module note)
             try:
                 _, eeL, m_domL, cAmonoL = _rl(chartL, N)
             except RuntimeError:

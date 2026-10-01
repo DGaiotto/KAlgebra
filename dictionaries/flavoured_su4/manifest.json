@@ -1,0 +1,213 @@
+{
+ "plan": "41_enumerated_quiver_dictionary",
+ "format": 3,
+ "strongly_connected": true,
+ "decision": "D55, D57",
+ "doublets": 1,
+ "orbit_size": 4,
+ "sizes": [
+  4
+ ],
+ "group": "SU(4)",
+ "max_weight": 11,
+ "completeness": "every strongly connected BPS quiver with total unfolded arrow weight e <= 11, together with a family of disjoint node orbits of sizes [4] (a manifest SU(4)), up to isomorphism",
+ "coverage": "every flavoured quiver - a quiver with a family of disjoint node orbits of these sizes, connected or not, of any rank - whose strongly connected components are answered: a plain component by the enumerated tier (dictionaries/enumerated/), a component carrying orbits, with the orbits it carries, by the flavoured tier of those sizes, through its own weight; lookup_flavoured composes them sources first, each orbit of single-node components placed consecutively (Plan 41 D55; flavoured_strongly_connected_redesign.md section 1)",
+ "composed_record": "as the enumerated tier's (D36, dictionary_loader.compose_certification), over the components of two or more nodes: green iff every one is; axioms@D at the least depth; the least crystalline_only@D if one is; a mismatch carried",
+ "certification": "green;axioms@D (a block-mutation or regrouped negating sequence, checked on the cone to degree D) | axioms@D (an order-search spec accepted to degree D) | crystalline_only@D (no covariant spec found; Omega to depth D) | crystalline_failed@D (Omega not a G-character: a counterexample)",
+ "n_entries": 10,
+ "n_with_spec": 5,
+ "n_crystalline_only": 5,
+ "certification_census": {
+  "crystalline_only@3": 5,
+  "green;axioms@5": 5
+ },
+ "source_census": {
+  "covariant_value, local": 1,
+  "shipped flavoured_su4": 9
+ },
+ "census_of_every_flavoured_quiver": {
+  "note": "the retired format-2 tier's census of every flavoured quiver it held (count = every connected quiver with the orbit family, acyclic = those with no directed cycle, stored = the cyclic ones), kept as a record and as the cross-check of the composition (Plan 41 D55, D57)",
+  "max_weight": 11,
+  "quivers": 143598,
+  "acyclic": 122751,
+  "stored": 20847,
+  "certification_census": {
+   "covariant_spec:blocks": 20800,
+   "covariant_spec:strip (coded, not stored)": 122751,
+   "crystalline_only@3": 47
+  },
+  "cells": {
+   "5,4": {
+    "count": 2,
+    "acyclic": 2,
+    "stored": 0
+   },
+   "5,8": {
+    "count": 2,
+    "acyclic": 2,
+    "stored": 0
+   },
+   "6,5": {
+    "count": 2,
+    "acyclic": 2,
+    "stored": 0
+   },
+   "6,6": {
+    "count": 4,
+    "acyclic": 4,
+    "stored": 0
+   },
+   "6,7": {
+    "count": 4,
+    "acyclic": 4,
+    "stored": 0
+   },
+   "6,8": {
+    "count": 7,
+    "acyclic": 7,
+    "stored": 0
+   },
+   "6,9": {
+    "count": 12,
+    "acyclic": 11,
+    "stored": 1
+   },
+   "6,10": {
+    "count": 10,
+    "acyclic": 9,
+    "stored": 1
+   },
+   "6,11": {
+    "count": 12,
+    "acyclic": 11,
+    "stored": 1
+   },
+   "7,6": {
+    "count": 10,
+    "acyclic": 10,
+    "stored": 0
+   },
+   "7,7": {
+    "count": 28,
+    "acyclic": 26,
+    "stored": 2
+   },
+   "7,8": {
+    "count": 58,
+    "acyclic": 52,
+    "stored": 6
+   },
+   "7,9": {
+    "count": 100,
+    "acyclic": 88,
+    "stored": 12
+   },
+   "7,10": {
+    "count": 183,
+    "acyclic": 158,
+    "stored": 25
+   },
+   "7,11": {
+    "count": 284,
+    "acyclic": 236,
+    "stored": 48
+   },
+   "8,7": {
+    "count": 38,
+    "acyclic": 38,
+    "stored": 0
+   },
+   "8,8": {
+    "count": 188,
+    "acyclic": 172,
+    "stored": 16
+   },
+   "8,9": {
+    "count": 602,
+    "acyclic": 506,
+    "stored": 96
+   },
+   "8,10": {
+    "count": 1546,
+    "acyclic": 1220,
+    "stored": 326
+   },
+   "8,11": {
+    "count": 3498,
+    "acyclic": 2623,
+    "stored": 875
+   },
+   "9,8": {
+    "count": 160,
+    "acyclic": 160,
+    "stored": 0
+   },
+   "9,9": {
+    "count": 1164,
+    "acyclic": 1054,
+    "stored": 110
+   },
+   "9,10": {
+    "count": 5398,
+    "acyclic": 4414,
+    "stored": 984
+   },
+   "9,11": {
+    "count": 19308,
+    "acyclic": 14330,
+    "stored": 4978
+   },
+   "10,9": {
+    "count": 692,
+    "acyclic": 692,
+    "stored": 0
+   },
+   "10,10": {
+    "count": 7040,
+    "acyclic": 6346,
+    "stored": 694
+   },
+   "10,11": {
+    "count": 43766,
+    "acyclic": 35286,
+    "stored": 8480
+   },
+   "11,10": {
+    "count": 3150,
+    "acyclic": 3150,
+    "stored": 0
+   },
+   "11,11": {
+    "count": 41712,
+    "acyclic": 37520,
+    "stored": 4192
+   },
+   "12,11": {
+    "count": 14618,
+    "acyclic": 14618,
+    "stored": 0
+   }
+  }
+ },
+ "cells": {
+  "n=6,e=9": {
+   "stored": 1
+  },
+  "n=6,e=10": {
+   "stored": 1
+  },
+  "n=6,e=11": {
+   "stored": 1
+  },
+  "n=7,e=10": {
+   "stored": 1
+  },
+  "n=7,e=11": {
+   "stored": 5
+  },
+  "n=8,e=11": {
+   "stored": 1
+  }
+ },
+ "builder": "dictionaries/build_flavoured.py (ship_strongly_connected_flavoured), from assemble_strongly_connected_flavoured"
+}

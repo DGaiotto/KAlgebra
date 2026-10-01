@@ -1,0 +1,239 @@
+{
+ "id": "def:rg/matter-removal",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-27T00:20:51Z",
+ "commit": "79e1f96c33362ba82953aa4920195258e75efaf2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2)+1, the 2026-09-22 checks": {
+   "flow": "GMatterOverPure(su_2(), fundamental, nf=1)",
+   "K": 8,
+   "labels": 5,
+   "seconds": 9.3
+  },
+  "lineup theories": {
+   "SU(2)+1": {
+    "S monomials": 47,
+    "RG checks": {
+     "unital": true,
+     "bar-invariant": true,
+     "multiplicative": true,
+     "RG_a S = L + O(q)": true,
+     "twist": true,
+     "R4": true
+    },
+    "RG checks seconds": 3.5,
+    "seconds": 3.6
+   },
+   "SU(2)+2": {
+    "S monomials": 207,
+    "RG checks": {
+     "unital": true,
+     "bar-invariant": true,
+     "multiplicative": true,
+     "RG_a S = L + O(q)": true,
+     "twist": true,
+     "R4": true
+    },
+    "RG checks seconds": 90.4,
+    "seconds": 90.4
+   },
+   "SU(2)+3": {
+    "S monomials": 625,
+    "seconds": 0.1
+   },
+   "SU(2)+4": {
+    "S monomials": 1549,
+    "seconds": 0.2
+   },
+   "SU(2)+adjoint (N=2*)": {
+    "S monomials": 81,
+    "RG checks": {
+     "unital": true,
+     "bar-invariant": true,
+     "multiplicative": true,
+     "RG_a S = L + O(q)": true,
+     "twist": true,
+     "R4": true
+    },
+    "RG checks seconds": 59.3,
+    "seconds": 59.3
+   },
+   "SU(3)+adjoint (N=2*)": {
+    "S monomials": 493,
+    "seconds": 0.4
+   },
+   "SU(3)+1": {
+    "S monomials": 127,
+    "seconds": 0.1
+   },
+   "SU(3)+symmetric": {
+    "S monomials": 367,
+    "seconds": 0.2
+   },
+   "SU(3)+symmetric+1": {
+    "S monomials": 1209,
+    "seconds": 0.5
+   },
+   "Spin(5)+vector": {
+    "S monomials": 333,
+    "seconds": 0.2
+   },
+   "G2+7": {
+    "S monomials": 493,
+    "seconds": 0.4
+   },
+   "SU(2)xSU(2)+bifundamental": {
+    "S monomials": 207,
+    "seconds": 0.1
+   },
+   "U(1)-U(2)+3": {
+    "S monomials": 1549,
+    "seconds": 0.3
+   }
+  },
+  "not reachable (GMatterOverPure takes no line lattice)": [
+   "SO(3)+adjoint (N=2*)",
+   "rank 1 + adjoint (N=2*), the third global form",
+   "SO(5)+vector"
+  ],
+  "towers": {
+   "SU(2)+2": "24/24 agree, 5.9 s",
+   "SU(2)+3": "36/36 agree, 99.0 s"
+  },
+  "depth": "fast",
+  "seconds": 276.0
+ },
+ "counts": {
+  "pass": 23,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the hand-coded SU(2)+1 series; the Weyl symmetry of the product",
+  "negative": "the tower with the removed levels misfiled disagrees"
+ },
+ "elapsed_s": 276.03,
+ "notes": "S is checked on every reachable lineup theory; the RG verifiers and R4 at rank one (fast) or on every theory within {'fast': 300, 'extensive': 900} s (extensive).  R4 is compared through GNAbeKAlgebra.flow_iso's dictionary: identical label tuples for distinct irreps, the Cartan expansion for n copies of one irrep; the mixed U(1)-U(2)+3 has no shipped dictionary.",
+ "checks": [
+  {
+   "name": "Π_w E_q(μ v^w) for SU(2)+1 fundamental is Weyl-symmetric in v through q^8 (so it expands on characters χ_e(v))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "S_RG of GMatterOverPure(SU(2), 1 fundamental) equals Π_w E_q(μ v^w) expanded on Wilson characters, through q^8",
+   "ok": true,
+   "note": "identical through q^8"
+  },
+  {
+   "name": "the R-axiom verifiers as instruments on the flow, 5 UV labels (identity, Wilson e=1,2, monopole, dyon): R2 unital / multiplicative / bar-invariant, R3 discovery and the exact twist",
+   "ok": true,
+   "note": "{'R2 unital': True, 'R2 multiplicative (all pairs)': True, 'R2 bar-invariant images': True, 'R3 discovery RG_a S = L_l(a) + O(q), K=2': True, 'R3 twist, exact form RG(rho_UV a) = rho_IR(tRG a)': True}"
+  },
+  {
+   "name": "R4 as a CROSS-PRESENTATION check: the flow's I_(a,b) (trace transported through S_RG) equals the (G,N) abelianized tier's on all pairs of the 5 labels, K=4",
+   "ok": true,
+   "note": "25 pairs, K=4; identity row: 1 + q^2 + (-[(-2,)] + 2 - [(2,)])*q^4 + O(q^5)"
+  },
+  {
+   "name": "SU(2)+1: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (47 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: RG verifiers (unital, bar-invariant, multiplicative, RG_a S = L + O(q), twist) on the identity, a Wilson line and the minimal monopole; R4 against the (G,N) tier on their 9 pairs at K = 4",
+   "ok": true,
+   "note": "{'unital': True, 'bar-invariant': True, 'multiplicative': True, 'RG_a S = L + O(q)': True, 'twist': True, 'R4': True}"
+  },
+  {
+   "name": "SU(2)+2: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (207 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: RG verifiers (unital, bar-invariant, multiplicative, RG_a S = L + O(q), twist) on the identity, a Wilson line and the minimal monopole; R4 against the (G,N) tier on their 9 pairs at K = 4",
+   "ok": true,
+   "note": "{'unital': True, 'bar-invariant': True, 'multiplicative': True, 'RG_a S = L + O(q)': True, 'twist': True, 'R4': True}"
+  },
+  {
+   "name": "SU(2)+3: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (625 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+4: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (1549 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (81 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): RG verifiers (unital, bar-invariant, multiplicative, RG_a S = L + O(q), twist) on the identity, a Wilson line and the minimal monopole; R4 against the (G,N) tier on their 9 pairs at K = 4",
+   "ok": true,
+   "note": "{'unital': True, 'bar-invariant': True, 'multiplicative': True, 'RG_a S = L + O(q)': True, 'twist': True, 'R4': True}"
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (493 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+1: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (127 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (367 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric+1: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (1209 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (333 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "G2+7: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (493 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (207 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: S_RG equals the product of E_q(μ_i v^w) over the matter weights, through q^6 (1549 monomials)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the draft's 'this RG flow factors': the tower SU(2)+2 -> ... -> pure, one hypermultiplet per rung, composed by hand through the flavour dictionary, equals removing all 2 at once on 24 UV lines (6 lines x U(1) irreps x 2 levels): 24/24",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the draft's 'this RG flow factors': the tower SU(2)+3 -> ... -> pure, one hypermultiplet per rung, composed by hand through the flavour dictionary, equals removing all 3 at once on 36 UV lines (6 lines x U(2) irreps x 2 levels): 36/36",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: with each rung's removed level filed under the wrong slot, the SU(2)+2 tower disagrees with the direct removal on 12 of 24 lines",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

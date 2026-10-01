@@ -1,0 +1,153 @@
+{
+ "id": "comp:a1deven/ungauging",
+ "labels": [
+  "comp:a1deven"
+ ],
+ "date": "2026-09-26T17:49:02Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": {
+   "1": {
+    "labels": 9,
+    "K": 10
+   },
+   "2": {
+    "labels": 40,
+    "K": 8
+   },
+   "3": {
+    "labels": 121,
+    "K": 6
+   },
+   "a1d4": {
+    "samples": 12,
+    "product pairs each way": 121
+   },
+   "a1d6": {
+    "samples": 43,
+    "product pairs each way": 1764
+   },
+   "a1d8": {
+    "samples": 124,
+    "product pairs each way": 1089
+   }
+  },
+  "seconds": 40.6
+ },
+ "counts": {
+  "pass": 20,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the flow A1DevenRGKAlgebra(k)'s Tr 1; the zoo's certified KAlgebraIso",
+  "negative": "the opposite lift sign; the measure restored once; the zoo map with mu -> mu^-1"
+ },
+ "elapsed_s": 40.931,
+ "notes": "The ungauging sum transcribed from the text over the transcribed gauged rules.  At a1d4 the zoo is served by SU3ADKAlg, so the iso's trace check compares two independent routes; at a1d6 the zoo's seeds are served through this map, so its trace check is not independent there (products and rho are: the zoo's exported cone table).",
+ "checks": [
+  {
+   "name": "k=1: the printed ungauged trace, the sum over n of z^n Tr(L_(F,n,0)) with the measure (q^2;q^2)^-2 restored and every gauged trace from the printed rules, equals A1DevenKAlg(1)'s on the identity and all 8 generators through q^10",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: the lift L_(F,e,kappa) = z^-e chi_kappa L_(F,0,0) on the trace of a generator at e = 1, kappa = 1; negative control: z^+e fails",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: negative control: with (q^2;q^2)^-1 in place of (q^2;q^2)^-2 the identity's trace disagrees",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: the printed ungauged trace, the sum over n of z^n Tr(L_(F,n,0)) with the measure (q^2;q^2)^-2 restored and every gauged trace from the printed rules, equals A1DevenKAlg(2)'s on the identity and all 39 generators through q^8",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: the lift L_(F,e,kappa) = z^-e chi_kappa L_(F,0,0) on the trace of a generator at e = 1, kappa = 1; negative control: z^+e fails",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: negative control: with (q^2;q^2)^-1 in place of (q^2;q^2)^-2 the identity's trace disagrees",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: the printed ungauged trace, the sum over n of z^n Tr(L_(F,n,0)) with the measure (q^2;q^2)^-2 restored and every gauged trace from the printed rules, equals A1DevenKAlg(3)'s on the identity and all 120 generators through q^6",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: the lift L_(F,e,kappa) = z^-e chi_kappa L_(F,0,0) on the trace of a generator at e = 1, kappa = 1; negative control: z^+e fails",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: negative control: with (q^2;q^2)^-1 in place of (q^2;q^2)^-2 the identity's trace disagrees",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: the printed head of the ungauged Tr 1 through q^4",
+   "ok": true,
+   "note": "{4: {(2, -2): 1, (3, -1): 1, (4, 0): 1, (3, 1): 1, (2, 2): 1, (1, -1): 2, (0, 0): 3, (2, 0): 2, (1, 1): 2}, 2: {(1, -1): 1, (0, 0): 1, (2, 0): 1, (1, 1): 1}, 0: {(0, 0): 1}}"
+  },
+  {
+   "name": "k=2: the printed head of the ungauged Tr 1 through q^4",
+   "ok": true,
+   "note": "{3: {(1, -1): -1, (1, 1): -1}, 0: {(0, 0): 1}, 4: {(0, 0): 3, (4, 0): 1, (2, 0): 2}, 2: {(0, 0): 1, (2, 0): 1}}"
+  },
+  {
+   "name": "k=3: the printed head of the ungauged Tr 1 through q^4",
+   "ok": true,
+   "note": "{4: {(1, -1): 1, (4, 0): 1, (1, 1): 1, (0, 0): 3, (2, 0): 2}, 0: {(0, 0): 1}, 2: {(0, 0): 1, (2, 0): 1}}"
+  },
+  {
+   "name": "k=1: independent witness: Tr 1 equals the flow A1DevenRGKAlgebra(1)'s through q^6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: independent witness: Tr 1 equals the flow A1DevenRGKAlgebra(2)'s through q^6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: independent witness: Tr 1 equals the flow A1DevenRGKAlgebra(3)'s through q^6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d4: the KAlgebraIso FiniteSU2U1ZKAlgebra -> A1DevenKAlg(1) (a1deven_seeds.kalgebra_iso) passes unit, round trip, rho and traces through q^8 on the identity, the 8 generators and the flavour characters, and multiplicativity on all 121 ordered pairs each way (0.2 s)",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}"
+  },
+  {
+   "name": "a1d4: negative control: the map precomposed with the zoo's mu -> mu^-1 is caught",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d6: the KAlgebraIso FiniteSU2U1ZKAlgebra -> A1DevenKAlg(2) (a1deven_seeds.kalgebra_iso) passes unit, round trip, rho and traces through q^8 on the identity, the 39 generators and the flavour characters, and multiplicativity on all 1764 ordered pairs each way (3.3 s)",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}"
+  },
+  {
+   "name": "a1d6: negative control: the map precomposed with the zoo's mu -> mu^-1 is caught",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d8: the KAlgebraIso FiniteSU2U1ZKAlgebra -> A1DevenKAlg(3) (a1deven_seeds.kalgebra_iso) passes unit, round trip, rho and traces through q^8 on the identity, the 120 generators and the flavour characters, and multiplicativity on every 4th generator's and the flavour characters' 1089 ordered pairs each way (36.4 s)",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}"
+  }
+ ]
+}

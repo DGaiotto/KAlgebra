@@ -1,0 +1,101 @@
+{
+ "id": "def:kq-flavoured/contract",
+ "labels": [
+  "def:kq-flavoured",
+  "ax:f-bar",
+  "ax:f-basis",
+  "ax:f-rho",
+  "ax:f-trace",
+  "eq:f-index",
+  "eq:f-integrality",
+  "eq:f-orthonormality",
+  "ax:f-forget"
+ ],
+ "date": "2026-09-21T23:53:32Z",
+ "commit": "628db109ef669800c8769de79435c2855d9309fd",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "toy realisations": 7,
+  "window": "|γ_i| <= 1 on Z^3 (27 labels)",
+  "K": 6
+ },
+ "counts": {
+  "pass": 13,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the degenerate torus passes every verifier",
+  "negative": "each countermodel rejected by its axiom's verifier"
+ },
+ "elapsed_s": 0.932,
+ "notes": "Discrimination matrix: F1 -> ['F1', 'F4', 'F6']; F2 -> ['F2']; F3 -> ['F3', 'F4', 'F5']; F4 -> ['F4', 'F6']; F5 -> ['F5']; F6 -> ['F6'].  F6 has no verifier on the contract: the inline check (forget is a hom, commutes with rho, and with Tr after the augmentation) is the candidate KAlgebra.verify_forget_commutes of task T3; the F6-countermodel shows it is not implied by F1-F5: the prefactor exponent rk(Γ/Γ_f) of the flavoured trace is fixed by the forgetful map, not by orthonormality.",
+ "checks": [
+  {
+   "name": "transcription F1 (ax:f-bar) <-> verify_bar_involution",
+   "ok": true,
+   "note": "C^c_{ab}(q^{-1}) = C^c_{ba}(q) with R-valued constants"
+  },
+  {
+   "name": "transcription F2 (ax:f-basis) <-> verify_identity_in_basis / verify_unit_law / verify_associativity / verify_section_is_single_irrep / verify_embed_section_roundtrip",
+   "ok": true,
+   "note": "a bar-invariant Z[q^{±1}]-basis containing the characters: every label is (section, one irrep χ) with embed_R(χ)·L_section = L_a — the non-canonical R-basis is a choice of section"
+  },
+  {
+   "name": "transcription F3 (ax:f-rho) <-> verify_rho_is_automorphism / verify_rho_inverse / verify_rho_fixes_identity / verify_embed_intertwines_rho",
+   "ok": true,
+   "note": "rho an algebra automorphism permuting the basis, twisted-linear: embed_R(χ_r^∨) = rho(embed_R(χ_r))"
+  },
+  {
+   "name": "transcription F4 (ax:f-trace, eq:f-index, eq:f-integrality, eq:f-orthonormality) <-> verify_rho_twisted_trace / verify_trace_pairing_faces / verify_orthonormality",
+   "ok": true,
+   "note": "Tr(L_a L_b) = Tr(rho^2(L_b) L_a); the two faces of I_{a,b} agree; no negative q-powers (I ∈ R + q R[[q]]); the identity summand I^{(1)}_{a,b}[q^0] = δ_{a,b}"
+  },
+  {
+   "name": "transcription F5 (ax:rhotr) <-> verify_trace_intertwines_rho_star / verify_pairing_rho_star_symmetric",
+   "ok": true,
+   "note": "Tr L_{rho(a)} = *(Tr L_a) and I_{b,a} = *(I_{a,b}), * the rep-ring duality (the paper's outer rho on the flavour ring)"
+  },
+  {
+   "name": "transcription F6 (ax:f-forget) <-> forget() + forget_label (inline check; no contract verifier yet)",
+   "ok": true,
+   "note": "forget is an algebra hom identifying the R-basis with the unflavoured canonical basis, commuting with rho and, after the augmentation χ_r -> dim r, with Tr"
+  },
+  {
+   "name": "positive control: the degenerate Z^3 torus (Γ_f = Z e_3) passes all 15 verifiers and the F6 check on |γ_i| <= 1",
+   "ok": true,
+   "note": "verify_bar_involution 729/729; verify_identity_in_basis 1/1; verify_unit_law 27/27; verify_associativity 125/125; verify_section_is_single_irrep 27/27; verify_embed_section_roundtrip 27/27; verify_rho_fixes_identity 1/1; verify_rho_inverse 27/27; verify_rho_is_automorphism 729/729; verify_embed_intertwines_rho 2/2; verify_orthonormality 729/729; verify_trace_pairing_faces 729/729; verify_rho_twisted_trace 729/729; verify_trace_intertwines_rho_star 27/27; verify_pairing_rho_star_symmetric 729/729; forget_commutes (F6, inline) 756/756"
+  },
+  {
+   "name": "discrimination F1: the F1-countermodel is rejected by verify_bar_involution",
+   "ok": true,
+   "note": "axiom groups that fire: ['F1', 'F4', 'F6']; failures: verify_bar_involution 324, verify_orthonormality 54, forget_commutes (F6, inline) 324"
+  },
+  {
+   "name": "discrimination F2: the F2-countermodel is rejected by verify_embed_section_roundtrip",
+   "ok": true,
+   "note": "axiom groups that fire: ['F2']; failures: verify_embed_section_roundtrip 27"
+  },
+  {
+   "name": "discrimination F3: the F3-countermodel is rejected by verify_embed_intertwines_rho",
+   "ok": true,
+   "note": "axiom groups that fire: ['F3', 'F4', 'F5']; failures: verify_embed_intertwines_rho 2, verify_orthonormality 36, verify_trace_intertwines_rho_star 2, verify_pairing_rho_star_symmetric 54"
+  },
+  {
+   "name": "discrimination F4: the F4-countermodel is rejected by verify_orthonormality",
+   "ok": true,
+   "note": "axiom groups that fire: ['F4', 'F6']; failures: verify_orthonormality 27, forget_commutes (F6, inline) 3"
+  },
+  {
+   "name": "discrimination F5: the F5-countermodel is rejected by verify_trace_intertwines_rho_star",
+   "ok": true,
+   "note": "axiom groups that fire: ['F5']; failures: verify_trace_intertwines_rho_star 2, verify_pairing_rho_star_symmetric 54"
+  },
+  {
+   "name": "discrimination F6: the F6-countermodel is rejected by forget_commutes (F6, inline)",
+   "ok": true,
+   "note": "axiom groups that fire: ['F6']; failures: forget_commutes (F6, inline) 3"
+  }
+ ]
+}

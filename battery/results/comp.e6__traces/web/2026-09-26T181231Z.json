@@ -1,0 +1,69 @@
+{
+ "id": "comp:e6/traces",
+ "labels": [
+  "comp:e6"
+ ],
+ "date": "2026-09-26T18:12:31Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "K": 12,
+  "window": 10,
+  "seconds": 457.7
+ },
+ "counts": {
+  "pass": 8,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the per-seed BPS engine as a witness through q^6; the served W3(3,7) combinations against the witness route",
+  "negative": "a seed perturbed by one unit is caught by the same comparison"
+ },
+ "elapsed_s": 457.974,
+ "notes": "The witness route runs in a subprocess with the served W3 recipes made absent, so no cached or recipe data reaches it; e6 has no frozen trace table (removed 2026-09-23).",
+ "checks": [
+  {
+   "name": "witness route (no frozen trace table exists for e6; the served W3 recipes made absent), and no BPS chart runs: Tr 1 is the exact Nahm sum on the embedded spectrum, the seeds come from the orthonormality bootstrap",
+   "ok": true,
+   "note": "no table True; BPS files run []"
+  },
+  {
+   "name": "served: Tr 1 and all six seeds of FiniteE6KAlgebra are the printed W3(3,7) character combinations through q^12",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the Nahm-sum vacuum and the bootstrap seeds equal the W3(3,7) combinations through q^12",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the printed heads: Tr 1 = 1 + q^4 + 2q^6 + 3q^8 + 3q^10 + 6q^12, Tr s_0 = -q - 2q^5 - q^7 + ..., Tr s_2 = -q - q^5 - q^7 + ...",
+   "ok": true,
+   "note": "Tr 1 {0: 1, 4: 1, 6: 2, 8: 3, 10: 3, 12: 6}; s0 {1: -1, 9: -3, 7: -1, 5: -2, 11: -4}; s2 {1: -1, 11: -3, 9: -3, 7: -1, 5: -1}"
+  },
+  {
+   "name": "witness: the vacuum and all six seeds equal the per-seed BPS engine through q^6 (216.7 s)",
+   "ok": true,
+   "note": "BPS Tr 1 {0: 1, 4: 1, 6: 2}; BPS seeds {'0': {1: -1, 5: -2}, '2': {1: -1, 5: -1}, '4': {3: -1}, '5': {2: 1, 6: 1}, '6': {1: -1, 5: -1}, '7': {2: 1, 6: 1}}"
+  },
+  {
+   "name": "negative control: a seed perturbed by one unit in its leading coefficient is caught by the BPS comparison",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "independent witness: Tr 1 equals the E6 RG flow's through q^12",
+   "ok": true,
+   "note": "flow {0: 1, 6: 2, 12: 6, 8: 3, 4: 1, 10: 3}"
+  },
+  {
+   "name": "Tr L = O(q) for every window label L != 1 and I_ab = delta + O(q) on all window pairs",
+   "ok": true,
+   "note": "valuations [1, 1, 3, 2, 1, 2, 2, 5, 3]"
+  }
+ ]
+}

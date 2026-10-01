@@ -22,7 +22,7 @@ Writing both forms in one set of coordinates gives the familiar
     (M, E)_SO(3)  =  (2 m, e/2)_SU(2),        (m, e)_SU(2) = (M/2, 2E)_SO(3),
 
 but that is **a description of how the two lattices sit inside each other, not a
-rescaling of one into the other** (user correction, 2026-07-29; ruling D22).
+rescaling of one into the other**.
 Nothing is rescaled and the quiver is untouched.  What the map does show is the
 genuinely-new **spinorial** sector of SO(3) at *odd* `M` (no SU(2) preimage — its
 `(M/2, 2E)` is half-integer).  The minimal lines:
@@ -41,8 +41,7 @@ above this is `= SU(2)-BPS(nodes (1,0),(−1,2))` — an
 𝖖-powers and all; certified in the suite in the source repository).  Everything is over
 `Z[𝖖^±]`; `H_0=F_{(1,0)}` is orthonormal (`I=1−𝖖²+𝖖⁴+…`) and `H_0²=L_{1,0}`.
 
-**The torus/atom (AbeKAlgebra) route DOES hold the spinorial line** — since ruling
-D31 (2026-07-29).  It used not to: `ω^∨` has `⟨Σ⁺, ω^∨⟩ = 1` (odd), so the
+**The torus/atom (AbeKAlgebra) route DOES hold the spinorial line** — since 2026-07-29.  It used not to: `ω^∨` has `⟨Σ⁺, ω^∨⟩ = 1` (odd), so the
 *materialised* atom monomial `M(m) ∝ (−𝖖)^{⟨ρ,m⟩}` — the square root of the
 measure — wants a `𝖖^{1/2}` and an `i` there, and the `ε` stand-in that was
 adopted instead corrupted the cocycle and broke `bar` on `H_0²`.  But the algebra
@@ -52,7 +51,7 @@ through the INTEGRAL coboundary `(−𝖖)^{δ(S_honest − S_used)}`, and
 `H_0² = L_{(2,0)}` and `I(H_0,H_0)` equal to this file's value term by term.
 **This realisation is the ORACLE that certified that fix**, which is its role
 now — an independent BPS presentation of the same algebra, not the only one.
-See a probe in the source repository, ruling D31, and the now
+See a probe in the source repository, and the now
 historical a probe in the source repository.
 
 The even-`M` (shared) sector coincides with the SU(2) **Abe** presentation

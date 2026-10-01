@@ -82,10 +82,28 @@ class U1A1AoddToEvenQTRGKAlgebra(RGKAlgebra):
     `RGKAlgebra` with `S_RG = E_𝖖(X_{0,1}·L)` (short chord ray `L`).  See the
     module docstring."""
 
-    def __init__(self, k: int, i0: int = 0):
+    def __init__(self, k: int, i0: int = 0, *, intrinsic=None,
+                 label_translation=None):
+        """`intrinsic`: optionally, the `U1A1AoddKAlg(k)` instance this flow's
+        UV *is* (e.g. the very object `A1AevenToU1AoddRGKAlgebra(k)` holds as
+        its auxiliary), so that `starting_algebra()` returns it and
+        `ComposedRG` / `then` can validate composition endpoints by Python
+        identity (the contract's stated purpose for the override).
+
+        `label_translation`: optional callable `intrinsic cone label ->
+        this flow's canonical label`, applied by `RG` when the incoming label
+        is not already in this flow's frame.  The two frames name the same
+        canonical basis (this flow's labels are its auxiliary's cone labels;
+        the intrinsic's are `(factors, e_E)` chord words), and the dictionary
+        between them is the closed-form generator embedding measured in
+        a probe in the source repository; it is supplied by the
+        caller rather than baked in here because this class's dressing chord
+        `i0` is a ρ-gauge and the dictionary must match the gauge."""
         if k < 1:
             raise ValueError(f"k must be >= 1, got {k}")
         self.k = k
+        self._intrinsic = intrinsic
+        self._label_translation = label_translation
         self._even = A1A2kKAlg(k)                      # IR even AD: [A₁, A_{2k}]
         self._qt = QuantumTorusKAlg([[0, 1], [-1, 0]])  # rank-2 torus (f, v)
         self._aux = TensorKAlgebra(self._even, self._qt)
@@ -114,6 +132,18 @@ class U1A1AoddToEvenQTRGKAlgebra(RGKAlgebra):
         return self._tower[n]
 
     # ----- RGKAlgebra contract -------------------------------------------
+
+    def starting_algebra(self):
+        """The gauged-odd K-algebra this flow starts from.  With `intrinsic`
+        supplied at construction this is that shared `U1A1AoddKAlg(k)` object
+        (so `A1AevenToU1AoddRGKAlgebra(k).then(self)` typechecks); otherwise
+        the contract default (`self`)."""
+        return self._intrinsic if self._intrinsic is not None else self
+
+    def RG(self, a):
+        if self._label_translation is not None:
+            a = self._label_translation(a)
+        return super().RG(a)
 
     def auxiliary(self):
         return self._aux

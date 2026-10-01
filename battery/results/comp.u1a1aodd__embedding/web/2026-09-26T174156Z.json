@@ -1,0 +1,56 @@
+{
+ "id": "comp:u1a1aodd/embedding",
+ "labels": [
+  "comp:u1a1aodd"
+ ],
+ "date": "2026-09-26T17:41:56Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "census": {
+   "1": {
+    "pairs": 121,
+    "bad": 0
+   },
+   "2": {
+    "pairs": 484,
+    "bad": 0
+   },
+   "3": {
+    "pairs": 1369,
+    "bad": 0
+   }
+  },
+  "seconds": 0.5
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity pairs",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.471,
+ "notes": "The even family A1A2kKAlg(k) and the rank-2 quantum torus are independent algebras; the author's experiment covers k = 1..6.",
+ "checks": [
+  {
+   "name": "k=1: Phi(g)Phi(h) = sum_c C^c_gh Phi(c) on all 121 ordered letter pairs, the left side in A^even ⊗ Q_q(Z^2) by the even algebra's own product",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: Phi(g)Phi(h) = sum_c C^c_gh Phi(c) on all 484 ordered letter pairs, the left side in A^even ⊗ Q_q(Z^2) by the even algebra's own product",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: Phi(g)Phi(h) = sum_c C^c_gh Phi(c) on all 1369 ordered letter pairs, the left side in A^even ⊗ Q_q(Z^2) by the even algebra's own product",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

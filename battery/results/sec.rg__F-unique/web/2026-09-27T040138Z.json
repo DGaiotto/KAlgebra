@@ -1,0 +1,53 @@
+{
+ "id": "sec:rg/F-unique",
+ "labels": [
+  "conj:upper"
+ ],
+ "date": "2026-09-27T04:01:38Z",
+ "commit": "2c10f82b670c4edc286f6df90531fa8ff01d8745",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "charts": {
+   "pentagon": "4 labels, depth 6",
+   "A_3": "7 labels, depth 5",
+   "[A_1,D_4]": "11 labels, depth 4",
+   "Kronecker (pure SU(2))": "4 labels, depth 6",
+   "SU(2)+1": "7 labels, depth 5",
+   "SU(2)+2": "11 labels, depth 4",
+   "SU(2)+3": "16 labels, depth 4",
+   "dictionary sample (11 charts)": "77 labels, depth 5-6"
+  },
+  "terms compared": 791,
+  "seconds": 34.3
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon",
+  "negative": "the reversed-order S changes the recursion's F"
+ },
+ "elapsed_s": 34.302,
+ "notes": "Derived: the recursion is forced degree by degree, so the formal solution exists and is unique; the check guards the F-solver.  Finiteness is conj:upper's.",
+ "checks": [
+  {
+   "name": "the repo's F-solver equals the independent recursion through its depth on the lineup charts and the dictionary sample: pentagon 4/4 (depth 6), A_3 7/7 (depth 5), [A_1,D_4] 11/11 (depth 4), Kronecker (pure SU(2)) 4/4 (depth 6), SU(2)+1 7/7 (depth 5), SU(2)+2 11/11 (depth 4), SU(2)+3 16/16 (depth 4), dictionary sample (11 charts) 77/77 (depth 5-6); 791 terms compared, 45 lineup labels with more than one term",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "regression guard (enforced): F S = X + O(q) on the lineup's labels: pentagon 4/4, A_3 7/7, [A_1,D_4] 11/11, Kronecker (pure SU(2)) 4/4, SU(2)+1 7/7, SU(2)+2 11/11, SU(2)+3 16/16",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: with the pentagon's S taken in the reversed order the recursion's F differs from the solver's on 4 of 4 labels [(1, 0), (0, 1), (1, 1), (-1, 0)]",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

@@ -13,8 +13,11 @@ This is the closed-form / `ConeKAlgebra` tier counterpart of the engine-backed
 `A1A2k_plucker_closed_form` template, built in the **`(a, p, i)` labeling**:
 
   * `a ∈ 1..k+1`     — the scaffold *level* (depth)
-  * `p ∈ {0, 1}`     — the *parity* (p=1 = puncture-incident/notched, carries the
-                       SU(2) doublet χ₁; p=0 = the singlet partner)
+  * `p ∈ {0, 1}`     — the *parity*: `p = (ℓ + 1) mod 2` for the generator's
+                       curve `(x, ℓ)` on the `(2k+3)`-gon with one interior
+                       puncture (`a1dn_kalg`; no generator ends at the
+                       puncture); the leading trace term is `(−1)^a q^a χ_p`,
+                       so the p=1 seeds carry the SU(2) doublet χ₁ there
   * `i ∈ Z/(2k+3)`   — the *position* (the once-punctured-polygon rotation index)
 
 giving `2(k+1)(2k+3)` mult-gens (k=0: 6 = a1d3, k=1: 20 = a1d5, k=2: 42 = a1d7).
@@ -46,9 +49,10 @@ Closed-form backbone (all VERIFIED against a1d5 / a1d3):
 
   ✅ The crossing / χ-placement CLASSIFIER is now CLOSED-FORM (`classify_i0`,
   `arcs_cross`, `arc_puncture_crossing`; see the "CLOSED-FORM arc-geometry
-  crossing / χ classifier" section).  The genuine D-type frame is NOT the naive
-  once-punctured-`(2k+3)`-gon tagged-arc model (which does NOT fit — the
-  documented 0/4 result); it is the **Fomin–Zelevinsky type-`D_n` `2n`-gon**
+  crossing / χ classifier" section).  The genuine D-type frame is NOT the
+  once-punctured-`(2k+3)`-gon TAGGED-ARC model (arcs ending at the puncture, the
+  flavour as a plain/notched tag; it does NOT fit — the documented 0/4 result);
+  it is the **Fomin–Zelevinsky type-`D_n` `2n`-gon**
   (`n=2k+3`), cluster variables = centrally-symmetric chord-pairs (a *diameter*
   = the χ₁ fork arc), ρ = rotation by 1.  Fitted to the repo q-commute graph and
   VERIFIED 100%: q-commute reproduces a1d3 (k=0, 10/10) / a1d5 (k=1, 76/76 i=0;
@@ -67,18 +71,31 @@ Closed-form backbone (all VERIFIED against a1d5 / a1d3):
   merged-q anchor is itself recoverable from the closed-form cocycle on the
   q-commuting `(g, factor)` sub-pairs.
 
-  **`a1dodd_cone_data(k)` BUILDS for k=0,1,2** — decoded entry-exact from the
-  verified reference algebras a1d3 / a1d5 / **FiniteA1D7** (`_extract_k{0,1,2}`),
-  the classifier self-certified against each.  Verified: the cone multiply
-  reproduces FiniteA1D7 over all 1764 atomic pairs + a broad compound sweep; bar
-  / ρ-automorphism pass at k=2.  Still **data-sourced** (so k≥3 honestly raises,
-  `_extract_engine`): the **general-k gauge-charge frame** `γ(a,p,i)` (the
-  hand-built a1d5/a1d7 frames are per-orbit gauges with non-linear ρ) and the
-  **`T·D` / chord-chord puncture-fork** daughters (the pure chord-chord 4-term
-  fork is a genuinely NEW phenomenon at k≥1 — NOT an a1d3 relation — and does
-  NOT reduce to per-crossing skein smoothings).
+  Folding the `2n`-gon by the half-turn gives the once-punctured `n`-gon read
+  as a skein surface (simple curves, none ending at the puncture): a
+  centrally-symmetric chord pair becomes the curve `(x, ℓ)`, `ℓ` = the gap,
+  `x = (_ap_base + i) mod n`, the diameter becoming the loop around the
+  puncture — the curve labels of `a1dn_kalg.A1DnKAlg` (verified there: a
+  bijection, `𝖖`-commuting ⟺ no crossing, `χ₁`-carrying ⟺ two crossings).
 
-Native label convention (flavour-in-label cone-data, like a1d5):
+  **`a1dodd_cone_data(k)` BUILDS for ALL k** by `_extract_engine` (the
+  closed-form FZ 2n-gon arc rules: classifier + cocycle + the four
+  Ptolemy/skein cross-product cases, incl. the `T·D` diameter fork via the
+  doubled-diameter puncture loop and the chord-chord 4-term fork via the
+  centrally-symmetric Kauffman skein) — NO engine, NO reference table, NO
+  gauge-charge frame.  Since 2026-09-23 this holds for k=0,1,2
+  too: the stored i=0 tables (`a1dodd_cone_tables`, decoded from a1d3 / a1d5 /
+  FiniteA1D7) were removed, the builder having been certified to reproduce them
+  entry-for-entry (as sorted term lists) at k=0,1,2 (12/12, 80/80, 252/252
+  entries); the decoders `_extract_k{0,1,2}` stay as the test-side reference.
+  Verified: the cone multiply reproduces FiniteA1D7 over all 1764 atomic pairs
+  + a broad compound sweep; bar / ρ-automorphism pass at k=2;
+  `A1DoddKAlg(3,'cone')` (D₉) passes the multiply-side contract.  See
+  the design notes for the full cracked rules.  The trace side
+  has no k-limit either: `a1dodd_layer2` returns every seed at k=3,4 with the
+  leading term `(−1)^a q^a χ_p` (measured 2026-09-23).
+
+Native label convention (cone-data, Pattern III, like a1d5):
   the χ-content is **stripped** at the `A1DoddKAlg.multiply` boundary and
   threaded as an `RLaurent[SU(2)]` coefficient; cone-data labels and the
   cross_product daughters are pure `(a,p,i)` cone monomials.  The native label
@@ -123,6 +140,8 @@ _A1D5_AP_TO_KIND = {v: k for k, v in _A1D5_KIND_TO_AP.items()}
 # `Z/2n` (period `n` on centrally-symmetric shapes — the `Z_{2k+3}` cluster
 # rotation).  This is *fitted to the repo q-commute graph*, not assumed from the
 # (false-friend) once-punctured-polygon tagged-arc model, which does NOT fit.
+# (The once-punctured polygon read as a skein surface — curves not ending at the
+# puncture — does fit: it is this model folded by the half-turn; `a1dn_kalg`.)
 #
 # Closed-form `(a,p,i) → arc` (VERIFIED to reproduce the q-commute graph 100% at
 # k=0/1/2 — a1d3, a1d5, FiniteA1D7 — and the χ-placement 100% at k=1/2):
@@ -691,22 +710,6 @@ def _extract_engine(k):
     return out
 
 
-def _frozen_or_extract(k):
-    """The i=0 table for k∈{0,1,2}, from the **frozen** `a1dodd_cone_tables`
-    module (self-contained — NO runtime import of a1d3_kalg / a1d5_kalg /
-    a1d5_decomposer / finite_a1d7_kalg).  Falls back to the live `_extract_k{k}`
-    generators (which DO import the reference algebras) only if the frozen module
-    is absent — so the named A1D3/A1D5/A1D7 cone classes stay exportable, while the
-    table can still be regenerated in a full checkout."""
-    try:
-        from a1dodd_cone_tables import FROZEN_I0
-        if k in FROZEN_I0:
-            return FROZEN_I0[k]
-    except ImportError:
-        pass
-    return {0: _extract_k0, 1: _extract_k1, 2: _extract_k2}[k]()
-
-
 # ---------------------------------------------------------------------------
 # A1DoddConeData
 # ---------------------------------------------------------------------------
@@ -729,23 +732,24 @@ class A1DoddConeData(FiniteConeData):
         self.H = 2 * k + 3
         self._R = SU2ZPlusRing()
 
-        # k=0,1,2 stay decoded from the verified reference algebras (a1d3 / a1d5 /
-        # FiniteA1D7) as the GROUND TRUTH; k>=3 is built FRAME-FREE by
-        # `_extract_engine` (the closed-form arc rules).  The frame-free build is
-        # certified to reproduce the decoded tables entry-for-entry at k=0,1,2 in
-        # the test-suite (`test_frame_free_builder_matches_decoded`), so it is
-        # trusted for k>=3.
-        if k in (0, 1, 2):
-            self._plucker_i0 = _frozen_or_extract(k)
-        else:
-            self._plucker_i0 = _extract_engine(k)
+        # Every k is built FRAME-FREE by `_extract_engine` (the closed-form arc
+        # rules).  Until 2026-09-23 k=0,1,2 were read from a stored table decoded
+        # from the reference algebras (a1d3 / a1d5 / FiniteA1D7); the builder
+        # reproduces those decodings entry-for-entry — the reference decoders
+        # `_extract_k{0,1,2}` stay, and the test-suite checks it
+        # (`test_frame_free_builder_matches_decoded`).
+        self._plucker_i0 = _extract_engine(k)
 
         # The CLOSED-FORM crossing/χ classifier (the deliverable) is exact for all
         # k.  Certify it reproduces the table's q-commute + χ structure
-        # entry-for-entry — for k=0,1,2 this checks the geometry against the decoded
-        # data; for k>=3 it is a self-consistency guard on the frame-free build.
-        # (VERIFIED 100%: a1d3 10/10, a1d5 76/76; FiniteA1D7 246/246 i=0 —
-        # 1722/1722 q-commute + 882/882 χ over the full ρ-lift.)
+        # entry-for-entry.  The table is `_extract_engine(k)` at every k, and its
+        # builder picks each entry's case from the same `arcs_cross` /
+        # `arc_puncture_crossing`, so this is a self-consistency guard on the
+        # frame-free build; the check of the geometry against the decoded
+        # reference algebras is `test_frame_free_builder_matches_decoded`.
+        # (VERIFIED 100% against the decoded data: a1d3 10/10, a1d5 76/76;
+        # FiniteA1D7 246/246 i=0 — 1722/1722 q-commute + 882/882 χ over the full
+        # ρ-lift.)
         n_ok, n_tot = _classifier_matches_table(k, self._plucker_i0)
         if n_ok != n_tot:
             raise AssertionError(

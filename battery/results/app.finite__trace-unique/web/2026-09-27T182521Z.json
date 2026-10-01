@@ -1,0 +1,79 @@
+{
+ "id": "app:finite/trace-unique",
+ "labels": [
+  "app:finite"
+ ],
+ "date": "2026-09-27T18:25:21Z",
+ "commit": "1f82fe55cfdafe90f86a24a863e24c96aa8249a5",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "windows": {
+   "pentagon, degree <= 2": {
+    "window": 16,
+    "K_eq": 2,
+    "canonical trace solves": true,
+    "projected dimension": 2,
+    "rescale line": true,
+    "seconds": 0.1
+   },
+   "pentagon, degree <= 3": {
+    "window": 31,
+    "K_eq": 4,
+    "canonical trace solves": true,
+    "projected dimension": 4,
+    "rescale line": true,
+    "seconds": 0.7
+   },
+   "heptagon, 3 cones + squares": {
+    "window": 25,
+    "K_eq": 2,
+    "canonical trace solves": true,
+    "projected dimension": 2,
+    "rescale line": true,
+    "seconds": 0.7
+   },
+   "heptagon, 5 cones + squares": {
+    "window": 31,
+    "K_eq": 3,
+    "canonical trace solves": true,
+    "projected dimension": 3,
+    "rescale line": true,
+    "seconds": 1.7
+   },
+   "E6, 8 cones + squares": {
+    "window": 59,
+    "K_eq": 1,
+    "canonical trace solves": true,
+    "projected dimension": 1,
+    "rescale line": true,
+    "seconds": 19.5
+   }
+  },
+  "seconds": 22.7
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the canonical trace is a solution on every window",
+  "negative": "a window too small to pin the trace; the orthonormality condition dropped"
+ },
+ "elapsed_s": 22.758,
+ "notes": "trace_uniqueness handles unflavoured algebras only (a TypeError on an R-valued coefficient), so the flavoured zoo entries are not in the population; E8 exceeds 12 GB in the solver's dense kernel at order 1 on 8 cones and squares.  Uniqueness is a statement about a window: the projected solution set, not the full one, and larger K_eq needs larger windows.",
+ "checks": [
+  {
+   "name": "the canonical trace solves every equation, and the admissible traces are its 1 + O(q) rescales, on 5 of 5 windows (pentagon, heptagon, E6)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative controls (pentagon): on a window without squares the projected dimension is 3 > 2, so the window matters; dropping the q^0-orthonormality enlarges the solution space (40 -> 48)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

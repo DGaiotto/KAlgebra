@@ -1,0 +1,47 @@
+{
+ "id": "eq:cocha",
+ "labels": [
+  "eq:cocha"
+ ],
+ "date": "2026-09-22T01:03:16Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "SU(2) m": "1..3",
+  "SO(3) m": "2, 4"
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "exact rational identities",
+  "negative": "wrong sign detected"
+ },
+ "elapsed_s": 0.002,
+ "notes": "The matter factors of cocha are exercised through the SO(3)+adjoint d-forms in the adjoint row.",
+ "checks": [
+  {
+   "name": "eq:cocha  the SU(2) dressing psi_m equals the printed cocha_m (prefactor (-q)^m, the k-even denominators) for m = 1, 2, 3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:cocha  SO(3) at even m (integral prefactor): psi_m equals cocha_m",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "at odd m of SO(3) the printed prefactor (-q)^(½Σ<α,m>) is a half-integral power (½·1): the repository ships the floored psi and restores the phase through the cocycle — recorded, not compared",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: cocha with the prefactor (+q)^m is detected at m = 1",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

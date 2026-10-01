@@ -1,9 +1,8 @@
-"""`KAlgebraObject` for **pure U(2) gauge theory** (user direction,
-2026-06-16): the abstract `A_𝖖[pure U(2)]` — the *un-projected keystone*
+"""`KAlgebraObject` for **pure U(2) gauge theory**: the abstract `A_𝖖[pure U(2)]` — the *un-projected keystone*
 that `pure_su2_object` builds its `abe` leg from (pure SU(2) is the
 trace-zero / adjoint-magnetic subalgebra of pure U(2)).
 
-**Trivial flavour (user, 2026-06-16).**  Pure gauge theory has no flavour
+**Trivial flavour.**  Pure gauge theory has no flavour
 symmetry, so the coefficient ring is `TrivialZPlusRing` (`= Z`).  Here the
 keystone trace is the *honest* U(2) Schur index `1 − 2𝖖² + O(𝖖⁴)` (rank 2:
 the SU(2) gauge boson **and** the U(1) photon) — *not* a projected SU(2)
@@ -12,7 +11,8 @@ as a "decoupled-photon" caveat; for the U(2) object it is exactly right.
 
 Realizations:
 
-* ``'abe'``  — `PureUNKAlgebra(2)`: the **AbeKAlgebra keystone**, the
+* ``'abe'``  — `PureGAbeKAlgebra(u_n(2))` (until 2026-09-19 the retired
+  `PureUNKAlgebra(2)` keystone, measured equal 411/411): the **AbeKAlgebra** leg, the
   pure-U(2) K-theoretic Coulomb-branch algebra on the rational quantum
   torus (`URQTorus`), canonical basis labelled by the lower-Kapustin
   't Hooft–Wilson charge `(m, λ)`.  The canonical, fully-derived,
@@ -48,7 +48,7 @@ So the object **wraps the Abe and BPS versions** (abe keystone ↔ bps chart)
 plus the QTCone presentation.  The `abe ↔ cone` witness is the identity on
 `(m,λ)` (full battery incl. **trace**); the `abe ↔ bps` witness is the
 chamber map (unit / round-trip / ρ + clean multiply).  All certified in
-`tests/test_pure_u2_object.py`.
+the suite in the source repository.
 """
 from __future__ import annotations
 
@@ -68,7 +68,8 @@ from kalgebra_object import KAlgebraObject
 from laurent_poly import LaurentPoly
 from bps_kalgebra import BPSKAlgebra
 import pure_ade as pa
-from pure_un_kalgebra import PureUNKAlgebra, default_rays
+from pure_g_abe_kalgebra import PureGAbeKAlgebra
+from root_datum import u_n
 from pure_u2_qtcone import PureU2QTConeKAlg
 from un_bps_chamber import U2TropicalMap
 
@@ -83,10 +84,11 @@ def pure_u2_object(K: int = 12, max_len: int = 2) -> KAlgebraObject:
     **Abe** keystone, the **BPS** chart, and the **QTCone** presentation
     (`skein` remains an open slot).
 
-    `K` / `max_len` are forwarded to the keystone `PureUNKAlgebra(2)`."""
+    `K` / `max_len` are accepted for source compatibility and ignored (the
+    general class builds lazily)."""
     obj = KAlgebraObject("A_q[pure U(2)]")
 
-    abe = PureUNKAlgebra(2, default_rays(2), max_len=max_len, K=K)
+    abe = PureGAbeKAlgebra(u_n(2))      # the general class; K / max_len ignored since 2026-09-19
     obj.add_realization("abe", abe, {"chart", "multiply-fast",
                                      "f-presentation", "trace-exact"})
 

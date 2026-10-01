@@ -1,6 +1,15 @@
 """uq_sl2_pbw — the central quotient of `U_𝖖(sl_2)` on its PBW basis, as a
 `KAlgebra`.
 
+**Superseded on the contract surface (2026-09-21)** by
+`uq_su2_kalgebra` in the source repository::UqSU2KAlgebra` — the draft's definition
+implemented directly, with the Casimir `χ₁` in the coefficient ring
+`R(SU(2))` and the full trace, certified isomorphic to the
+SU(2)-flavoured BPS chart of SQED_2.  This module is KEPT as the independent
+engine cross-check (the suite in the source repository pins that the two agree
+once `C^j` is expanded as `χ₁^j`); it carries the Casimir as a label power
+over `Z` and has no trace.
+
 This is the **algebra-side** realisation (no RG flow, no chart): the canonical
 basis is the PBW basis of the central quotient,
 

@@ -28,13 +28,17 @@ carry its own flavour charge, so each zoo seed matches a character
 combination up to a per-seed monomial ``z^c`` (``A3_SEED_DICTIONARY``,
 re-derived by the tests from leading terms).
 
-Provenance: the su(2)_{−4/3} characters and vortex residues are
-transcribed from standard results on admissible-level sl(2) characters.
-Certification: bulk agreement with the frozen a3 table, full-row
-agreement with an embedded-quiver oracle at enlarged window (an
-author-side computation not included in this repository), internal
-ρ²-cyclicity, and the M(2,5)/M(2,7) match of the pentagon/heptagon
-frozen tables.
+Provenance: Ambrosino–Gaiotto defect-index papers (P1 :1918–1926 for
+su(2)_{−4/3}, P2 §5.1 for the vortex residues), transcribed via the
+2026-06-10 harvest.  Certification (the suite in the source repository +
+a probe in the source repository): bulk agreement with the
+2026-06-10 frozen a3 table, full-row agreement with the live embedded
+BPS oracle at enlarged window, internal ρ²-cyclicity, and the M(2,5)/
+M(2,7) match of the pentagon/heptagon frozen tables.  Since 2026-09-23
+these closed forms serve the zoo's a3 traces directly (the a3 table, which
+was generated from them, was removed with the other replaceable frozen
+tables), and the pentagon/heptagon match is
+tested against the zoo's live Nahm-sum-plus-bootstrap route instead.
 
 Why this module exists (the trapezoid defect): the flavoured BPS trace
 at q-window K is exact only on a trapezoid in (q-order, μ-charge) —

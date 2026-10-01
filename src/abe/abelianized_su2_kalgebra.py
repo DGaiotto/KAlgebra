@@ -1,5 +1,12 @@
 """`AbelianizedSU2KAlg` — pure SU(2) as the trace-zero subalgebra of the
-abelianized pure-U(2) realisation `PureUNKAlgebra(2)`.
+abelianized pure-U(2) realisation `PureGAbeKAlgebra(u_n(2))`.
+
+(Until 2026-09-19 the U(2) side was `PureUNKAlgebra(2)`, the closed-form
+type-A keystone; that class was retired to the source repository's archive once
+the (★)-route `L_{m,e}` builder made it obsolete — measured equal on 411/411
+checks at U(2)/U(3) — and this wrapper now delegates to the general-`G`
+class, through its `fold` so the lift lands in the canonical frame.  Same
+public surface, same labels, same det-projection read-back.)
 
 A **light wrapper**: a canonical basis element is the SU(2) 't Hooft–Wilson
 line `L_{m,e}` (magnetic charge `m`, electric charge `e`), realised as the
@@ -10,7 +17,7 @@ pure-U(2) Kapustin label
 — magnetic cocharacter `m·(1,-1)` (a multiple of the **adjoint**, i.e. the
 trace-zero / SU(2) sublattice), electric a det-representative with
 `λ₁ - λ₂ = e`.  All structure (`multiply`, `rho`, `trace`) is delegated to
-`PureUNKAlgebra(2)` and read back through the **det-projection**
+`PureGAbeKAlgebra(u_n(2))` and read back through the **det-projection**
 
     ((M, -M), (λ₁, λ₂))  ↦  (M, λ₁ - λ₂)                 (`_project`)
 
@@ -44,7 +51,8 @@ if _HERE not in sys.path:
 from kalgebra import KAlgebra, Element, Label
 from laurent_poly import LaurentPoly
 from zplus_ring import ZPlusRing
-from pure_un_kalgebra import PureUNKAlgebra, default_rays
+from pure_g_abe_kalgebra import PureGAbeKAlgebra
+from root_datum import u_n
 
 
 __all__ = ["AbelianizedSU2KAlg", "su2_fold"]
@@ -64,18 +72,20 @@ def su2_fold(m: int, e: int) -> tuple[int, int]:
 
 class AbelianizedSU2KAlg(KAlgebra):
     """Pure SU(2) as the trace-zero (adjoint-magnetic) subalgebra of
-    `PureUNKAlgebra(2)`, with 't Hooft–Wilson labels `(m, e)`."""
+    `PureGAbeKAlgebra(u_n(2))`, with 't Hooft–Wilson labels `(m, e)`.
+    (`K` / `max_len` are accepted for source compatibility with the retired
+    keystone's constructor and ignored: the general class builds lazily.)"""
 
     def __init__(self, K: int = 12, max_len: int = 2):
-        self._u2 = PureUNKAlgebra(2, default_rays(2), max_len=max_len, K=K)
+        self._u2 = PureGAbeKAlgebra(u_n(2))
 
     # -- label <-> U(2) lift ----------------------------------------------
 
-    @staticmethod
-    def _lift(label: Label) -> Label:
-        """`(m, e) ↦ ((m, -m), (e, 0))` — the pure-U(2) Kapustin label."""
+    def _lift(self, label: Label) -> Label:
+        """`(m, e) ↦ fold((m, -m), (e, 0))` — the pure-U(2) Kapustin label in
+        the general class's canonical frame."""
         m, e = label
-        return ((m, -m), (e, 0))
+        return self._u2.fold((m, -m), (e, 0))
 
     @staticmethod
     def _project(u2_label: Label) -> tuple[int, int]:

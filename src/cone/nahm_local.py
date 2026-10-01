@@ -227,9 +227,7 @@ def _nahm_shift(ns: Sequence[int], kmat: Sequence[Sequence[int]]) -> int:
 # `_nahm_shift` carries an implicit all-ones linear term and the off-diagonal
 # `k_{ab}`, and NO diagonal.  That is exactly the shape of a product of plain
 # `E_𝖖(X_{γ_a})`, which is why the route reached only spin-0 specs.  Restoring
-# the two missing coefficients reaches every BPS factor (user, 2026-08-14: *"you
-# certainly know the series for E and E^{-1} ... they are related by 𝖖 <-> 𝖖^{-1}
-# anyway"*), because
+# the two missing coefficients reaches every BPS factor, because
 #
 #     E_𝖖(x)      = Σ_n (−1)^n 𝖖^{n}   x^n / (𝖖²;𝖖²)_n
 #     E_𝖖(x)^{-1} = Σ_n        𝖖^{n²}  x^n / (𝖖²;𝖖²)_n

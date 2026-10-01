@@ -1,8 +1,8 @@
 """`bordered_disk_su2_nf2` — SU(2)+N_f=2 as the DISK with a 1-marked
-boundary + 2 regular interior punctures (user frame, 2026-07-10), and its
+boundary + 2 regular interior punctures, and its
 **cut = RG flow** to the SU(2)+N_f=1 annulus.
 
-The user's construction: SU(2) N_f=1 is the IR of the RG flow from SU(2)
+The author's construction: SU(2) N_f=1 is the IR of the RG flow from SU(2)
 N_f=2 by CUTTING the edge between the two regular punctures.  Concretely,
 the N_f=2 disk chart is the fan (1,2)-annulus of `skein_su2_nf1_annulus`
 with its inner `I1–I2` edge (`e4~e5`) **glued back** (un-cut): the two
@@ -10,7 +10,7 @@ regular punctures `I1,I2` are interior; the outer 1-mark boundary stays.
 Cutting that glued edge un-glues `e4,e5` into the inner 2-boundary — the
 N_f=1 annulus verbatim.
 
-Result (certified in `tests/test_su2_nf2_disk_skein.py`):
+Result (certified in the suite in the source repository):
 * the disk chart builds directly as a `BorderedSkeinKAlg` — **4-node**
   BPS quiver `[[0,-1,-1,1],[1,0,-1,0],[1,1,0,-1],[-1,0,1,0]]`,
   `AbelianZPlusRing(rank=2)` flavour (the 2 regular punctures);

@@ -16,7 +16,7 @@ integer root vectors `α` subsumes both the U(N) factor `1 − 𝖖^k v_i/v_j`
 (root `e_i − e_j`) and the SU(2) factor `1 − 𝖖^k v²` (root `α = 2ω = (2)`),
 so the old separate `(1 − 𝖖^m v_i²)` square-factor engine is no longer needed.
 
-Coordinate realization (ruling, this session)
+Coordinate realization
 ---------------------------------------------
 Weights and roots are integer tuples in a chosen basis `P ↪ Z^d`.  The two
 families use the two natural realizations, and `RootDatum` hides the choice:
@@ -86,16 +86,28 @@ def _matmul(A: Mat, B: Mat) -> Mat:
 
 
 def _det(M: Mat) -> int:
-    """Integer determinant by fraction-free (Bareiss-free, small-d) expansion.
+    """Integer determinant — `snf_kernel.int_det` (Bareiss fraction-free
+    elimination, exact over Z, O(d³)).
 
-    Weyl matrices are ±1 orthogonal-ish; d ≤ ~6, so plain Laplace is fine."""
+    It was plain Laplace expansion, O(d!), on the assumption "d ≤ ~6"; the
+    product datum of a longer linear quiver breaks it (`U(1)×U(2)×U(3)×U(4)`
+    has d = 10: 10! terms per determinant for each of the 288 Weyl elements —
+    constructing it did not finish in an hour, 2026-09-22).  The Laplace
+    expansion is kept as `_det_laplace`, the independent construction the
+    replacement is checked against (the suite in the source repository)."""
+    from snf_kernel import int_det
+    return int_det(M)
+
+
+def _det_laplace(M: Mat) -> int:
+    """The original Laplace-expansion determinant (kept as the cross-check)."""
     d = len(M)
     if d == 1:
         return M[0][0]
     total = 0
     for j in range(d):
         minor = tuple(tuple(M[i][c] for c in range(d) if c != j) for i in range(1, d))
-        total += ((-1) ** j) * M[0][j] * _det(minor)
+        total += ((-1) ** j) * M[0][j] * _det_laplace(minor)
     return total
 
 
@@ -360,10 +372,9 @@ class RootDatum:
         only scalar freedom).  The engine evaluates `S` at the DOMINANT
         cocharacter rep and transports along the Weyl orbit.  (The tier's
         language is atoms + residuals + cocycle only — no `u`'s and no
-        difference-operator dressing appear on any surface; user ruling
-        2026-07-02.)
+        difference-operator dressing appear on any surface.)
 
-        **Bar-honesty constraint** (D10, measured 2026-07-01): the bar-relevant
+        **Bar-honesty constraint** (measured 2026-07-01): the bar-relevant
         content of `S` must be `−⟨ρ_weyl, m_dom⟩ = −½ Σ_{α>0} ⟨α, m⟩`.  A phase
         violating it makes `bar` fail antimultiplicativity on mixed-chamber
         products: the su_2 datum with `S ≡ 0` had `bar(H·H) ≠ H·H` while every
@@ -380,7 +391,7 @@ class RootDatum:
           sublattice it must be `−½⟨Σ⁺,m⟩` **on the nose**.
         * *"`S` is Weyl-invariant — generically NON-linear"* — this was measured
           against the THEN-current code, where `_rho_block` read `_phase_S`
-          directly.  **⚠ It no longer describes HEAD** (D30): since
+          directly.  **⚠ It no longer describes HEAD**: since
           `atom_phase_doubled` split the ρ path off, instrumenting `_phase_S`
           records **0 non-dominant calls, ever** — SO(3)/SU(2)/U(2), every gauge, in
           `multiply`/`rho`/`bar` (33 evaluations at SU(2), 161 at SU(3), 0
@@ -391,15 +402,13 @@ class RootDatum:
           (`u_n`, `product_datum`) route them back through `_atom_phase` at the raw
           `k` — which is where the old observation still holds.
 
-          **Consequence, and it is the operative one** (D29): because the ψ path
+          **Consequence, and it is the operative one**: because the ψ path
           sees only `S̃`, the cocycle depends on `S` through `(−𝖖)^{δS̃}`, so a
           *linear* `S` is NOT invisible — `δS̃(a,b) = c·((a+b)_dom − a_dom − b_dom)`
           vanishes for all `c` only when dominant reps add (`a, b, a+b` in one
           closed chamber).  The surviving freedom is the **centre** alone.
 
-        **`S` IS TOTAL AND INTEGER-VALUED — no fractional powers of `𝖖` anywhere**
-        (user ruling, 2026-07-29: *"I do not really think there should be
-        fractional powers of `𝖖` in any formula or convention"*).  Writing
+        **`S` IS TOTAL AND INTEGER-VALUED — no fractional powers of `𝖖` anywhere**.  Writing
         `−½⟨Σ⁺,m⟩` was an artifact of expressing the scalar in a normalisation with
         no reason to be integral; on the coroot lattice `⟨Σ⁺,m⟩` is always even so
         the half never had to justify itself, and on `P^∨` it produced a spurious
@@ -424,7 +433,7 @@ class RootDatum:
 
         ⚠ **An earlier version of this paragraph argued the phase "provably cannot
         repair the odd-height self-norm" because an overall factor `c` contributes
-        `c·bar(c) = 1`.  That reasoning is WRONG and is withdrawn (D26/D27).**
+        `c·bar(c) = 1`.  That reasoning is WRONG and is withdrawn.**
         `inner(x,y) = Tr(ρ(x)·y)` is **bilinear**, not sesquilinear: rescaling `x`
         by `c` moves `I` by `c²`.  Measured at SO(3) with `ρ` pinned, `S: 0 → −1` at
         `m=(1,)` moves `I` by exactly `𝖖²`, and at even `m=(2,)` **only**
@@ -436,10 +445,10 @@ class RootDatum:
         `S = −⟨ρ,m⟩`**, and independently the cocycle sees `S` through
         `(−𝖖)^{δS̃}` with `S̃ = S ∘ dominant_cochar_rep`, leaving only functions
         whose Weyl-symmetrization is additive — i.e. nothing off the **centre**
-        (D29, 1484 rows).
+        (1484 rows).
 
-        ⚠ **AND THE ODD-HEIGHT CASE IS NOT CLOSED BY THAT — D31 (2026-07-29)
-        RETRACTS THE PARAGRAPH THAT USED TO END HERE.**  It argued that absorbing
+        ⚠ **AND THE ODD-HEIGHT CASE IS NOT CLOSED BY THAT — THE PARAGRAPH THAT USED TO END HERE
+        IS RETRACTED (2026-07-29).**  It argued that absorbing
         the residual `−𝖖^{−1}` needs `c² = −𝖖^{−1}`, hence the forbidden
         `i·𝖖^{−1/2}`, hence the tier cannot carry odd-`⟨Σ⁺,m⟩` lines.  There is no
         scalar to absorb.  Since orthonormality pins `S = −⟨ρ,m⟩`, the value this
@@ -459,8 +468,7 @@ class RootDatum:
         The `u_n` factory overrides with the historical U(N) `Σ_j j·m_j` — equal to
         the default plus the linear central term `(N−1)/2·Σ_j m_j` at dominant
         `m`, i.e. honest, and kept verbatim for continuity with the certified
-        `URQTorus` normalization.  **That is exactly the surviving freedom** (D29:
-        the centre is the only direction a Weyl-invariant additive functional can
+        `URQTorus` normalization.  **That is exactly the surviving freedom** (the centre is the only direction a Weyl-invariant additive functional can
         live in), which is why U(N) may carry its own convention while a semisimple
         `G` may not.  Overrides are returned untouched."""
         if self._atom_phase is not None:
@@ -472,7 +480,7 @@ class RootDatum:
         """`2·S(m)` — and it is **always an integer**, with no parity correction.
 
         This exists because `2S` and `S` need *different* treatment, which is a bug I
-        introduced on 2026-07-29 and the user caught: `ρ` is **defined** so that the
+        introduced on 2026-07-29 and the author caught: `ρ` is **defined** so that the
         seed contributes exactly `1` to `I_{a,a}`, so any perturbation of `ρ` breaks
         `I_{a,a} = 1 + O(𝖖)` at once.
 
@@ -534,7 +542,7 @@ class RootDatum:
         correction"*, not *"is the height even"* — a datum carrying its own
         `atom_phase` is its own certified convention and answers `True`.
 
-        ⚠ **SINCE D31 (2026-07-29) THE DEFAULT IS UNCONDITIONALLY `True`.**  The
+        ⚠ **SINCE 2026-07-29 THE DEFAULT IS UNCONDITIONALLY `True`.**  The
         parity correction was never a demotion of the *algebra*, only of the
         materialised monomial `M(m) ∝ (−𝖖)^{⟨ρ,m⟩}` — the square root of the
         measure — and `wrq_torus.cocycle_R` now restores the honest phase exactly,
@@ -548,15 +556,14 @@ class RootDatum:
         (returning `True`) because `global_form.LineLattice.abe_representable`
         reads it and because an explicit `phase_is_canonical=` override is still a
         useful escape hatch for probes.  Battery:
-        a probe in the source repository; record: ruling D31."""
+        a probe in the source repository."""
         if self._phase_is_canonical is not None:
             return bool(self._phase_is_canonical(m))
         return True
 
     def rho_sign_exp(self, k) -> int:
         """The sign exponent of the ρ-twist block at magnetic `k` (the engine
-        reads `(−1)^{rho_sign_exp(k)}`).  **DERIVED, not a convention** (D31,
-        2026-07-29):
+        reads `(−1)^{rho_sign_exp(k)}`).  **DERIVED, not a convention** (2026-07-29):
 
             rho_sign_exp(k)  =  2·S(k) + ⟨Σ⁺, k⟩
                              =  atom_phase_doubled(k) + ⟨Σ⁺, k⟩     (mod 2)
@@ -566,7 +573,7 @@ class RootDatum:
 
         * a datum on the honest phase has exponent **identically 0**, so the
           sign is `+1` — which is what orthonormality requires, and is the
-          missing piece that let the odd-`⟨Σ⁺,m⟩` sectors close (D31);
+          missing piece that let the odd-`⟨Σ⁺,m⟩` sectors close;
         * `u_n`'s value is this law read on its central shift
           `S_used − S_honest = ½ Σ_j m_j`, and `weyl_vector_rho_sign = ⟨Σ⁺,k⟩`
           is it read on the (now retired) `ε`-shifted convention.
@@ -577,7 +584,7 @@ class RootDatum:
         `b_n_simply_connected(2,3)`, `sp_n(2,3)`, `g_2`, plus the
         `product_datum` combinations — a probe in the source repository.
 
-        It also **retires the audit A29**: the coordinate staircase
+        It also **retires a finding of the audit**: the coordinate staircase
         disagreed with `product_datum([u_n(1), u_n(1)])` on the same group
         `U(1)²` at 12 of 25 cocharacters; this law agrees with the product
         route everywhere, being additive over blocks by construction.
@@ -704,12 +711,12 @@ def product_datum(data) -> RootDatum:
 
 def torus(d: int) -> RootDatum:
     """U(1)^d: the rootless datum (empty Weyl group), `dim = d`.  The flavour
-    datum of an Abelian flavour symmetry (the design record H10)."""
+    datum of an Abelian flavour symmetry."""
     return RootDatum(int(d), [], [], name=f"U(1)^{int(d)}")
 
 
 # ---------------------------------------------------------------------------
-# Beyond type A — the group-general factories (the design record / ruling D9)
+# Beyond type A — the group-general factories
 #
 # `RootDatum` itself was never type-A: the constructor takes explicit positive
 # roots and closes the Weyl group from the simple reflections.  Only the
@@ -762,7 +769,7 @@ def weyl_vector_rho_sign(positive_roots):
     `m = (1,0)` while `u_n(2).atom_phase((1,0)) = 0`, perfectly integral.  The
     honest statement is that both are governed by the SAME character above.
     `atom_phase`'s default `−½⟨Σ⁺,m⟩` is a half-integer exactly when the
-    character is nontrivial, but that can be repaired by the D10 freedom to add
+    character is nontrivial, but that can be repaired by the freedom to add
     a **linear** (coboundary) term — and such a term exists iff the group has a
     central torus.  Measured: the space of Weyl-invariant linear functionals is
     1-dimensional for U(2)/U(3) (the direction `Σ_j m_j`, which is what
@@ -770,9 +777,7 @@ def weyl_vector_rho_sign(positive_roots):
     SU(3), SO(5), SO(7), Sp(3).  So U(N) can repair the parity and a semisimple
     datum cannot.
 
-    **No `𝖖^{1/2}` is involved** (user ruling, 2026-07-27: square roots of `𝖖` are
-    physically dangerous and are not to be used; the basis is over `Z[𝖖^±]` and that
-    is the whole scalar ring) — **and none is needed** (ruling D31, 2026-07-29).
+    **No `𝖖^{1/2}` is involved** — **and none is needed**.
 
     ⚠ **The conclusion this docstring used to draw is RETRACTED.**  It said the
     route was *measured dead* — a probe in the source repository
@@ -789,7 +794,7 @@ def weyl_vector_rho_sign(positive_roots):
     experiment is retained as a HISTORICAL record of the defective route.  The
     standard-`Z²` BPS frame (SO(3) = SU(2) with `(M,E) = (2m, e/2)`,
     `src/gn/pure_so3.py`) remains a correct independent presentation — it is
-    the oracle D31 was certified against.
+    the oracle the fix was certified against.
     """
     pos = [tuple(a) for a in positive_roots]
 
@@ -817,7 +822,7 @@ def from_gauge_datum(gd, rho_sign=None, atom_phase=None) -> RootDatum:
     different theories — different GNO/line-operator lattices — so they are
     different data here, not two spellings of one.
 
-    **Scope — the odd-`⟨Σ⁺,m⟩` case is CLOSED (ruling D31/D32, 2026-07-29).**
+    **Scope — the odd-`⟨Σ⁺,m⟩` case is CLOSED.**
     `atom_phase`'s default is `−½Σ_{α>0}⟨α,m⟩`, which is a half-integer exactly
     where `⟨Σ⁺,m⟩` is odd — for the SO-form `B_n` on genuine cocharacters
     (`SO(5)` at `m=(1,0)`; `SO(7)` at `m=(1,0,0)` and `(1,1,1)`).  That is **no
@@ -858,7 +863,7 @@ def so_n(N: int) -> RootDatum:
 
     This is the *adjoint*-ish global form, not the spin cover: see
     `from_gauge_datum` on why that distinction is physical, and on its
-    odd-`⟨Σ⁺,m⟩` cocharacters — which **build** since ruling D31, the
+    odd-`⟨Σ⁺,m⟩` cocharacters — which **build**, the
     half-integral atom phase reaching the cocycle only through its integral
     coboundary.  For the simply connected `B_n` theory use
     `b_n_simply_connected` / `sp_n` (`Spin(5) ≅ Sp(2)`).
@@ -990,7 +995,7 @@ def _simple_basis_coeffs(simple, roots, d) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Flavour-group contract extensions (the design record H10, user ruling 2026-07-18:
+# Flavour-group contract extensions (the design record
 # "a class contracting 3d flavour groups — just reductive Lie groups").
 # `RootDatum` is promoted to the contract role; the genuinely new pieces are
 # the rep-ring accessor, the Levi hook (for the A23 valuation-floor shape),
@@ -1065,8 +1070,7 @@ class RootDatumHom:
 def to_gauge_datum(datum: "RootDatum"):
     """Bridge to the self-contained engine sibling
     `root_data.GaugeDatum`, by factory dispatch on the datum name
-    (torus / U(N) / SU(N)) — the engine package stays independent (ruling
-    D3); agreement (Weyl orders, dominance) is pinned by the test battery."""
+    (torus / U(N) / SU(N)) — the engine package stays independent; agreement (Weyl orders, dominance) is pinned by the test battery."""
     import importlib
     import os
     import sys

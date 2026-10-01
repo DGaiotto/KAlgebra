@@ -5,7 +5,7 @@ does not depend on that choice, but the **factorisation** does — the factor co
 `Ω(γ, s)` is a function of the order, and some orders factor `S` far more simply
 than others.  This module searches for a simple one.
 
-THE GOAL (user, 2026-08-13, verbatim)
+THE GOAL
 
 > *"I think we will not find easy greedy heuristics when building `S` step by
 > step.  A \\*good\\* move would be recognized by the fact that subsequent moves
@@ -13,14 +13,11 @@ THE GOAL (user, 2026-08-13, verbatim)
 > factor ordering and selects for simpler factorizations (smaller `s`, smaller
 > `Ω`, etc.) in the hope of landing a spec (finite product of `E_𝖖` factors)."*
 
-"Simple" has a sharp target: **spin 0 only**, which is what consumers need (user,
-same day: *"A true spec requires a condition on green/red nodes, but we do not
-necessarily need a true spec.  Any finite factorization with `s=0` only would do
-the job for us"*).  So that is what `search()` aims at.
+"Simple" has a sharp target: **spin 0 only**, which is what consumers need.  So that is what `search()` aims at.
 
 WHY SUPPRESSING SPIN IS THE HEURISTIC, AND WHAT A SPEC LOOKS LIKE FROM HERE
 
-> **User, 2026-08-13.** *"a 'spec' `S` will just stop populating at some point.
+> **The author, 2026-08-13.** *"a 'spec' `S` will just stop populating at some point.
 > It is generally believed that any `s>0` factor will always imply the existence
 > of infinitely many more factors."* … *"hence the 'suppress s' heuristic."*
 
@@ -44,13 +41,13 @@ cutoff, so the recursion was solved through degrees the factorisation did not
 reach.  Measured, the separation is stark and it grows with the cutoff — a good
 order's support stays constant in `D` while a bad one's tracks the cone
 (Kronecker-3, `D = 6 → 12`: 2 charges throughout, against 17 → 68 of 27 → 90 cone
-points, i.e. 63 % → 76 % of the cone).  That is the user's *"a bad `S` will
+points, i.e. 63 % → 76 % of the cone).  That is the author's *"a bad `S` will
 typically populate `Ω` on the whole positive cone, a good `S` will populate very
 sparse `Ω`"*, and it is why the search separates them easily.
 
 EVERYTHING HERE IS UP TO A CONE CUTOFF, AND `S` IS NEVER "DONE"
 
-> **User, 2026-08-13.** *"Note that the S-builder will never be 'done' typically.
+> **The author, 2026-08-13.** *"Note that the S-builder will never be 'done' typically.
 > Instead, if you want to know `S` up to some cutoff in the positive cone, you
 > solve the recursion up to that cutoff."*
 
@@ -75,7 +72,7 @@ separate them and only the wider-cone rebuild does.
 
 THE COST IS AN OVERALL ONE
 
-> **User, 2026-08-13.** *"with looking ahead I did not just mean to the next move.
+> **The author, 2026-08-13.** *"with looking ahead I did not just mean to the next move.
 > more like an overall 'cost' given by the number of terms with a dislike for
 > `s>0` as well."*
 
@@ -113,14 +110,14 @@ RELATION TO THE OTHER TWO ROUTES, which this does not replace:
   and for the quivers where the default order gives a bad factorisation.
 * `bps_quiver_tools.BPSQuiver.find_negating_sequence` is the **cluster-side**
   spec finder — bidirectional green-sequence BFS, the cluster definition of the
-  DT invariant, explicitly retained (user, 2026-08-13).  It searches mutation
+  DT invariant, explicitly retained.  It searches mutation
   sequences; this searches factor orders.  They are different searches for
   related objects, and agreement between them is evidence, so it is checked
   rather than assumed.
 
 FACTORING AN `S` YOU ALREADY HAVE
 
-> **User, 2026-08-13.** *"We should also look for an algorithm to find the
+> **The author, 2026-08-13.** *"We should also look for an algorithm to find the
 > simplest factorization of an already-computed `S`.  Simplifying could be useful
 > even at intermediate stages, before pushing a cutoff higher."*
 
@@ -149,11 +146,11 @@ cost — 0.38 s against 7.87 s at the 4-cycle, and the DFS exceeds a 180 s box a
 the 5- and 6-cycles where this returns in 2.9 s and 21.3 s.  That comparison also
 turned up a live defect in the DFS's default cutoff.
 
-NAME.  `factor_order_search` / `FactorOrderSearch` — ratified by the user
+NAME.  `factor_order_search` / `FactorOrderSearch` — ratified by the author
 2026-08-13 ("Good naming").  The unit it orders is the **BPS factor**
-`E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` (the user's name), one per pair `(γ, s)`.
+`E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` (the author's name), one per pair `(γ, s)`.
 
-Nothing here says "ray", under the user's later and stronger rule: *"rays are only
+Nothing here says "ray", under the author's later and stronger rule: *"rays are only
 a viable notation in the presence of a `Z_γ`"* — a ray is a ray in the
 central-charge plane, and the default order is phase-free, so there is no `Z_γ`
 and there are no rays.  The per-charge machinery this calls is named for the
@@ -163,7 +160,7 @@ per-charge.
 
 SURFACE.  `find_simple_factorisation` (quiver in) and `simplify_factorisation`
 (`S` in) stay **two separate module-level functions**, and the search gets no
-`BPSKAlgebra` entry point — user ruling 2026-08-14 ("leave them as separate
+`BPSKAlgebra` entry point ("leave them as separate
 methods"), asked because adding one would be a public-surface addition on a spine
 class.  They are the same search entered from opposite ends and were not merged.
 
@@ -314,7 +311,7 @@ STOP_MARGIN = 2
 #: Accordingly this constant no longer pretends to settle anything — it is the
 #: depth a run *paid for*, `Result.confirmed_to` reports how far that reached,
 #: and `is_spec` is a claim relative to that degree rather than a global one
-#: (user: the `S`-builder is never "done").  A caller who needs more buys it with
+#:  A caller who needs more buys it with
 #: `confirm_extra=`.
 #:
 #: Worth recording how the third refutation was missed at first: a hunt over 11
@@ -364,13 +361,9 @@ def weighted_terms(terms: int, spin_weight: int,
 
 
 def default_cost(content: Content):
-    """The user's cost: **the number of terms, with a dislike for `s > 0`.**
+    """The author's cost: **the number of terms, with a dislike for `s > 0`.**
 
-        cost  =  weighted_terms(placed)  +  weighted_terms(forced at the next degree)
-
-    (user, 2026-08-13: *"with looking ahead I did not just mean to the next move.
-    more like an overall 'cost' given by the number of terms with a dislike for
-    `s>0` as well"*).
+        cost  =  weighted_terms(placed)  +  weighted_terms(forced at the next degree).
 
     **One overall count, not a lookahead bolted on.**  The `Ω` at the next cone
     degree is already *forced* by what has been placed — nothing later can change
@@ -383,7 +376,7 @@ def default_cost(content: Content):
     Two earlier versions are recorded because each was measured wrong:
 
     * ranking primarily by the **next degree alone** (a one-step lookahead) is
-      the version the user corrected — it is blind to how the candidate got here,
+      the version the author corrected — it is blind to how the candidate got here,
       and states from different parents differ exactly there.
     * ranking by **placed terms alone**, with the next degree demoted to a
       lexicographic tiebreak, loses the SU(3)-cyclic 6-factor spec at the default
@@ -447,8 +440,7 @@ class Result:
     Not a claim that the factorisation terminates: the recursion is solved to a
     finite cone degree `D`, so what is established is that `S` restricted to that
     cone is the ordered product of these `E_𝖖` factors and that no further factor
-    appeared before `D` (user, 2026-08-13: the `S`-builder is never "done"; a
-    spec *"will just stop populating at some point"*).  Raise the cutoff to see
+    appeared before `D`.  Raise the cutoff to see
     further.
     """
 
@@ -471,8 +463,7 @@ class Result:
     stopped: bool = False
     """Factors stopped appearing, with at least `STOP_MARGIN` degrees to spare.
 
-    The in-cone form of "this factorisation terminates" (user, 2026-08-13: *"a
-    'spec' `S` will just stop populating at some point"*): the recursion was
+    The in-cone form of "this factorisation terminates": the recursion was
     solved through degrees the factorisation did not reach, so the stopping is
     observed rather than cut off by the truncation.
 
@@ -619,7 +610,7 @@ class FactorOrderSearch:
         no spin-0 factorisation — Markov, the wild 3-cycles — that is the
         difference between an empty answer and a usable one, and a sparse `Ω` is
         worth having in its own right because it makes downstream calculation
-        cheaper (user, 2026-08-13).  `Result.route` reports `"search-sparse"` when
+        cheaper.  `Result.route` reports `"search-sparse"` when
         this fired, and `is_spec` is `False`, so the weaker claim is never
         mistaken for the stronger one.  **The weaker claim is still verified**
         (2026-08-14): this content carries spin, so the spec-only rebuild could
@@ -744,7 +735,7 @@ class FactorOrderSearch:
         This exists because the sparse fallback CARRIES SPIN and so could not be
         checked by the spec-only route — the module reported it with no
         independent confirmation at all.  That limit was never mathematical: it
-        was one missing diagonal `n²` in the Nahm shift (user, 2026-08-14).
+        was one missing diagonal `n²` in the Nahm shift.
         """
         from nahm_local import general_nahm_habiro
 
@@ -1192,7 +1183,7 @@ class FactorOrderSearch:
         # NO SPEC EXISTS HERE (or none was reachable), and the spin-0 prune
         # therefore threw away every candidate.  A sparse `Ω` is worth having on
         # its own — *"a sparsely populated S helps with calculations too, so it
-        # is a good optimization goal"* (user, 2026-08-13) — so rather than
+        # is a good optimization goal"* — so rather than
         # returning nothing, drop the prune and let the cost do the work.  The
         # spin penalty still pushes towards low spin; what is given up is only
         # the guarantee, which was already unattainable on this quiver.
@@ -1451,7 +1442,7 @@ def simplify_factorisation(spectrum, pairing, node_charges, cutoff,
                            *, verify: bool = True, **kwargs) -> Result:
     """Simplest factorisation of an `S` you ALREADY HAVE.
 
-    > **User, 2026-08-13.**  *"We should also look for an algorithm to find the
+    > **The author, 2026-08-13.**  *"We should also look for an algorithm to find the
     > simplest factorization of an already-computed `S`.  Simplifying could be
     > useful even at intermediate stages, before pushing a cutoff higher."*
 
@@ -1468,7 +1459,7 @@ def simplify_factorisation(spectrum, pairing, node_charges, cutoff,
     `S` is not this quiver's — which is precisely the mistake a re-factorisation
     tool invites, since its whole job is to take an `S` on trust.
 
-    THE INTERMEDIATE-STAGE WORKFLOW the user names is what `seed_order` is for.
+    THE INTERMEDIATE-STAGE WORKFLOW the author names is what `seed_order` is for.
     Simplify at the cutoff you have, then carry the order up::
 
         low  = simplify_factorisation(S, pairing, nodes, 5)

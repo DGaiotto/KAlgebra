@@ -1,0 +1,67 @@
+{
+ "id": "conj:upper",
+ "labels": [
+  "conj:upper"
+ ],
+ "date": "2026-09-22T01:39:31Z",
+ "commit": "9f70a0aa7af6fa8e4f5077de62f583c5230d32fa",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "charts": 11,
+  "labels": "node charges and pairwise sums",
+  "skipped (no stored spec, so no finite rho on the BPS route)": [
+   [
+    [
+     0,
+     2,
+     -2
+    ],
+    [
+     -2,
+     0,
+     2
+    ],
+    [
+     2,
+     -2,
+     0
+    ]
+   ]
+  ],
+  "seconds": 47.9
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "F·S = X + O(q) on every label",
+  "negative": "n.a."
+ },
+ "elapsed_s": 47.898,
+ "notes": "The 'upper cluster algebra' identification (mutual containment with quantum cluster monomials) waits on its operational statement; Laurentness across mutated charts is the atlas's (extensive).",
+ "checks": [
+  {
+   "name": "conj:upper  RG_γ = F(γ) is a finite Laurent element of the quantum torus on 11 sample charts (n <= 3), node labels and pairwise sums, with F·S = X_γ + O(q)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "conj:upper  products of node labels close with Z[q^±1] coefficients (K2) and K1 / K3 hold on the node labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "def:rg/no-exotic (not imposed)  sign census of the F coefficients in the [n]_q basis on the sample: 0 negative of 682 coefficient sets",
+   "ok": true,
+   "note": "{'labels': 682, 'negative': 0}"
+  }
+ ]
+}

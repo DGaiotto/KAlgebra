@@ -1,0 +1,67 @@
+{
+ "id": "app:a1a2k/minors",
+ "labels": [
+  "app:a1a2k"
+ ],
+ "date": "2026-09-27T18:28:55Z",
+ "commit": "1f82fe55cfdafe90f86a24a863e24c96aa8249a5",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "minors": {
+   "k=2, a=8,9": {
+    "rows stable to fq^": 15,
+    "rows annihilate T to fq^": 15,
+    "(-1)^s det = T_s to fq^": -1,
+    "(-1)^(s+1) det = T_s to fq^": 15
+   },
+   "k=3, a=11,12": {
+    "rows stable to fq^": 21,
+    "rows annihilate T to fq^": 21,
+    "(-1)^s det = T_s to fq^": -1,
+    "(-1)^(s+1) det = T_s to fq^": 21
+   },
+   "k=4, a=8,9": {
+    "rows stable to fq^": 15,
+    "rows annihilate T to fq^": 15,
+    "(-1)^s det = T_s to fq^": -1,
+    "(-1)^(s+1) det = T_s to fq^": 15
+   }
+  },
+  "sign": {
+   "2": "-",
+   "3": "-",
+   "4": "-"
+  },
+  "seconds": 4.4
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the stabilised rows annihilate the draft's T",
+  "negative": "a squared decoration (rank-deficient rows)"
+ },
+ "elapsed_s": 4.418,
+ "notes": "T_s is the draft's formula (Andrews-Gordon products), not the class's traces.  The overall sign of the minors depends on the order of the rows; the draft's order (X^(0), X^(1), ...) is used.",
+ "checks": [
+  {
+   "name": "the normalised rows stabilise, annihilate (T_0..T_k), and their maximal minors reproduce the draft's T_s up to one overall sign, to the stabilised order: k=2, a=8,9: stable to fq^15; k=3, a=11,12: stable to fq^21; k=4, a=8,9: stable to fq^15",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "the overall sign: (-1)^(s+1) det M^(s-hat) = T_s at k = 2, 3, 4 -- the draft prints (-1)^s, which holds at k = none; every row's leading coefficient is +1, so the sign is fixed by the draft's row order, not by a normalisation",
+   "ok": true,
+   "note": "{2: '-', 3: '-', 4: '-'}"
+  },
+  {
+   "name": "negative control (k = 3): with D_1 = L_(1;0)^2 in place of L_(1;0) the rows are stable to fq^21, the second equals the first there and every maximal minor vanishes to fq^21; the draft's choice (chords of distinct lengths) is what makes the minors non-zero",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

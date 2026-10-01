@@ -1,0 +1,58 @@
+{
+ "id": "sec:coulomb/axioms-subsection",
+ "labels": [
+  "conj:abeKalgebra"
+ ],
+ "date": "2026-09-23T13:09:44Z",
+ "commit": "15fe3a9692824fd794eb2458ad1c871d3e238f6d",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "window": "13 SU(2) lines",
+  "action on characters": {
+   "pure SU(2)": "5/5 lines x 4 characters",
+   "pure SU(3)": "3/3 lines x 5 characters",
+   "pure Spin(5)": "2/2 lines x 3 characters",
+   "SU(2)+1": "3/3 lines x 3 characters",
+   "SU(3)+1": "2/2 lines x 3 characters"
+  }
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "built lines satisfy both sides",
+  "negative": "the bare line fails both sides; lines with their bubbling removed or doubled act on no character"
+ },
+ "elapsed_s": 20.681,
+ "notes": "The equivalence (★) <=> preserving Λ = R(G) is the repository's own reading of the residue rule (residue_cancellation_recognition.md); here it is checked as a biconditional on both truth values.",
+ "checks": [
+  {
+   "name": "the residue rule is equivalent to a well-defined action on the characters: criterion(x) <=> neumann_row(x) has no denominator, on 13 built lines (both true) and on the bare 't Hooft line U_2 + U_-2 (both false)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the bubbling corrections of every window line are O(q) as series (A2), and the pairing is δ + O(q) on all pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the two faces I_fg = Tr rho(f) g = Tr g rho^-1(f) agree on all pairs (the contour-shift cancellation the paper calls trickier)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the residue rule as a well-defined action on the G characters, u^m chi_e(v) = chi_e(q^(2m) v): every line acts on every character of its window, sum_a d_a(v) chi_e(q^(2a) v) a Laurent polynomial (pure SU(2): 5/5 lines, 4 characters; pure SU(3): 3/3 lines, 5 characters; pure Spin(5): 2/2 lines, 3 characters; SU(2)+1: 3/3 lines, 3 characters; SU(3)+1: 2/2 lines, 3 characters)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: with the bubbling removed or doubled no line acts on the characters (pure SU(2): 0 of 10, pure SU(3): 0 of 6, pure Spin(5): 0 of 4, SU(2)+1: 0 of 6, SU(3)+1: 0 of 4 perturbed lines act)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

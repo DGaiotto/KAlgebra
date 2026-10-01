@@ -1,0 +1,408 @@
+{
+ "id": "app:finite/canonical-basis",
+ "labels": [
+  "app:finite"
+ ],
+ "date": "2026-09-27T18:24:58Z",
+ "commit": "1f82fe55cfdafe90f86a24a863e24c96aa8249a5",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "fan": {
+   "pentagon": {
+    "rays": 5,
+    "rank mod ker B": 2,
+    "largest q-commuting set": 2,
+    "maximal cones": 5,
+    "distinct rays mod ker B": 5,
+    "lattice ok": true,
+    "unimodular": 5,
+    "box points": 25,
+    "exactly one monomial": 25,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.0
+   },
+   "hexagon": {
+    "rays": 6,
+    "rank mod ker B": 2,
+    "largest q-commuting set": 2,
+    "maximal cones": 6,
+    "distinct rays mod ker B": 6,
+    "lattice ok": true,
+    "unimodular": 6,
+    "box points": 25,
+    "exactly one monomial": 25,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.0
+   },
+   "heptagon": {
+    "rays": 14,
+    "rank mod ker B": 4,
+    "largest q-commuting set": 4,
+    "maximal cones": 42,
+    "distinct rays mod ker B": 14,
+    "lattice ok": true,
+    "unimodular": 42,
+    "box points": 625,
+    "exactly one monomial": 625,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.1
+   },
+   "octagon": {
+    "rays": 24,
+    "rank mod ker B": 4,
+    "largest q-commuting set": 4,
+    "maximal cones": 88,
+    "distinct rays mod ker B": 24,
+    "lattice ok": true,
+    "unimodular": 88,
+    "box points": 625,
+    "exactly one monomial": 625,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.3
+   },
+   "decagon": {
+    "rays": 65,
+    "rank mod ker B": 6,
+    "largest q-commuting set": 10,
+    "maximal cones": 700,
+    "distinct rays mod ker B": 65,
+    "lattice ok": true,
+    "unimodular": 700,
+    "charges shared by two monomials of degree <= 2": 80,
+    "seconds (ii)+(iii)": 8.9
+   },
+   "a1d3": {
+    "rays": 6,
+    "rank mod ker B": 2,
+    "largest q-commuting set": 2,
+    "maximal cones": 6,
+    "distinct rays mod ker B": 6,
+    "lattice ok": true,
+    "unimodular": 6,
+    "box points": 25,
+    "exactly one monomial": 25,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.0
+   },
+   "a1d4": {
+    "rays": 8,
+    "rank mod ker B": 2,
+    "largest q-commuting set": 2,
+    "maximal cones": 8,
+    "distinct rays mod ker B": 8,
+    "lattice ok": true,
+    "unimodular": 8,
+    "box points": 25,
+    "exactly one monomial": 25,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.5
+   },
+   "a1d5": {
+    "rays": 20,
+    "rank mod ker B": 4,
+    "largest q-commuting set": 4,
+    "maximal cones": 70,
+    "distinct rays mod ker B": 20,
+    "lattice ok": true,
+    "unimodular": 70,
+    "box points": 625,
+    "exactly one monomial": 625,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 2.8
+   },
+   "a1d6": {
+    "rays": 39,
+    "rank mod ker B": 4,
+    "largest q-commuting set": 4,
+    "maximal cones": 162,
+    "distinct rays mod ker B": 39,
+    "lattice ok": true,
+    "unimodular": 162,
+    "box points": 625,
+    "exactly one monomial": 625,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 1.1
+   },
+   "a1d7": {
+    "rays": 42,
+    "rank mod ker B": 6,
+    "largest q-commuting set": 6,
+    "maximal cones": 924,
+    "distinct rays mod ker B": 42,
+    "lattice ok": true,
+    "unimodular": 924,
+    "box points": 729,
+    "exactly one monomial": 729,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 60.0
+   },
+   "a1d8": {
+    "rays": 120,
+    "rank mod ker B": 6,
+    "largest q-commuting set": 10,
+    "maximal cones": 1736,
+    "distinct rays mod ker B": 120,
+    "lattice ok": true,
+    "unimodular": 1664,
+    "charges shared by two monomials of degree <= 2": 196,
+    "seconds (ii)+(iii)": 60.0
+   },
+   "e6": {
+    "rays": 42,
+    "rank mod ker B": 6,
+    "largest q-commuting set": 6,
+    "maximal cones": 833,
+    "distinct rays mod ker B": 42,
+    "lattice ok": true,
+    "unimodular": 833,
+    "box points": 729,
+    "exactly one monomial": 729,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.3
+   },
+   "e7": {
+    "rays": 90,
+    "rank mod ker B": 6,
+    "largest q-commuting set": 6,
+    "maximal cones": 2600,
+    "distinct rays mod ker B": 90,
+    "lattice ok": true,
+    "unimodular": 2600,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.2
+   },
+   "e8": {
+    "rays": 128,
+    "rank mod ker B": 8,
+    "largest q-commuting set": 8,
+    "maximal cones": 25080,
+    "distinct rays mod ker B": 128,
+    "lattice ok": true,
+    "unimodular": 25080,
+    "charges shared by two monomials of degree <= 2": 0,
+    "seconds (ii)+(iii)": 0.5
+   }
+  },
+  "normalisation (ii)": {
+   "pentagon": "12/12",
+   "hexagon": "12/12",
+   "heptagon": "44/44",
+   "octagon": "44/44",
+   "decagon": "52/52",
+   "a1d3": "12/12",
+   "a1d4": "12/12",
+   "a1d5": "44/44",
+   "a1d6": "44/44",
+   "a1d7": "not reached in 60 s",
+   "a1d8": "not reached in 60 s",
+   "e6": "52/52",
+   "e7": "52/52",
+   "e8": "52/52"
+  },
+  "presentation (iii)": {
+   "pentagon": "10/10 (exact)",
+   "hexagon": "18/18 (flavour forgotten)",
+   "heptagon": "24/24 (exact)",
+   "octagon": "24/24 (flavour forgotten)",
+   "decagon": "24/24 (flavour forgotten)",
+   "a1d3": "18/18 (flavour forgotten)",
+   "a1d4": "24/24 (flavour forgotten)",
+   "a1d5": "24/24 (flavour forgotten)",
+   "a1d6": "24/24 (flavour forgotten)",
+   "a1d7": "not reached in 60 s",
+   "a1d8": "not reached in 60 s",
+   "e6": "24/24 (exact)",
+   "e7": "24/24 (flavour forgotten)",
+   "e8": "8/8 (exact)"
+  },
+  "coincident monomials": {
+   "decagon": {
+    "charges shared": 80,
+    "sample": [
+     [
+      [
+       [
+        4,
+        1
+       ],
+       [
+        44,
+        1
+       ]
+      ],
+      [
+       [
+        5,
+        1
+       ],
+       [
+        42,
+        1
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        2,
+        1
+       ],
+       [
+        57,
+        1
+       ]
+      ],
+      [
+       [
+        19,
+        1
+       ],
+       [
+        42,
+        1
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        5,
+        1
+       ],
+       [
+        62,
+        1
+       ]
+      ],
+      [
+       [
+        26,
+        1
+       ],
+       [
+        44,
+        1
+       ]
+      ]
+     ]
+    ],
+    "one element in the zoo": "3/3",
+    "one element in the twin": "3/3"
+   },
+   "a1d8": {
+    "charges shared": 196,
+    "sample": [
+     [
+      [
+       [
+        4,
+        1
+       ],
+       [
+        45,
+        1
+       ]
+      ],
+      [
+       [
+        5,
+        1
+       ],
+       [
+        42,
+        1
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        2,
+        1
+       ],
+       [
+        84,
+        1
+       ]
+      ],
+      [
+       [
+        19,
+        1
+       ],
+       [
+        42,
+        1
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        5,
+        1
+       ],
+       [
+        96,
+        1
+       ]
+      ],
+      [
+       [
+        26,
+        1
+       ],
+       [
+        45,
+        1
+       ]
+      ]
+     ]
+    ],
+    "one element in the zoo": "3/3",
+    "one element in the twin": "3/3"
+   }
+  },
+  "seconds": 164.9
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "every distinct zoo entry against its BPS twin",
+  "negative": "a cone removed from the heptagon's fan; the pentagon's product in the wrong order"
+ },
+ "elapsed_s": 164.959,
+ "notes": "The zoo's labels are monomials in its generators by construction; what is measured is that they are the canonical basis of the independent BPS presentation (a unimodular complete fan; normalised monomials) and that the products the zoo stores reproduce the twin's.  On the flavoured entries (iii) is modulo flavour.",
+ "checks": [
+  {
+   "name": "(i) on the 12 entries whose q-commuting sets are at most the rank of B: every maximal cone unimodular in Gamma / ker B and no two small monomials sharing a charge on 12 of 12; every box point exactly one monomial on the 10 entries with a box (none on e7, e8: rank above 6, or more than 1000 cones)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "(i) on decagon, a1d8 the zoo's q-commuting sets are larger than the rank of B, and distinct normalised monomials are one canonical element: decagon: 80 charges shared by two monomials of degree <= 2, the sampled pairs one element in the zoo 3/3 and in the BPS twin 3/3; a1d8: 196 charges shared by two monomials of degree <= 2, the sampled pairs one element in the zoo 3/3 and in the BPS twin 3/3 -- the canonical basis is still normalised monomials, but not uniquely",
+   "ok": true,
+   "note": "{'decagon': {'charges shared': 80, 'sample': [[((4, 1), (44, 1)), ((5, 1), (42, 1))], [((2, 1), (57, 1)), ((19, 1), (42, 1))], [((5, 1), (62, 1)), ((26, 1), (44, 1))]], 'one element in the zoo': '3/3', 'one element in the twin': '3/3'}, 'a1d8': {'charges shared': 196, 'sample': [[((4, 1), (45, 1)), ((5, 1), (42, 1))], [((2, 1), (84, 1)), ((19, 1), (42, 1))], [((5, 1), (96, 1)), ((26, 1), (45, 1))]"
+  },
+  {
+   "name": "(ii) in the BPS twin, products of rays of one cone are the single canonical element at the sum with the zoo's q-power (pairs, squares, a triple per cone), and the zoo's exponents are antisymmetric: 12 of 12 entries; not reached within 60 s: a1d7, a1d8",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "(iii) the zoo's products of generators in no common cone equal the twin's (exactly when unflavoured, with the flavour forgotten otherwise): 12 of 12 entries; not reached within 60 s: a1d7, a1d8",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "negative controls: pentagon: the zoo's L_1 L_2 against the twin's L_2 L_1: differ; heptagon without its base cone: 16 of 625 box points lose their monomial",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

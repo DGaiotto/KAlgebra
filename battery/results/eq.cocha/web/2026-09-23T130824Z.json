@@ -1,0 +1,84 @@
+{
+ "id": "eq:cocha",
+ "labels": [
+  "eq:cocha"
+ ],
+ "date": "2026-09-23T13:08:24Z",
+ "commit": "2db04d5482f8ad74cb23f1e789b70c51721a3ee7",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) m": "1..3",
+  "SO(3) m": "2, 4",
+  "rank-two cocharacters": 100,
+  "trivialization pairs": 1178,
+  "theories": {
+   "pure SU(2)": "25/25",
+   "pure SO(3)": "25/25",
+   "pure SU(3)": "81/81",
+   "pure Sp(4)": "81/81",
+   "pure Spin(5)": "81/81",
+   "pure G2": "81/81",
+   "pure SU(2)xSU(2)": "81/81",
+   "SU(2)+1": "25/25",
+   "SU(2)+2": "25/25",
+   "SO(3)+adjoint": "25/25",
+   "SU(3)+1": "81/81",
+   "SU(3)+symmetric": "81/81",
+   "SU(3)+symmetric+1": "81/81",
+   "SU(3)+adjoint": "81/81",
+   "Spin(5)+vector": "81/81",
+   "G2+7": "81/81",
+   "SU(2)xSU(2)+bifundamental": "81/81",
+   "[2]-SU(2)-SU(2)-[2]": "81/81"
+  }
+ },
+ "counts": {
+  "pass": 7,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "exact rational identities",
+  "negative": "wrong sign detected; the older all-positive-roots cocha fails the trivialization identity"
+ },
+ "elapsed_s": 240.686,
+ "notes": "The trivialization identity follows from eq:cocydef, f = sum f_m(q^m v) U_m = sum d_m u^m and d_m = f_m(q^m v) cocha_m(v): U_m = cocha_m(v) u^m.  It tests the draft's printed formulas among themselves; the code's cocycle is compared with the printed one in sec:coulomb/presentation, and the code's lines are tested against A3 with the printed matter factors in conj:abeKalgebra/existence-uniqueness.  Total 240.7 s.",
+ "checks": [
+  {
+   "name": "eq:cocha  the SU(2) dressing psi_m equals the printed cocha_m (prefactor (-q)^m, the k-even denominators) for m = 1, 2, 3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:cocha  SO(3) at even m (integral prefactor): psi_m equals cocha_m",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "at odd m of SO(3) the printed prefactor (-q)^(½Σ<α,m>) is a half-integral power (½·1): the repository ships the floored psi and restores the phase through the cocycle — recorded, not compared",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: cocha with the prefactor (+q)^m is detected at m = 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:cocha at rank two  dressing_psi equals the printed pure cocha at every m of the box [-2,2]^2 at SU(3), Sp(4), Spin(5), G2 (100 cocharacters, dominant or not)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the draft's eq:cocha trivializes its eq:ccclosed/eq:ccprod, matter factors included: cocy_ab(q^(a+b)v) cocha_(a+b)(v) = (-q)^(s(a)+s(b)-s(a+b)) cocha_a(v) cocha_b(q^(2a)v), the net (-q) exponent integral, on all 1178 pairs of 18 theories (seven pure groups incl. Sp(4), Spin(5), G2; complex matter: SU(3) fundamental, symmetric, both; both SU(2)-SU(2) quivers)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the older all-positive-roots cocha (commented out in the draft source) fails the identity at every pure group tested (pure SU(2) 8, pure SO(3) 8, pure SU(3) 48, pure Sp(4) 40, pure Spin(5) 40, pure G2 40 failing pairs)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

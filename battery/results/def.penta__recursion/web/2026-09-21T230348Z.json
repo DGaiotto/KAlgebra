@@ -1,0 +1,59 @@
+{
+ "id": "def:penta/recursion",
+ "labels": [
+  "eq:izero",
+  "eq:pentarec"
+ ],
+ "date": "2026-09-21T23:03:48Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "K": 16,
+  "powers": "n <= 8",
+  "cyclicity instances": 80
+ },
+ "counts": {
+  "pass": 6,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the recursion reproduces Tr L_i^2 from the seeds",
+  "negative": "n.a. (identities between traces of one algebra)"
+ },
+ "elapsed_s": 0.529,
+ "notes": "Traces of products are computed at K+40 and compared to q^K, absorbing the negative q-powers q^{-ab} of the basis normalisation.",
+ "checks": [
+  {
+   "name": "eq:izero  Tr L_i^a L_{i+1}^b = Tr L_i^{a+1} L_{i+1}^{b-1}, a <= 3, 1 <= b <= 3, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr L_{i;a,b} = q^{ab} Tr L_i^{a+b}, 1 <= a,b <= 3, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:pentarec  Tr L_i^n = q^{1-2n} Tr L_i^{n-1} + q^{2-2n} Tr L_i^{n-2}, 2 <= n <= 8, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr L_i^2 = q^-2 Tr 1 + q^-3 Tr L_i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "twisted cyclicity on generators: Tr L_0 L_{i;a,b} = Tr L_{i;a,b} L_1, 80 instances (a,b <= 3, all i)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr L_1 / Tr 1 = -q + O(q^4)",
+   "ok": true,
+   "note": "ratio = S(-1q^1 +1q^5 -1q^9 -1q^11 | K=12)"
+  }
+ ]
+}

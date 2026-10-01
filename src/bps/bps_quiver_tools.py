@@ -2415,6 +2415,7 @@ class BPSQuiver:
                                _cover_search: bool = True,
                                strategy: str = "bfs",
                                lookup=None,
+                               decompose: bool = True,
                                ) -> list[int] | None:
         """Search for a mutation sequence negating every unfrozen charge.
 
@@ -2422,21 +2423,52 @@ class BPSQuiver:
         non-negative cone of the *original* gauge charges are considered
         (this guarantees positivity of the spectrum factors).
 
+        **The strongly connected components come first, under every
+        strategy**.  The mutable nodes split
+        into strongly connected components (every node of a component
+        reaches every other along arrows, arrow ``i → j`` iff
+        ``exchange[i][j] > 0``), listed in a source-first order by
+        ``quiver_enumeration.strongly_connected_components``: every arrow
+        between two components points from an earlier one to a later one.
+        A single-node component is mutated once; each larger component is
+        answered by ``lookup`` when given, and otherwise searched ALONE, on
+        its own standard-basis quiver; the pieces are concatenated in that
+        order.  The concatenation is a negating sequence by a theorem —
+        the source-peel lemma with the node replaced by a set of nodes
+        (the design notes §1.1) — and it is replay-verified
+        before it is returned all the same.  So the search cost scales with
+        the largest component instead of the rank, an acyclic quiver needs
+        no search at all, and only the direction of the arrows between
+        components matters, never their multiplicity.  On a strongly
+        connected quiver the decomposition splits nothing, and under either
+        strategy the search runs exactly as before (the ``"auto"`` ladder's
+        own prefix searches stay whole — see :func:`_solve_core_seeded`).
+
         Parameters
         ----------
         strategy
-            ``"bfs"``  (default) — the plain bidirectional search below,
-            unchanged.  ``"auto"``  — the enhanced dispatcher ladder
-            (:func:`find_spec_auto`):
-            exchange-component decomposition, the acyclic/mantle
-            source-sink strip (zero search where it applies), and a
-            classified seeded recursion on the coupled core.  Every
-            result is replay-verified.  ``"auto"``  returns None only
-            when no finite chamber is found (honest), same as
-            ``"bfs"`` .  With ``"auto"`` an optional ``lookup``
-            (e.g. :func:`spec_lookup_from_library`) is consulted first
-            at every recursion level; hits are replay-verified, so a
-            stale library can never corrupt a result.
+            ``"bfs"``  (default) — the bidirectional search below, run per
+            component.  ``"auto"``  — the dispatcher ladder
+            (:func:`find_spec_auto` ; the design notes  §6/§9), whose
+            classified seeded recursion then runs per component.  Every
+            result is replay-verified.  Both return None only when no
+            finite chamber is found (honest).
+        lookup
+            Optional ``lookup(sub_exchange, idx) -> seq | None`` — a
+            dictionary seam (e.g. :func:`spec_lookup_from_library`),
+            consulted for each strongly connected component before it is
+            searched, under either strategy; ``sub_exchange`` is the
+            component's exchange matrix in the order of ``idx`` (its
+            ambient node indices), and ``seq`` is in local indices.  Hits
+            are replay-verified, so a stale library can never corrupt a
+            result.
+        decompose
+            ``True`` (default) — the decomposition above.  ``False`` — the
+            search on the whole quiver, as before 2026-09-23 (for
+            ``"auto"``, the ladder with its own component step and
+            source/sink strip): kept reachable as the independent
+            cross-check and the benchmark baseline.  ``lookup`` with
+            ``strategy="bfs"`` needs the decomposition.
         bidirectional
             If True (default), use bidirectional BFS with meet-in-the-
             middle up to permutation of mutable charges.  Forward BFS
@@ -2491,27 +2523,35 @@ class BPSQuiver:
         and self; only the search dynamics differ in the dependent case.
         """
         if strategy == "auto":
-            return find_spec_auto(self, max_depth=max_depth, lookup=lookup)
-        if lookup is not None:
-            raise ValueError(
-                "lookup is only supported with strategy='auto' (the "
-                "dictionary seam lives in find_spec_auto)")
+            return find_spec_auto(self, max_depth=max_depth, lookup=lookup,
+                                  decompose=decompose)
         if strategy != "bfs":
             raise ValueError(
                 f"unknown strategy {strategy!r}; use 'bfs' or 'auto'")
+        search = dict(max_depth=max_depth,
+                      allow_permutation=allow_permutation,
+                      heuristic=heuristic,
+                      heuristic_max_depth=heuristic_max_depth,
+                      bidirectional=bidirectional,
+                      edge_mult_heuristic=edge_mult_heuristic,
+                      edge_mult_threshold=edge_mult_threshold)
+        if decompose:
+            return _negating_sequence_by_components(
+                self,
+                search_whole=lambda: self.find_negating_sequence(
+                    _cover_search=_cover_search, decompose=False, **search),
+                search_part=lambda sub: sub.find_negating_sequence(
+                    decompose=False, **search),
+                lookup=lookup)
+        if lookup is not None:
+            raise ValueError(
+                "lookup with strategy='bfs' is consulted per strongly "
+                "connected component, so it needs decompose=True")
         if _cover_search:
             cover = self._free_cover()
             # Forward all parameters; the cover does the search natively.
             return cover.find_negating_sequence(
-                max_depth=max_depth,
-                allow_permutation=allow_permutation,
-                heuristic=heuristic,
-                heuristic_max_depth=heuristic_max_depth,
-                bidirectional=bidirectional,
-                edge_mult_heuristic=edge_mult_heuristic,
-                edge_mult_threshold=edge_mult_threshold,
-                _cover_search=False,
-            )
+                _cover_search=False, decompose=False, **search)
 
         initial_mutable = {i: tuple(c) for i, c in enumerate(self.charges)
                            if not self.frozen[i]}
@@ -3844,9 +3884,10 @@ class CoulombAlgebra:
             self.spec = self.quiver.build_spectrum_generator(seq)
         else:
             # Auto-find defaults to the enhanced dispatcher ladder
-            # (find_spec_auto; user-ruled 2026-07-16 "flip to auto"):
-            # components / acyclic / mantle are O(rank²) integer work and
-            # the coupled core runs the classified seeded recursion —
+            # (find_spec_auto; user-ruled 2026-07-16 "flip to auto"),
+            # strongly connected components first (2026-09-23): the decomposition is O(rank²) integer work, a
+            # single-node component needs no search, and each larger
+            # component runs the classified seeded recursion on its own —
             # measured never worse than ~2× plain BFS on coupled cores and
             # transformatively faster on decomposable shapes (A_14 chain
             # 0.002 s vs 111 s).  Every result is replay-verified.
@@ -4433,10 +4474,18 @@ def _solve_core_seeded(exchange: Sequence[Sequence[int]],
                     max_depth=budget, **kw)
                 if step is not None:
                     break
-            # (c) prefix-BFS fallback (the bottleneck step)
+            # (c) prefix-BFS fallback (the bottleneck step).  The prefix is
+            # searched WHOLE, although a prefix quiver need not be strongly
+            # connected: decomposing it too (the same decomposition applied one level down) was
+            # measured to change one strongly connected quiver's result in
+            # 136, to a longer sequence, for ~5 % in time
+            # (a probe in the source repository) — so the
+            # decomposition stays at the top, where it is a theorem, and a
+            # strongly connected quiver is searched exactly as before.
             if step is None and allow_bfs:
                 step = _induced_quiver(exchange, order[:k + 1]) \
-                    .find_negating_sequence(max_depth=max_depth)
+                    .find_negating_sequence(max_depth=max_depth,
+                                            decompose=False)
             if step is None:
                 return None
         seq = step
@@ -4509,44 +4558,143 @@ def spec_lookup_from_library(entries, *, verify: bool = True,
     return lookup
 
 
+def _strong_components(exchange: Sequence[Sequence[int]],
+                       idx: Sequence[int]) -> list[list[int]]:
+    """The strongly connected components of the exchange graph induced on
+    ``idx`` (arrow ``i → j`` iff ``exchange[i][j] > 0``), in ambient indices,
+    source-first — ``quiver_enumeration.strongly_connected_components``, imported here rather than at module level so that this module
+    keeps no dependency outside the standard library at import time."""
+    from quiver_enumeration import strongly_connected_components
+    idx = list(idx)
+    sub = [[exchange[i][j] for j in idx] for i in idx]
+    return [[idx[p] for p in comp]
+            for comp in strongly_connected_components(sub)]
+
+
+def _concatenate_components(comps: Sequence[Sequence[int]],
+                            solve_part) -> list[int] | None:
+    """The spec finder's composition step: over components in
+    source-first order, a single node is mutated once and a larger component
+    contributes ``solve_part(nodes)`` (ambient indices in and out); None as
+    soon as one component has no sequence.  A negating sequence by the
+    source-peel lemma with the node replaced by a set of nodes
+    (the design notes §1.1): while a component's sequence
+    runs, the charges of the later components pair non-positively with every
+    emitted charge and are never dressed, and those of the earlier ones,
+    already negated, likewise."""
+    out: list[int] = []
+    for nodes in comps:
+        if len(nodes) == 1:
+            out.append(nodes[0])
+            continue
+        part = solve_part(list(nodes))
+        if part is None:
+            return None
+        out.extend(part)
+    return out
+
+
+def _lookup_hit(exchange: Sequence[Sequence[int]], idx: Sequence[int],
+                lookup) -> list[int] | None:
+    """The ``lookup`` seam on the node set ``idx``: its answer in ambient
+    indices when it replays as a negating sequence of the standard-basis
+    quiver induced on ``idx``; None for no answer or an answer that does not
+    negate (a stale library can slow the search, never corrupt it)."""
+    if lookup is None:
+        return None
+    idx = list(idx)
+    hit = lookup([[exchange[i][j] for j in idx] for i in idx], idx)
+    if hit is None or any(not 0 <= p < len(idx) for p in hit):
+        return None
+    if not _replay_negates(_induced_quiver(exchange, idx), list(hit)):
+        return None
+    return [idx[p] for p in hit]
+
+
+def _negating_sequence_by_components(Q: "BPSQuiver", *, search_whole,
+                                     search_part, lookup
+                                     ) -> list[int] | None:
+    """``find_negating_sequence(strategy="bfs")`` with the decomposition
+    first.  If the mutable nodes form one strongly connected component
+    (or fewer than two nodes), nothing splits: ``lookup`` and then
+    ``search_whole()`` — the search on the whole quiver, exactly as before.
+    Otherwise each component of two or more nodes is answered by ``lookup``
+    or by ``search_part`` on its own standard-basis quiver, and the
+    concatenation is replay-verified on the free cover."""
+    mutable = [i for i, f in enumerate(Q.frozen) if not f]
+    exchange = Q.exchange
+    comps = _strong_components(exchange, mutable)
+    if len(comps) <= 1:
+        hit = _lookup_hit(exchange, mutable, lookup) if len(mutable) > 1 \
+            else None
+        return hit if hit is not None else search_whole()
+
+    def solve_part(nodes: list[int]) -> list[int] | None:
+        hit = _lookup_hit(exchange, nodes, lookup)
+        if hit is not None:
+            return hit
+        local = search_part(_induced_quiver(exchange, nodes))
+        return None if local is None else [nodes[p] for p in local]
+
+    seq = _concatenate_components(comps, solve_part)
+    if seq is not None and not _replay_negates(Q._free_cover(), seq):
+        raise RuntimeError(
+            "find_negating_sequence assembled an invalid sequence from the "
+            "strongly connected components (replay does not negate) — this "
+            "is a bug in the composition, not a search failure.")
+    return seq
+
+
 def find_spec_auto(Q: "BPSQuiver", *, max_depth: int = 30,
                    seed_slack: int = 3,
-                   lookup=None) -> list[int] | None:
-    """Enhanced negating-sequence finder — the dispatcher ladder:
+                   lookup=None,
+                   decompose: bool = True) -> list[int] | None:
+    """Enhanced negating-sequence finder — the dispatcher ladder of
+    the design notes §6/§9, with the strongly connected components first:
 
-    0. optional ``lookup(sub_exchange, idx) -> seq | None`` (a dictionary
-       seam — any hit is re-verified like everything else);
-    1. exchange-component decomposition (sequences concatenate — decoupled
-       components never dress each other);
-    2.+3. mantle strip: sources → head, sinks → reversed tail (the proved
-       peel lemmas; an acyclic quiver strips to nothing — its spec is the
-       source-first topological product, zero search);
-    4. the source/sink-free core: classified seeded recursion
+    1. the mutable nodes split into strongly connected components (every
+       node of one reaches every other along arrows), in a source-first order
+       — every arrow between two components points from an earlier one to a
+       later one; the components' sequences concatenate in that order into a
+       negating sequence of ``Q`` (the design notes §1.1).
+       This subsumes the former component step (decoupled components are
+       unions of strongly connected ones) and the mantle strip (every node a
+       source/sink strip removes is a single-node component, since a stripped
+       node on a directed cycle would need its cycle predecessor stripped
+       first), and reaches what the strip could not: a node between two
+       cycles, and a cyclic core that is two cycles joined one way;
+    2. a single-node component is mutated once — an acyclic quiver is all
+       single nodes, and its sequence is its source-first order, zero search;
+    3. for each larger component, the optional
+       ``lookup(sub_exchange, idx) -> seq | None`` (a dictionary seam — any
+       hit is replay-verified like everything else);
+    4. otherwise the component's classified seeded recursion
        (closed-form ⊂ seeded ⊂ prefix-BFS) with multi-order escalation —
        (coupled-first, natural) × (seeded-only, +BFS-fallback), cheapest
        first (L12/L18: the addition order can decide solvability-in-
        practice).
 
+    ``decompose=False`` runs the ladder as it was before 2026-09-23 — the
+    lookup at every recursion level, exchange-component decomposition, the
+    source/sink (mantle) strip, then stage 4 on the core — kept as the
+    independent cross-check and the benchmark baseline.
+
     Returns a mutation sequence (node indices) or None (no finite chamber
     found — honest).  The assembled sequence is replay-verified on the
     free cover (frame-independent) before being returned; an invalid
     assembly raises (it would indicate a bug, not a search failure).
-    Stages 0–3 are O(rank²) integer work; only stage 4 searches.
+    Stages 1–3 are O(rank²) integer work; only stage 4 searches.
     """
     mutable = [i for i, f in enumerate(Q.frozen) if not f]
     exchange = Q.exchange
 
     def solve(idx: list[int]) -> list[int] | None:
+        """The earlier ladder (``decompose=False``)."""
         if not idx:
             return []
-        if lookup is not None:
-            hit = lookup([[exchange[i][j] for j in idx] for i in idx], idx)
-            if hit is not None:
-                cand = [idx[p] for p in hit]
-                sub = _induced_quiver(exchange, idx)
-                loc = {g: p for p, g in enumerate(idx)}
-                if _replay_negates(sub, [loc[g] for g in cand]):
-                    return cand
+        hit = _lookup_hit(exchange, idx, lookup)
+        if hit is not None:
+            return hit
         comps = _ex_components(exchange, idx)
         if len(comps) > 1:
             out: list[int] = []
@@ -4562,6 +4710,9 @@ def find_spec_auto(Q: "BPSQuiver", *, max_depth: int = 30,
             if mid is None:
                 return None
             return heads + mid + list(reversed(tails))
+        return solve_core(idx)
+
+    def solve_core(idx: list[int]) -> list[int] | None:
         # stage 4, multi-order escalation (L12/L18): the node-addition
         # order can decide solvability-in-practice — PA-frame SU(3)+Nf≥5
         # walls coupled-first yet solves in <0.3s in the natural order
@@ -4587,7 +4738,15 @@ def find_spec_auto(Q: "BPSQuiver", *, max_depth: int = 30,
                     return seq
         return None
 
-    seq = solve(mutable)
+    if decompose:
+        def solve_part(nodes: list[int]) -> list[int] | None:
+            hit = _lookup_hit(exchange, nodes, lookup)
+            return hit if hit is not None else solve_core(nodes)
+
+        seq = _concatenate_components(_strong_components(exchange, mutable),
+                                      solve_part)
+    else:
+        seq = solve(mutable)
     if seq is None:
         return None
     cover = Q._free_cover()

@@ -26,11 +26,11 @@ basis** (a core with multiplicity m on some component means m literal
 parallel copies).  Chebyshev / bracelet re-expression, flavour
 characters, and the relation to the K-theoretic *canonical* basis
 (which on FST charts differs from bare multicurves by a computable
-"bubbling" dressing -- see `tests/test_skein_vs_bps.py`) live in the
+"bubbling" dressing -- see the suite in the source repository) live in the
 K-algebra layer, not here.
 
 `A` vs the Coulomb-branch `q`: pinned empirically against the quantum
-trace (Y_Delta) oracle; see `tests/test_skein_algebra.py`.
+trace (Y_Delta) oracle; see the suite in the source repository.
 """
 
 from __future__ import annotations

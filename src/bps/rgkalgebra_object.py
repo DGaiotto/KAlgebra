@@ -33,7 +33,7 @@ build).
 The algebra/flow distinction is executable: a chart-mutation witness
 (`bps_chart_object`) is a certified `KAlgebraIso` of algebras, but
 wrapped as a flow witness its `verify_s_rg_match` FAILS — different
-chamber, different flow (see `tests/test_rgkalgebra_object.py`).
+chamber, different flow (see the suite in the source repository).
 """
 from __future__ import annotations
 

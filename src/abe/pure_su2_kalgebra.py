@@ -8,10 +8,8 @@ the **trace-zero magnetic sublattice** `m·(1,−1)` = SU(2) (the central U(1)/d
 frozen) loses the minuscules: the simplest monopole is the **adjoint** `H = L_{1,0}`,
 which **bubbles**.
 
-The build is **fully native on `WRQTorus(su_2())`** (D9/D10: WRQTorus universally
-— this class absorbs the former `SU2WRQKAlgebra`, and the earlier trace-zero-U(2)
-`SU2RQTorus` engine is retired to the archived tree).  Labels `(m, e)` in
-the `su2_fold` frame, unflavoured (`R = Z`).  The single irreducible input is the
+The build is **fully native on `WRQTorus(su_2())`** (WRQTorus universally).
+Labels `(m, e)` in the `su2_fold` frame, unflavoured (`R = Z`).  The single irreducible input is the
 **adjoint-monopole fiber `{L_{1,e}}`** (elementary closed form `_seed_dyon1`, in
 ω-coordinates `v² = v₀/v₁`):
 
@@ -30,13 +28,14 @@ everything else:
 
 Never an in-presentation solve (the constructive-build rule); honest-fails on a
 cyclic dependency or non-terminating peel.  Certified `==` the BPS Kronecker chart
-(`pure_su2_bps_iso`) on multiply / ρ / trace / orthonormality (Goal 2.1), and
+(`pure_su2_bps_iso`) on multiply / ρ / trace / orthonormality, and
 `well_formed` (W1+W2 KL acceptance) on every chart.
 
 This is the SU(2) instance of the design record's "U(N)→SU(N) microscope": the single input
 is the adjoint-monopole bubbling, everything else native.  The general-`N` engine
-(`PureSUNKAlgebra`) takes the same shape with the adjoint fiber from the
-`PureUNKAlgebra(N)` oracle.
+of the same shape (`PureSUNKAlgebra`, with the adjoint fiber from the
+`PureUNKAlgebra(N)` oracle) was retired on 2026-09-19; pure SU(N) is
+`PureGAbeKAlgebra(su_n(N))` since.
 
 Conventions: 't Hooft–Wilson labels `(m, e)` (`m ≥ 0`; `e ≥ 0` when `m = 0`), `det`
 collapsed (pure SU(2) is unflavoured, `TrivialZPlusRing`).
@@ -99,7 +98,7 @@ class PureSU2KAlgebra(AbeKAlgebra):
 
     def torus_shape(self):
         """One native SU(2) node, no fundamentals — the honest root-datum
-        shape (D6 re-ruling 2026-07-02)."""
+        shape."""
         from abe_kalgebra import TorusShape
         return TorusShape.from_root_data((self.datum,))
 
@@ -210,9 +209,11 @@ class PureSU2KAlgebra(AbeKAlgebra):
                             K)
 
     def inner_product(self, a: Label, b: Label, K: int = 20) -> RPowerSeries:
-        """`I_{a,b} = Tr(ρ(L_a)·L_b)` — the §6b chart pairing with the SU(2)
-        measure."""
-        lp = self.chart(a).inner(self.chart(b), K)
+        """`I_{a,b}` by the sum over magnetic sectors of contour integrals with
+        the SU(2) measure (`WRQTorus.inner_by_sector`; formula and the manifest
+        axiom 5, ρ-equivariance of the trace, in the design notes "AbeKAlgebra").
+        `chart(a).inner(chart(b))` is the retained ρ-and-convolve reference."""
+        lp = self.chart(a).inner_by_sector(self.chart(b), K=K)
         return RPowerSeries(self._R,
                             {e: c for e, c in lp._coeffs.items() if 0 <= e <= K},
                             K)

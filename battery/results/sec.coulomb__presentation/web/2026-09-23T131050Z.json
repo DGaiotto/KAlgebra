@@ -1,0 +1,106 @@
+{
+ "id": "sec:coulomb/presentation",
+ "labels": [
+  "eq:fgprod",
+  "eq:ccprod",
+  "eq:ccclosed",
+  "eq:cocydef"
+ ],
+ "date": "2026-09-23T13:10:50Z",
+ "commit": "6af69aae59a89e226d03e81a915e47a79c11a4c6",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) pairs": 49,
+  "SU(3) pairs": 81,
+  "cocycle triples": 854,
+  "matter pairs": 50,
+  "products": 5,
+  "widened (2026-09-23)": {
+   "vector cocycle pairs": 324,
+   "cocycle triples (non-simply-laced)": 2187,
+   "matter cocycle pairs": 486,
+   "products": 17,
+   "bar pairs": 243,
+   "seconds": 64.6
+  }
+ },
+ "counts": {
+  "pass": 13,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the class's products reproduced from the printed formula",
+  "negative": "an altered cocycle detected; the weights of N^vee give a different matter cocycle on the complex representations; the multiplicative bar(xy) = bar(x)bar(y) fails"
+ },
+ "elapsed_s": 65.925,
+ "notes": "All comparisons are exact rational identities (cross-multiplied numerators against the denominator factors), never truncated.",
+ "checks": [
+  {
+   "name": "eq:ccclosed  the vector cocycle of SU(2): CC(a,b) equals the printed closed form (A>0>B), its bar image (A<0<B) or 1, on 49 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:ccprod  the pure-gauge cocycle of SU(3) is the product over positive roots of the printed factor, on 81 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:cocydef  the printed cocycle satisfies the 2-cocycle identity cocy_ab(q^(a+b)v) cocy_(a+b)c(q^(a+b+c)v) = cocy_bc(q^(2a+b+c)v) cocy_a(b+c)(q^(a+b+c)v): SU(2) 125 triples, SU(3) 729 triples",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:ccprod / eq:ccclosed  the matter cocycle CC[N] is the pure cocycle times Π_w cocy^hyp(<a,w>,<b,w>; μ v^w) = (-q^(r+1) x; q^2)_p, on 50 pairs (SO(3)+adjoint, SU(2)+fundamental)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:fgprod  (f·g)_m = Σ_m' f_m'(q^(m'-m) v) g_(m-m')(q^m' v) cocy_(m',m-m')(v) with the printed cocycle reproduces the class's products of the SU(2) lines L_20, L_21, L_01, L_02 (5 products, every magnetic sector)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the SU(2) cocycle with the shifts (q^r z;q^2)_p (q^r z;q^2)_p (the second factor unshifted) is detected",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:ccprod / eq:ccclosed at the non-simply-laced Sp(4), Spin(5), G2 and at SU(2)xSU(2): CC equals the printed cocycle on all 324 pairs of the box [-1,1]^2",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:cocydef  the printed cocycle satisfies the 2-cocycle identity at Sp(4), Spin(5), G2 (2187 triples)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:ccprod / eq:ccclosed with matter at rank two: CC_N equals the printed cocycle, cocy^hyp(<a,w>,<b,w>; mu^(w_f) v^w) over the weights of N, level by level in mu, on 486 pairs of SU(3)+1, SU(3)+symmetric, SU(3)+symmetric+1, Spin(5)+vector, G2+7, SU(2)xSU(2)+bifundamental",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the weights of N^vee in place of N give a different cocycle on the complex representations (SU(3)+1: 36 pairs, SU(3)+symmetric: 36 pairs, SU(3)+symmetric+1: 36 pairs)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:fgprod  the product law with the printed cocycle reproduces the class's products at rank two and with matter (17 products: SU(3), Spin(5), SU(2)+1)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the bar property of the printed cocycle, bar(cocy_ab) = cocy_ba, on 243 pairs (G2; SU(3)+symmetric+1 with two matter slots; Spin(5)+vector), and bar(xy) = bar(y)bar(x) on all 13 torus products of SU(3) and SU(3)+1 lines",
+   "ok": true,
+   "note": "; anti 13/13"
+  },
+  {
+   "name": "negative control: the multiplicative version bar(xy) = bar(x)bar(y) fails on 8 of the 13 products",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

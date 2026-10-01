@@ -75,17 +75,6 @@ from skein_sphere_atlas import SkeinSphereAtlas
 _ONE = LaurentPoly({0: 1})
 
 
-def _bps_from_pure_ade(*_args, **_kwargs):
-    """Build a BPS chart from a ``pure_ade`` gauge-quiver spec.
-
-    The gauge-chart examples below were developed against a spectrum-atlas
-    helper that is not part of this release; the reference ``pure_ade``
-    chambers are reachable through ``pure_ade_lattice.pure_ade_kalgebra``.
-    """
-    raise NotImplementedError(
-        "the gauge-chart examples require a BPS spectrum-atlas helper that "
-        "is not part of the public release")
-
 # ---- discovered constants ---------------------------------------------
 
 MUTATION_WORD_TETRA_TO_GAUGE = (0, 4, 1)
@@ -114,6 +103,7 @@ def _gauge_quiver_data():
     node-basis exchange matrix `E` (Kronecker-2 + four dyon nodes) and
     the `pure_ade` chamber spec in node coordinates."""
     import pure_ade as _pa
+    from su2_family_atlas import _bps_from_pure_ade
 
     amb = _bps_from_pure_ade(_pa.SUN_Nf(2, 4))
     gnodes = [tuple(g) for g in amb.node_charges]
@@ -330,6 +320,7 @@ def su2_nf3_gauge_iso(atlas=None):
     Returns `(atlas, gauge, iso)` where `atlas` is the
     `BorderedSkeinAtlas` of the cut chart."""
     import pure_ade as _pa
+    from su2_family_atlas import _bps_from_pure_ade
     from skein_sphere_atlas import BorderedSkeinAtlas
 
     at = atlas

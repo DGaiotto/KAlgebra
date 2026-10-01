@@ -444,7 +444,7 @@ class Theory:
         return P
 
     def extract_spec_insert(self, S, cutoff=None, max_factors=24):
-        """Minimal-spec extraction by *insertion* (user's algorithm, 2026-06-27).
+        """Minimal-spec extraction by *insertion* (the author's algorithm, 2026-06-27).
 
         No slope / green-sequence / front-tail assumption.  Walk the positive
         cone in increasing order; build a partial product `prod E_q(X_beta_i)`
@@ -566,7 +566,7 @@ class Theory:
 # the peel engine is RETIRED — temporarily, and not erased
 # --------------------------------------------------------------------------
 #
-# User ruling, 2026-08-13: *"The peel algorithm to build S seems a bit
+# The author's ruling, 2026-08-13: *"The peel algorithm to build S seems a bit
 # antiquated now.  Retire it temporarily (but do not erase it)."*  This
 # supersedes the 2026-08-12 ruling, which demoted it from the default but left
 # it selectable ("replace the peel engine, but leave it accessible").
@@ -575,7 +575,7 @@ class Theory:
 #
 #   * every line of the peel recursion stays — `Theory.build_S_guarded`,
 #     `build_S_order`, `cheap_peel_order`, the monomial-charge gate, the whole
-#     `Theory` machinery.  Nothing is deleted and nothing is moved to `legacy/`.
+#     `Theory` machinery.  Nothing is deleted and nothing is moved to the source repository's archive.
 #   * the two ways IN are closed: the module's own `build_spectrum_generator`
 #     and `engine="peel"` on the dispatcher.  Both raise `RetiredEngineError`,
 #     which is a `ValueError`, so a caller that was catching argument errors
@@ -617,8 +617,7 @@ def _peel_gate(allow_retired: bool) -> None:
     """Refuse the peel route unless the caller has explicitly opted in."""
     if PEEL_RETIRED and not allow_retired:
         raise RetiredEngineError(
-            "the peel S-engine is RETIRED (user ruling 2026-08-13: 'retire it "
-            "temporarily, but do not erase it').  The active engine is the "
+            "the peel S-engine is RETIRED.  The active engine is the "
             "crystalline factor one — `bps_factor_spectrum`, reached by "
             "engine='factors' (the default) — which builds everything the peel "
             "engine does and also the quivers its monomial-charge gate honest-fails "
@@ -672,9 +671,12 @@ def _build_S_by_engine(pairing, node_charges, cutoff, *, engine="factors",
     (a placement order and, optionally, a central charge).
 
     **No central charge is imposed here.**  `factor_order=None` leaves the factor
-    engine on its own default — a random placement of the individual
-    `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` factors — so a central charge enters only if the
-    caller supplies `phases` (user, 2026-08-13).  That is safe for every consumer
+    engine on its own default — the source/sink strip on an acyclic quiver, the
+    component order on a cyclic quiver that is not strongly connected (each
+    strongly connected component built on its own, user 2026-09-23), and a random
+    placement of the individual `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` factors on a strongly
+    connected one — so a central charge enters only if the caller supplies
+    `phases`.  That is safe for every consumer
     of this function because it returns **`S` alone**, and `S` is
     order-independent; it is the *content* that a random order makes
     unphysical, and no caller here reads it.
@@ -715,7 +717,7 @@ def build_spectrum_generator(pairing, node_charges, cutoff, *,
     `(pairing, node_charges)`, built by the peel recursion (no spec, no green
     sequence).  Charges are keyed in the same lattice as `node_charges`.
 
-    ⚠ **RETIRED (user ruling 2026-08-13), not erased.**  This is the peel
+    ⚠ **RETIRED, not erased.**  This is the peel
     engine's own entry point and it now raises `RetiredEngineError` unless
     `allow_retired=True` (or `PEEL_RETIRED` is off / the
     `enable_retired_peel_engine()` block is active).  Use
@@ -725,7 +727,7 @@ def build_spectrum_generator(pairing, node_charges, cutoff, *,
     beats deleting (it is the repo's only *independent* construction of `S`, so
     keeping it switchable keeps the cross-check).
 
-    **The monomial-charge gate is on by default** (user ruling 2026-07-16):
+    **The monomial-charge gate is on by default**:
     with `order=None` the guarded build (`build_S_guarded`) picks a passing
     (node, side) chain automatically and honest-fails (ValueError) when none
     exists (character-charge / matter-chi nodes, e.g. N=2*/Markov); an explicit
@@ -866,9 +868,7 @@ def extract_spec_from_quiver(pairing, node_charges, *, cutoff=8, engine="factors
     **This function is NOT retired**, and the distinction matters: it is
     engine-agnostic scaffolding that happens to live in the peel engine's module.
     What it returns is a finite factorisation with spin 0 only — which is what
-    consumers actually need (user, 2026-08-13: *"a true spec requires a condition
-    on green/red nodes, but we do not necessarily need a true spec.  Any finite
-    factorization with s=0 only would do the job for us"*) — verified by
+    consumers actually need — verified by
     rebuilding `S` over the full cone.
     """
     T = Theory("specfree", [list(r) for r in pairing],
@@ -899,8 +899,7 @@ def recursive_sigma_map(pairing, node_charges, cutoff, *, order=None):
     **spec-free, recursively from the built `S`** (no spec, no green-sequence
     BFS, no global tRG).  Returns a callable `σ(charge) -> charge`.
 
-    Mechanism (user, 2026-06-27 — "commute `F^{UV}_a` across
-    `S^{UV}=E_𝖖(F^{IR}_γ)·S^{IR}` factor-first, then by recursion"):
+    Mechanism:
     at each peel of `γ` onto the sub-quiver `S_sub`,
 
         G_a = E_𝖖(F_γ)^{-1} · F^{UV}_a · E_𝖖(F_γ)        (one-factor conjugation)
@@ -1003,8 +1002,7 @@ def principled_sigma_maps(pairing, node_charges, cutoff, *, order=None,
     global tRG).  Returns `(sigma, sigma_inverse)`, each a callable
     `charge -> charge`.
 
-    Principled derivation (user, 2026-06-27 — "do a principled analysis of the
-    axioms").  The auxiliary quantum-torus ρ is negation, `ρ_QT(γ) = −γ`
+    Principled derivation.  The auxiliary quantum-torus ρ is negation, `ρ_QT(γ) = −γ`
     (`quantum_torus_kalgebra.py`), an involution.  The σ-axiom
     `F_a · S = S · ρ_QT(F_{σ(a)})` together with the right-solve
     `F_a · S = S · F̃_a` give `F̃_a = ρ_QT(F_{σ(a)})`; reading the repo's

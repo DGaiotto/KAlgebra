@@ -1,0 +1,153 @@
+{
+ "id": "comp:a1deven/traces",
+ "labels": [
+  "comp:a1deven"
+ ],
+ "date": "2026-09-26T17:22:59Z",
+ "commit": "6994c1721953b68a1e7816c420b928194f617094",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "seeds": {
+   "1": {
+    "seeds": 8,
+    "kinds": {
+     "curve": 4,
+     "nested": 4
+    },
+    "K": 16
+   },
+   "2": {
+    "seeds": 39,
+    "kinds": {
+     "curve": 12,
+     "side": 3,
+     "nested": 24
+    },
+    "K": 12
+   },
+   "3": {
+    "seeds": 120,
+    "kinds": {
+     "curve": 24,
+     "side": 16,
+     "nested": 80
+    },
+    "K": 10
+   }
+  },
+  "composites": {
+   "1": {
+    "labels": 20,
+    "K": 8,
+    "leaves": 23
+   },
+   "2": {
+    "labels": 15,
+    "K": 6,
+    "leaves": 41
+   },
+   "3": {
+    "labels": 10,
+    "K": 4,
+    "leaves": 48
+   }
+  },
+  "witness seconds": {
+   "1": 1.2,
+   "2": 2.5,
+   "3": 8.0
+  },
+  "k=4 side seeds": 50,
+  "seconds": 22.8
+ },
+ "counts": {
+  "pass": 15,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed gauge tower (Creutzig's formula) against the class",
+  "negative": "five perturbed rules, each disagreeing with the served traces"
+ },
+ "elapsed_s": 22.814,
+ "notes": "The tower and the seed rules transcribed from the companion's text, independently of u1a1deven_seed_characters; the witness is the transport route, which shares nothing with the closed forms but the algebra (its stopping rule is a measured hypothesis, guarded).",
+ "checks": [
+  {
+   "name": "positive control: the printed gauge tower Tr(E^n), n = -3..3, equals the class's trace through q^24 / q^20 / q^16 at k = 1 / 2 / 3",
+   "ok": true,
+   "note": "{1: [], 2: [], 3: []}"
+  },
+  {
+   "name": "k=1: every one of the 8 seeds ({'curve': 4, 'nested': 4}), at E^n, n = -2..2, equals the printed rule at its representative through q^16",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: every one of the 39 seeds ({'curve': 12, 'side': 3, 'nested': 24}), at E^n, n = -2..2, equals the printed rule at its representative through q^12",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: every one of the 120 seeds ({'curve': 24, 'side': 16, 'nested': 80}), at E^n, n = -2..2, equals the printed rule at its representative through q^10",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: witness: the transport route (seed_closed_forms=False) equals the served closed forms on all 24 seed labels (n = -1, 0, 1) through q^10 (1.2 s)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: witness: the transport route (seed_closed_forms=False) equals the served closed forms on all 117 seed labels (n = -1, 0, 1) through q^6 (2.5 s)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: witness: the transport route (seed_closed_forms=False) equals the served closed forms on all 360 seed labels (n = -1, 0, 1) through q^4 (8.0 s)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: 20 composite labels (one to three non-crossing curves with powers, E^-2..E^2, charge 0, not seeds) traced by the Layer-1 reduction equal the transport route through q^8; every leaf of their reductions and of the 12 pair-seed labels' is a power of E or a single odd curve times one (23 distinct leaves)",
+   "ok": true,
+   "note": "differ []; leaves [((), -2), ((), -1), ((), 0), ((), 1)]..."
+  },
+  {
+   "name": "k=2: 15 composite labels (one to three non-crossing curves with powers, E^-2..E^2, charge 0, not seeds) traced by the Layer-1 reduction equal the transport route through q^6; every leaf of their reductions and of the 81 pair-seed labels' is a power of E or a single odd curve times one (41 distinct leaves)",
+   "ok": true,
+   "note": "differ []; leaves [((), -3), ((), -2), ((), -1), ((), 0)]..."
+  },
+  {
+   "name": "k=3: 10 composite labels (one to three non-crossing curves with powers, E^-2..E^2, charge 0, not seeds) traced by the Layer-1 reduction equal the transport route through q^4; every leaf of their reductions and of the 288 pair-seed labels' is a power of E or a single odd curve times one (48 distinct leaves)",
+   "ok": true,
+   "note": "differ []; leaves [((), -3), ((), -2), ((), -1), ((), 0)]..."
+  },
+  {
+   "name": "k=1: each of the 4 pair seeds (n = -1, 0, 1), reduced by Layer 1 onto the single curves and E^n, equals its own closed form through q^12",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: each of the 27 pair seeds (n = -1, 0, 1), reduced by Layer 1 onto the single curves and E^n, equals its own closed form through q^12",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: each of the 96 pair seeds (n = -1, 0, 1), reduced by Layer 1 onto the single curves and E^n, equals its own closed form through q^10",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative controls, each disagreeing with the served traces: the nested rule in place of the curve rule, the curve's support moved to e >= |n| + 2, the nested gaps swapped (k = 2, 3), rho without its E-drift in the representative, and at k = 4 the retired side-by-side power q^(n g/2)",
+   "ok": true,
+   "note": "{'1/nested-rule': (12, 12), '1/corner': (5, 12), '1/swap': (0, 12), '1/no drift': (9, 24), '2/nested-rule': (36, 36), '2/corner': (16, 36), '2/swap': (24, 72), '2/no drift': (51, 117), '3/nested-rule': (72, 72), '3/corner': (33, 72), '3/swap': (68, 240), '3/no drift': (146, 360), '4/old-side': (17, 200)}"
+  },
+  {
+   "name": "k=4 (held out from the rows above): the printed side-by-side rule on all 50 side-by-side seeds, n = -1..2, through q^10",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

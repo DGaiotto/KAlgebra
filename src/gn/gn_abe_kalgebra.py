@@ -2,7 +2,7 @@
 gauge theory at any `RootDatum` with `T^*N` matter, presented on the enriched
 rational quantum torus with no RG flow in the build path.
 
-This is the top of the ladder the `(G, N)` work climbed (the design notes):
+This is the top of the ladder the `(G, N)` work climbed:
 
     GMatterOverPure        the RG flow (G,N) → (G,0), `S_RG = Ψ`; produced
       │                    `RG(a)` as an abelianized difference operator — the
@@ -21,7 +21,7 @@ This is the top of the ladder the `(G, N)` work climbed (the design notes):
 The 4d gauge group data
 -----------------------
 `lines` (a `global_form.LineLattice`) is the **4d gauge group** — a *maximal set
-of mutually compatible Kapustin `(m, e)` labels* (user, 2026-07-28), the same
+of mutually compatible Kapustin `(m, e)` labels*, the same
 convention `PureGAbeKAlgebra` takes and the one that landed alongside the
 `L_{m,e}` solver.  It is deliberately **not** "which cocharacter lattice": that
 reading is the 3d one and is carried by `root_data.GaugeDatum` (the
@@ -34,14 +34,16 @@ The same lattice is handed to the inner pure-`G` algebra, so there is **one**
 admission gate rather than two, and a non-simply-connected form honest-fails at
 the same boundary `PureGAbeKAlgebra` documents: representable as a label
 predicate, presented by a non-atom construction instead
-(the design notes) — not on a fractional torus.
+ — not on a fractional torus.
 
-**No per-theory subclasses** (user ruling, 2026-07-28: *"use special names only
-if you have algorithms specifically optimized for a G and/or N"*).  This one
+**No per-theory subclasses**.  This one
 class takes the group and the matter as arguments; a named class is earned by an
-**optimized algorithm**, which today means the type-A `UNNfKAlgebra` /
-`PureUNKAlgebra` and the native `PureSU2KAlgebra` — reachable from here via
-`faster_equivalent()`.  Named theory *presets* (parameter tuples, not classes)
+**optimized algorithm**, which today means the native `PureSU2KAlgebra` alone.
+The type-A classes that had claimed it (`UNNfKAlgebra`, `PureUNKAlgebra`,
+`UNQuiverKAlgebra`, `PureSUNKAlgebra`) were measured against this class and
+`PureGAbeKAlgebra` on 2026-09-19 — at parity, slower, or defective (A75) — and
+retired to the source repository's archive; `faster_equivalent()` returns `None` everywhere since
+(the audit).  Named theory *presets* (parameter tuples, not classes)
 live in `g_matter_roster.ROSTER`.
 
 Labels and ring
@@ -50,16 +52,16 @@ Labels are `((m, e), w)`.  `(m, e)` is the pure-`G` Kapustin 't Hooft–Wilson
 charge in the tier's convention (`m` cochar-dominant, `e` Levi-dominant; `fold`
 transports an arbitrary label there), and `w` is a **flavour irrep**.
 
-**Flavour is `∏_i U(n_i)`** (user ruling, 2026-07-28: *"you could have `U(n_i)`
-if there are `n_i` copies of the same irrep"*).  Write the matter as
+**Flavour is `∏_i U(n_i)`**.  Write the matter as
 `N = ⊕_i N_i^{⊕n_i}` with the `N_i` distinct; the slots carrying the same irrep
 are interchangeable, so they carry a `U(n_i)`, not `n_i` separate `U(1)`s.  The
 coefficient ring is therefore `⊗_i R(U(n_i))` (`zplus_ring.UNZPlusRing`, tensored
 by `TensorZPlusRing` when there is more than one distinct irrep), and the
 flavour-charged canonicals are the character multiples `L_{(g,w)} =
-χ_w(μ)·L_{(g,1)}` — exactly as `UNNfKAlgebra` carries `χ_w` in a label slot.
+χ_w(μ)·L_{(g,1)}` — exactly as the type-A `UNNfKAlgebra` (retired 2026-09-19)
+carried `χ_w` in a label slot.
 This **supersedes** the earlier interim `AbelianZPlusRing(M) = R(U(1)^M)`
-convention (user, 2026-07-27: *"just use a `U(1)` flavour for each for now"*).
+convention.
 
 Consequences worth stating, because they are visible:
 
@@ -72,7 +74,7 @@ Consequences worth stating, because they are visible:
   `(1,0)`; it now returns three, with those two packaged as the single `U(2)`
   doublet.  Nothing was lost — the dimensions match.
 
-Relation to the standing D5 ruling: for a **U(N) gauge node** with `N_f`
+Relation to the standing flavour convention: for a **U(N) gauge node** with `N_f`
 fundamentals the flavour ring is `R(SU(N_f))`, because the diagonal
 `U(1) ⊂ U(N_f)` lies in the gauge centre and is level bookkeeping.  A general `G`
 need not have a centre to absorb it (`G₂` is centreless), so `R(U(n_i))` is the
@@ -91,12 +93,13 @@ The contract triple
     constructor's output is not the chart: `F` is the *RG image*, dressed by the
     matter factor `Z`, and the substrate carries that dressing in its own
     cocycle `W = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}`, so presenting `F` would
-    count it twice.  Measured against the certified type-A oracle: `Q ==
+    count it twice.  Measured against the certified type-A oracle of the time
+    (`UNNfKAlgebra`, retired 2026-09-19): `Q ==
     UNNfKAlgebra.chart` at U(2) `m = (0,−1),(0,−2),(−1,−1)` for `N_f = 1` and
     `N_f = 2` alike, where `F` is a full 3- or 9-sector μ-tower and the oracle's
     chart is a single level.
   * `decompose(x)` — level-ascending: at the lowest μ-level the slice is the
-    **pure** chart of some canonical (that is ruling D3, `Q[μ⁰] = pure`,
+    **pure** chart of some canonical (`Q[μ⁰] = pure`,
     measured on every cell), so it is read by the pure-`G` WRQ engine with no
     target; subtract the level-shifted tower; recurse.  Honest-fails off scope.
 
@@ -108,26 +111,33 @@ Which algorithm actually builds `L_{m,e}` (asked, 2026-07-28)
 **Two, one per sector**, and they cost very differently — which is why the
 benchmark (a probe in the source repository) times them separately.
 
-*The `μ⁰` (pure) sector — constructive first, guarded solve last.*
+*The `μ⁰` (pure) sector — the axiom route, plus two declared optimizations.*
 `matter_multislot.solve_canonical_matter_vec` opens by asking
-`PureGAbeKAlgebra(datum).chart((m, e))`, which dispatches routes in decreasing
-preference, **each individually guarded (W1 + (★))** and falling through on
-failure:
+`PureGAbeKAlgebra(datum).chart((m, e))`.  The **axiom route is the
+whole production surface** and two **declared optimizations** sit ahead
+of it, each individually guarded (W1 + (★)) and falling through on failure:
 
-    wilson → minuscule → monoid[…] → closed_form → twist[k] → cone
-           → peel[…] → star
+    twist[k=… from e'] → monoid[h+r] → star
 
-    wilson       `m = 0`: the full-group character `χ_e`
-    minuscule    `m` minuscule ⇒ the leading orbit IS the canonical
-    monoid[h+r]  `e = 0`: the monoid law `L_{m,0}·L_{m',0} = L_{m+m',0}` is
-                 EXACT, so an undressed monopole is a monomial in the cone
-                 generators — no peel, no bar correction
-    closed_form  top orbit `f = 1` + the bubbling cells in closed form
-    twist[k]     the `e ↦ e + k·m̄` symmetry carries a built canonical to a
-                 dressed one at no solve cost
-    cone         `wrq_torus.build_canonical`
-    peel[a·b]    product-and-peel from a lower seed + `kl_bar_correct`
-    star         the LICENSED (★) solve (`star_bubbling.solve_canonical`)
+    twist[k from e']  the `e ↦ e + k·m̄` symmetry.  `T^k` carries `L_{m,e}` to
+                      `L_{m, e+k·m̄}` at ANY `e`, so the electric labels at fixed
+                      `m` form `m̄`-lines and one CACHED point gives the whole
+                      line, in both directions — it extends the chart memo rather
+                      than adding to it.  Universal (assumes nothing about `G` or
+                      `N`), and it crosses to matter (TM10)
+    monoid[h+r]       `e = 0`: the monoid law `L_{m,0}·L_{m',0} = L_{m+m',0}`,
+                      a THEOREM in pure gauge, so an undressed monopole is a
+                      monomial in the cone generators — no peel, no bar
+                      correction.  `N = 0` ONLY; see this class's own register
+    star              the LICENSED (★) solve (`star_bubbling.solve_canonical`),
+                      which reaches every label of every `(G, N)`
+
+`optimizations=()` is the bare axiom route (star alone).  The retired constructive
+zoo — `wilson`, `minuscule`, `closed_form`, `cone`, `peel` — is reachable via
+`constructive_routes=True`, where its output is COMPARED rather than trusted;
+`wilson` and `minuscule` are subsumed by the axiom route (the seed IS the answer
+there) and `closed_form` is excluded on the author's ruling, being measurably wrong at
+`SU(3)` `m=(2,2)` without raising.
 
 `pure.route(label)` reports which one fired, and it is the most informative
 number about a label.  MEASURED across the presets
@@ -177,13 +187,11 @@ Sp(4), rank 2 `|W|=8`, is 0.148 s) — the design record's claim, re-measured.
 
 That asymmetry is the standing opportunity —
 closed-form dressed generators on the matter side would be the constructive route
-this tier still lacks (the design record, TM3's open item), and this class is the
+this tier still lacks (the design record's open item), and this class is the
 **reference to beat**: a universal optimization (any `G`, any `N`) has to improve
 the benchmark table across `(G, N)`, not at one point, and a *special* class is
 warranted only where an algorithm is specifically optimized for a given `G`
-and/or `N` (user ruling — those are `UNNfKAlgebra`, `PureUNKAlgebra`,
-`UNQuiverKAlgebra`, `PureSU2KAlgebra`, `PureSUNKAlgebra`, reachable via
-`faster_equivalent()`).
+and/or `N`.
 
 `multiply` — what was measured, and the bar law that governs it
 --------------------------------------------------------------
@@ -195,7 +203,8 @@ reconstruction** — `Σ_c C^c_{ab}·chart(c) == chart(a)·chart(b)` — never b
 would still return terms.  Measured: reconstruction holds at every pair tried
 across SU(2)+2×2, U(2)+2×2, Sp(4)+2×4 and Spin(5)+2×4ˢ; associativity and the
 unit law hold; and the **structure constants** (not merely the charts) equal
-`UNNfKAlgebra`'s at U(2) for `N_f = 1` and `N_f = 2` alike.
+`UNNfKAlgebra`'s (the type-A class, retired 2026-09-19) at U(2) for `N_f = 1`
+and `N_f = 2` alike.
 
 The bar law on structure constants is the **conjugate-transpose** one.  Bar is
 antimultiplicative and fixes the canonical basis, so `L_a L_b = Σ_c C^c_{ab}L_c`
@@ -209,15 +218,15 @@ An individual structure constant is 𝖖-palindromic exactly when the pair
 precisely the non-commuting ones — at SU(2)+2×2, `C^{((1,),(1,))}` is `𝖖⁻¹` one
 way and `𝖖` the other.  Do not "fix" that; it is the axiom working.
 
-**Positivity and integrality are the sharper checks** (user, 2026-07-28).
+**Positivity and integrality are the sharper checks**.
 Reconstruction proves the product lies in the *span*; positivity proves the
 basis is *canonical* — `C^c_{ab} ∈ Z₊[𝖖,𝖖⁻¹]` is the Z₊-ring property
 `zplus_ring` is named for, and a negative coefficient is the documented
-signature of a fabricated element (the design notes), caught
+signature of a fabricated element, caught
 where the bar-blind `𝖖⁰` self-norm was not.  Integrality: the scalar ring is
 `Z[𝖖,𝖖⁻¹]` and nothing else (no `𝖖^{1/2}`, standing ruling).  Measured over
 every ordered pair at SU(2)+2×2 (incl. flavour-charged labels), U(2)+N_f=1,2,
-Sp(4)+2×4 and Spin(5)+2×4ˢ, with `UNNfKAlgebra` as a control: 300+ structure
+Sp(4)+2×4 and Spin(5)+2×4ˢ, with `UNNfKAlgebra` (since retired) as a control: 300+ structure
 constants, **no negative and no non-integer coefficient**.  Note the scope —
 positivity is a property of structure constants, *not* of the Schur index,
 which legitimately carries negatives (`1 − 5𝖖²`).
@@ -229,7 +238,7 @@ The tier still exposes **no solve entry point**: `chart` calls into
 cancellation, W1 bar, the `O(𝖖)` bubbling condition, and the matter-side
 μ-divisibility `F = Z·Q` with its degree law — before returning anything, and
 raises `DivisibilityFailure` rather than fabricating.  That is the (★)-guarded
-solve licensed by the user ruling of 2026-07-27, with matter's fourth condition
+solve licensed since 2026-07-27, with matter's fourth condition
 on top: (★) does **at least as much work here as in `(G,0)`, and strictly
 more** — measured, affine-Weyl partner pairs with unequal `Δ_N` outnumber the
 equal ones (49 vs 100 in the census), and those couple the μ-levels, which is
@@ -240,20 +249,20 @@ Scope, stated rather than papered over
 * Verified against `GMatterOverPure` at 16 labels across SU(2), SU(3), Sp(4),
   Spin(5) (vector **and** spinor matter), SU(4), Sp(6) and G₂, with 0
   mismatches; independently cross-checked in the type-A corner by handing built
-  elements to `UNNfKAlgebra.decompose`, which recovers the documented
+  elements to `UNNfKAlgebra.decompose` (before its retirement), which recovers the documented
   Gaussian-binomial spread and the `N_f ≥ 2` bubbling channel verbatim.
 * What bounds the reach is **cost**, not correctness, and cost tracks the number
   of bubbled cells carrying free parameters under the degree law — not rank, not
   `|W|`, not exceptionality (Sp(6) at rank 3 with `|W| = 48` costs 14 s; Sp(4) at
   rank 2 with `m = (2,1)` costs 900 s).
 * Everything `PureGAbeKAlgebra` honest-fails on, this honest-fails on — but odd
-  `⟨Σ⁺, m⟩` cocharacters are **no longer among them** (ruling D31 retracts the
+  `⟨Σ⁺, m⟩` cocharacters are **no longer among them** (retracts the
   "theorem, not a gap" this list used to cite; they are ordinary atoms now, and
   the standard-`Z²` BPS chart at SU(2)/SO(3) is an independent presentation
   rather than the only one that reaches them).
 
-Run `g_matter_abe_kalgebra` in the source repository for a smoke
-tour; certification is the suite in the source repository.
+Run `PYTHONPATH=$(ls -d src/* | paste -sd:) python3 src/gn/g_matter_abe_kalgebra.py` for a smoke
+tour; certification is `tests/test_g_matter_abe_kalgebra.py`.
 """
 from __future__ import annotations
 
@@ -300,8 +309,8 @@ class GNAbeKAlgebra(AbeKAlgebra):
     #:
     #: | name | governs | why there and not elsewhere |
     #: |---|---|---|
-    #: | `theta_twist` | **both** the matter towers and the inner pure charts | it assumes nothing about `G` or `N` — the universal entry (user, 2026-08-25: *"the θ-twist applied to general `(m,e)` is a useful optimization, and other obsolete optimizations should be left maybe to specific specializations of `AbeKAlgebra` which make assumptions on `G` and `N`"*).  It survives matter as `matter_star_bubbling.matter_theta_twist` (ruling TM10) |
-    #: | `monoid` | the **inner pure sector only**, never the matter towers | the monoid law's proof is the pure-gauge spectral form, and a free monoid cannot carry Littlewood–Richardson multiplicities, so `L^N_{m,0}·L^N_{m',0} = L^N_{m+m',0}` at `(G, Adj)` would be *"very suspicious and suggests something badly wrong"* (user ruling, 2026-07-30).  `self._pure` genuinely IS the `N = 0` theory, which is the specialization the law belongs to |
+    #: | `theta_twist` | **both** the matter towers and the inner pure charts | it assumes nothing about `G` or `N` — the universal entry.  It survives matter as `matter_star_bubbling.matter_theta_twist` |
+    #: | `monoid` | the **inner pure sector only**, never the matter towers | the monoid law's proof is the pure-gauge spectral form, and a free monoid cannot carry Littlewood–Richardson multiplicities, so `L^N_{m,0}·L^N_{m',0} = L^N_{m+m',0}` at `(G, Adj)` would be *"very suspicious and suggests something badly wrong"*.  `self._pure` genuinely IS the `N = 0` theory, which is the specialization the law belongs to |
     #:
     #: So `monoid` is accepted here as a name — turning it off must be possible
     #: from the object the caller holds — while `_base_tower` never consults it.
@@ -323,22 +332,20 @@ class GNAbeKAlgebra(AbeKAlgebra):
         # reintroduce as a declared optimization.  `constructive_routes=True`
         # restores it (and the inner pure algebra's zoo with it).
         self.constructive_routes = bool(constructive_routes)
-        # Stage 2 (user direction, 2026-08-25: "restore some of the
-        # optimizations, leaving the option to turn them off").  The declared
+        # Stage 2.  The declared
         # optimizations of the matter tier are the SAME register as the pure
         # tier's — `PureGAbeKAlgebra.DEFAULT_OPTIMIZATIONS` — because the one
         # entry, the θ-twist, survives matter: `matter_star_bubbling.
         # matter_theta_twist` carries `L^N_{m,0}` to `L^N_{m,k·m̄}` exactly as the
         # pure `theta_twist` does, and it had to commute with the `Z`-division
-        # and the μ-grading to do so (ruling TM10, measured 7/7).  The set is
+        # and the μ-grading to do so (measured 7/7).  The set is
         # handed to the inner pure algebra too, so one switch governs both
         # sectors rather than two that can disagree.
         self.optimizations = _normalize_optimizations(
             optimizations, self.DEFAULT_OPTIMIZATIONS,
             self.KNOWN_OPTIMIZATIONS, type(self).__name__)
         # The **4d gauge group data** — `lines`, a `global_form.LineLattice`:
-        # a MAXIMAL set of mutually compatible Kapustin `(m, e)` labels (user,
-        # 2026-07-28), which is the same convention `PureGAbeKAlgebra` takes and
+        # a MAXIMAL set of mutually compatible Kapustin `(m, e)` labels, which is the same convention `PureGAbeKAlgebra` takes and
         # which landed alongside the `L_{m,e}` solver.  It is NOT "which
         # cocharacter lattice" — that reading is the 3d one, carried by
         # `root_data.GaugeDatum`; see the discussion block in
@@ -396,8 +403,7 @@ class GNAbeKAlgebra(AbeKAlgebra):
                         f"lattice.  A rep of G̃/H is one on which H acts "
                         f"trivially: at PSU(N) the fundamental is not a "
                         f"representation, the adjoint is.")
-        # Flavour: `∏_i U(n_i)` for `n_i` copies of the SAME irrep (user ruling,
-        # 2026-07-28).  Group the slots by distinct highest weight, keeping the
+        # Flavour: `∏_i U(n_i)` for `n_i` copies of the SAME irrep.  Group the slots by distinct highest weight, keeping the
         # slot indices so the Cartan weights of `χ_{λ_i}` land on the right
         # μ-slots of the substrate (no reordering of slots).
         groups: list = []
@@ -592,8 +598,8 @@ class GNAbeKAlgebra(AbeKAlgebra):
         Exposed because consumers outside this class genuinely need it: the
         substrate grades everything by μ-level while the coefficient ring is
         graded by irreps of `∏_i U(n_i)`, so anything that reads a chart and
-        reports an `RElement` has to cross that seam (any consumer that reads a
-        chart's flavour content does).  Without a public face the only route is the private
+        reports an `RElement` has to cross that seam (the `(G, N)` Neumann
+        boundary does).  Without a public face the only route is the private
         helper, which is exactly the internals-tunnelling the design notes names
         as the recurrent failure mode."""
         return self._flav_levels(w)
@@ -639,10 +645,11 @@ class GNAbeKAlgebra(AbeKAlgebra):
         the θ-twist) or `'solve'` (the licensed (★)-guarded solve).  Builds it if
         necessary, mirroring `PureGAbeKAlgebra.route`.
 
-        The pure sector's own route is `pure().route((m, e))`, which is the
-        richer dispatch (`wilson`/`minuscule`/`monoid`/`closed_form`/`twist`/
-        `cone`/`peel`/`star`).  Two reporters because the two sectors are two
-        different algorithms — see the module docstring."""
+        The pure sector's own route is `pure().route((m, e))`, whose dispatch is
+        `twist[k from e']` → `monoid[h+r]` → `star`, plus whatever
+        `constructive_routes=True` restores ahead of them.  Two reporters because
+        the two sectors are two different algorithms — see the module
+        docstring."""
         g, _w = self._split(label)
         self._base_tower(g)
         return self._route[g]
@@ -653,14 +660,12 @@ class GNAbeKAlgebra(AbeKAlgebra):
     def theory(self) -> str:
         """Physics-facing description, derived from the group data and the
         matter rather than declared per subclass — there are no per-theory
-        subclasses (user ruling, 2026-07-28: special names are earned by an
-        *optimized algorithm*, not by being a nameable theory)."""
+        subclasses."""
         reps = ", ".join(f"{len(idxs)}×{lam}" for lam, idxs in self._groups)
         return f"{self.lines.name} + {reps}"
 
     def flavour_group(self) -> str:
-        """`∏_i U(n_i)` written out — the faithful flavour group under ruling
-        TM7, grouping matter slots by identical highest weight."""
+        """`∏_i U(n_i)` written out — the faithful flavour group, grouping matter slots by identical highest weight."""
         parts = [f"U({len(idxs)})" for _lam, idxs in self._groups]
         return " × ".join(parts) if parts else "trivial"
 
@@ -727,24 +732,26 @@ class GNAbeKAlgebra(AbeKAlgebra):
 
     def faster_equivalent(self):
         """A certified, materially faster presentation of the *same* algebra
-        where one exists, else `None` — i.e. the places where a **specially
-        named class earns its name by an optimized algorithm** (user ruling,
-        2026-07-28) rather than by naming a theory.
+        where one exists, else `None` — the places where a **specially named
+        class earns its name by an optimized algorithm** rather than by naming a theory.
 
-        Today that is the type-A corner only: `UNNfKAlgebra(N, N_f)`, whose
-        `chart` this class's was measured equal to (ruling TM6).  Its
-        coefficient ring is `R(SU(N_f))` rather than `R(U(N_f))`, so it is the
-        same algebra over a *specialized* flavour ring, not a drop-in — see
-        `g_matter_un_nf_seam`.  `None` everywhere else, deliberately."""
-        if not self.datum.name.startswith("U("):
-            return None
-        if len(self._groups) != 1:
-            return None
-        from matter_wrq_torus import defining_weight
-        if self._groups[0][0] != tuple(defining_weight(self.datum)):
-            return None
-        from un_nf_kalgebra import UNNfKAlgebra
-        return UNNfKAlgebra(self.datum.dim, self._M)
+        Today: `None` everywhere.  The type-A candidates were measured against
+        this class on 2026-09-19 (adversarially reviewed; record in
+        the audit and the design record) and none earned its name:
+        `UNNfKAlgebra` was 5–28x SLOWER on charts and 13–35x slower on the
+        registry-peel decompose it was named for, `UNQuiverKAlgebra` 3–12x
+        slower on every chain label including bubbling ones, and the pure
+        `PureUNKAlgebra` / `PureSUNKAlgebra` were at parity or defective (A75).
+        All four are retired to the source repository's archive.  The one optimized class that
+        survives, `PureSU2KAlgebra` (the non-solving odd-`e` adjoint-monopole
+        fiber, ~450x on deep dressed SU(2) labels), is pure gauge and so
+        `PureGAbeKAlgebra`'s business, not this class's.
+
+        The earlier gate (`datum.name.startswith("U(")` + defining weight) also
+        misfired on a PRODUCT datum ('U(1) × U(1)' starts with 'U(') and would
+        have handed back a single-node class for a quiver; retiring the method
+        body removes that bug (pinned in tests/test_gn_abe_quiver_chains.py)."""
+        return None
 
     # ----- the contract triple ------------------------------------------
 
@@ -753,12 +760,11 @@ class GNAbeKAlgebra(AbeKAlgebra):
         `None` — the general θ-twist over the MATTER tier's own memo of towers.
 
         The same statement as `PureGAbeKAlgebra.twist_source`, and for the same
-        reason (user, 2026-08-25: *"every known `(m,e)` means we also know its
-        θ-twists, not just `m,0`"*): `matter_theta_twist` carries `L^N_{m,e}` to
+        reason: `matter_theta_twist` carries `L^N_{m,e}` to
         `L^N_{m,e+k·m̄}` at any `e`, so the electric labels at fixed `m` fall into
         `m̄`-lines and one known point gives the whole line, in both directions.
 
-        That the twist survives matter at all is ruling TM10 and was not
+        That the twist survives matter at all is and was not
         automatic: the matter chart is the quotient `Q` of `F = Z·Q` and the
         dressing `Z(m)` carries `v`-dependence, so `T^k` had to commute with the
         `Z`-division and with the μ-grading (measured 7/7).  What is *not*
@@ -790,10 +796,11 @@ class GNAbeKAlgebra(AbeKAlgebra):
         of the canonical is the un-dressed `Q`, because the matter dressing `Z`
         is carried by the substrate's own cocycle
         (`W = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}`) and would otherwise be counted
-        twice.  Measured against the certified type-A oracle: `Q ==
+        twice.  Measured against the certified type-A oracle of the time
+        (`UNNfKAlgebra`, retired 2026-09-19): `Q ==
         UNNfKAlgebra.chart` at U(2) `m = (0,−1),(0,−2),(−1,−1)` for both
         `N_f = 1` and `N_f = 2` — while `F` is a whole μ-tower there and the
-        oracle's chart is one level.  `Q[0⃗] = pure` (ruling D3) is what makes
+        oracle's chart is one level.  `Q[0⃗] = pure` is what makes
         `decompose` below a read rather than a solve.
 
         Every guard lives inside `solve_canonical_matter_vec`; the division is
@@ -817,7 +824,7 @@ class GNAbeKAlgebra(AbeKAlgebra):
             if not self.lines.abe_representable(m):
                 raise NotImplementedError(
                     f"{self!r}: L_{g} was refused by abe_representable.  Since "
-                    f"ruling D31 that predicate is True for every charge on the "
+                    f"that predicate is True for every charge on the "
                     f"default phase — odd ⟨Σ⁺,m⟩ included, since the honest "
                     f"half-integral atom phase is restored at the cocycle through "
                     f"its integral coboundary — so reaching this path means the "
@@ -902,8 +909,8 @@ class GNAbeKAlgebra(AbeKAlgebra):
                             f"failure.  Before paying for a wider `pad`, note "
                             f"that `pad` dilates the numerator box along root "
                             f"directions only and does NOT touch the 𝖖-window, so "
-                            f"it cannot fix every cutoff deficiency (ruling "
-                            f"D35).  `audit=` on "
+                            f"it cannot fix every cutoff deficiency. "
+                            f"`audit=` on "
                             f"`matter_star_bubbling.solve_level` localizes which "
                             f"one it is, given a candidate from the flow or from "
                             f"product-and-peel.  Last: {ex}") from ex
@@ -916,7 +923,7 @@ class GNAbeKAlgebra(AbeKAlgebra):
                     f"box along root directions ONLY, so it cannot reach a "
                     f"deficiency in the 𝖖-window, nor close a gap that grows "
                     f"faster than one lattice step per unit — both of which were "
-                    f"real defects here (see ruling D35).  DIAGNOSE INSTEAD: get "
+                    f"real defects here.  DIAGNOSE INSTEAD: get "
                     f"a candidate from an independent construction "
                     f"(`GMatterOverPure.rg_chart`, or product-and-peel) and pass "
                     f"it as `audit=` to `matter_star_bubbling.solve_level`; it "
@@ -959,8 +966,7 @@ class GNAbeKAlgebra(AbeKAlgebra):
     def nested_cache_algebras(self) -> dict:
         """The inner pure-`G` algebra's charts travel in the same file.
 
-        `decompose` reads its lowest μ-level slice with `self._pure` (ruling D3,
-        `Q[0⃗] = pure`), so a matter cache that did not carry the pure charts
+        `decompose` reads its lowest μ-level slice with `self._pure` (`Q[0⃗] = pure`), so a matter cache that did not carry the pure charts
         would still pay to rebuild them on the first read — the exact cost the
         file exists to avoid."""
         return {"pure": self._pure}
@@ -1114,10 +1120,20 @@ class GNAbeKAlgebra(AbeKAlgebra):
             self._levels_by_q(self._chart_trace(self.chart(a), K), K), K)
 
     def inner_product(self, a: Label, b: Label, K: int = 20) -> RPowerSeries:
-        """`I_{a,b} = Tr(ρ(L_a)·L_b)` — chart-side, packaged over the flavour
-        ring.  Same Nahm-window routing as `trace` above."""
-        prod = self.chart(a).rho() * self.chart(b)
-        return self._package(self._levels_by_q(self._chart_trace(prod, K), K), K)
+        """`I_{a,b}` by the sum over magnetic sectors of contour integrals on the
+        matter substrate (`MatterWRQTorus.inner_by_sector`, measure
+        `matter_sector_weight` — the pure per-sector measure times the matter
+        factor of the cocycle, distributed over the μ-level shifts), packaged
+        over the flavour ring.  The route in which axiom 5, ρ-equivariance of
+        the trace, is manifest; the chart-side
+        `Tr(ρ(L_a)·L_b)` is the retained reference, certified equal in
+        `tests/test_matter_sector_pairing.py`.  Same Nahm window `W = K + 2`
+        as `_chart_trace` ties to `K`, which `MatterWRQTorus._mu_trace_rows`
+        raises to `K + pad` when the residual's 𝖖-expansion starts at
+        `𝖖^{−pad}`, `pad > 2` (a ρ-image of a line of large electric charge:
+        `W = K + 2` gave a wrong `𝖖^K` there — the audit)."""
+        rows = self.chart(a).inner_by_sector(self.chart(b), K=K, W=K + 2)
+        return self._package(self._levels_by_q(rows, K), K)
 
 if __name__ == "__main__":
     import root_datum as rd
@@ -1125,7 +1141,7 @@ if __name__ == "__main__":
     # Kept deliberately cheap: the pairing is the expensive read (the Schur
     # residue window), so only the rank-1 row prints it.  The full sweep — all
     # four theories, both certification legs, the whole derived API — is
-    # the suite in the source repository.
+    # `tests/test_g_matter_abe_kalgebra.py`.
     for tag, datum, matter, kw, lab, pair in [
         ("SU(2)+2×2", rd.su_2(), (1,), {"nf": 2}, ((1,), (0,)), True),
         ("Sp(4)+2×4", rd.sp_n(2), (1, 0), {"nf": 2}, ((1, 0), (0, 0)), False),

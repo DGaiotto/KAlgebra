@@ -1,0 +1,61 @@
+{
+ "id": "def:rg/no-exotic",
+ "labels": [
+  "ax:map"
+ ],
+ "date": "2026-09-27T03:15:29Z",
+ "commit": "cc2e068c4c42a736f2d331dcaaff74ee5b179a2f",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "coefficients": {
+   "pentagon": 8,
+   "A_3": 17,
+   "[A_1,D_4]": 39,
+   "Kronecker (pure SU(2))": 16,
+   "SU(2)+1": 42,
+   "SU(2)+2": 54,
+   "SU(2)+3": 83,
+   "Markov": 18,
+   "dictionary sample": 989,
+   "matter removal SU(2)+1": 13,
+   "matter removal SU(2)+2": 26,
+   "matter removal SU(2)+adjoint (N=2*)": 28
+  },
+  "matter-removal labels": {
+   "SU(2)+1": 8,
+   "SU(2)+2": 9,
+   "SU(2)+adjoint (N=2*)": 10
+  },
+  "seconds": 35.6
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "q^-2 + q^2 = [3]_q - [1]_q is flagged",
+  "negative": "n.a."
+ },
+ "elapsed_s": 35.626,
+ "notes": "A negative coefficient would be a recorded counterexample to a statement the draft does not impose.",
+ "checks": [
+  {
+   "name": "positive control: the census flags q^-2 + q^2 = [3]_q - [1]_q ({1: -1, 3: 1}) and passes q^-1 + q = [2]_q",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "census: 0 coefficients with a negative q-number coefficient among 1333 (774 carry a q-number beyond [1]_q): pentagon 0/8 (0 beyond [1]); A_3 0/17 (1 beyond [1]); [A_1,D_4] 0/39 (0 beyond [1]); Kronecker (pure SU(2)) 0/16 (8 beyond [1]); SU(2)+1 0/42 (15 beyond [1]); SU(2)+2 0/54 (10 beyond [1]); SU(2)+3 0/83 (23 beyond [1]); Markov 0/18 (6 beyond [1]); dictionary sample 0/989 (697 beyond [1]); matter removal SU(2)+1 0/13 (1 beyond [1]); matter removal SU(2)+2 0/26 (5 beyond [1]); matter removal SU(2)+adjoint (N=2*) 0/28 (8 beyond [1])",
+   "ok": true,
+   "note": "{}"
+  }
+ ]
+}

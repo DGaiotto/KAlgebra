@@ -1,0 +1,47 @@
+{
+ "id": "comp:a1aodd/is-kalgebra",
+ "labels": [
+  "comp:a1aodd"
+ ],
+ "date": "2026-09-26T17:16:34Z",
+ "commit": "d37bb95f341a2d6079f0d792ca0c4606d3d344dc",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "window sizes": {
+   "1": 11,
+   "2": 12
+  },
+  "K": 4,
+  "seconds": 9.8
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity row",
+  "negative": "rho without the drift fails the automorphism check (14 pairs)"
+ },
+ "elapsed_s": 9.753,
+ "notes": "All five axioms emergent on the ungauged class: its products and traces are the gauged analytic ones restricted and summed.",
+ "checks": [
+  {
+   "name": "k=1: K1-K5 verifiers on all pairs of a window of 11 labels (identity, E, generators, a generator times E^-1, products) at K=4, and closure over Z[q^±1]",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: K1-K5 verifiers on all pairs of a window of 12 labels (identity, E, generators, a generator times E^-1, products) at K=4, and closure over Z[q^±1]",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: at k = 1, rho without the drift fails verify_rho_is_automorphism on 14 of the 49 pairs of the identity and the generators",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

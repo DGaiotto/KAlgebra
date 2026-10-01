@@ -1125,7 +1125,7 @@ class KAlgebra(ABC):
             except NotImplementedError:
                 # an intermediate base that honestly declines on this
                 # realisation (e.g. a flavour refinement its route cannot
-                # express) is not a reference -- walk on down to the root
+                # express) is not a reference — walk on down to the root
                 # definition, which always computes
                 continue
             return (direct - default).is_zero()
@@ -1145,6 +1145,91 @@ class KAlgebra(ABC):
         lhs = self.embed_R(r.star())
         rhs = self.rho_element(self.embed_R(r))
         return lhs == rhs
+
+    def verify_trace_intertwines_rho(self, a: Label, K: int = 5) -> bool:
+        """`Tr(L_{ρ(a)}) == ⋆(Tr(L_a))` up to order `q^K` — the same verifier as
+        `verify_trace_intertwines_rho_star` (axiom 5, ρ-equivariance of the
+        trace), landed in parallel by under this name; kept as an alias
+        so both names resolve.  Two points from that landing worth keeping:
+        the TRACE face is the numerically safe one (both sides are a single
+        `trace` call at the same `K`, complete on `(−∞, K]`, so no widening is
+        needed, whereas the pairing form's two products have different
+        negative-`q` extents — the audit); and the sensitivity is
+        sharpest with flavour (a `ρ` that drops the unit character it induces
+        on a section leaves a `μ`-monomial discrepancy that never cancels),
+        while on an unflavoured algebra where distinct labels share a trace
+        value a wrong `ρ` can hide (a permuted `ρ` was caught on 7 of 12
+        pentagon labels).  Self-contained on `trace` / `rho` (not delegated), so
+        it also runs unbound on the duck-typed negative controls of
+        the suite in the source repository."""
+        diff = self.trace(self.rho(a), K) - self.trace(a, K).star()
+        for e, c in diff.coeffs.items():
+            if e <= K and not c.is_zero():
+                return False
+        return True
+
+    def verify_trace_intertwines_rho_star(self, a: Label, K: int = 5) -> bool:
+        """Axiom 5 of the `K_𝖖`-algebra contract in its
+        primitive, one-index form:
+
+            Tr(L_{ρ(a)}) == ⋆( Tr(L_a) )        in R((𝖖)), through 𝖖^K,
+
+        where `⋆` is the Z₊-ring rep-ring duality on the coefficients
+        (`RPowerSeries.star`; NOT bar — `𝖖` is untouched).  Read: the trace is
+        ρ-equivariant, with ρ acting on the target through its own restriction
+        to the centre, which is `⋆` (`verify_embed_intertwines_rho` is the
+        same compatibility on the INPUT side; this is the OUTPUT side).
+
+        Relation to the other axioms: cyclicity at `u = 1` already gives
+        `Tr∘ρ² = Tr`, so this is a square root of an identity the contract
+        already has — consistent (`⋆² = id`), and independent content.  It is
+        equivalent to the pairing form `I_{b,a} = ⋆(I_{a,b})`
+        (`verify_pairing_rho_star_symmetric`), via cyclicity and ρ being an
+        automorphism; both extend from labels to elements by plain linearity
+        on the Z-form (coefficients in `Z[𝖖^±]`, which `⋆` fixes).
+
+        Extension from labels to elements: plain linearity holds on the
+        flavour-in-LABELS tiers (BPS, RG, Abe — structure constants in
+        `Z[𝖖^±]`, fixed by `⋆`); on the flavour-in-COEFFICIENTS cone tier the
+        structure constants are `R`-valued and the honest extension is the
+        ⋆-semilinear `ConeKAlgebra.rho_element` (`ρ(c·L) = ⋆(c)·μ^δ·L_{ρ(w)}`).
+
+        Enforced or emergent depends on the presentation — see the design notes
+        "Axiom 5 — ρ-equivariance of the trace" for the inheritance table.  On a
+        hand-built presentation it is a genuine condition.  On the
+        flavour-in-coefficients cone entries (a3/a5/a7) this LABEL-form check
+        fails on exactly the rays where label-form orthonormality fails — the
+        documented split between the bare label `rho` and the `μ^δ`-carrying
+        `rho_element`, a label-level non-compliance (a unit-character section
+        choice), not a trace-data defect: the element form passes there
+        (the suite in the source repository leg 7; the audit as sharpened
+        2026-09-18).  It does NOT see defects that live in `multiply` (A75)."""
+        lhs = self.trace(self.rho(a), K)
+        rhs = self.trace(a, K).star()
+        return (lhs - rhs).is_zero()
+
+    def verify_pairing_rho_star_symmetric(
+        self, a: Label, b: Label, K: int = 5,
+    ) -> bool:
+        """Axiom 5 in pairing form:  `I_{b,a} == ⋆( I_{a,b} )` through 𝖖^K.
+
+        Derived from the trace form by ρ²-twisted cyclicity + ρ an automorphism:
+        `I_{b,a} = Tr(ρ(b)a) = Tr(ρ²(a)ρ(b)) = Tr(ρ(ρ(a)b)) = ⋆Tr(ρ(a)b)`.  With
+        the multiply-then-trace default this compares `Tr(ρ(b)a)` with
+        `⋆Tr(ρ(a)b)`, i.e. the trace form PLUS cyclicity and the automorphism
+        property on the product — the two verifiers can disagree on a
+        presentation that violates one of those.  Where `inner_product` is
+        OVERRIDDEN the evidential weight depends on the route: on the Abe
+        tier's sector pairing and on `aux_space`'s vacuum pairing it is
+        independent evidence (same logic as `verify_inner_product_consistent`);
+        on `BPSKAlgebra`'s Nahm-sum hook it is a TAUTOLOGY of the route
+        (`a ↔ b` negates the μ-exponent `mu_exp = −f_a + f_b` identically and
+        the Habiro product commutes), so there only the trace form carries
+        content.  At trivial flavour `⋆ = id` and this reads: the Gram matrix
+        is symmetric."""
+        lhs = self.inner_product(b, a, K)
+        rhs = self.inner_product(a, b, K).star()
+        return (lhs - rhs).is_zero()
 
     def verify_section_is_single_irrep(self, label: Label) -> bool:
         """Sharpened flavour contract: `_label_section_decompose(label)`
@@ -1360,8 +1445,19 @@ class _BaseChangeKAlgebra(KAlgebra):
         return self._source_alg.identity()
 
     def multiply(self, a: Label, b: Label) -> Element:
-        # Z-form Element is unchanged; just delegate.
-        return self._source_alg.multiply(a, b)
+        # Z-form labels unchanged; the *coefficients* must follow the
+        # ring: a source emitting RLaurent coefficients (legal since the
+        # widening) would otherwise leak old-ring RLaurent into the
+        # derived trace/verifier paths, which mix them with target-ring
+        # RPowerSeries traces ("RLaurent ring mismatch" — found by the
+        # the design record forget()-tier sweep, 2026-07-02).
+        el = self._source_alg.multiply(a, b)
+        if not any(isinstance(c, RLaurent) for c in el.terms.values()):
+            return el
+        return Element({
+            lab: (self._phi.apply_RLaurent(c)
+                  if isinstance(c, RLaurent) else c)
+            for lab, c in el.terms.items()})
 
     def rho(self, a: Label) -> Label:
         return self._source_alg.rho(a)
@@ -1477,6 +1573,18 @@ class _ForgetKAlgebra(_BaseChangeKAlgebra):
             z = self._phi.apply_RElement(r_coef).terms.get((), 0)  # ε-augmented coeff
             if z == 0:
                 continue
+            if isinstance(lp, RLaurent):
+                # push the coefficient's own R-content through ε too —
+                # a trivial-R RLaurent is a plain Laurent polynomial
+                # (same ring-mismatch defect as _BaseChangeKAlgebra)
+                lp = LaurentPoly({
+                    e: v for e, v in (
+                        (e, c.terms.get((), 0))
+                        for e, c in
+                        self._phi.apply_RLaurent(lp).coeffs.items())
+                    if v})
+                if not lp._coeffs:
+                    continue
             contrib = lp * LaurentPoly({0: z})
             out[sec] = contrib if sec not in out else out[sec] + contrib
         return Element({l: c for l, c in out.items() if not c.is_zero()})
@@ -1555,6 +1663,10 @@ class _LoweredFlavourKAlgebra(_BaseChangeKAlgebra):
         out: "dict[Label, LaurentPoly]" = {}
         for label, lp in src.multiply(s1, s2).terms.items():
             s_c, r_coef = _section_split_via_lift(src, label)   # (section, RElement over R)
+            if isinstance(lp, RLaurent):
+                # same ring-following rule as _BaseChangeKAlgebra: the
+                # coefficient's R-content moves through phi to R'
+                lp = self._phi.apply_RLaurent(lp)
             pushed = self._phi.apply_RElement(r_coef)          # RElement over R'
             for wi, ni in w12.items():
                 for wp, npp in pushed.terms.items():

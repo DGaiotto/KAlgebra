@@ -1,0 +1,223 @@
+{
+ "id": "sec:coulomb/labels",
+ "labels": [
+  "sec:coulomb"
+ ],
+ "date": "2026-09-23T13:11:05Z",
+ "commit": "b2a228b173d5d91bff1206157bc1cf8be47ab832",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "labels": 13,
+   "weyl_images": 30,
+   "nontrivial_orbits": 14,
+   "rank": 13,
+   "seconds": 0.2
+  },
+  "pure SO(3)": {
+   "labels": 13,
+   "weyl_images": 30,
+   "nontrivial_orbits": 14,
+   "rank": 13,
+   "seconds": 0.0
+  },
+  "pure SU(3)": {
+   "labels": 8,
+   "weyl_images": 54,
+   "nontrivial_orbits": 8,
+   "rank": 8,
+   "seconds": 0.3
+  },
+  "pure Sp(4)": {
+   "labels": 5,
+   "weyl_images": 48,
+   "nontrivial_orbits": 5,
+   "rank": 5,
+   "seconds": 0.2
+  },
+  "pure G2": {
+   "labels": 4,
+   "weyl_images": 48,
+   "nontrivial_orbits": 3,
+   "rank": 4,
+   "seconds": 13.5
+  },
+  "SU(2) + 1 fund. (roster su2-nf1)": {
+   "labels": 5,
+   "weyl_images": 12,
+   "nontrivial_orbits": 5,
+   "rank": 5,
+   "seconds": 0.1
+  },
+  "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour)": {
+   "labels": 5,
+   "weyl_images": 12,
+   "nontrivial_orbits": 5,
+   "rank": 5,
+   "seconds": 0.1
+  },
+  "SO(3) + adjoint (N=2*)": {
+   "labels": 5,
+   "weyl_images": 12,
+   "nontrivial_orbits": 5,
+   "rank": 5,
+   "seconds": 0.0
+  },
+  "SU(3) + 1 fund. (roster su3-nf1)": {
+   "labels": 4,
+   "weyl_images": 24,
+   "nontrivial_orbits": 3,
+   "rank": 4,
+   "seconds": 0.7
+  }
+ },
+ "counts": {
+  "pass": 27,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the window labels themselves",
+  "negative": "raw pairs with nontrivial Weyl orbits (the identity labelling would fail); the relation x0 + 2 x1 appended to the rank test does not raise the rank"
+ },
+ "elapsed_s": 15.158,
+ "notes": "Rank certificate: residuals evaluated exactly at q = 3/11, v at s rational points, flavour fugacities at generic rationals; a nonzero maximal minor at a point is a nonzero rational function, so full rank there is full rank over Q(q, mu).  Total 15.2 s.",
+ "checks": [
+  {
+   "name": "pure SU(2): all 13 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SU(2): all 30 Weyl images of the window's raw (m, e) fold to the same label (14 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SU(2): the 13 labels give linearly independent elements (exact rank 13 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 13 of 13; control True"
+  },
+  {
+   "name": "pure SO(3): all 13 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SO(3): all 30 Weyl images of the window's raw (m, e) fold to the same label (14 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SO(3): the 13 labels give linearly independent elements (exact rank 13 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 13 of 13; control True"
+  },
+  {
+   "name": "pure SU(3): all 8 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SU(3): all 54 Weyl images of the window's raw (m, e) fold to the same label (8 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SU(3): the 8 labels give linearly independent elements (exact rank 8 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 8 of 8; control True"
+  },
+  {
+   "name": "pure Sp(4): all 5 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure Sp(4): all 48 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure Sp(4): the 5 labels give linearly independent elements (exact rank 5 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 5 of 5; control True"
+  },
+  {
+   "name": "pure G2: all 4 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure G2: all 48 Weyl images of the window's raw (m, e) fold to the same label (3 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure G2: the 4 labels give linearly independent elements (exact rank 4 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 4 of 4; control True"
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): all 5 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): all 12 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): the 5 labels give linearly independent elements (exact rank 5 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 5 of 5; control True"
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): all 5 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): all 12 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): the 5 labels give linearly independent elements (exact rank 5 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 5 of 5; control True"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): all 5 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): all 12 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): the 5 labels give linearly independent elements (exact rank 5 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 5 of 5; control True"
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): all 4 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): all 24 Weyl images of the window's raw (m, e) fold to the same label (3 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): the 4 labels give linearly independent elements (exact rank 4 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 4 of 4; control True"
+  }
+ ]
+}

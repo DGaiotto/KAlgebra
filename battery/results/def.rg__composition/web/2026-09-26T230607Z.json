@@ -1,0 +1,57 @@
+{
+ "id": "def:rg/composition",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-26T23:06:07Z",
+ "commit": "39f11ccd46b37adbc64634a85a1317f25324b344",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "flows": [
+   "A_4: delete γ1 then γ2 vs both (directional)",
+   "A_3: delete γ1 then γ2 vs both (BPS node-deletion flows)"
+  ],
+  "S window": "grading height <= 3",
+  "seconds": 0.1
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the direct two-node deletion",
+  "negative": "S composed in the other order differs"
+ },
+ "elapsed_s": 0.134,
+ "notes": "The composition law follows from R3 and R4 applied term by term, so this row tests the code (RGKAlgebra.then / ComposedRG), not the statement.  The matter-removal tower does not compose through `then` (each rung's IR carries the removed flavour as a spectator the next rung's UV lacks) and is not covered.",
+ "checks": [
+  {
+   "name": "A_4, delete γ1 then γ2 vs both at once: RG^(1->3) = RG^(2->3) o RG^(1->2) on 7 UV labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "A_4: S^(1->3) = RG^(2->3)(S^(1->2)) S^(2->3) equals the direct flow's S through grading height 3 (10 terms)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "A_4: the composite is unital and multiplicative, and its products equal the UV chart's on 4 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: S composed in the other order, S^(2->3) RG^(2->3)(S^(1->2)), differs from the direct flow's S (and the draft's order reproduces the class's)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "A_3: deleting γ1 then γ2 (two single-node flows) equals the two-node deletion on 6 labels, same IR",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

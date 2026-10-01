@@ -52,13 +52,17 @@ O(𝖖)`. Seven layers of algebras sit over one shared contract:
   `KAlgebra` subclass presented faithfully on an enriched rational quantum torus
   (`x = Σ_m⃗ f_m⃗(𝖖^{m⃗}v)·U_m⃗`) from three primitives (`torus_shape`, `chart`,
   `decompose`); it is the abelianized description of the K-theoretic Coulomb branch
-  algebras of conventional gauge theories — pure U(N)/SU(N), U(N)+N_f matter, linear
-  quivers — plus the N=2\* canonical finder and the `KAlgebraObject` capstone that
-  holds each algebra's cone / BPS / RG / abe presentations under one roof with
-  certified `KAlgebraIso` transition maps. **Relies on Steps 1–4 by design** (a
-  matter theory is a pure-gauge `AbeKAlgebra` combined with an `RGKAlgebra` flow);
-  its self-test runs last, after the spine-free assertions. See
-  `docs/step5-AbeKAlgebra.md`.
+  algebras of conventional gauge theories. It holds the contract, the
+  group-general torus substrate (`WRQTorus` and its matter and quiver variants),
+  `PureSU2KAlgebra`, and the `KAlgebraObject` layer that holds each algebra's
+  cone / BPS / RG / abe presentations under one roof with certified `KAlgebraIso`
+  transition maps; the gauge-theory algebras themselves (pure U(N)/SU(N),
+  U(N)+N_f matter, linear quivers) are built by the general-gauge-group tier
+  below. **Relies on Steps 1–4 by design** (a matter theory is a pure-gauge
+  `AbeKAlgebra` combined with an `RGKAlgebra` flow); six of its object and
+  isomorphism modules also import the gn tier, and the pure SU(2) object imports
+  the skein tier for its skein presentation. Its self-test runs last, after the
+  spine-free assertions. See `docs/step5-AbeKAlgebra.md`.
 - **skein** (`src/skein/`): `SkeinKAlgebra` and its `SkeinAtlas`. The SU(2)
   (Kauffman-bracket) skein algebras of marked surfaces realised as
   `A_𝖖[T[A₁, Σ]]`: an intrinsic (contract-free) topological engine used as a
@@ -70,13 +74,16 @@ O(𝖖)`. Seven layers of algebras sit over one shared contract:
   assertions. See `docs/step6-SkeinKAlgebra.md`.
 - **gn** (`src/gn/`): `PureGAbeKAlgebra`, `GNAbeKAlgebra` and the
   general-gauge-group tier — gauge theory at an **arbitrary 4d gauge group with
-  arbitrary matter**. Pure gauge over any `RootDatum` is built by a ladder of
-  separately-guarded constructive routes with a licensed, (★)-guarded solve as the
-  last rung — which is what opens the groups with no minuscule cocharacter, `Spin(5)`
-  among them; `T^*N` matter is carried at any datum and any matter *representation*
-  (not a count), with iterable matter-removal flows and a type-A seam that is a
-  surjection rather than an isomorphism; `LineLattice` holds the 4d gauge group data
-  as a lattice and its dual, with the Langlands family `(G, Adj) ↔ (G^∨, Adj)` as
+  arbitrary matter**. Every canonical element, at any `RootDatum`, is built by one
+  route: the (★)-guarded solve, Wilson lines included — which is also what opens
+  the groups with no minuscule cocharacter, `Spin(5)` among them. The earlier
+  constructive routes stay behind `constructive_routes=True` as an independent
+  construction to compare against, and named optimizations (`optimizations=`) are
+  each asserted to return the axiom route's element; `route(label)` reports which
+  fired. `T^*N` matter is carried at any datum and any matter *representation*
+  (not a count), with iterable matter-removal flows; `LineLattice` holds the 4d
+  gauge group data as a lattice and its dual, with the centre classes of its lines,
+  and the Langlands family `(G, Adj) ↔ (G^∨, Adj)` as
   certified `KAlgebraIso`; and `AuxSpace` re-founds the Schur pairing in vacuum-state
   form, `I_{a,b} = ⟨L_a·1, L_b·1⟩`, with `ρ` never constructed. `PureSO3KAlgebra`
   (`pure_so3.py`) is the tier's **independent oracle**: pure `SO(3)` as a BPS-quiver
@@ -116,36 +123,57 @@ supported entry point and is refused loudly by `conftest.py` (it would skip
 collection time defeats the spine-freeness assertions in the Step-3 suites) —
 use `python3 run_tests.py`.
 
+A second tier runs the tests the paper companion cites (`tests/cited.txt`), each
+in its own process — too long for the default gate:
+
+```bash
+python3 run_tests.py --cited --jobs 3     # both tiers
+python3 run_tests.py --cited-only         # the cited tier alone
+```
+
+It builds the seed-closure dictionary (`dictionaries/build.py`) first if it is
+missing. The battery of checks for the paper's claims is run separately; see
+`battery/README.md`.
+
 ## Layout & import model (read before moving files)
 
 ```
 src/core/      kalgebra.py kalgebra_iso.py            the contract + iso witness
                zplus_ring.py laurent_poly.py          coefficient rings + exact 𝖖-arithmetic
                tensor_zplus_ring.py tensor_kalgebra.py snf_kernel.py qpoch.py sun_characters.py flavoured_kalgebra.py
-src/samples/   samples.py quantum_torus_kalgebra.py uq_sl2_pbw.py
-src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (119 .py + 8 .pkl)
-src/rg/        rgkalgebra.py grading.py graded_rg_solver.py … + the flow zoo   (24 .py)
+src/samples/   samples.py quantum_torus_kalgebra.py uq_sl2_pbw.py uq_su2_kalgebra.py …   (5 .py)
+src/cone/      cone_kalgebra.py cone_data.py … + the realisation zoo   (136 .py + 2 .pkl)
+src/rg/        rgkalgebra.py grading.py graded_rg_solver.py … + the flow zoo   (32 .py)
 src/bps/       bps_kalgebra.py bps_quiver_tools.py bps_atlas.py bps_factor_spectrum.py
-               factor_order_search.py fs_builder.py … the realisation spine   (23 .py)
-src/abe/       abe_kalgebra.py pure_un_kalgebra.py un_nf_kalgebra.py … the abelianized tier + object layer   (63 .py)
-src/skein/     skein_kalgebra.py skein_algebra.py skein_atlas.py … the skein tier + flip-atlas   (70 .py)
-src/gn/        pure_g_abe_kalgebra.py gn_abe_kalgebra.py star_bubbling.py global_form.py line_lattice_torus.py pure_so3.py global_form_bridge.py … the general-G tier   (16 .py)
+               factor_order_search.py fs_builder.py dictionary_loader.py … the realisation spine   (47 .py)
+src/abe/       abe_kalgebra.py wrq_torus.py pure_su2_kalgebra.py … the abelianized tier + object layer   (56 .py)
+src/skein/     skein_kalgebra.py skein_algebra.py skein_atlas.py … the skein tier + flip-atlas   (77 .py)
+src/gn/        pure_g_abe_kalgebra.py gn_abe_kalgebra.py star_bubbling.py global_form.py pure_so3.py global_form_bridge.py … the general-G tier   (16 .py)
 src/iso/       pentagon_/u1square_/u1a1d2_…_sample_cone_iso.py
-tests/         test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py + test_abe_flows.py + test_skein_flows.py + test_gn_flows.py
+tests/         the gate: test_samples.py test_cones.py test_sample_cone_iso.py + 8 RG-flow test_*.py + test_bps_flows.py
+               + test_abe_flows.py + test_skein_flows.py + test_gn_flows.py; the cited tier: the tests listed in cited.txt
 docs/          axioms-and-bootstrap.md  conjectures-*.md  step{1,2,3,4,5,6,7}-*.md
                verification-scope.md  frozen-data-provenance.md   what the gate does/doesn't certify
+battery/       the claim registry, runner, renderer, adapters and result records (battery/README.md)
+dictionaries/  the BPS-quiver dictionaries (enumerated + flavoured tiers) and their builders
+experiments/   the research probes the battery's adapters import (experiments/README.md)
+notes/         the design notes the paper's derived claims cite, verbatim (notes/README.md)
+scripts/       scripts the companion cites or its cited tests call
+paper/         the paper's LaTeX source, as submitted to the arXiv (compile it before the companion)
+CHANGELOG.md   what changed since the previous public version
 ```
 
 Modules import one another by **bare name** (`from kalgebra import …`), not by
 package path. Every `src/<layer>/` directory is placed on `sys.path` by
-`run_tests.py` (the gate), which globs the subdirectories of `src/`
-(`conftest.py` exists only to refuse `pytest`). Consequently:
+`run_tests.py` (the gate), which globs the subdirectories of `src/`, and — for a
+script or test run from the root with `PYTHONPATH=.` — by the root
+`sitecustomize.py` (`conftest.py` exists only to refuse `pytest`). Consequently:
 
 - do not add `__init__.py`, and do not rewrite imports to package-qualified form;
 - a new module goes in the appropriate `src/<layer>/` directory, imported by its
   bare name;
-- the `.pkl` tables in `src/cone/` are required data (frozen cone / ρ / trace
-  tables), not optional.
+- the `.pkl` tables in `src/cone/` are required data (the stored product and
+  ρ tables of `U1E7ConeKAlgebra`), not optional; no frozen trace table remains.
 
 ## The contract
 
@@ -179,9 +207,10 @@ determine the traces from the single seed `Tr 1`.
   in `src/skein/` from its surface / triangulation data, keeping the intrinsic
   (contract-free) engine as the oracle; add a case to `tests/test_skein_flows.py`.
 - **New general-`G` realisation:** build a `PureGAbeKAlgebra` (or, with matter, a
-  `GNAbeKAlgebra`) in `src/gn/` from its `RootDatum` and matter representation,
-  keeping the constructive routes ahead of the licensed (★) solve; add a case to
-  `tests/test_gn_flows.py`.
+  `GNAbeKAlgebra`) in `src/gn/` from its `RootDatum` and matter representation —
+  the (★)-guarded solve builds its canonical elements; an optimization joins
+  `optimizations=` only with an assertion that it returns the same element; add a
+  case to `tests/test_gn_flows.py`.
 - **New isomorphism witness:** add a builder to `src/iso/` and a case to
   `tests/test_sample_cone_iso.py`.
 - **New flavour group:** add a `ZPlusRing` subclass in `src/core/zplus_ring.py`.

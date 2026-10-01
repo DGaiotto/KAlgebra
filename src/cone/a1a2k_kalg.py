@@ -13,12 +13,15 @@ labels are sorted tuples
     ((k_1, i_1, e_1), ..., (k_m, i_m, e_m))
 
 of (letter, positive exponent) entries with pairwise q-commuting
-letters; the empty tuple is the identity.
+letters; the empty tuple is the identity.  The letter `(k_letter, i)`
+is the diagonal of the (2k+3)-gon from `i` to `i + k_letter + 1`, so a
+label is a multiset of pairwise non-crossing diagonals (class
+docstring; accessor `curve`).
 
-Multiplication is driven by a per-k base table computed once at
-construction time from closed-form chord geometry
-(`A1A2k_plucker_closed_form.base_table_predict`); the class has no
-`BPSKAlgebra` runtime dependency.
+Multiplication is driven by a per-k base table computed at
+construction from chord geometry alone
+(`A1A2k_plucker_closed_form.base_table_predict`); no `BPSKAlgebra` is
+built at any stage.
 
 Scope:
   * `coefficient_ring`, `identity`, `multiply`, `rho`, `rho_inverse`,
@@ -61,16 +64,32 @@ class A1A2kKAlg(ConeKAlgebra):
     """`A_𝖖([A_1, A_{2k}])` as a `KAlgebra` subclass, parameterised by k.
 
     Generators `L((k_letter, i))` with `k_letter ∈ {1, ..., k}` and
-    `i ∈ Z/(2k+3)`.  ρ-orbit indexing follows the verified
-    `A1A2k_naming_audit.predicted_lengths_and_shifts(k)` table.
-    Multiplication is driven by a per-k base product table
-    `self._base_table` computed at construction from closed-form
-    chord geometry (`A1A2k_plucker_closed_form`).
-
-    Canonical-basis labels are sorted tuples
+    `i ∈ Z/(2k+3)`.  Canonical-basis labels are sorted tuples
     `((k_1, i_1, e_1), ..., (k_m, i_m, e_m))` with `e_r ≥ 1` and the
     letter pairs `(k_r, i_r)` pairwise q-commuting; empty tuple is
-    the identity."""
+    the identity.
+
+    Geometry.  Write `H = 2k + 3` and `0, …, H − 1` for the marked
+    points (vertices) of the H-gon.  The letter `(a, j)` is the diagonal
+    from `j` to `j + a + 1`, and `a + 1 ∈ {2, …, k + 1}` is the number of
+    boundary edges on its shorter side (unique because H is odd): the
+    entry `(a, j, e)` of a label is `curve(j, a + 1)` taken `e` times.  So
+    a canonical-basis label is a multiset of pairwise non-crossing
+    diagonals.  Two letters q-commute iff their diagonals do not cross;
+    the product of two crossing diagonals has exactly two terms, the two
+    pairs of opposite sides of the quadrilateral they span, a boundary
+    edge counting as the identity (the quantum Ptolemy relations, in
+    their natural labeling `L_{a;j}`).  ρ is
+    the rotation `x ↦ x + 1` of every diagonal (`ρ^H = 1`), and the cones
+    of `cone_data()` are the triangulations of the H-gon, `Catalan(2k + 1)`
+    of them.
+
+    Multiplication is driven by the per-k base product table
+    `self._base_table`, computed at construction from chord geometry
+    alone (`A1A2k_plucker_closed_form.base_table_predict`).
+    `kalgebra_samples.HeptagonKAlg` uses the same tuple format at `k = 2`
+    with a different orbit-2 index: its `(2, i)` is this class's
+    `(2, i + 4)`."""
 
     _R = TrivialZPlusRing()
 
@@ -111,8 +130,6 @@ class A1A2kKAlg(ConeKAlgebra):
                             self._qc_cache[(la, lb)] = None
                     else:
                         self._qc_cache[(la, lb)] = None
-        # We don't need the wrapper anymore; drop the reference.
-        # (Garbage collection will reclaim the BPSKAlgebra instance.)
 
     # -- KAlgebra primitives -------------------------------------------------
 
@@ -131,6 +148,43 @@ class A1A2kKAlg(ConeKAlgebra):
                 f"k_letter must be in [1, {self.k}], got {k_letter}"
             )
         return ((k_letter, i % self.H, 1),)
+
+    def curve(self, x: int, ell: int):
+        """The label of the diagonal from marked point `x` to `x + ell`,
+        `ell` the number of boundary edges on the side through
+        `x + 1, …, x + ell − 1`, `2 ≤ ell ≤ H − 2` (`H = 2k + 3`).
+
+        The polygon has no puncture, so neither side of a diagonal is
+        distinguished: `curve(x, ell) == curve(x + ell, H − ell)`.  (In
+        `A1DnKAlg.curve` the ℓ counts the edges on the side away from the
+        puncture, so there is no such identification.)  `ell = 1` or
+        `ell = H − 1` is a boundary edge, which is the identity and not a
+        letter, and raises, as does any `ell` outside `[1, H − 1]`."""
+        H = self.H
+        x, ell = int(x), int(ell)
+        if ell in (1, H - 1):
+            raise ValueError(
+                f"A1A2kKAlg({self.k}).curve({x}, {ell}): a boundary edge "
+                f"of the {H}-gon, not a diagonal")
+        if not 2 <= ell <= H - 2:
+            raise ValueError(
+                f"A1A2kKAlg({self.k}).curve: need 2 <= ell <= {H - 2}, "
+                f"got {ell}")
+        if ell <= self.k + 1:
+            return ((ell - 1, x % H, 1),)
+        return ((H - ell - 1, (x + ell) % H, 1),)
+
+    def geometric_label(self, label):
+        """The label — letters `(a, j, e)` — as the multiset of its diagonals:
+        a sorted tuple of pairs `((v1, v2), e)`, the letter `(a, j)` being the
+        diagonal `{j, j + a + 1}` of the `(2k+3)`-gon (sorted marked points)
+        and `e ≥ 1` its power; the unit is `()`.  The inverse reading of
+        `curve`: `geometric_label(curve(x, ell))` is `(({x, x + ell}, 1),)`.
+        The layout of the `curves` of `A1DnKAlg`'s `(curves, κ)`, on the
+        unflavoured polygon without a puncture."""
+        H = self.H
+        return tuple(sorted(
+            (tuple(sorted((j % H, (j + a + 1) % H))), e) for (a, j, e) in label))
 
     def rho(self, a):
         if not a:

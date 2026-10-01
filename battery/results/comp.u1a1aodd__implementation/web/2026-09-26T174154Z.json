@@ -1,0 +1,171 @@
+{
+ "id": "comp:u1a1aodd/implementation",
+ "labels": [
+  "comp:u1a1aodd"
+ ],
+ "date": "2026-09-26T17:41:54Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": [
+   1,
+   2,
+   3
+  ],
+  "census": {
+   "1": {
+    "letters": 9,
+    "pairs": 72,
+    "qcommuting": 42,
+    "crossing": 30,
+    "drift_ok": true,
+    "letters_ok": true,
+    "qc_bad": 0,
+    "prod_bad": 0,
+    "ptolemy_bad": 0,
+    "phi_bad": 0,
+    "E_ok": true,
+    "wrong_anchor_detected": true
+   },
+   "2": {
+    "letters": 20,
+    "pairs": 380,
+    "qcommuting": 240,
+    "crossing": 140,
+    "drift_ok": true,
+    "letters_ok": true,
+    "qc_bad": 0,
+    "prod_bad": 0,
+    "ptolemy_bad": 0,
+    "phi_bad": 0,
+    "E_ok": true,
+    "wrong_anchor_detected": true
+   },
+   "3": {
+    "letters": 35,
+    "pairs": 1190,
+    "qcommuting": 770,
+    "crossing": 420,
+    "drift_ok": true,
+    "letters_ok": true,
+    "qc_bad": 0,
+    "prod_bad": 0,
+    "ptolemy_bad": 0,
+    "phi_bad": 0,
+    "E_ok": true,
+    "wrong_anchor_detected": true
+   }
+  },
+  "seconds": 0.2
+ },
+ "counts": {
+  "pass": 19,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed k = 1 values",
+  "negative": "a wrong drift anchor and the charges without the -2mu exception are detected"
+ },
+ "elapsed_s": 0.185,
+ "notes": "The write-up's rules transcribed independently (chords, the drift, crossing test, charge formulas, chain pairing, resolutions, Phi) against the class; the products are the class's analytic route.",
+ "checks": [
+  {
+   "name": "k=1: the letters are the chords (t;i), t<=k with i in Z/6, and the 3 diameters, plus E^±1; geometric labels as printed",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: rho(L_t;i) = E^d(t,i) L_t;i+1 with the printed drift on all 9 letters, and rho(E) = E^-1",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: q-commutation iff non-crossing on all 72 ordered pairs, exponent = the chain pairing of the printed charges (interior formula and wrap rows, with the -2mu exception), and the 42 q-commuting products are q^c times the canonical pair monomial",
+   "ok": true,
+   "note": "([], [])"
+  },
+  {
+   "name": "k=1: every crossing product (30 pairs) has at most two terms, each a unit monomial q^a E^e times a resolution of the crossing quadrilateral",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: E q-commutes with every chord, its cocycle the pairing with mu: zero exactly on the even types, +-1 on the odd ones",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: the printed embedding Phi (single term off the merged vertex, two terms on it, coefficients 1) equals the class's letter images",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: the letters are the chords (t;i), t<=k with i in Z/8, and the 4 diameters, plus E^±1; geometric labels as printed",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: rho(L_t;i) = E^d(t,i) L_t;i+1 with the printed drift on all 20 letters, and rho(E) = E^-1",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: q-commutation iff non-crossing on all 380 ordered pairs, exponent = the chain pairing of the printed charges (interior formula and wrap rows, with the -2mu exception), and the 240 q-commuting products are q^c times the canonical pair monomial",
+   "ok": true,
+   "note": "([], [])"
+  },
+  {
+   "name": "k=2: every crossing product (140 pairs) has at most two terms, each a unit monomial q^a E^e times a resolution of the crossing quadrilateral",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: E q-commutes with every chord, its cocycle the pairing with mu: zero exactly on the even types, +-1 on the odd ones",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: the printed embedding Phi (single term off the merged vertex, two terms on it, coefficients 1) equals the class's letter images",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: the letters are the chords (t;i), t<=k with i in Z/10, and the 5 diameters, plus E^±1; geometric labels as printed",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: rho(L_t;i) = E^d(t,i) L_t;i+1 with the printed drift on all 35 letters, and rho(E) = E^-1",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: q-commutation iff non-crossing on all 1190 ordered pairs, exponent = the chain pairing of the printed charges (interior formula and wrap rows, with the -2mu exception), and the 770 q-commuting products are q^c times the canonical pair monomial",
+   "ok": true,
+   "note": "([], [])"
+  },
+  {
+   "name": "k=3: every crossing product (420 pairs) has at most two terms, each a unit monomial q^a E^e times a resolution of the crossing quadrilateral",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: E q-commutes with every chord, its cocycle the pairing with mu: zero exactly on the even types, +-1 on the odd ones",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: the printed embedding Phi (single term off the merged vertex, two terms on it, coefficients 1) equals the class's letter images",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: dropping the -2mu exception at (t, w) = (1, 1) changes the chord's cocycle with a neighbouring chord (k = 2)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

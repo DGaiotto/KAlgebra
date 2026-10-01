@@ -5,7 +5,7 @@ charges `γ`, used to wire the **abe ↔ bps** `KAlgebraIso` of both
 A `BPSKAlgebra` is defined from a pairing + node charges, so the
 **flavour-free** U(2) / U(2)+N_f=1 BPS realisations are built by *removing
 the flavour (ker B) direction from the lattice and node charges* — for
-these theories that direction is the gauge-centre U(1) (D5/D8b: the genuine
+these theories that direction is the gauge-centre U(1) (the genuine
 flavour is `SU(N_f)`), not a real flavour, so dropping it gives a
 non-degenerate pairing and `coefficient_ring = TrivialZPlusRing` directly.
 The gauge pairing is the same rank-4 lattice in both cases, hence one shared
@@ -52,7 +52,7 @@ def gamma_u2_crossed(m, e):
     the slots by `λ` ascending (ties by slot), assign the descending-sorted
     `m`'s onto that order with `λ` kept in place, then sort `λ` ascending
     across equal-assigned-m slots.  Certified by product-coefficient
-    matching against the abe keystone (`tests/test_pure_u2_bps_crossed.py`);
+    matching against the abe keystone (the suite in the source repository);
     honest-fails outside `_u2_spread_guard`."""
     if not _u2_spread_guard(m, e):
         raise NotImplementedError(
@@ -71,7 +71,7 @@ def gamma_u2_crossed(m, e):
 
 class UNTropicalMap:
     """The **N-general** anchored + rigidified U(N) chamber map (extends the
-    U(2) original; user direction 2026-07-02 — "tropical maps are not
+    U(2) original "tropical maps are not
     linear … mult and rho rigidify the lot").  BPS coordinates: interleaved
     `(m_1, e_1, …, m_N, e_N)`.
 

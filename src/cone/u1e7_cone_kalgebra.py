@@ -8,23 +8,52 @@ derivation **not included in this repository**); no engine at runtime — the
 frozen tables (`u1e7_cone_tables.pkl`, `u1e7_rho_tables.pkl`) are loaded
 instead, following the spine-free QTCone-from-RG recipe.
 
+The oracle is `U1A1E7RGKAlgebra`, whose dressing chord is the central chord
+`(3, 0)`; the shipped tables were rebuilt from it on 2026-09-23.  Tables built
+from its earlier `(2, 2)` dressing — the flow of `[A₁,D₇]` with the Cartan
+`U(1)` of its `SU(2)` gauged — are refused on load (`_STALE_SHA256`).
+
 Structure (= the recipe):
   * **rank-1 torus** = the gauge leg `E = X_{(0,1)}` (Laurent).  The magnetic
     leg `X_{(1,0)}` is **not** a torus direction; magnetic charge is carried by
-    the **dyonic chords** (182 chords, `c0 ∈ {-3..3}`, selected by a
-    chord-selection derivation not included in this repository).
-  * **cones** = the q-commuting cliques of the chords + `E` (built fresh; 2508).
+    the **dyonic chords** (200 chords, selected by the table builder,
+    `c0 ∈ {-3..3}`), stored as atoms at gauge charge `c1 = 0` — with `E^{±1}`,
+    202 atoms.
+  * **cones** = the q-commuting cliques of the atoms (4160; `E^{±1}` lie in
+    every cone).
   * **factoring** (`to_cone_label`): chord-atoms cover the A6 letters (magnetic
     `c0` matched exactly), the residual `c0` is supplied by **monopole atoms**
-    `X_{(1,0)}^{±}` (chord-atoms with empty A6 part, NOT torus), the residual
-    gauge `c1` by `E`.  Validated to close `multiply` 100% (78376 product
-    canonicals, magnetic and c0=0 alike).
-  * **trace** (Layer 2): magnetic `c0 ≠ 0 ⇒ Tr = 0` exactly; the gauge v-tower
-    `E^n` via the lazy vacuum recipe; the `c0 = 0` chord seeds via the
-    spine-free orthonormality bootstrap (`u1e7_trace_bootstrap`).
+    `X_{(±1,0)}` (chord-atoms with empty A6 part, NOT torus), the residual
+    gauge `c1` by `E`.  The build factors every product canonical of every
+    ordered atom pair (it raises otherwise): 30110 cross products, 120490
+    terms.
+  * **ρ**: tabulated on the 201 generator keys, the rest by the automorphism
+    rule (`rho`, `freeze_rho`).
+  * **trace** (Layer 2): magnetic `c0 ≠ 0 ⇒ Tr = 0` exactly; every
+    magnetically neutral label (`c0 = 0`: the gauge v-tower `E^n`, incl.
+    `Tr(1)`, and every neutral chord label) through the ungauged `[A₁,E₇]`
+    algebra `FiniteE7KAlgebra` (its closed-form traces, `e7_seeds`):
+
+        Tr(L_ℓ) = [μ^{−r}] ( (𝖖²;𝖖²)_∞² · Tr_{[A₁,E₇]}(L_z; μ) ),   φ(L_ℓ) = μ^r·L_z,
+
+    with `φ` the label map of the neutral sector onto `FiniteE7KAlgebra`
+    (`E ↦ μ`, each zoo generator `g` the image of the label
+    `_E7_GENERATOR_PREIMAGES[γ_g]`; `_e7_image` inverts it by an exact
+    chord-multiset cover over the zoo's cones; `E^n` is `z = ()`, `r = n`).
+    The identity is the gauging of the U(1) flavour: `(𝖖²;𝖖²)_∞²` is the
+    vector-multiplet measure and the constant term in `μ` the gauge
+    projection.  The E-tower's vacuum is the zoo's closed form (equal to the
+    Nahm e7 sum, `_vacuum_mu`, kept as the witness).  `φ` is certified by
+    products (the suite in the source repository):
+    all 8100 ordered generator products and all 2600 zoo 6-cones agree, and a
+    perturbed map fails.  No RG flow, no BPS engine and no bootstrap is on this
+    path; the former orthonormality bootstrap `u1e7_trace_bootstrap` is not
+    used (on these tables it raised `MemoryError` at `K = 4`, and it served
+    every word missing from its solution as exact 0).
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 import itertools
@@ -40,9 +69,8 @@ from zplus_ring import TrivialZPlusRing, ZPlusRing, RPowerSeries, RElement
 from cone_data import FiniteConeData, Cone
 from cone_kalgebra import ConeKAlgebra
 # NOTE: `u1e7_gauged_rg` (the RG-flow oracle) and `u1e7_cone_derivation` are
-# derivation modules not included in this repository; they are imported LAZILY
-# (inside the build / oracle paths only, which run where those derivations are
-# available) so the frozen, spine-free runtime never touches a realisation
+# derivation modules; they are imported LAZILY (inside the build / oracle
+# paths only) so the frozen, spine-free runtime never touches a realisation
 # engine.
 
 
@@ -56,6 +84,145 @@ def _frozen_path() -> str:
 
 def _rho_frozen_path() -> str:
     return os.path.join(_HERE, "u1e7_rho_tables.pkl")
+
+
+# sha256 of the two tables built from the flow with dressing chord (2, 2) — the
+# flow of [A1,D7] with the Cartan U(1) of its SU(2) gauged, not gauged [A1,E7]
+# (see `u1a1e7_rgkalgebra.py`).  They are refused on load.
+_STALE_SHA256 = {
+    "21f311e12598d4a09da431d161e18f0eeebfb199dce1b0d12acbdf5753d03e77":
+        "u1e7_cone_tables.pkl",
+    "1526b1dd1b2443dd638af2b68ae5e0f5a1a732653a9712f2efcd82a339fc107d":
+        "u1e7_rho_tables.pkl",
+}
+
+
+def _refuse_stale_tables(path: str) -> None:
+    """Raise if `path` is one of the tables built from the `(2, 2)`-dressed flow."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    if h.hexdigest() in _STALE_SHA256:
+        raise RuntimeError(
+            f"{path} was built from the U1A1E7RGKAlgebra flow with dressing chord "
+            "(2, 2), which is [A1,D7] with the Cartan U(1) of its SU(2) gauged, "
+            "not gauged [A1,E7]; U1E7ConeKAlgebra does not serve it.  Rebuild "
+            "both tables on the corrected flow (dressing chord (3, 0)) with "
+            "`PYTHONPATH=$(ls -d src/* | paste -sd:) python3 src/cone/u1e7_cone_kalgebra.py` (a long "
+            "background job); see `src/rg/u1a1e7_rgkalgebra.py`.")
+
+
+# ---- the neutral sector as the ungauged [A1,E7] algebra ---------------------
+#
+# The magnetically neutral labels `(chord, (0, c1))` of this algebra span the
+# ungauged [A1,E7] algebra with its U(1) fugacity promoted to the gauge leg:
+# the algebra isomorphism phi onto `FiniteE7KAlgebra` (with E |-> mu) sends
+# L_{y_g} to L_g for the label y_g = (chord, (0, c1)) listed against the zoo
+# generator g's E7 lattice vector (`finite_e7_kalg.E7_MULT_GENS_LATTICE[g]`).
+# 70 entries are this algebra's magnetically neutral chord atoms (up to a power
+# of E); each of the 20 marked ones is the product of a c0 = +1 and a c0 = -1
+# chord atom of one of this presentation's cones: a generator of the neutral
+# sector, though not of this cone presentation.  Found 2026-09-23 by matching
+# the 70 neutral atoms' flavour-refined traces (`E7RGKAlgebra`, finder only)
+# against the zoo's closed-form generator traces, then fixing the alignment by
+# rho-equivariance and the q-commutation graph (unique up to rho^2, which
+# moves no trace) and reading the 20 products off generator products.
+# Certified by products in the suite in the source repository: all 8100
+# ordered generator products agree under phi, every zoo 6-cone's image
+# product is one term with the zoo's phase, and a perturbed map fails.
+_E7_GENERATOR_PREIMAGES = {
+    (-2, -1, 0, -1, -1, 0, 0): (((1, 5, 1),), -1),
+    (-2, -1, 0, 0, -1, -1, 0): (((1, 3, 1), (2, 8, 1), (3, 7, 1)), -1),
+    (-2, -1, 0, 0, 0, 0, 0): (((1, 5, 1), (2, 8, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (-1, -1, -1, -2, -2, -1, 0): (((3, 5, 1),), 0),
+    (-1, -1, -1, -1, -2, -1, 0): (((1, 3, 1), (1, 8, 1), (2, 3, 1), (3, 7, 2)), -1),
+    (-1, -1, -1, -1, -1, -1, 0): (((2, 2, 1),), 0),
+    (-1, -1, -1, -1, -1, 0, 0): (((1, 3, 1), (1, 8, 1), (3, 7, 1)), -1),
+    (-1, -1, -1, -1, 0, 0, 0): (((1, 5, 1), (3, 4, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (-1, -1, -1, -1, 0, 1, 0): (((1, 5, 1), (1, 8, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (-1, -1, -1, 0, 0, -1, 0): (((2, 2, 1), (2, 8, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (-1, -1, -1, 0, 0, 0, 0): (((1, 3, 1), (1, 8, 1), (2, 8, 1), (3, 7, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (-1, -1, 0, -1, -2, -1, 0): (((1, 7, 1),), 0),
+    (-1, -1, 0, 0, -1, -1, 0): (((3, 7, 1),), 0),
+    (-1, -1, 0, 0, 0, 0, 0): (((2, 4, 1),), 0),
+    (-1, -1, 0, 1, 0, -1, 0): (((2, 8, 1), (3, 7, 1)), 0),
+    (-1, 0, 0, -1, -2, -1, 0): (((1, 3, 1), (2, 3, 1), (3, 7, 1)), -1),
+    (-1, 0, 0, -1, -1, 0, 0): (((1, 3, 1),), -1),
+    (-1, 0, 0, -1, 0, 1, 0): (((1, 5, 1), (3, 8, 1)), -1),
+    (-1, 0, 0, 0, 0, 0, 0): (((1, 3, 1), (2, 8, 1)), -1),
+    (-1, 0, 1, 0, -1, -1, 0): (((1, 0, 1),), 0),
+    (-1, 0, 1, 0, -1, 0, 0): (((3, 3, 1),), -1),
+    (-1, 0, 1, 0, 0, 0, 0): (((2, 8, 1), (3, 3, 1)), -1),
+    (0, -2, -3, -2, -2, -2, 0): (((2, 2, 1), (2, 7, 1), (3, 2, 1)), 1),
+    (0, -2, -3, -2, -1, 0, 0): (((1, 8, 1), (2, 2, 1), (2, 7, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (0, -1, -3, -3, -2, 0, 0): (((1, 3, 2), (1, 8, 1), (2, 7, 1), (3, 2, 1)), -1),
+    (0, -1, -3, -2, -1, -1, 0): (((1, 3, 1), (1, 8, 1), (2, 2, 1), (3, 2, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (0, -1, -2, -3, -1, 0, -2): (((3, 1, 1), (3, 6, 1)), -1),
+    (0, -1, -2, -2, -2, -1, 0): (((1, 3, 1), (2, 7, 1), (3, 2, 1)), 0),
+    (0, -1, -2, -2, -1, -1, -2): (((1, 3, 1), (1, 8, 1), (2, 7, 1), (3, 2, 2)), -1),
+    (0, -1, -2, -2, -1, -1, -1): (((2, 2, 1), (3, 6, 1)), 0),
+    (0, -1, -2, -2, -1, 0, -1): (((1, 3, 1), (1, 8, 1), (2, 7, 1), (3, 2, 1)), -1),
+    (0, -1, -2, -2, -1, 0, 0): (((3, 1, 1),), 0),
+    (0, -1, -2, -2, -1, 1, 0): (((1, 3, 1), (1, 8, 1), (2, 7, 1)), -1),
+    (0, -1, -2, -1, -1, -2, 0): (((2, 2, 1), (3, 2, 1)), 1),
+    (0, -1, -2, -1, -1, -1, 0): (((1, 3, 1), (1, 8, 1), (3, 2, 1), (3, 7, 1)), 0),
+    (0, -1, -2, -1, 0, -1, -1): (((1, 8, 1), (2, 2, 1), (3, 2, 1)), 0),
+    (0, -1, -2, -1, 0, 0, 0): (((1, 8, 1), (2, 2, 1)), 0),
+    (0, -1, -1, -2, -2, -1, -1): (((1, 7, 1), (3, 6, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (0, -1, -1, -1, -2, -2, 0): (((1, 7, 1), (3, 2, 1)), 1),
+    (0, -1, -1, -1, -1, -1, -1): (((2, 7, 1), (3, 2, 1)), 0),
+    (0, -1, -1, -1, -1, -1, 0): (((3, 0, 1),), 1),
+    (0, -1, -1, -1, -1, 0, -1): (((1, 8, 1), (2, 3, 1), (2, 7, 1), (3, 7, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (0, -1, -1, -1, -1, 0, 0): (((2, 7, 1),), 0),
+    (0, -1, -1, -1, 0, 0, -1): (((2, 1, 1),), 0),
+    (0, -1, -1, 0, 0, -1, 0): (((1, 2, 1),), 1),
+    (0, -1, -1, 0, 0, 0, 0): (((1, 8, 1), (3, 7, 1)), 0),
+    (0, -1, 0, 0, -1, -1, 0): (((1, 4, 1), (1, 7, 1)), 1),  # c0 = 0 product of magnetic atoms
+    (0, -1, 0, 0, 0, 0, 0): (((1, 4, 1), (3, 3, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (0, -1, 0, 1, 0, -1, 0): (((1, 4, 1), (3, 7, 1)), 1),
+    (0, 0, -1, -2, -2, -1, -1): (((1, 3, 1), (2, 3, 1), (2, 7, 1), (3, 2, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (0, 0, -1, -2, -2, 0, 0): (((1, 3, 1), (2, 3, 1), (2, 7, 1)), -1),
+    (0, 0, -1, -2, -1, -1, -1): (((1, 6, 1), (3, 5, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (0, 0, -1, -2, -1, 0, -1): (((1, 3, 1), (3, 6, 1)), -1),
+    (0, 0, -1, -1, -1, -1, 0): (((1, 3, 1), (3, 2, 1)), 0),
+    (0, 0, -1, -1, -1, 0, 0): (((1, 3, 1), (1, 8, 1), (2, 3, 1), (3, 7, 1)), -1),
+    (0, 0, -1, -1, 0, 0, -1): (((1, 3, 1), (1, 8, 1), (3, 2, 1)), -1),
+    (0, 0, -1, -1, 0, 0, 0): (((2, 5, 1),), 0),
+    (0, 0, -1, -1, 0, 1, 0): (((1, 3, 1), (1, 8, 1)), -1),
+    (0, 0, 0, -1, -2, -1, 0): (((1, 7, 1), (2, 3, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (0, 0, 0, -1, -1, -1, -1): (((2, 6, 1),), 0),
+    (0, 0, 0, -1, -1, 0, -1): (((2, 3, 1), (2, 7, 1)), -1),
+    (0, 0, 0, -1, -1, 0, 0): (((2, 0, 1),), 0),
+    (0, 0, 0, -1, 0, 1, 0): (((3, 3, 1), (3, 8, 1)), -1),
+    (0, 0, 0, 0, -1, -1, 0): (((2, 3, 1), (3, 7, 1)), 0),
+    (0, 0, 0, 0, 0, -1, 0): (((2, 8, 1),), 0),
+    (0, 0, 0, 0, 0, 1, 0): (((1, 8, 1), (3, 3, 1)), -1),
+    (0, 0, 0, 1, 0, -1, 0): (((2, 3, 1), (2, 8, 1), (3, 7, 1)), 0),
+    (0, 1, 0, -1, -1, 0, 0): (((1, 3, 1), (2, 3, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (0, 1, 0, -1, 0, 1, 0): (((1, 3, 1), (3, 8, 1)), -1),
+    (0, 1, 0, 0, 0, 0, 0): (((1, 3, 1), (2, 3, 1), (2, 8, 1)), -1),  # c0 = 0 product of magnetic atoms
+    (1, -1, -3, -2, 0, 1, 0): (((1, 8, 1), (3, 1, 1)), 0),
+    (1, -1, -2, -1, 0, -1, 0): (((3, 4, 1),), 1),
+    (1, -1, -2, -1, 0, 0, -1): (((1, 8, 1), (2, 7, 1), (3, 2, 1)), 0),
+    (1, -1, -2, -1, 0, 1, 0): (((1, 8, 1), (2, 7, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (1, -1, -1, 0, 0, -1, 0): (((1, 4, 1),), 1),
+    (1, -1, -1, 0, 0, 0, 0): (((1, 4, 1), (2, 7, 1)), 1),  # c0 = 0 product of magnetic atoms
+    (1, 0, -2, -2, 0, 0, -1): (((1, 6, 1), (3, 1, 1)), 0),
+    (1, 0, -2, -1, 0, -1, 0): (((1, 6, 1), (2, 2, 1)), 1),  # c0 = 0 product of magnetic atoms
+    (1, 0, -2, -1, 0, 1, 0): (((1, 3, 1), (1, 8, 2), (2, 3, 1), (3, 7, 1)), -1),
+    (1, 0, -1, -1, 0, 0, -1): (((3, 6, 1),), 0),
+    (1, 0, -1, -1, 0, 0, 0): (((3, 8, 1),), 0),
+    (1, 0, -1, -1, 0, 1, 0): (((1, 1, 1),), 0),
+    (1, 0, -1, 0, 0, -1, 0): (((3, 2, 1),), 1),
+    (1, 0, -1, 0, 0, 0, 0): (((1, 8, 1), (2, 3, 1), (3, 7, 1)), 0),
+    (1, 0, -1, 0, 1, 0, 0): (((1, 8, 1),), 0),
+    (1, 0, 0, 0, 0, 0, 0): (((2, 3, 1),), 0),
+    (1, 1, -1, -1, 0, 0, 0): (((1, 3, 1), (1, 6, 1)), 0),  # c0 = 0 product of magnetic atoms
+    (1, 1, -1, -1, 0, 1, 0): (((1, 3, 1), (1, 8, 1), (2, 3, 1)), -1),
+    (2, 0, -2, -1, 0, -1, 0): (((1, 6, 1),), 1),
+    (2, 0, -2, -1, 0, 1, 0): (((1, 8, 1), (2, 3, 1), (2, 7, 1)), 0),
+}
 
 
 class U1E7ConeData(FiniteConeData):
@@ -72,14 +239,15 @@ class U1E7ConeData(FiniteConeData):
     # ---- build from the oracle ------------------------------------------
 
     def _build(self, T) -> None:
-        from u1e7_cone_derivation import select_chords  # lazy: oracle-side only
+        from u1e7_cone_derivation import (   # lazy: oracle-side only
+            select_chords, _trim_oracle_caches)
         chords = select_chords(T)
-        # one (chord_part, c0) atom per key, canonical c1 = min |c1|
+        # one atom per (chord_part, c0) key, at gauge charge c1 = 0 (E carries
+        # the gauge charge; c1 = 0 keeps every oracle product at the lowest
+        # gauge degree)
         bykey: dict = {}
         for ch in chords:
-            k = (ch[0], ch[1][0])
-            if k not in bykey or abs(ch[1][1]) < abs(bykey[k][1][1]):
-                bykey[k] = ch
+            bykey[(ch[0], ch[1][0])] = (ch[0], (ch[1][0], 0))
         chordatoms = sorted(bykey.values(), key=repr)
         E, Ei = ((), (0, 1)), ((), (0, -1))
         self._atoms = tuple(chordatoms + [E, Ei])
@@ -99,10 +267,37 @@ class U1E7ConeData(FiniteConeData):
         for a in chordatoms:
             if a[0]:
                 self._ai_atoms[self._sig[a][0]].append(a)
+        # each unordered atom pair is multiplied by the oracle once, memoised
+        # here for the q-commute graph, the cocycles and the cross products;
+        # the other order is its bar image (`L_h·L_g = bar(L_g·L_h)`: the bar
+        # involution is antimultiplicative and fixes the canonical basis),
+        # checked against the oracle on every 25th pair.
+        keep = frozenset(self._atoms)
+        prods: dict = {}
+        nbar = [0]
+
+        def mul(g, h):
+            v = prods.get((g, h))
+            if v is None:
+                w = prods.get((h, g))
+                if w is not None:
+                    v = w.bar()
+                    nbar[0] += 1
+                    if nbar[0] % 25 == 1:
+                        _trim_oracle_caches(T, keep=keep)
+                        if self._terms(T.multiply(g, h)) != self._terms(v):
+                            raise AssertionError(
+                                f"bar image of {h}·{g} differs from {g}·{h}")
+                else:
+                    _trim_oracle_caches(T, keep=keep)
+                    v = T.multiply(g, h)
+                prods[(g, h)] = v
+            return v
+
         # q-commute graph
         self._nb = {v: set() for v in self._atoms}
         for g, h in itertools.combinations(self._atoms, 2):
-            if len(self._terms(T.multiply(g, h))) == 1:
+            if len(self._terms(mul(g, h))) == 1:
                 self._nb[g].add(h)
                 self._nb[h].add(g)
         self._cones = self._maximal_cliques()
@@ -124,10 +319,10 @@ class U1E7ConeData(FiniteConeData):
         self._xprod: dict = {}
         for g, h in itertools.permutations(self._atoms, 2):
             if h in self._nb[g]:
-                self._qpow[(g, h)] = self._extract_cocycle(T, g, h)
+                self._qpow[(g, h)] = self._extract_cocycle(mul, g, h)
         for g, h in itertools.permutations(self._atoms, 2):
             if h not in self._nb[g]:
-                self._xprod[(g, h)] = self._extract_cross(T, g, h)
+                self._xprod[(g, h)] = self._extract_cross(mul, g, h)
 
     def _post_init(self) -> None:
         """Derived indices for factoring (recomputed on build and load)."""
@@ -155,6 +350,7 @@ class U1E7ConeData(FiniteConeData):
         path = _frozen_path()
         if not os.path.exists(path):
             return False
+        _refuse_stale_tables(path)
         with open(path, "rb") as f:
             d = pickle.load(f)
         for k in self._FROZEN_KEYS:
@@ -198,9 +394,10 @@ class U1E7ConeData(FiniteConeData):
         bk(set(), set(self._atoms), set())
         return tuple(cliques)
 
-    def _extract_cocycle(self, T, g, h) -> int:
-        gh = self._terms(T.multiply(g, h))
-        hg = self._terms(T.multiply(h, g))
+    def _extract_cocycle(self, mul, g, h) -> int:
+        """`mul(g, h)` is the oracle product `L_g·L_h`."""
+        gh = self._terms(mul(g, h))
+        hg = self._terms(mul(h, g))
         (s, cgh), = gh.items()
         chg = hg[s]
         a = min(cgh._coeffs)
@@ -208,9 +405,10 @@ class U1E7ConeData(FiniteConeData):
         assert (a - b) % 2 == 0, f"odd cocycle {g},{h}: {a},{b}"
         return (a - b) // 2
 
-    def _extract_cross(self, T, g, h):
+    def _extract_cross(self, mul, g, h):
+        """`mul(g, h)` is the oracle product `L_g·L_h`."""
         terms = []
-        for s, lp_can in self._terms(T.multiply(g, h)).items():
+        for s, lp_can in self._terms(mul(g, h)).items():
             gens, powers = self.to_cone_label(s)
             phase = self.cone_label_phase(gens, powers)
             lp = LaurentPoly({e + phase: co for e, co in lp_can._coeffs.items()})
@@ -378,6 +576,12 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
 
     def __init__(self, use_frozen: bool = True):
         self._R = TrivialZPlusRing()
+        # spine-free ρ: frozen {(ray_word, c0): (π, c0', δ)} (at c1=0) + ρ²-orbit
+        # bound H; any gauge charge c1 follows from the reflection below.  Loaded
+        # first, so a table from the (2, 2)-dressed flow is refused before any
+        # build work.
+        self._rhotab = self._rhoitab = self._Hval = None
+        self._load_rho_frozen()
         # build cone-data (frozen tables if available → spine-free, else oracle)
         if use_frozen and os.path.exists(_frozen_path()):
             self._oracle = None
@@ -386,16 +590,14 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
             from u1e7_gauged_rg import U1E7GaugedRG   # lazy: oracle-side only
             self._oracle = U1E7GaugedRG()
             self._cone_data = U1E7ConeData(self._oracle, use_frozen=False)
-        self._seed_cache: dict = {}
         self._vac_cache: dict = {}
-        self._boot_cache: dict = {}
         self._rho_cache: dict = {}
         self._rhoi_cache: dict = {}
-        # spine-free ρ: frozen {(ray_word, c0): (π, c0', δ)} (at c1=0) + ρ²-orbit
-        # bound H; any gauge charge c1 follows from the reflection below.
-        self._rhotab = self._rhoitab = self._Hval = None
-        self._rho_rec = None        # freeze-time (ray_word, c0) recorder (else None)
-        self._load_rho_frozen()
+        # the neutral-sector route through FiniteE7KAlgebra (built lazily)
+        self._e7 = None                    # the FiniteE7KAlgebra instance
+        self._e7_cover = None              # per-generator data for `_e7_image`
+        self._e7_image_cache: dict = {}    # neutral label -> (zoo label, r)
+        self._e7_trace_cache: dict = {}    # (zoo label, K) -> {q: {n: int}}
 
     # ---- KAlgebra contract ----------------------------------------------
 
@@ -422,8 +624,8 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
         c0)` table + the gauge-reflection formula `ρ((w,(c0,c1)))=(π,(c0',δ-c1))`
         for tabulated keys; for a multi-ray *product* canonical (key absent from
         the table) ρ is computed oracle-free by the automorphism rule
-        `_rho_via_cone`.  The oracle is consulted only at freeze/build time (when
-        `_rho_rec` is recording the table)."""
+        `_rho_via_cone`.  The oracle is consulted only by an instance built from
+        it before any ρ table exists (`use_frozen=False`)."""
         v = self._rho_cache.get(a)
         if v is None:
             chord, (c0, c1) = a
@@ -431,10 +633,8 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
             if ent is not None:
                 pi, pc0, delta = ent
                 v = (pi, (pc0, delta - c1))
-            elif self._rho_rec is not None:
-                # freeze/build time: record the key and tabulate from the oracle.
-                self._rho_rec.add((chord, c0))
-                v = self._oracle_alg().rho(a)
+            elif self._rhotab is None and self._oracle is not None:
+                v = self._oracle.rho(a)
             else:
                 v = self._rho_via_cone(a, inverse=False)
             self._rho_cache[a] = v
@@ -448,9 +648,8 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
             if ent is not None:
                 pi, pc0, delta = ent
                 v = (pi, (pc0, delta - c1))
-            elif self._rho_rec is not None:
-                self._rho_rec.add((chord, c0))
-                v = self._oracle_alg().rho_inverse(a)
+            elif self._rhoitab is None and self._oracle is not None:
+                v = self._oracle.rho_inverse(a)
             else:
                 v = self._rho_via_cone(a, inverse=True)
             self._rhoi_cache[a] = v
@@ -513,6 +712,7 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
         path = _rho_frozen_path()
         if not os.path.exists(path):
             return False
+        _refuse_stale_tables(path)
         with open(path, "rb") as f:
             d = pickle.load(f)
         if not {"_rho", "_rhoi", "_H"} <= d.keys():     # stale / wrong format
@@ -520,56 +720,33 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
         self._rhotab, self._rhoitab, self._Hval = d["_rho"], d["_rhoi"], d["_H"]
         return True
 
-    def freeze_rho(self, K: int = 6) -> str:
+    def freeze_rho(self) -> str:
         """Extract ρ / ρ⁻¹ keyed by `(ray_word, c0)` at `c1 = 0` and the ρ²-orbit
         bound `H` from the oracle, writing `u1e7_rho_tables.pkl` so ρ is
         spine-free.  Only `(π, c0', δ)` per key is stored — any gauge charge `c1`
         follows from `ρ((w,(c0,c1))) = (π,(c0',δ-c1))` (ρ(E)=E⁻¹, ρ an
-        automorphism, so the gauge leg always reflects; validated for every c0).
-        The `(ray_word, c0)` set is bounded (independent of `K` — capped by the
-        bootstrap deep-power reach `pcap`, not the q-order), so this is exact at
-        arbitrary q-order (no K cap).
+        automorphism, so the gauge leg always reflects).
 
-        Completeness: *record* every `(ray_word, c0)` the trace path actually
-        queries ρ on (a freeze-time bootstrap + orthonormality battery, ρ falling
-        back to the oracle), seed with the cone-structure ray-words, and close
-        under ρ / ρ⁻¹ — so the ρ²-orbit walk never escapes the table."""
+        Keys: every cone generator (atom), closed under ρ / ρ⁻¹.  ρ on any other
+        label — a product of generators — is the oracle-free automorphism rule
+        `_rho_via_cone`, so the table serves every label at any q-order.  (The
+        tables built from the earlier `(2, 2)` flow also stored the keys that a
+        freeze-time run of the trace bootstrap queried; that tied the ρ table to
+        the trace path and is no longer done.)"""
         from u1e7_gauged_rg import U1E7GaugedRG     # lazy: oracle-side only
+        from u1e7_cone_derivation import _trim_oracle_caches
         if self._oracle is None:
             self._oracle = U1E7GaugedRG()
         orc = self._oracle
-        cd = self._cone_data
-        # 1) record the (ray_word, c0) keys the trace/bootstrap path queries
-        rec: set = set()
-        self._rho_rec = rec
-        self._rho_cache.clear()
-        self._rhoi_cache.clear()
-        try:
-            from u1e7_trace_bootstrap import solve_chord_seeds
-            solve_chord_seeds(self, K)
-            atoms = [g for g in cd.mult_gens() if g[1][0] == 0 and g[0] != ()][:14]
-            for a in atoms:
-                for b in atoms:
-                    self.inner_product(a, b, K)
-        finally:
-            self._rho_rec = None
-            self._rho_cache.clear()
-            self._rhoi_cache.clear()
-        # 2) seed with the cone-structure ray-words (at c0=0) too
-        keys = set(rec) | {((), 0)}
-        for a in cd.mult_gens():
-            keys.add((a[0], a[1][0]))
-        for cone in cd.cones():
-            for lab in cone:
-                keys.add((lab[0], lab[1][0]))
-        # 3) close under ρ / ρ⁻¹ and tabulate (π, c0', δ)
+        keys = {((), 0)} | {(a[0], a[1][0]) for a in self._cone_data.mult_gens()}
         rho: dict = {}
         rhoi: dict = {}
-        queue = list(keys)
+        queue = sorted(keys, key=repr)
         while queue:
             ch, c0 = queue.pop()
             if (ch, c0) in rho:
                 continue
+            _trim_oracle_caches(orc)
             r = orc.rho((ch, (c0, 0)))
             rho[(ch, c0)] = (r[0], r[1][0], r[1][1])
             ri = orc.rho_inverse((ch, (c0, 0)))
@@ -580,6 +757,8 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
         with open(_rho_frozen_path(), "wb") as f:
             pickle.dump({"_rho": rho, "_rhoi": rhoi, "_H": orc._H}, f)
         self._rhotab, self._rhoitab, self._Hval = rho, rhoi, orc._H
+        self._rho_cache.clear()
+        self._rhoi_cache.clear()
         return _rho_frozen_path()
 
     # ---- trace (Layer 2) ------------------------------------------------
@@ -603,26 +782,149 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
     def _trace_residual(self, seed_label, K):
         """Layer-2 seed value.  `c0 ≠ 0 ⇒ 0` (magnetic, exact); the gauge
         v-tower `E^n` (incl. the identity `Tr(1)`) via the lazy vacuum recipe;
-        every other `c0 = 0` cone-word via the **forward-triangular
-        orthonormality bootstrap** (`u1e7_trace_bootstrap.solve_chord_seeds`).
-
-        The bootstrap is the "orthonormality fixes traces up to Tr(1)" demo for
-        this QTCone: the only supplied input is the gauge/vacuum sector
-        (`Tr(1)`/`Tr(E^n)`); the deep-power, self-/cross-orthonormality, and
-        one-step cyclicity constraints then pin every `c0 = 0` word by a
-        certified forward sweep (no contradiction / under-determination at order
-        ≤ K).  See `_chord_seed_trace` and `trace`."""
+        every other `c0 = 0` label (a neutral chord label) through
+        `FiniteE7KAlgebra` (`_neutral_chord_trace`)."""
         if self._mag_charge(seed_label) != 0:
             return RPowerSeries(self._R, {}, K)
         chord, (_c0, c1) = seed_label
         if chord == ():                       # gauge v-tower E^{c1} (incl. Tr(1))
             return self._v_tower_trace(c1, K)
-        return self._chord_seed_trace(seed_label, K)
+        return self._neutral_chord_trace(seed_label, K)
+
+    # -- the neutral sector through FiniteE7KAlgebra ------------------------
+
+    def _e7_zoo(self):
+        """The ungauged `[A₁,E₇]` algebra `FiniteE7KAlgebra` (closed-form traces;
+        imported lazily) and the per-generator cover data for `_e7_image`."""
+        if self._e7 is None:
+            from finite_e7_kalg import FiniteE7KAlgebra, E7_MULT_GENS_LATTICE
+            zoo = FiniteE7KAlgebra()
+            gens = {}
+            for g, gamma in enumerate(E7_MULT_GENS_LATTICE):
+                chord, c1 = _E7_GENERATOR_PREIMAGES[tuple(gamma)]
+                ct = Counter()
+                for (a, i, e) in chord:
+                    ct[(a, i)] += e
+                gens[g] = (ct, c1)
+            if len(gens) != len(_E7_GENERATOR_PREIMAGES):
+                raise AssertionError("_E7_GENERATOR_PREIMAGES does not match "
+                                     "FiniteE7KAlgebra's generators")
+            by_letter: dict = defaultdict(list)
+            for g, (ct, _c1) in gens.items():
+                for letter in ct:
+                    by_letter[letter].append(g)
+            self._e7_cover = (gens, dict(by_letter))
+            self._e7 = zoo
+        return self._e7
+
+    def _e7_image(self, label):
+        """`φ(L_ℓ) = μ^r·L_z` for a magnetically neutral chord label
+        `ℓ = (chord, (0, c1))`: returns `(z, r)`, `z` a `FiniteE7KAlgebra` label.
+
+        `φ` is linear on each zoo cone — the zoo label `z = ((g, p), …)` is the
+        image of the label whose chord multiset is `Σ p·chord(y_g)` and whose
+        gauge charge is `Σ p·c1(y_g) + r` — so `z` is found by an exact cover of
+        `ℓ`'s chord multiset by the chord multisets of pairwise q-commuting zoo
+        generators (`_E7_GENERATOR_PREIMAGES`); the cover is unique because `φ`
+        is a bijection of canonical bases (checked on samples in the tests).
+        Raises `ValueError` when no cover exists (not a label of this
+        algebra)."""
+        v = self._e7_image_cache.get(label)
+        if v is not None:
+            return v
+        chord, (c0, c1) = label
+        if c0 != 0:
+            raise ValueError(f"_e7_image: {label!r} is not magnetically neutral")
+        zoo = self._e7_zoo()
+        gens, by_letter = self._e7_cover
+        qc = zoo.cone_data().q_commute
+        target = Counter()
+        for (a, i, e) in chord:
+            target[(a, i)] += e
+        failed: set = set()
+
+        def cover(rem, chosen):
+            if not rem:
+                return chosen
+            key = (frozenset(rem.items()), frozenset(chosen))
+            if key in failed:
+                return None
+            letter = min(rem)
+            for g in by_letter.get(letter, ()):
+                ct = gens[g][0]
+                if any(rem.get(x, 0) < n for x, n in ct.items()):
+                    continue
+                if not all(qc(g, h) for h in chosen):
+                    continue
+                nxt = Counter(rem)
+                nxt.subtract(ct)
+                nxt = +nxt
+                got = cover(nxt, chosen | {g})
+                if got is not None:
+                    powers[g] = powers.get(g, 0) + 1
+                    return got
+            failed.add(key)
+            return None
+
+        powers: dict = {}
+        if cover(+target, frozenset()) is None:
+            raise ValueError(
+                f"_e7_image: no cover of {label!r} by the images of "
+                "FiniteE7KAlgebra's generators; not a label of this algebra")
+        z = tuple(sorted(powers.items()))
+        r = c1 - sum(p * gens[g][1] for g, p in powers.items())
+        self._e7_image_cache[label] = (z, r)
+        return z, r
+
+    def _neutral_chord_trace(self, label, K):
+        """`Tr(L_ℓ) = [μ^{−r}]((𝖖²;𝖖²)_∞²·Tr_{[A₁,E₇]}(L_z; μ))` for a
+        magnetically neutral chord label, `φ(L_ℓ) = μ^r·L_z` (`_e7_image`):
+        the U(1) gauging of the flavoured `[A₁,E₇]` trace, which
+        `FiniteE7KAlgebra` serves from its closed forms (`e7_seeds`)."""
+        z, r = self._e7_image(label)
+        return self._gauged_zoo_trace(z, r, K)
+
+    def _gauged_zoo_trace(self, z, r, K):
+        """`[μ^{−r}]((𝖖²;𝖖²)_∞²·Tr_{[A₁,E₇]}(L_z; μ))` through `𝖖^K`, with the
+        `FiniteE7KAlgebra` trace of its label `z` (`()` is the identity, whose
+        trace is the closed-form vacuum)."""
+        key = (z, K)
+        tz = self._e7_trace_cache.get(key)
+        if tz is None:
+            tr = self._e7_zoo().trace(z, K)
+            tz = {}
+            for q, v in tr.coeffs.items():
+                for kb, c in v.terms.items():
+                    if int(c):
+                        n = kb[0] if kb else 0
+                        tz.setdefault(q, {})[n] = int(c)
+            self._e7_trace_cache[key] = tz
+        from qpoch import qpoch_infty
+        m = qpoch_infty(K)
+        m = m * m
+        meas = {e: int(c) for e, c in m._c.items() if int(c) and e <= K}
+        coeffs: dict = {}
+        for q1, md in tz.items():
+            c = md.get(-r, 0)
+            if not c:
+                continue
+            if q1 < 0:
+                # a trace is a power series; never truncate a negative power away
+                raise ValueError(
+                    f"_gauged_zoo_trace: the FiniteE7KAlgebra trace of {z!r} has a "
+                    f"q^{q1} term; a trace must start at q^0")
+            for qe, mc in meas.items():
+                q = q1 + qe
+                if q <= K:
+                    coeffs[q] = coeffs.get(q, 0) + c * mc
+        return self._int_rps(coeffs, K)
 
     # -- lazy vacuum recipe: Tr(E^n) = [μ^{-n}](Tr_E7(1;μ)·(q²;q²)_∞²) ----
 
     def _vacuum_mu(self, K):
-        """`Tr_E7(1; μ)·(q²;q²)_∞²` as `{q_exp: {mu_exp: int}}` to order `K`."""
+        """`Tr_E7(1; μ)·(q²;q²)_∞²` as `{q_exp: {mu_exp: int}}` to order `K`, with
+        `Tr_E7(1; μ)` the Nahm sum on the E7 BPS spectrum.  The witness of the
+        E-tower, not its serving path (`_v_tower_trace`)."""
         if K in self._vac_cache:
             return self._vac_cache[K]
         from vacuum_nahm import vacuum_trace_rps, SPECS
@@ -652,34 +954,38 @@ class U1E7ConeKAlgebra(ConeKAlgebra):
         return P
 
     def _v_tower_trace(self, n, K):
-        """`Tr(E^n) = [μ^{-n}](Tr_E7(1;μ)·(q²;q²)_∞²)`."""
-        P = self._vacuum_mu(K)
-        coeffs = {q: md[-n] for q, md in P.items() if md.get(-n, 0) and q <= K}
-        return self._int_rps(coeffs, K)
-
-    def _chord_seed_trace(self, seed_label, K):
-        """`Tr` of a `c0 = 0` chord seed via the spine-free orthonormality
-        bootstrap (`u1e7_trace_bootstrap`), cached per `K`."""
-        from u1e7_trace_bootstrap import solve_chord_seeds, rho2_rep
-        if K not in self._boot_cache:
-            self._boot_cache[K] = solve_chord_seeds(self, K)
-        Tr = self._boot_cache[K]
-        rep = rho2_rep(self, seed_label)
-        series = Tr.get(rep, {})
-        return self._int_rps(series, K)
+        """`Tr(E^n) = [μ^{-n}](Tr_E7(1;μ)·(q²;q²)_∞²)`, with `Tr_E7(1; μ)` the
+        closed-form vacuum `FiniteE7KAlgebra` serves (the Bershadsky–Polyakov
+        vacuum product of `e7_seeds`): the identity case `z = ()` of
+        the neutral route.  The Nahm sum (`_vacuum_mu`) gives the same series
+        (tested through `𝖖¹⁰`) but grows about threefold per two orders
+        (30 s at `𝖖¹⁴`), and `trace_element` widens `K` by the negative powers
+        of its coefficients, so it is kept as the witness only."""
+        return self._gauged_zoo_trace((), n, K)
 
     def trace(self, a, K=20):
         """`Tr(L_a)` for a single basis cone-word `a`.
+
+        Served: a magnetic label (`c0 ≠ 0`) traces to 0 exactly; the gauge
+        v-tower `E^n` (incl. `Tr(1)`) comes from `FiniteE7KAlgebra`'s
+        closed-form vacuum; a magnetically neutral chord label (`c0 = 0`,
+        non-empty chord) from `FiniteE7KAlgebra` through the label map `φ`
+        (`_neutral_chord_trace`; see the module docstring).  Its cost is the zoo's: a single generator
+        is a closed form, a composite zoo label goes through the zoo's own
+        Layer-1 reduction, which grows fast with the label's depth.
 
         Layer-1 for this QTCone is pure **ρ²-canonicalisation** (`Tr(ρ²x)=Tr(x)`):
         a basis label is one cone-word ⇒ one seed, so no expansion is needed.
         The generic tagged-cycle reduction `ConeData.simplify_trace_via_cone_data`
         (used by `ConeKAlgebra.trace`) is cyclically INCONSISTENT on this QTCone
-        and is therefore bypassed.  Layer-2 is `_trace_residual` (magnetic → 0,
-        gauge v-tower, and the orthonormality bootstrap for chords).  Multi-term
-        traces go through the inherited `trace_element`, which sums this per
-        term — so `inner_product` reproduces orthonormality through the contract.
+        and is therefore bypassed.  A neutral chord label needs no
+        canonicalisation: the zoo trace is already ρ²-invariant.  Layer-2 is
+        `_trace_residual`.  Multi-term traces go through the inherited
+        `trace_element`, which sums this per term.
         """
+        chord, (c0, _c1) = a
+        if c0 == 0 and chord:
+            return self._neutral_chord_trace(a, K)
         return self._trace_residual(self._canonical_rho2_orbit_rep(a), K)
 
 
@@ -692,7 +998,11 @@ if __name__ == "__main__":
           f"{len(cd.mult_gens())} atoms, {len(cd.cones())} cones")
     cd.freeze()
     print("frozen ->", _frozen_path())
-    # spine-free ρ tables (ray-word reflection): exact at any q-order
+    # spine-free ρ tables (ray-word reflection): exact at any q-order.  The ρ
+    # table is rebuilt from scratch against the new cone table; an older one is
+    # removed first (it is never read back).
+    if os.path.exists(_rho_frozen_path()):
+        os.remove(_rho_frozen_path())
     t1 = time.time()
     K = U1E7ConeKAlgebra(use_frozen=True)
     K.freeze_rho()

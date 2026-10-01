@@ -83,8 +83,8 @@ Test surface
 At the bottom of this module, a `__main__` smoke test verifies the
 cone-data primitives by comparing `derived_multiply` outputs against a
 reference pure-SU(2) implementation for a basket of (a, b, c) cone
-monomials (it imports `psu2_kalgebra`, which is not included in this
-repository; the in-repo coverage is `tests/test_cones.py`).
+monomials (it imports `psu2_kalgebra`; the gate's coverage is
+`tests/test_cones.py`).
 """
 from __future__ import annotations
 
@@ -522,7 +522,7 @@ class PureSU2KAlg(ConeKAlgebra):
 # ---------------------------------------------------------------------------
 # Smoke test: verify cone_data q_commute / cocycle / cross_product against
 # a reference pure-SU(2) implementation for a basket of products (requires
-# psu2_kalgebra, not included in this repository).
+# psu2_kalgebra).
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":

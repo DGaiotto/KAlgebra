@@ -1,0 +1,78 @@
+{
+ "id": "sec:a1d3/algebra",
+ "labels": [
+  "sec:a1d3"
+ ],
+ "date": "2026-09-22T00:05:21Z",
+ "commit": "8da697afb50102e74e4b0745297e9de689c480a6",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "generators": 6,
+  "window": "38 labels",
+  "K": 6
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed relations reproduced on all i",
+  "negative": "altered relation detected"
+ },
+ "elapsed_s": 94.395,
+ "notes": "The stand-alone class is src/cone/a1d3_kalg.py::A1D3KAlg over R(SU(2)) (SU2ZPlusRing); tiles 0..5 are the six cones (T_i, D_i) and (T_i, D_{i-1}).",
+ "checks": [
+  {
+   "name": "T_i T_{i+1} = 1 + q^-1 χ_1 D_i + q^-2 D_i^2 and T_{i+1} T_i = 1 + q χ_1 D_i + q^2 D_i^2, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "D_i D_{i+1} = 1 + q^-1 T_{i+1} and D_{i+1} D_i = 1 + q T_{i+1}, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "T_i D_{i+1} = χ_1 + q^-1 D_i + q D_{i-1} and D_{i+1} T_i = χ_1 + q D_i + q^-1 D_{i-1}, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "T_i D_i = q^-2 D_i T_i and T_i D_{i-1} = q^2 D_{i-1} T_i, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "canonical monomials: T_i^a D_i^b = q^-ab L (L = q^ab T_i^a D_i^b) and T_i^a D_{i-1}^b = q^ab L' (L' = q^-ab T_i^a D_{i-1}^b), a, b <= 3, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "dressing by flavour characters: χ_1·L = the χ_1-dressed label (central), χ_1 χ_1 = χ_0 + χ_2, χ_1 χ_2 = χ_1 + χ_3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho(T_i) = T_{i+1}, rho(D_i) = D_{i+1}, rho fixes χ_k; rho has order exactly 3 on the window",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "F1-F5 verifiers on the window (38 labels, a+b <= 2, χ-dressing 0/1), K = 6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the altered relation D_i D_{i+1} = 1 + q^-2 T_{i+1} is detected",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the presentations are one algebra: KAlgebraIso witnesses on 4 edges (realizations ['standalone', 'bps', 'rg-sqed1', 'skein-pinned'])",
+   "ok": true,
+   "note": "8 matched samples"
+  }
+ ]
+}

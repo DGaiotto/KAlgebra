@@ -1,0 +1,63 @@
+{
+ "id": "sec:coulomb/presentation",
+ "labels": [
+  "eq:fgprod",
+  "eq:ccprod",
+  "eq:ccclosed",
+  "eq:cocydef"
+ ],
+ "date": "2026-09-22T01:02:48Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "SU(2) pairs": 49,
+  "SU(3) pairs": 81,
+  "cocycle triples": 854,
+  "matter pairs": 50,
+  "products": 5
+ },
+ "counts": {
+  "pass": 6,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the class's products reproduced from the printed formula",
+  "negative": "an altered cocycle detected"
+ },
+ "elapsed_s": 1.4,
+ "notes": "All comparisons are exact rational identities (cross-multiplied numerators against the denominator factors), never truncated.",
+ "checks": [
+  {
+   "name": "eq:ccclosed  the vector cocycle of SU(2): CC(a,b) equals the printed closed form (A>0>B), its bar image (A<0<B) or 1, on 49 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:ccprod  the pure-gauge cocycle of SU(3) is the product over positive roots of the printed factor, on 81 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:cocydef  the printed cocycle satisfies the 2-cocycle identity cocy_ab(q^(a+b)v) cocy_(a+b)c(q^(a+b+c)v) = cocy_bc(q^(2a+b+c)v) cocy_a(b+c)(q^(a+b+c)v): SU(2) 125 triples, SU(3) 729 triples",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:ccprod / eq:ccclosed  the matter cocycle CC[N] is the pure cocycle times Π_w cocy^hyp(<a,w>,<b,w>; μ v^w) = (-q^(r+1) x; q^2)_p, on 50 pairs (SO(3)+adjoint, SU(2)+fundamental)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:fgprod  (f·g)_m = Σ_m' f_m'(q^(m'-m) v) g_(m-m')(q^m' v) cocy_(m',m-m')(v) with the printed cocycle reproduces the class's products of the SU(2) lines L_20, L_21, L_01, L_02 (5 products, every magnetic sector)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the SU(2) cocycle with the shifts (q^r z;q^2)_p (q^r z;q^2)_p (the second factor unshifted) is detected",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

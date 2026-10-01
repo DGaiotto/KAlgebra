@@ -113,8 +113,9 @@ different places**.  Always check `coefficient_ring()` *and*
   *lattice/label* coordinate (a torus gen, or an exponent in
   the cone label) — there is no R-side content.
   `_label_section_decompose(label) = (label, R.one())`.  *Examples:*
-  `FinitePentagonKAlgebra`, `U1SquareKAlg`, `U1OctagonKAlg`,
-  `U1DecagonKAlg`, `U1A1AoddKAlg`, `U1HexagonKAlg`.  ⚠ In `U1HexagonKAlg` the central `E`
+  `PentagonKAlg`, `U1SquareKAlg`, `U1A1AoddKAlg` (the retired stand-alone
+  `U1OctagonKAlg` / `U1DecagonKAlg` were its k = 2, 3), `U1HexagonKAlg`.
+  ⚠ In `U1HexagonKAlg` the central `E`
   exponent is a **dynamical algebra generator, not a flavour fugacity**
   — so `R` stays `Trivial` even though the label carries a μ-looking
   integer.
@@ -240,6 +241,11 @@ generators (NOT required to be maximal — just compatible).  `powers` is
 a dict whose keys are exactly `compatible_set` and whose values are
 integers ≥ 1.  The pair uniquely labels a canonical-basis element."""
 
+# At most this many cone data per algebra keep a Layer-1 word memo
+# (`ConeData._layer1_memo`); the oldest is dropped first.
+_LAYER1_MEMO_SLOTS = 4
+
+
 CrossProductTerm = tuple["LaurentPoly | RLaurent", tuple[Label, ...]]
 """A single (coeff, word) summand in a cross-product expansion.
 
@@ -297,9 +303,45 @@ class ConeData(ABC):
     trace monomial to the *same* seed-`Element` (the trace is
     well-defined), so the choice never changes the answer, only the size
     of the reduction tree.  See `_tagged_cyclicity_round_bilateral`.
+
+    Layer 1 on labels
+    -----------------
+    `layer1_on_labels` (default `False`) runs Layer 1 on the algebra's
+    canonical labels instead of on words (`_simplify_trace_on_labels`):
+    the same two identities — ρ²-twisted cyclicity on one generator and
+    `Tr∘ρ² = Tr` — with the algebra's own `multiply` expanding each
+    collision into canonical labels, so every intermediate is a canonical
+    label and the words of the word route never arise.  It requires ρ^{±2}
+    to send each multiplicative generator to one generator (a `FiniteConeData`
+    with a permutation ρ, e.g. the E-type zoo).  Its seeds are the word
+    route's kind (the identity and single generators), though a label's
+    expansion over them may differ (they are not independent); its traces are
+    the same.  Built for `FiniteE8KAlgebra`, whose deep labels the word route
+    could not reach (measured 2026-09-26: a degree-16 label out of memory at
+    6 GB there, about a minute and 0.6 GB here); `FiniteE7KAlgebra` runs it too,
+    folding ρ²-orbits with the flavour units of its δ-table.
     """
 
     bilateral_layer1: bool = False
+    layer1_on_labels: bool = False
+
+    # Layer-1 word memo, per algebra instance.  `_simplify_word` memoises
+    # the reduction of every word it meets.  A reduction depends on this
+    # cone data, on its `bilateral_layer1` flag and on the algebra `alg`
+    # handed to `simplify_trace_via_cone_data` (whose ρ, ρ⁻¹ and
+    # `_rho_delta` it applies), so the memo is kept on `alg`, keyed by
+    # this cone data and the flag, and shared by every Layer-1 call on
+    # that algebra instead of being rebuilt per call.  Stored values are
+    # never mutated.  After a call the memo is replaced by an empty one if
+    # it holds more than `_layer1_memo_cap` words (replaced, not emptied in
+    # place, so an enclosing call keeps a complete memo); a cap of 0
+    # disables it (a fresh dict per call, the behaviour before the memo).
+    # See `_layer1_memo`.  Measured 2026-09-23 on `A1A2kKAlg(4)`, the
+    # pairing ⟨L, L⟩ at K = 6 of a triangulation label (256 traces):
+    # 107–121 s without the memo, 58–60 s with it, identical results; the
+    # memo then holds 124,750 words and the peak RSS rises from 764 MB to
+    # 1,277 MB, which is what the cap bounds.
+    _layer1_memo_cap: int = 200_000
 
     # -- coefficient ring + qpoly factory ---------------------------------
 
@@ -713,6 +755,8 @@ class ConeData(ABC):
         # without ρ²-fixed mult-gens (Pentagon / Heptagon / A1A2k).
         if self.trace_vanishes_by_rho2_fixed_factor(alg, gens, powers):
             return Element({})
+        if self.layer1_on_labels:
+            return self._simplify_trace_on_labels(alg, native_label)
         if not gens or sum(powers.values()) <= 1:
             # Trivially a trace seed.  Round-trip through `from_cone_label`
             # so the result is in the subclass's *canonical* native form
@@ -730,14 +774,82 @@ class ConeData(ABC):
         # `q^{phase_in}` times the trace of the literal word.  We track
         # phase as a LaurentPoly factor on each work item.
         phase_in = self.cone_label_phase(gens, powers)
-        cache: dict = {}
-        reduced = self._simplify_word(alg, tuple(word), cache)
+        cache = self._layer1_memo(alg)
+        try:
+            reduced = self._simplify_word(alg, tuple(word), cache)
+        finally:
+            if len(cache) > self._layer1_memo_cap:
+                self._layer1_memo(alg, reset=True)
         scale = self._q_one(phase_in)
         raw = Element({lbl: scale * c for lbl, c in reduced.items()
                        if not c.is_zero()})
         # Layer-1 boundary: collapse ρ²-orbits on the seed support (the
         # second half of Layer 1).  See `_collapse_rho2_orbits_in_element`.
         return self._collapse_rho2_orbits_in_element(alg, raw)
+
+    def _layer1_memo(self, alg, reset: bool = False) -> dict:
+        """The word memo shared by the Layer-1 calls on `alg` (see the
+        comment at `_layer1_memo_cap`): a dict kept in `alg.__dict__`
+        under this cone data and its `bilateral_layer1` flag; `reset`
+        replaces it by an empty one.  The entry records `id(alg)`, so a
+        copy or an unpickled instance starts afresh, and it holds this cone
+        data, so the key cannot be reused by another one.  A fresh dict
+        (no memo) when the cap is 0 or `alg` has no writable instance
+        `__dict__`."""
+        if self._layer1_memo_cap <= 0:
+            return {}
+        try:
+            store = vars(alg)
+            owner, slots = store.get("_cone_layer1_memo", (None, None))
+            if owner != id(alg):
+                slots = {}
+                store["_cone_layer1_memo"] = (id(alg), slots)
+        except TypeError:          # no writable instance __dict__
+            return {}
+        key = (id(self), bool(self.bilateral_layer1))
+        slot = slots.get(key)
+        if reset or slot is None or slot[0] is not self:
+            if key not in slots:
+                while len(slots) >= _LAYER1_MEMO_SLOTS:
+                    slots.pop(next(iter(slots)))
+            slot = (self, {})
+            slots[key] = slot
+        return slot[1]
+
+    def _simplify_trace_on_labels(self, alg, native_label: Label) -> Element:
+        """Layer 1 on canonical labels (`layer1_on_labels`): reduce
+        `L_{native_label}` to trace seeds by ρ²-twisted cyclicity on one
+        generator at a time, as the word route does, but with every
+        intermediate a canonical label.
+
+        For a label `L`, a generator `g` of it, `L'` the label with one power
+        of `g` removed and `c` the coefficient in `L_g·L' = c·L`, Form B
+        (`Tr(L_g·X) = Tr(X·ρ⁻²(L_g))`) gives `Tr(L) = c⁻¹·u·Tr(L'·L_h)`, with
+        `h = ρ⁻²(g)` and `u` the flavour unit of `_rho2_twist_unit`.  While `h`
+        q-commutes with every letter of `L'`, the tag moves on:
+        `L'·L_h = q^{2Σ_x p_x c(x,h)}·L_h·L'` (the word route's cocycle swap)
+        and Form B again.  At the first `h` that does not q-commute,
+        `multiply(L', L_h)` expands into canonical labels, each reduced in
+        turn.  If the tag comes back to `g` without a collision, the factor `f`
+        gathered on the way gives `Tr(L) = f·Tr(L)`: the trace vanishes if
+        `f ≠ 1`, and the letter is of no use if `f = 1`.  Form A
+        (`Tr(X·L_g) = Tr(ρ²(L_g)·X)`) is the mirror image.  Every letter and
+        both forms are tried, and the expansion whose largest term has the
+        least total degree (then the fewest terms) is taken.  Labels are keyed
+        by their ρ²-orbit representative (`Tr∘ρ² = Tr`): on an entry with a
+        δ-table (unit characters), where label-level and element-level ρ²
+        differ, through `ρ²(L_ℓ) = u(ℓ)·L_{ρ²ℓ}` with the unit of
+        `_rho2_twist_unit`, carried as a coefficient (see `_LabelLayer1.rep`).
+        A label with no usable letter is a seed, as an exhausted single-cone
+        word is in the word route.
+
+        Two passes: first the reduction graph (each label's expansion and its
+        number of parents), then the seed expansions from the bottom up, each
+        freed once its last parent has used it — the memory of the word route
+        was its memo of every sub-word's seed expansion.  Exact.  A label met
+        again while it is being reduced raises `RuntimeError`.  The results of
+        whole calls are kept on `alg` for later calls."""
+        return _LabelLayer1(self, alg).reduce(native_label)
 
     def _simplify_word(self, alg, root: tuple, cache: dict) -> dict:
         """Memoised reduction of a bare word to `{seed: poly}` (coeff 1) by
@@ -747,8 +859,8 @@ class ConeData(ABC):
         every word so re-convergent reductions (the same word reached by many
         ρ²-cycle / cross paths) are reduced once.  This removes the work-queue
         blow-up that tripped the 200k-step cap on deep su2u1 / e8 trace seeds.
-        Exact (no truncation); `cache` is per-call (the blow-up is within one
-        reduction)."""
+        Exact (no truncation); `cache` is the memo of `_layer1_memo`, shared
+        by the Layer-1 calls on one algebra (a fresh dict when disabled)."""
         if root in cache:
             return cache[root]
         stack = [root]
@@ -1398,6 +1510,269 @@ class ConeData(ABC):
             f"cone_of_label: no cone contains gens {gens_fs} "
             f"for label {native_label!r}"
         )
+
+
+# ----------------------------------------------------------------------
+# Layer 1 on canonical labels (`ConeData.layer1_on_labels`)
+# ----------------------------------------------------------------------
+
+# The results of at most this many whole calls of the Layer 1 on labels are
+# kept per algebra and cone data; the oldest is dropped first.
+_LABEL_LAYER1_ROOTS = 20_000
+
+
+def _inverse_signed_q_monomial(c, where):
+    """`1/c` for a coefficient `±q^e` — a `LaurentPoly`, or an `RLaurent` with
+    the scalar `±1` at one power of `q` — the coefficient of a product of
+    pairwise q-commuting generators."""
+    if isinstance(c, LaurentPoly):
+        items = [(e, v) for e, v in c._coeffs.items() if v]
+        if len(items) == 1 and items[0][1] in (1, -1):
+            e, v = items[0]
+            return LaurentPoly({-e: v})
+    elif isinstance(c, RLaurent) and len(c.coeffs) == 1:
+        (e, r), = c.coeffs.items()
+        ob = c.ring.one_basis()
+        if len(r.terms) == 1 and r.terms.get(ob) in (1, -1):
+            return RLaurent(c.ring, {-e: r.terms[ob]})
+    raise ArithmeticError(
+        f"layer1_on_labels: the coefficient of {where} is {c!r}, not ±q^e")
+
+
+class _LabelLayer1:
+    """One call of `ConeData._simplify_trace_on_labels`."""
+
+    def __init__(self, cd: "ConeData", alg):
+        self.cd = cd
+        self.alg = alg
+        self.one = cd._q_one(0)
+        self.bound = 4 * cd.cycle_period_bound() + 4
+        self._rep: dict = {}
+        self._step: dict = {}
+        self.roots = self._root_memo()
+
+    def _root_memo(self) -> dict:
+        """The results of earlier calls on `alg` with this cone data, kept in
+        `alg.__dict__` (a fresh dict when `alg` has none)."""
+        try:
+            store = vars(self.alg)
+        except TypeError:
+            return {}
+        owner, slots = store.get("_cone_label_layer1_memo", (None, None))
+        if owner != id(self.alg):
+            slots = {}
+            store["_cone_label_layer1_memo"] = (id(self.alg), slots)
+        slot = slots.get(id(self.cd))
+        if slot is None or slot[0] is not self.cd:
+            slot = (self.cd, {})
+            slots[id(self.cd)] = slot
+        return slot[1]
+
+    def rep(self, label):
+        """`(r, u)` with `Tr(L_label) = u·Tr(L_r)`, `r` the label's
+        ρ²-orbit representative; `(None, None)` when the trace vanishes.
+        Without a δ-table label-level ρ² is element-level ρ², `u = 1` and `r`
+        is `_canonical_rho2_orbit_rep`.  With one (the unit-character entries,
+        whose `_canonical_rho2_orbit_rep` declines to fold) `ρ²(L_ℓ) =
+        u(ℓ)·L_{ρ²ℓ}` with `u(ℓ)` the unit of `_rho2_twist_unit`, so the orbit
+        is walked carrying the product of those units; an orbit that closes
+        on a unit `U ≠ 1` gives `Tr(L) = U·Tr(L)`, i.e. `Tr(L) = 0`."""
+        got = self._rep.get(label)
+        if got is not None:
+            return got
+        alg = self.alg
+        if not getattr(alg, "_rho_delta", None):
+            got = (alg._canonical_rho2_orbit_rep(label), self.one)
+        else:
+            orbit = [(label, self.one)]
+            cur, acc = label, self.one
+            for _ in range(self.bound):
+                unit = self.cd._rho2_twist_unit(alg, cur, +1)
+                if unit is not None:
+                    acc = acc * unit
+                cur = alg.rho(alg.rho(cur))
+                if cur == label:
+                    break
+                orbit.append((cur, acc))
+            else:
+                raise RuntimeError(
+                    f"layer1_on_labels: the ρ²-orbit of {label!r} is longer "
+                    f"than {self.bound}")
+            if acc != self.one:
+                got = (None, None)
+            else:
+                r, u = min(orbit, key=lambda t: t[0])
+                got = (r, u)
+        self._rep[label] = got
+        return got
+
+    def powers(self, label) -> dict:
+        _gens, powers = self.cd.to_cone_label(label)
+        return {g: p for g, p in powers.items() if p}
+
+    def native(self, powers: dict):
+        return self.cd.from_cone_label(frozenset(powers), powers)
+
+    def step(self, g, sign: int):
+        """`(ρ^{2·sign}(g), its flavour unit or None)` for a generator `g`."""
+        got = self._step.get((g, sign))
+        if got is None:
+            alg = self.alg
+            tag = self.native({g: 1})
+            img = (alg.rho(alg.rho(tag)) if sign > 0
+                   else alg.rho_inverse(alg.rho_inverse(tag)))
+            powers = self.powers(img)
+            if len(powers) != 1 or sum(powers.values()) != 1:
+                raise NotImplementedError(
+                    f"layer1_on_labels: ρ^{2 * sign:+d} of the generator {g!r} is "
+                    f"{img!r}, not one generator; this cone data needs the word "
+                    f"route (layer1_on_labels = False)")
+            (h,) = powers
+            got = (h, self.cd._rho2_twist_unit(alg, tag, sign))
+            self._step[(g, sign)] = got
+        return got
+
+    def candidate(self, powers: dict, g, form: str):
+        """Tag `g` in Form `form`: `("zero",)` if the rotation proves the trace
+        vanishes, `("none",)` if it comes back without information, else
+        `("expand", coeff, terms)` with `Tr(L) = coeff·Σ_i c_i Tr(L_i)`."""
+        cd, alg = self.cd, self.alg
+        rest = dict(powers)
+        rest[g] -= 1
+        if not rest[g]:
+            del rest[g]
+        rest_label = self.native(rest)
+        g_label = self.native({g: 1})
+        first = (alg.multiply(g_label, rest_label) if form == "B"
+                 else alg.multiply(rest_label, g_label)).terms
+        if len(first) != 1:
+            raise ArithmeticError(
+                f"layer1_on_labels: {g!r} and {rest_label!r} do not q-commute")
+        (_lab, c0), = first.items()
+        coeff = _inverse_signed_q_monomial(c0, (g_label, rest_label))
+        sign = -1 if form == "B" else 1
+        acc = self.one
+        h = g
+        for _ in range(self.bound):
+            h, unit = self.step(h, sign)
+            if unit is not None:
+                acc = acc * unit
+            if all(cd.q_commute(x, h) for x in rest):
+                e = 2 * sum(p * (cd.cocycle(x, h) if form == "B" else cd.cocycle(h, x))
+                            for x, p in rest.items())
+                if e:
+                    acc = acc * cd._q_one(e)
+                if h == g:
+                    return ("none",) if acc == self.one else ("zero",)
+                continue
+            h_label = self.native({h: 1})
+            terms = (alg.multiply(rest_label, h_label) if form == "B"
+                     else alg.multiply(h_label, rest_label)).terms
+            return ("expand", coeff * acc, terms)
+        raise RuntimeError(
+            f"layer1_on_labels: the ρ²-orbit of {g!r} is longer than {self.bound}")
+
+    def bound_words(self):
+        """The route multiplies often, and `derived_multiply` memoises every
+        word it reduces; bound that memo the way `_layer1_memo_cap` bounds the
+        word route's (replaced, not emptied in place)."""
+        words = getattr(self.cd, "_reduce_word_cache", None)
+        if words is not None and len(words) > self.cd._layer1_memo_cap > 0:
+            self.cd._reduce_word_cache = {}
+
+    def plan(self, label):
+        """`("leaf",)`, `("zero",)` or `("node", {child: coeff})` for `label`."""
+        powers = self.powers(label)
+        if sum(powers.values()) <= 1:
+            return ("leaf",)
+        self.bound_words()
+        best = None
+        for g in list(powers):
+            for form in ("B", "A"):
+                c = self.candidate(powers, g, form)
+                if c[0] == "zero":
+                    return ("zero",)
+                if c[0] == "none":
+                    continue
+                _, coeff, terms = c
+                score = (max(sum(self.powers(t).values()) for t in terms), len(terms))
+                if best is None or score < best[0]:
+                    best = (score, coeff, terms)
+        if best is None:
+            return ("leaf",)
+        _, coeff, terms = best
+        kids: dict = {}
+        for lab, c in terms.items():
+            r, u = self.rep(lab)
+            if r is None:
+                continue
+            t = coeff * c * u
+            kids[r] = kids[r] + t if r in kids else t
+        return ("node", {r: c for r, c in kids.items() if not c.is_zero()})
+
+    def reduce(self, native_label) -> Element:
+        root, unit = self.rep(self.native(self.powers(native_label)))
+        if root is None:
+            return Element({})
+        if root in self.roots:
+            return Element({s: unit * c for s, c in self.roots[root].items()})
+        # Pass 1: the reduction graph, in post-order.
+        plans: dict = {}
+        parents: dict = {}
+        order: list = []
+        open_: set = set()
+        stack = [(root, False)]
+        while stack:
+            lab, done = stack.pop()
+            if done:
+                open_.discard(lab)
+                order.append(lab)
+                continue
+            if lab in plans:
+                continue
+            p = ("known",) if lab in self.roots else self.plan(lab)
+            plans[lab] = p
+            if p[0] != "node":
+                order.append(lab)
+                continue
+            open_.add(lab)
+            stack.append((lab, True))
+            for kid in p[1]:
+                if kid in open_:
+                    raise RuntimeError(
+                        f"layer1_on_labels: the reduction of {lab!r} returns to "
+                        f"{kid!r}, which is still being reduced")
+                parents[kid] = parents.get(kid, 0) + 1
+                if kid not in plans:
+                    stack.append((kid, False))
+        # Pass 2: seed expansions from the bottom up, freed after last use.
+        vals: dict = {}
+        for lab in order:
+            p = plans[lab]
+            if p[0] == "known":
+                val = self.roots[lab]
+            elif p[0] == "leaf":
+                val = {lab: self.one}
+            elif p[0] == "zero":
+                val = {}
+            else:
+                val = {}
+                for kid, c in p[1].items():
+                    for s, poly in vals[kid].items():
+                        t = c * poly
+                        val[s] = val[s] + t if s in val else t
+                    parents[kid] -= 1
+                    if not parents[kid]:
+                        del vals[kid]
+                val = {s: v for s, v in val.items() if not v.is_zero()}
+                plans[lab] = None
+            vals[lab] = val
+        result = vals[root]
+        while len(self.roots) >= _LABEL_LAYER1_ROOTS:
+            self.roots.pop(next(iter(self.roots)))
+        self.roots[root] = result
+        self.bound_words()
+        return Element({s: unit * c for s, c in result.items()})
 
 
 # ----------------------------------------------------------------------

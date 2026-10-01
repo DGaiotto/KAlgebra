@@ -4,8 +4,8 @@
 does **not** certify, so that "the gate is green" is read at its true
 strength. Two companion notes cover adjacent ground:
 [`frozen-data-provenance.md`](frozen-data-provenance.md) (what validates
-the shipped `.pkl` tables and the generated finite-type zoo, given that
-their builders are not included) and the `conjectures-step*.md` files
+the shipped `.pkl` tables and the generated finite-type zoo, whose
+regeneration is not part of the gate) and the `conjectures-step*.md` files
 (the verification-scope table for each layer's conjectural content).
 
 Everything below is documented at its point of use as well; this page
@@ -58,42 +58,31 @@ the non-pointed case. Nothing in the shipped realisations is known to
 land there — every cone the gate exercises takes the witness path — but
 the guarantee is conditional, not absolute.
 
-## What the abelianized tier's axiom checkers do and do not certify
-
-`star_bubbling.verify_axioms` runs the five conditions of the `L_{m,e}`
-construction against a **finished** element. Read at its true strength:
-
-| condition | what a pass means |
-|---|---|
-| `bar (W1)` | **enforced** for a solved element — the solver imposes palindromicity — and **emergent** for one built any other way, which is why the retired constructive routes are kept runnable |
-| `seed (W2)` | **emergent as a label check**: it is what identifies *which* canonical the element is, so it catches an element filed under the wrong `e` |
-| `support` | **subsumed**, not independent — measured to follow from (★) + W2 (30/30 out-of-support grafts rejected). Kept because it is cheap and localises a failure |
-| `O(𝖖)` | **enforced** for a solved element; the check itself is exact, with the truncation bound discharged rather than assumed |
-| `(★)` | **emergent, and the load-bearing one** — a membership condition on `Λ = R(G)`, so it is the only one of the five that can reject a bubbling-stripped candidate (23/23) |
-
-Three things it does **not** certify:
-
-* **uniqueness.** That is a property of the linear *system*, not of a finished
-  element, and it stays the solver's own first guard. Passing this checklist does
-  not say the label is pinned.
-* **closure.** That the canonicals span the algebra of (★)-satisfying operators
-  is open — see [`conjectures-step5-abe.md`](conjectures-step5-abe.md) §2b. The
-  gate measures it on products by exact reconstruction, which is a measurement.
-* **that the axiom list is complete.** The negative controls show each condition
-  catches something the others do not; they do not show that nothing else is
-  needed.
-
-A related and easily-misread point: the derivation in `conjectures-step5-abe.md`
-shows that orthonormality at `𝖖⁰` is **blind to the bubbling**. So an
-orthonormality pass is *not* evidence that a canonical is complete — it is
-evidence about the leading orbit only. Where the gate reports both, (★) is the
-one carrying the weight.
-
 ## What "spine-free" asserts
 
 Seven of the eight Step-3 RG suites assert that no realisation-spine
 module (`src/bps/`) is imported, against a shared module list derived
-from the filesystem (`tests/_spine.py`) rather than hand-maintained.
+from the filesystem (`tests/_spine.py`) rather than hand-maintained.  The
+cone suite (`tests/test_cones.py`) ends with the stronger assertion for its
+own layer: no module of `src/bps/` (less its three shared lattice
+primitives) and none of `src/rg/` was imported by anything it ran.
 This certifies that those layers *compute* without the BPS engine. It is
 a statement about the import graph at run time, not a proof that the
 mathematics is independent of it.
+
+## The cited tier and the battery
+
+`python3 run_tests.py --cited` adds the tests the paper companion cites
+(`tests/cited.txt`), each in its own process. The battery (`battery/`) re-runs,
+claim by claim, the checks behind the paper's statements, and records for each
+claim a *standing* and whether the property checked is imposed by the
+construction (*enforced*) or not (*emergent*), as the legend of the companion's
+appendix defines them. Two limits on reading it:
+
+* A result record is evidence at the commit it names. The records in
+  `battery/results/` are the ones the appendix was rendered from, not a run of
+  this checkout; re-run a row with `battery/runner.py --id <claim>`.
+* A `local` row needs data this repository does not ship (the dictionary builds
+  beyond the shipped weight); the runner refuses it here rather than failing it.
+  Every shipped record is a `web` run — the tracked repository is the whole
+  input — at the fast depth, and 19 claims also at the extensive depth.

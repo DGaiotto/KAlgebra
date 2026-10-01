@@ -18,11 +18,11 @@ So the only matter-removal flow in the repo removed *all* of it at once.  This
 module is the **partial** flow, and it is what makes matter removal an operation
 you can iterate: `SU(2)+3 → SU(2)+2 → SU(2)+1 → SU(2)`, each rung a certified
 `RGKAlgebra`, each rung's UV algebra presented over the previous rung's IR.
-That is Goal 1.2 (new algebras by RG flow) and Goal 1.4 (the induced algebra
-maps `A_𝖖^{UV} ↪ A_𝖖^{IR}`) on the `(G, N)` family.
+That is new algebras by RG flow and the induced algebra
+maps `A_𝖖^{UV} ↪ A_𝖖^{IR}` on the `(G, N)` family.
 
 `GMatterOverPure` is the `N_keep = ∅` case of this class, and that is asserted,
-not asserted-in-a-docstring: the suite in the source repository compares
+not asserted-in-a-docstring: `tests/test_g_matter_over_matter.py` compares
 `S_RG` and `RG(a)` against it term by term.
 
 The construction — the standard recipe, one level up
@@ -53,9 +53,10 @@ the IR algebra's Wilson sector to be the character ring `R(G)` — with the *sam
     chart of `L_{(0,e)}` (single μ-level `0⃗`, identical residuals), and
     `L_{(0,e)}·L_{(0,e')}` in `(G, N_keep)` is plain Littlewood–Richardson
     (`χ₁² = χ₀ + χ₂` at SU(2)+1, no matter correction);
-  * and structural — it is the content of (★): the canonical elements are
-    `𝖖`-difference operators **acting on `G` characters / symmetric Laurent
-    polynomials**, i.e. preserving `Λ = R(G)`.  The Wilson sector *is* `R(G)`
+  * and structural — it is the content of (★) as the author states it: the
+    canonical elements are `𝖖`-difference operators **acting on `G` characters /
+    symmetric Laurent polynomials**, i.e. preserving the Neumann module
+    `Λ = R(G)`, and `L_{(0,e)}|N] = χ_e` exactly.  The Wilson sector *is* `R(G)`
     whatever the matter is.
 
 So `matter_weights` / `single_hyper_character_expansion` / `fuse_characters`
@@ -77,13 +78,13 @@ Scope / honesty
 ---------------
 * The dropped slots' flavour ring is the Cartan `AbelianZPlusRing(M_drop)` =
   `R(U(1)^{M_drop})`, imitating `GMatterOverPure` exactly.  The surviving slots
-  keep the IR algebra's `∏_i R(U(n_i))` (ruling TM7).  The full non-abelian
+  keep the IR algebra's `∏_i R(U(n_i))`.  The full non-abelian
   enhancement on the *dropped* directions is the downstream recognize-after
   layer, and for real / pseudo-real `N` it is the open physics call recorded in
   the design record.
 * Everything the IR algebra honest-fails on, this flow honest-fails on — but odd
   `⟨Σ⁺, m⟩` cocharacters are **no longer among them**: the "theorem, not a gap"
-  this list used to cite is retracted by ruling D31, and those charges are atoms
+  this list used to cite is retracted, and those charges are atoms
   of the abelianized tier like any other.  What does still raise is a
   `(G, N_keep)` chart whose bubbled cells are out of the constructor's reach,
   which raises rather than guessing.
@@ -93,7 +94,7 @@ Scope / honesty
   limit, not a correctness one (the design record: bubbled-cell count, not rank or `|W|`).
 
 Run `PYTHONPATH=$(ls -d src/* | paste -sd:) python3 src/gn/g_matter_over_matter.py` for a smoke
-tour; certification is the suite in the source repository.
+tour; certification is `tests/test_g_matter_over_matter.py`.
 """
 from __future__ import annotations
 
@@ -413,7 +414,7 @@ def matter_removal_tower(datum: RootDatum, matter, nf: int | None = None,
     a list of `GMatterOverMatter` flows, outermost (most matter) first, whose
     last element is the `GMatterOverPure` case.  Composing the tower walks the
     whole `(G, N)` family down to pure gauge one hypermultiplet at a time, which
-    is the iterated form of Goal 1.2 / 1.4 on this family.
+    is the iterated form of new algebras by RG flow, with their algebra embeddings on this family.
 
     Slots are dropped from the end of the declared list, so the surviving matter
     at each rung is a prefix of `matter` — deliberate, so the rungs' IR theories
@@ -436,7 +437,7 @@ if __name__ == "__main__":
 
     # Deliberately cheap: rank-1 rungs only.  The full sweep — the
     # GMatterOverPure agreement leg, the Wilson-fusion leg, the RG battery and
-    # the tower — is the suite in the source repository.
+    # the tower — is tests/test_g_matter_over_matter.py.
     print("=" * 68)
     print("SU(2)+2 → SU(2)+1  (partial: one slot survives)")
     print("=" * 68)

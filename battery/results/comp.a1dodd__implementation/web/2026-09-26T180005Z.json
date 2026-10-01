@@ -1,0 +1,78 @@
+{
+ "id": "comp:a1dodd/implementation",
+ "labels": [
+  "comp:a1dodd"
+ ],
+ "date": "2026-09-26T18:00:05Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "classes": {
+   "a1d5": {
+    "generators": 20,
+    "abelian witness sample": "all generator pairs",
+    "abelian witness pairs": 300,
+    "hand-written pairs": 400,
+    "uncovered": 0
+   },
+   "a1d7": {
+    "generators": 42,
+    "abelian witness sample": "every ordered product of the 8 generators whose BPS charge is a single node charge up to sign",
+    "abelian witness pairs": 62,
+    "hand-written pairs": 196,
+    "uncovered": 1568
+   }
+  },
+  "seconds": 662.0
+ },
+ "counts": {
+  "pass": 7,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the flavour-free products against the BPS chart",
+  "negative": "a doublet demoted to a singlet is caught"
+ },
+ "elapsed_s": 662.238,
+ "notes": "The zoo's cone-to-BPS witness is abelian: it certifies products without an SU(2) character only.  The products with a character are certified against the independent hand-written classes (all 400 pairs for D5; the pairs inside A1D7KAlg's atomic table for D7).",
+ "checks": [
+  {
+   "name": "a1d5: 20 generators, rho a permutation of them of order 5 (Table tab:finite_type), SU(2) flavour in the coefficients",
+   "ok": true,
+   "note": "n=20, order=5, ring=SU2ZPlusRing"
+  },
+  {
+   "name": "a1d5: the cone-to-BPS witness (U(1) weights) is multiplicative on every sampled generator product without an SU(2) character (sample: all generator pairs; 300 of 400 pairs; the other 100 carry a character it cannot translate)",
+   "ok": true,
+   "note": "300/300"
+  },
+  {
+   "name": "a1d5: every generator product the hand-written A1D5KAlg covers agrees with the zoo class through the flavour dictionary (chi_n * L_gamma <-> the label decomposing to (gamma, n))",
+   "ok": true,
+   "note": "agree 400, differ 0, outside the hand-written table 0"
+  },
+  {
+   "name": "a1d7: 42 generators, rho a permutation of them of order 7 (Table tab:finite_type), SU(2) flavour in the coefficients",
+   "ok": true,
+   "note": "n=42, order=7, ring=SU2ZPlusRing"
+  },
+  {
+   "name": "a1d7: the cone-to-BPS witness (U(1) weights) is multiplicative on every sampled generator product without an SU(2) character (sample: every ordered product of the 8 generators whose BPS charge is a single node charge up to sign; 62 of 64 pairs; the other 2 carry a character it cannot translate)",
+   "ok": true,
+   "note": "62/62"
+  },
+  {
+   "name": "a1d7: every generator product the hand-written A1D7KAlg covers agrees with the zoo class through the flavour dictionary (chi_n * L_gamma <-> the label decomposing to (gamma, n))",
+   "ok": true,
+   "note": "agree 196, differ 0, outside the hand-written table 1568"
+  },
+  {
+   "name": "negative control: a product whose doublet coefficient is demoted to a singlet is caught by the flavour-aware comparison",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

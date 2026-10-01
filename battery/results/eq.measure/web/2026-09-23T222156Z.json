@@ -1,0 +1,103 @@
+{
+ "id": "eq:measure",
+ "labels": [
+  "eq:measure"
+ ],
+ "date": "2026-09-23T22:21:56Z",
+ "commit": "b892cbb9e116bb49518023a2658b41549bc3546e",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) lines": 6,
+  "pairs": 36,
+  "SO(3)+adjoint lines": 5,
+  "K": 10,
+  "SU(3) lines (trace)": 5,
+  "trace-face pairs": 61,
+  "widened (2026-09-23)": {
+   "SU(3) pairs": 16,
+   "non-simply-laced traces": 4,
+   "SU(3)+1 pairs": 9,
+   "seconds": 230.1
+  }
+ },
+ "counts": {
+  "pass": 13,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "orthonormality read off the formula",
+  "negative": "the unshifted measure fails; the rank-one prefactor fails at SU(3)"
+ },
+ "elapsed_s": 313.309,
+ "notes": "The repository computes the trace and pairing through the rational sector measure B_m (kalgebra.md, proved equal to the printed infinite products); here the printed formulas are evaluated directly, so this is an independent check of that equality on the lines listed.  The class's pairing is Tr(ρ(f)·g) itself — the Schur residue of the magnetic-0 residual of ρ(f)·g, assembled sector by sector (wrq_torus.inner_by_sector = trace_residual(pairing_residual)) — so the printed-vs-class pairing comparisons are the conjectural half of eq:Iexplicit (each printed sector sits at |v| = 1 against its own shifted measure; moving it onto the common contour is the shift the paper conjectures pole-compatible).  The comparison of the class's pairing with multiply-then-trace compares two computations of Tr(ρ(f)·g) and is a consistency check (relabelled 2026-09-23 after review: it had been named the conjectural half).",
+ "checks": [
+  {
+   "name": "eq:measure  Tr f = (q^2;q^2)^2_∞/|W| ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on six SU(2) lines through q^10 (independent series; contour integral = constant term)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit, the conjectural half  I_fg as the sum over m of contour integrals against the |<m,α>|-shifted measure (each sector at |v| = 1) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector), on all 36 pairs of six SU(2) lines through q^10",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "orthonormality read off the formula: I_ab[q^0] = δ_ab on the six lines (the leading Weyl orbit contributes δ, the bubbling O(q))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure with matter  SO(3) + adjoint: the μ-dependent measure Π_w (-q μ^(w_f) v^w;q^2)^-1 (-q μ^-w_f v^-w;q^2)^-1 reproduces the class's traces of five lines through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit with matter, the conjectural half  SO(3) + adjoint on all 25 pairs of five lines through q^8: the printed sum over m, with the shifted vector and matter factors, equals Tr(rho(f)·g) as the class computes it",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit, consistency of two computations of Tr(ρ(f)·g)  the class's pairing (the magnetic-0 residual assembled sector by sector) equals multiply-then-trace (ρ(f)·g by the cocycle convolution, decomposed into canonical lines, each traced) on all 36 SU(2) pairs through q^10 and all 25 SO(3)+adjoint pairs through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure at rank two  SU(3): Tr f = (q^2;q^2)^4_∞/6 ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on 5 lines through q^6 (rk = 2, |W| = 6)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the rank-one prefactor (q^2;q^2)^2_∞/2 at SU(3) is detected",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the pairing formula with the unshifted measure (|<m,α>| dropped) fails at m != 0",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit, the conjectural half, at rank two  SU(3): the printed sum over m of contour integrals (prefactor (q^2;q^2)^4/6, each sector at |v| = 1 against its shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on all 16 pairs of 4 lines through q^4",
+   "ok": true,
+   "note": "16/16"
+  },
+  {
+   "name": "eq:Iexplicit at rank two  SU(3), consistency of two computations of Tr(rho(f)·g): the class's equals multiply-then-trace (rho(f)·g decomposed into canonical lines, each traced) on all 16 pairs",
+   "ok": true,
+   "note": "16/16"
+  },
+  {
+   "name": "eq:measure at the non-simply-laced Spin(5): the printed trace, prefactor (q^2;q^2)^4/|W| (|W| = 8), equals the class's on 4 lines",
+   "ok": true,
+   "note": "4/4"
+  },
+  {
+   "name": "eq:measure / eq:Iexplicit with matter at rank two  SU(3)+1: the printed trace (3/3 lines) and pairing (9/9 pairs), the matter factors (-q^(1+|<m,w>|) mu^(±1) v^(±w); q^2)^-1 over the weights of the fundamental, equal the class's through q^3 (the pairing comparison is the conjectural half: the class's pairing is Tr(rho(f)·g) assembled sector by sector); and the class's pairing equals multiply-then-trace on 9/9 pairs (consistency)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

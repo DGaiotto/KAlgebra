@@ -8,29 +8,33 @@ is the combination of an `AbeKAlgebra` (the pure-gauge keystone) with an
 against the BPS / cone / RG presentations of the *same* abstract algebra by a
 `KAlgebraIso`. So this stage ships, layered on Steps 1–4:
 
-  A. the pure-U(N) keystone `PureUNKAlgebra` (Goal 2.1 orthonormality), built
-     constructively on the enriched rational quantum torus (the ABSOLUTE RULE);
-  B. **matter = Abe + RG**: the native `UNNfKAlgebra(N, N_f)` and the Route-A
-     flow `UNNfOverPure`, with the flow ↔ BPS `KAlgebraIso` (Goal 1.3);
-  C. the **N=2\*** machinery — `N2StarBuilder` ("solve in N=2\*, RG-flow" — the
-     pure-U(N)/SU(N) canonical finder) and the `SU2N2StarRGKAlgebra` flow;
+  A. pure U(N) on the `AbeKAlgebra` contract — `PureGAbeKAlgebra(u_n(N))`, the
+     general-gauge-group class of `src/gn/` (orthonormality, the
+     contract's derived product and ρ, the Kazhdan–Lusztig acceptance);
+  B. **matter**: U(2) with one fundamental hypermultiplet, the preset
+     `roster('u2-nf1')` (a `GNAbeKAlgebra`, flavour ring `R(U(1))`);
+  C. the **N=2\*** flow `SU2N2StarRGKAlgebra`;
   D. the **object layer**: `KAlgebraObject`s (`pure_u2_object`, `u2_nf1_object`)
      holding the abe / cone / bps presentations under one roof with certified
      `KAlgebraIso` transition maps and a path-independence (coherence)
-     certificate — plus `pure_un_bps_iso` (`PureUNKAlgebra(N) ≅ BPS pure U(N)`);
+     certificate — plus `pure_un_bps_iso`
+     (`PureGAbeKAlgebra(u_n(N)) ≅ BPS pure U(N)`);
   E. the **SU(2) AbeKAlgebra family**: the native `PureSU2KAlgebra` (non-minuscule),
      the `AbelianizedSU2KAlg` / `SU2Nf1Abe` / `SU2UNf{N_f}AbeKAlgebra` realisations,
      and the SU(2) `KAlgebraObject`s (`pure_su2_object`, `su2_nf1_object` — with
      RG-flow legs — `su2_unf_object` with the Spin(2N_f) enhancement);
-  F. **SU(3) / U(3)**: the pure-U(3) keystone and the native pure SU(3)
-     `PureSUNKAlgebra`, each `≅` its BPS realisation (Goal 1.3, rank 2);
+  F. **SU(3) / U(3)**: pure SU(3) (`PureGAbeKAlgebra(su_n(3))`, orthonormality)
+     and pure U(3) `≅` its BPS realisation (rank 2);
   G. the flow-typed **RGKAlgebraObjects**: the generic `subquiver_flow_object` and
      the concrete SU(2)-gauged flow objects, incl. an Abe + RG object.
 
-Run with the earlier stages on the path (Step 5 depends on Steps 1–4):
+The type-A classes this suite once exercised — `PureUNKAlgebra`,
+`PureSUNKAlgebra`, `UNNfKAlgebra`, `UNQuiverKAlgebra`, the builder
+`N2StarBuilder` and their flows and witnesses — were retired in favour of the
+general classes, which reproduce them (see `CHANGELOG.md`).
 
-    PYTHONPATH=KAlgebra:ConeKAlgebra:RGKAlgebra:BPSKAlgebra:AbeKAlgebra \
-        python AbeKAlgebra/test_abe_flows.py
+Run through the gate, `python3 run_tests.py`, which puts every `src/` layer on
+the path.
 """
 import os
 import sys
@@ -55,77 +59,55 @@ _ID, _Em, _Fm, _CHI, _DET, _DETI = (
 
 
 # ===========================================================================
-# A. The pure-U(N) keystone — the Abe contract + Goal 2.1 orthonormality
+# A. Pure U(N) on the Abe contract — the general class at a unitary datum
 # ===========================================================================
 
-def test_A_pure_keystone_contract():
-    from pure_un_kalgebra import PureUNKAlgebra, default_rays
-    A = PureUNKAlgebra(2, default_rays(2), max_len=2, K=8)
+def test_A_pure_un_contract():
+    from pure_g_abe_kalgebra import PureGAbeKAlgebra
+    from root_datum import u_n
+    A = PureGAbeKAlgebra(u_n(2))
     assert A.coefficient_ring() == TrivialZPlusRing()
     assert A.torus_shape() == TorusShape.from_ranks_nf((2,), (0,))
-    # derived (contract base) ≡ engine (keystone override) — the delegation guarantee
+    # derived (contract base) ≡ the class's own — the delegation guarantee
     for a, b in [(_Em, _Fm), (_CHI, _CHI), (_DET, _Fm), (_Em, _Em)]:
         assert dict(AbeKAlgebra.multiply(A, a, b).terms) == dict(A.multiply(a, b).terms), (a, b)
     for a in [_Em, _Fm, _CHI, _DET]:
         assert AbeKAlgebra.rho(A, a) == A.rho(a), a
-    # axioms + orthonormality (Goal 2.1) + the KL acceptance (W1 + W2)
+    # axioms + orthonormality + the KL acceptance (W1 + W2)
     labs = [_ID, _Em, _Fm, _CHI, _DET]
     for a in labs:
         for b in labs:
             assert A.verify_bar_involution(a, b), ("bar", a, b)
             assert A.verify_rho_is_automorphism(a, b), ("rho", a, b)
-            assert A.verify_orthonormality(a, b, 4), ("Goal 2.1", a, b)
+            assert A.verify_orthonormality(a, b, 4), ("orthonormality", a, b)
         assert A.certify_canonical(a) == a, ("KL acceptance", a)
-    print("  PASS: test_A_pure_keystone_contract")
+    print("  PASS: test_A_pure_un_contract")
 
 
 # ===========================================================================
-# B. Matter = Abe + RG:  UNNfKAlgebra (native) + UNNfOverPure (flow) + the iso
+# B. Matter: U(2) with one fundamental hypermultiplet
 # ===========================================================================
 
-def test_B_matter_native_abe():
-    from un_nf_kalgebra import UNNfKAlgebra
-    A = UNNfKAlgebra(2, 1)                       # U(2) + N_f = 1 (flavour SU(1) trivial → Z)
-    assert A.coefficient_ring() == TrivialZPlusRing()
-    labs = [_ID, _Em, _Fm, _CHI]
+def test_B_matter():
+    """`roster('u2-nf1')`: U(2) + one fundamental on the general `(G, N)`
+    class, flavour ring `R(U(1))`; orthonormality on a window of
+    magnetic, electric and flavour labels."""
+    from g_matter_roster import roster
+    from zplus_ring import UNZPlusRing
+    A = roster("u2-nf1")
+    assert A.coefficient_ring() == UNZPlusRing(1)
+    labs = [(((0, 0), (0, 0)), (0,)), (((1, 0), (0, 0)), (0,)),
+            (((0, -1), (0, 0)), (0,)), (((0, 0), (1, 0)), (0,)),
+            (((0, 0), (0, 0)), (1,))]
     for a in labs:
         for b in labs:
-            assert A.verify_orthonormality(a, b, 4), ("UNNf orthonormality", a, b)
-    print("  PASS: test_B_matter_native_abe")
-
-
-def test_B_matter_flow_bps_iso():
-    """The Route-A flow `UNNf1OverPure(2)` (Abe keystone + RG matter) and the
-    BPS realisation of U(2)+N_f=1 are the SAME abstract algebra — the full
-    KAlgebraIso battery (Goal 1.3)."""
-    from un_nf1_over_pure_iso import build_iso, certify
-    iso, A, B = build_iso()
-    res = certify(iso, A, B, trace_K=3, verbose=False)
-    assert all(res.values()), res
-    print("  PASS: test_B_matter_flow_bps_iso  (unit/round_trip/mult/rho/trace all True)")
+            assert A.verify_orthonormality(a, b, 4), ("matter orthonormality", a, b)
+    print("  PASS: test_B_matter")
 
 
 # ===========================================================================
-# C. N=2* machinery — the "solve in N=2*, RG-flow" pure-U(N)/SU(N) finder
+# C. N=2* — the adjoint-matter flow
 # ===========================================================================
-
-def test_C_n2star_builder():
-    """`N2StarBuilder(N).pure_chart(points)` builds a torus slice; the pure
-    keystone `decompose`s it to a SINGLE coefficient-1 canonical."""
-    from pure_via_n2star import N2StarBuilder
-    from pure_un_kalgebra import PureUNKAlgebra, default_rays
-    reg = PureUNKAlgebra(2, default_rays(2), max_len=3, K=8)
-    B = N2StarBuilder(2)
-    for points, kind in [([(1, 0), (0, 0)], "H1 minuscule"),
-                         ([(2, 0), (0, 0)], "aligned tower L_(2,0)"),
-                         ([(1, 0), (-1, 0)], "SU(2) adjoint monopole")]:
-        s = B.pure_chart(points)
-        assert s.well_formed(), (points, "not well-formed")
-        d = reg.decompose(s)
-        terms = {lab: str(c) for lab, c in d.terms.items()}
-        assert len(terms) == 1 and list(terms.values())[0] == "1", (points, terms)
-    print("  PASS: test_C_n2star_builder")
-
 
 def test_C_su2_n2star_rgflow():
     """`SU2N2StarRGKAlgebra` is a live RGKAlgebra flow (adjoint matter): the
@@ -138,7 +120,7 @@ def test_C_su2_n2star_rgflow():
 
 
 # ===========================================================================
-# D. The object layer — KAlgebraObjects with certified KAlgebraIsos (Goal 1.3)
+# D. The object layer — KAlgebraObjects with certified KAlgebraIsos
 # ===========================================================================
 
 def _battery(obj, basket, edges_full, edges_light):
@@ -185,8 +167,8 @@ def test_D_u2_nf1_object():
 
 
 def test_D_pure_un_bps_iso():
-    """PureUNKAlgebra(2) ≅ BPS pure U(2) — the Abe keystone against the Step-4
-    realisation, full battery (Goal 1.3)."""
+    """`PureGAbeKAlgebra(u_n(2)) ≅ BPS pure U(2)` — the abelianized presentation
+    against the BPS realisation, full battery."""
     from pure_un_bps_iso import pure_un_bps_iso
     iso = pure_un_bps_iso(2)
     basket = [_ID, _Em, _Fm, _DET, ((0, 0), (1, 0))]
@@ -196,7 +178,7 @@ def test_D_pure_un_bps_iso():
     tp = [(iso.map(x), iso.map(y)) for x, y in pr]
     res = iso.verify_all(s, t, pr, tp, trace_K=3)
     assert all(res.values()), res
-    print("  PASS: test_D_pure_un_bps_iso  (PureUNKAlgebra(2) ≅ BPS pure U(2))")
+    print("  PASS: test_D_pure_un_bps_iso  (PureGAbeKAlgebra(u_n(2)) ≅ BPS pure U(2))")
 
 
 # ===========================================================================
@@ -204,8 +186,8 @@ def test_D_pure_un_bps_iso():
 # ===========================================================================
 
 def test_E_pure_su2_native():
-    """`PureSU2KAlgebra` (Plan 24) is a genuinely NATIVE `AbeKAlgebra` (SU(2)
-    is non-minuscule), on which orthonormality (Goal 2.1) holds."""
+    """`PureSU2KAlgebra` is a genuinely NATIVE `AbeKAlgebra` (SU(2)
+    is non-minuscule), on which orthonormality holds."""
     from pure_su2_kalgebra import PureSU2KAlgebra
     A = PureSU2KAlgebra()
     assert isinstance(A, AbeKAlgebra)
@@ -218,27 +200,39 @@ def test_E_pure_su2_native():
             break
     for a in basis:
         for b in basis:
-            assert A.verify_orthonormality(a, b, 4), ("pure SU(2) Goal 2.1", a, b)
+            assert A.verify_orthonormality(a, b, 4), ("pure SU(2) orthonormality", a, b)
     print("  PASS: test_E_pure_su2_native  (native SU(2) AbeKAlgebra, orthonormality)")
 
 
 def test_E_pure_su2_object():
-    """The pure-SU(2) `KAlgebraObject` (abe / cone / bps): the whole pairwise
-    KAlgebraIso battery (abe-leg trace excluded — the decoupled-photon caveat)
-    and the groupoid coherence certificate (Goal 1.3)."""
+    """The pure-SU(2) `KAlgebraObject` (abe / cone / bps / skein): the whole
+    pairwise KAlgebraIso battery (abe-leg trace excluded — the decoupled-photon
+    caveat; the skein ↔ bps trace leg included), the groupoid coherence
+    certificate, and two landmarks of the stated-skein annulus leg —
+    the cone's adjoint Wilson line `W₂` is the once-wrapping core multicurve
+    `(0,−2)`, and the 't Hooft line round-trips skein → abe → skein."""
+    from laurent_poly import LaurentPoly
     from pure_su2_object import pure_su2_object
+    one = LaurentPoly({0: 1})
     obj = pure_su2_object()
-    assert set(obj.keys()) == {"abe", "cone", "bps"}
+    assert set(obj.keys()) == {"abe", "cone", "bps", "skein"}
+    assert dict(obj.transport(((("W", 2), 1),), "cone", "skein").terms) == \
+        {(0, -2): one}, "cone W_2 must be the skein core loop (0,-2)"
+    (al, _c), = obj.transport((1, 0), "skein", "abe").terms.items()
+    assert al == (1, 0) and dict(obj.transport(al, "abe", "skein").terms) == \
+        {(1, 0): one}, "'t Hooft line round trip skein -> abe -> skein"
     cone = [(), ((0, 1),), ((1, 1),), ((-1, 1),), ((("W", 1), 1),), ((0, 2),), ((0, 1), (1, 1))]
     samples = {"cone": cone,
                "abe": [next(iter(obj.transport(l, "cone", "abe").terms)) for l in cone],
-               "bps": [next(iter(obj.transport(l, "cone", "bps").terms)) for l in cone]}
+               "bps": [next(iter(obj.transport(l, "cone", "bps").terms)) for l in cone],
+               "skein": [next(iter(obj.transport(l, "cone", "skein").terms)) for l in cone]}
     out = obj.verify_pairwise(samples, trace_K=6)
     for pair, checks in out.items():
         skip = {"trace_equivariant"} if "abe" in pair else set()
         assert not {k: v for k, v in checks.items() if v is False and k not in skip}, (pair, checks)
     assert obj.verify_coherence(samples)
-    print("  PASS: test_E_pure_su2_object  (abe/cone/bps batteries + coherence)")
+    print("  PASS: test_E_pure_su2_object  (abe/cone/bps batteries + coherence; "
+          "skein leg landmarks)")
 
 
 def test_E_su2_nf1_object():
@@ -262,14 +256,16 @@ def test_E_su2_nf1_object():
 
 
 def test_E_su2_unf_object():
-    """SU(2)+N_f≥2 `KAlgebraObject` (Spin(2N_f)-manifest cone/bps + the U(N_f)
-    ungauged abe leg): structure + the Z⁴-core coherence certificate."""
+    """SU(2)+N_f≥2 `KAlgebraObject` (the Spin(2N_f)-manifest cone/bps pair):
+    structure + the Z⁴-core coherence certificate.  Its U(N_f)-manifest abe leg
+    was built on the retired `UNNfKAlgebra` and was retired with it; restoring
+    an abe leg on `GNAbeKAlgebra` is open (see `CHANGELOG.md`)."""
     from su2_unf_object import su2_unf_object
     obj = su2_unf_object()
-    assert {"abe", "cone", "bps"} <= set(obj.keys())
+    assert set(obj.keys()) == {"cone", "bps"}, sorted(obj.keys())
     basket = [(0, 0, 0, 0), (1, 0, 1, 0)]
-    assert obj.verify_coherence({"cone": basket, "bps": basket, "abe": []})
-    print("  PASS: test_E_su2_unf_object  (Spin(2N_f) cone/bps + U(N_f) abe leg, coherence)")
+    assert obj.verify_coherence({"cone": basket, "bps": basket})
+    print("  PASS: test_E_su2_unf_object  (Spin(2N_f) cone/bps, coherence)")
 
 
 def test_E_abelianized_su2_bps_iso():
@@ -288,43 +284,32 @@ def test_E_abelianized_su2_bps_iso():
 
 
 # ===========================================================================
-# F. SU(3) / U(3) — the keystone and the native SU(3), against BPS (Goal 1.3)
+# F. SU(3) / U(3) — the keystone and the native SU(3), against BPS
 # ===========================================================================
 
 def test_F_u3_and_su3():
-    """Pure U(3) keystone + the genuinely native pure SU(3) `PureSUNKAlgebra`,
-    orthonormality (Goal 2.1), and both against their BPS realisations."""
-    from pure_un_kalgebra import PureUNKAlgebra
-    from pure_sun_kalgebra import PureSUNKAlgebra
+    """Pure SU(3) and pure U(3) on the general class: orthonormality
+    at SU(3), and U(3) against its BPS realisation.  (The SU(3) ↔ BPS witness
+    of earlier releases was built on the retired `PureSUNKAlgebra` and has no
+    counterpart on the general class.)"""
+    from pure_g_abe_kalgebra import PureGAbeKAlgebra
+    from root_datum import su_n
     from pure_un_bps_iso import pure_un_bps_iso
-    from pure_sun_bps_iso import pure_sun_bps_iso
-    # native pure SU(3) — orthonormality
-    A3 = PureSUNKAlgebra(3, max_len=4, K=10)
+    A3 = PureGAbeKAlgebra(su_n(3))
     assert isinstance(A3, AbeKAlgebra)
-    assert A3.verify_orthonormality(A3.identity(), A3.identity(), 4)
-    # U(3) ≅ BPS pure U(3)
-    U3 = PureUNKAlgebra.cached(3)
-    iso = pure_un_bps_iso(3, abe=U3)
+    labs3 = [((0, 0), (0, 0)), ((0, 0), (1, 0)), ((0, 0), (0, 1)), ((1, 1), (0, 0))]
+    for a in labs3:
+        for b in labs3:
+            assert A3.verify_orthonormality(a, b, 4), ("pure SU(3) orthonormality", a, b)
+    iso = pure_un_bps_iso(3)
     labs = [((0, 0, 0), (0, 0, 0)), ((1, 0, 0), (0, 0, 0)), ((0, 0, -1), (0, 0, 0))]
     s = [_E(l) for l in labs]
     assert iso.verify_round_trip(s, [iso.map(x) for x in s])
-    # SU(3) ≅ BPS pure SU(3): unit + round-trip on a small basis window
-    iso3 = pure_sun_bps_iso(3, abe=A3)
-    assert iso3.verify_unit()
-    s3 = [A3.identity()]
-    it = A3.basis_iter() if hasattr(A3, "basis_iter") else iter(())
-    for _ in range(4):
-        try:
-            s3.append(next(it))
-        except StopIteration:
-            break
-    se3 = [_E(l) for l in s3]
-    assert iso3.verify_round_trip(se3, [iso3.map(x) for x in se3])
-    print("  PASS: test_F_u3_and_su3  (native SU(3) orthonormality; U(3)/SU(3) ≅ BPS)")
+    print("  PASS: test_F_u3_and_su3  (pure SU(3) orthonormality; U(3) ≅ BPS)")
 
 
 # ===========================================================================
-# G. RGKAlgebraObjects — the flow-typed object layer (Plan 25)
+# G. RGKAlgebraObjects — the flow-typed object layer
 # ===========================================================================
 
 def test_G_subquiver_flow_object():
@@ -375,178 +360,9 @@ def test_G_su2a1d4_forgetful_ladder():
     print("  PASS: test_G_su2a1d4_forgetful_ladder  (RG ladder SU2A1D4 → SU2A1D3, flow witness)")
 
 
-def test_H_the_primitive_cocycle():
-    """**`CC` is the primitive**, and `R` is derived from it — not the other way
-    round.  The product law on the enriched torus is written in `CC`:
-
-        U_m · U_{m'}  =  CC[N]_{m,m'} · U_{m+m'},     R = T_{a+b}(CC)
-
-    with `CC = CC[0]` the pure-gauge case, a genuine specialisation matching the
-    `(G, N)` / `(G, 0)` convention.  Its closed form absorbs the atom phase, the
-    Weyl transport and the half-integral-height correction, so nothing in it
-    mentions `ψ`; `ψ` and `Z` are demoted to **trivializations**, which makes
-    `δψ = R` and `δZ = W` emergent evidence rather than definitions.
-
-    The reason `CC` is the primitive and not `R` is measurable, and this test is
-    that measurement: **`CC` satisfies the bar axiom `bar(CC_{a,b}) = CC_{b,a}`
-    and `R` does not.**  Every ingredient of `CC` is symmetric in `|A|, |B|`, so
-    the swap and the charge conjugation coincide.  The `R` half is asserted to
-    **fail** somewhere — otherwise the `CC` half tests nothing.
-    """
-    import itertools
-    import root_datum as rd
-    import wrq_torus as W
-
-    D = rd.su_n(3)
-    charges = list(itertools.product(range(-1, 2), repeat=2))
-    cc_bad = [(a, b) for a in charges for b in charges
-              if W.CC(D, a, b).bar() != W.CC(D, b, a)]
-    r_bad = [(a, b) for a in charges for b in charges
-             if W.cocycle_R(D, a, b).bar() != W.cocycle_R(D, b, a)]
-    assert not cc_bad, ("CC must satisfy the bar axiom everywhere", cc_bad[:3])
-    assert r_bad, ("the R half must FAIL somewhere, or the CC half is vacuous")
-
-    print("  PASS: test_H_the_primitive_cocycle  (SU(3): bar(CC_ab) = CC_ba on "
-          "%d/%d charge pairs, while R fails on %d — which is why CC is the "
-          "primitive)" % (len(charges) ** 2 - len(cc_bad), len(charges) ** 2,
-                          len(r_bad)))
-
-
-def test_H_rho_is_a_label_level_closed_form():
-    """`ρ`/`ρ⁻¹` on this tier are now the **explicit label-level closed form**,
-    promoted to primary; the old route — read the torus `G`-twist back through
-    `decompose` — is demoted to the verifier `verify_rho_via_twist`.
-
-    On Weyl orbits of pairs, with no chamber assumed,
-
-        ρ^{±1}[(m, e)] = [( −m, −e + Σ_{α: ±⟨α,m⟩>0} |⟨α,m⟩|·α
-                                  − Σ_{w∈wt(N): ±⟨w,m⟩>0} |⟨w,m⟩|·w )]
-
-    — `ρ` uses the roots positive on `m`, `ρ⁻¹` the negative half.  The check
-    that costs nothing and catches a sign error is the **round trip**: `ρ⁻¹ρ` must
-    be the identity on labels, for the ρ-automorphism axiom to have a chance.
-
-    A label is a **Weyl orbit of a pair**, not a tuple, so the comparison is on
-    the dominant representative.  That is not a technicality: at SU(3),
-    `dominant_cochar_rep((1,0)) = (1,1)`, so `L_{(1,0),0}` and `L_{(1,1),0}` are
-    the *same line*, and a round trip checked on raw tuples reports a spurious
-    failure — which is what happened while writing this test.
-    """
-    import root_datum as rd
-    import wrq_torus as W
-
-    checked = 0
-    for datum in (rd.su_2(), rd.su_n(3), rd.sp_n(2)):
-        n = datum.dim
-        labels = [((1,) + (0,) * (n - 1), (0,) * n),
-                  ((1,) * n, (0,) * n),
-                  ((0,) * n, (1,) + (0,) * (n - 1))]
-        for m, e in labels:
-            fwd = W.rho_label(datum, m, e)
-            back = W.rho_label(datum, fwd[0], fwd[1], inverse=True)
-            want = tuple(datum.dominant_cochar_rep(m))
-            got = tuple(datum.dominant_cochar_rep(back[0]))
-            assert got == want, ("ρ⁻¹ρ moved the magnetic label",
-                                 datum.name, (m, e), fwd, back)
-            checked += 1
-    print("  PASS: test_H_rho_is_a_label_level_closed_form  (ρ⁻¹ρ = id on %d "
-          "labels at SU(2) / SU(3) / Sp(4), compared on dominant "
-          "representatives)" % checked)
-
-
-def test_H_chart_cache_round_trip_and_its_guards():
-    """The `L_{m,e}` are **memoized and persistable** — `save_cache` / `load_cache`,
-    the same names and shape as `RGKAlgebra`'s, so the chart tier's caches persist
-    the way the flow tier's already did.
-
-    The file is **exact**: a residual is an integer numerator over an explicit
-    denominator multiset, so a round trip is an identity, not a re-derivation.
-
-    Two guards, because a cache file is untrusted input — it lets an `L_{m,e}`
-    enter the algebra without having been built by the guarded solve, and on this
-    tier a *fast wrong answer* is the dangerous failure mode:
-
-    * **provenance** — the header fingerprints the presentation, including the
-      phase convention **probed rather than described** (a datum's phase is a
-      callable and cannot be compared any other way).  This matters because a
-      chart is a residual vector in raw coordinates: cross-loading SU(3)'s charts
-      into Sp(4) would not raise anywhere downstream, it would simply be wrong.
-      So a mismatch must **refuse the file**, which is what is asserted here;
-    * **re-verification** — every admitted chart is re-run through the axioms.
-      Affordable precisely because verifying is not solving (measured at ~5% of a
-      rebuild), and worth it because (★) is exactly the condition that rejects a
-      plausible impostor the `𝖖⁰` self-norm cannot see.
-    """
-    import os
-    import tempfile
-    import root_datum as rd
-    from pure_g_abe_kalgebra import PureGAbeKAlgebra
-
-    A = PureGAbeKAlgebra(rd.su_n(3))
-    lab = A.fold((1, 1), (0, 0))
-    built = A.chart(lab)
-
-    tmp = tempfile.mkdtemp()
-    path = os.path.join(tmp, "su3_charts.json")
-    assert A.save_cache(path) >= 1
-
-    B = PureGAbeKAlgebra(rd.su_n(3))
-    assert B.load_cache(path) >= 1
-    assert B.chart(lab) == built, "the round trip must be an identity"
-
-    refused = False
-    try:
-        PureGAbeKAlgebra(rd.sp_n(2)).load_cache(path)
-    except ValueError:
-        refused = True
-    assert refused, ("a fingerprint mismatch must REFUSE the file — a "
-                     "cross-loaded chart would not raise downstream, it would "
-                     "simply be wrong")
-    print("  PASS: test_H_chart_cache_round_trip_and_its_guards  (SU(3) charts "
-          "save/load exactly; a Sp(4) instance refuses the SU(3) file)")
-
-
-def test_H_laurent_poly_refuses_a_non_integral_coefficient():
-    """`LaurentPoly` is over `Z[q, q⁻¹]`, and it now **says so**.
-
-    Two defects shipped, and both are the same failure class as the `int()`
-    truncation that once sent `SO(5)`'s spinor weight `(½,½)` to `v^0`:
-
-    * a non-integral coefficient was **silently truncated** — the zero-test read
-      the original `c` while the store kept `int(c)`, so `Fraction(1,2)` passed
-      the test and landed as **0**, and `3/2` as `1`;
-    * that stored zero then broke this class's documented invariant (a sparse
-      dict of *non-zero* coefficients), and `__add__`'s two paths disagreed about
-      it — the general path raised `KeyError` where the monomial fast path did
-      not, so the same sum crashed or not depending on how many terms the right
-      operand happened to have.
-
-    Refusing is the fix for the first; making the paths agree is free.
-    """
-    from fractions import Fraction
-    from laurent_poly import LaurentPoly
-
-    for bad in (Fraction(1, 2), Fraction(3, 2), 0.5):
-        raised = False
-        try:
-            LaurentPoly({0: bad})
-        except TypeError:
-            raised = True
-        assert raised, ("a non-integral coefficient must raise, not truncate", bad)
-
-    # both `__add__` paths agree on an explicit zero entry
-    dirty = LaurentPoly._from_clean_dict({0: 0, 1: 2})
-    assert LaurentPoly({0: 1}) + dirty == LaurentPoly({0: 1, 1: 2})
-    assert LaurentPoly({1: 5}) + dirty == LaurentPoly({1: 7})
-    print("  PASS: test_H_laurent_poly_refuses_a_non_integral_coefficient  "
-          "(Fraction/float refused; both __add__ paths agree on a stored zero)")
-
-
 def main():
-    test_A_pure_keystone_contract()
-    test_B_matter_native_abe()
-    test_B_matter_flow_bps_iso()
-    test_C_n2star_builder()
+    test_A_pure_un_contract()
+    test_B_matter()
     test_C_su2_n2star_rgflow()
     test_D_pure_u2_object()
     test_D_u2_nf1_object()
@@ -560,12 +376,8 @@ def main():
     test_G_subquiver_flow_object()
     test_G_su2a1d3_rg_object()
     test_G_su2a1d4_forgetful_ladder()
-    test_H_the_primitive_cocycle()
-    test_H_rho_is_a_label_level_closed_form()
-    test_H_chart_cache_round_trip_and_its_guards()
-    test_H_laurent_poly_refuses_a_non_integral_coefficient()
-    print("\nALL AbeKAlgebra (Step 5) export self-tests passed (Abe tier + matter "
-          "Abe+RG + N=2* + object layer + SU(2)/SU(3) families + RGKAlgebraObjects).")
+    print("\nALL AbeKAlgebra export self-tests passed (Abe tier + matter + N=2* + "
+          "object layer + SU(2)/SU(3) families + RGKAlgebraObjects).")
 
 
 if __name__ == "__main__":

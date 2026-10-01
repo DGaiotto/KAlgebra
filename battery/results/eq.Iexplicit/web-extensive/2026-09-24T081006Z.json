@@ -1,0 +1,992 @@
+{
+ "id": "eq:Iexplicit",
+ "labels": [
+  "eq:Iexplicit"
+ ],
+ "date": "2026-09-24T08:10:06Z",
+ "commit": "f124d3c11c2ac755ec3e27ce7e864e27ad506856",
+ "environment": "web",
+ "depth": "extensive",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "lines": [
+    "((0,), (0,))",
+    "((0,), (1,))",
+    "((1,), (0,))",
+    "((1,), (1,))",
+    "((2,), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 0.1
+  },
+  "pure SO(3)": {
+   "lines": [
+    "((0,), (0,))",
+    "((0,), (1,))",
+    "((1,), (0,))",
+    "((1,), (1,))",
+    "((2,), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 0.1
+  },
+  "pure rank 1, the third global form": {
+   "lines": [
+    "((0,), (0,))",
+    "((0,), (2,))",
+    "((Fraction(1, 2),), (1,))",
+    "((Fraction(1, 2),), (-1,))",
+    "((1,), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 0.1
+  },
+  "pure SU(3)": {
+   "lines": [
+    "((0, 0), (0, 0))",
+    "((0, 0), (1, 0))",
+    "((1, 1), (0, 0))",
+    "((1, 1), (1, 0))",
+    "((2, 2), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 6,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 25.8
+  },
+  "pure PSU(3)": {
+   "lines": [
+    "((0, 0), (0, 0))",
+    "((0, 0), (1, 1))",
+    "((Fraction(2, 3), Fraction(1, 3)), (0, 0))",
+    "((Fraction(2, 3), Fraction(1, 3)), (1, 1))",
+    "((Fraction(1, 3), Fraction(2, 3)), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 6,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 0.5
+  },
+  "pure Sp(4)": {
+   "lines": [
+    "((0, 0), (0, 0))",
+    "((0, 0), (1, 0))",
+    "((1, 1), (0, 0))",
+    "((1, 1), (1, 0))",
+    "((2, 1), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 8,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 84.7
+  },
+  "pure Spin(5)": {
+   "lines": [
+    "((0, 0), (0, 0))",
+    "((0, 0), (1, 0))",
+    "((1, 1), (0, 0))",
+    "((1, 1), (1, 0))",
+    "((2, 1), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 8,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 5.1
+  },
+  "pure SO(5)": {
+   "lines": [
+    "((0, 0), (0, 0))",
+    "((0, 0), (1, 0))",
+    "((Fraction(1, 1), Fraction(1, 2)), (0, 0))",
+    "((Fraction(1, 1), Fraction(1, 2)), (1, 0))",
+    "((1, 1), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 8,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 1.7
+  },
+  "pure G2": {
+   "lines": [
+    "((0, 0), (0, 0))",
+    "((0, 0), (1, 0))",
+    "((1, 2), (0, 0))",
+    "((1, 2), (1, 0))",
+    "((2, 3), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 12,
+   "slots": 0,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 91.7
+  },
+  "SU(2)+1": {
+   "lines": [
+    "(((0,), (0,)), (0,))",
+    "(((0,), (1,)), (0,))",
+    "(((1,), (0,)), (0,))",
+    "(((1,), (1,)), (0,))",
+    "(((2,), (0,)), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 5.7
+  },
+  "SU(2)+2": {
+   "lines": [
+    "(((0,), (0,)), (0, 0))",
+    "(((0,), (1,)), (0, 0))",
+    "(((1,), (0,)), (0, 0))",
+    "(((1,), (1,)), (0, 0))",
+    "(((2,), (0,)), (0, 0))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 2,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 314.8
+  },
+  "SU(2)+3": {
+   "lines": [
+    "(((0,), (0,)), (0, 0, 0))",
+    "(((0,), (1,)), (0, 0, 0))",
+    "(((1,), (0,)), (0, 0, 0))",
+    "(((1,), (1,)), (0, 0, 0))",
+    "(((2,), (0,)), (0, 0, 0))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 3,
+   "pairs": 25,
+   "compared": 16,
+   "printed_eq_trace": 16,
+   "class_eq_torus": 16,
+   "printed_delta_plus_O_q": 16,
+   "unshifted_detected": true,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.2
+  },
+  "SU(2)+4": {
+   "lines": [
+    "(((0,), (0,)), (0, 0, 0, 0))",
+    "(((0,), (1,)), (0, 0, 0, 0))",
+    "(((1,), (0,)), (0, 0, 0, 0))",
+    "(((1,), (1,)), (0, 0, 0, 0))",
+    "(((2,), (0,)), (0, 0, 0, 0))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 4,
+   "pairs": 25,
+   "compared": 6,
+   "printed_eq_trace": 6,
+   "class_eq_torus": 6,
+   "printed_delta_plus_O_q": 6,
+   "unshifted_detected": null,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.2
+  },
+  "SU(2)+adjoint (N=2*)": {
+   "lines": [
+    "(((0,), (0,)), (0,))",
+    "(((0,), (1,)), (0,))",
+    "(((1,), (0,)), (0,))",
+    "(((1,), (1,)), (0,))",
+    "(((2,), (0,)), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 27.1
+  },
+  "SO(3)+adjoint (N=2*)": {
+   "lines": [
+    "(((0,), (0,)), (0,))",
+    "(((0,), (2,)), (0,))",
+    "(((Fraction(1, 2),), (0,)), (0,))",
+    "(((Fraction(1, 2),), (2,)), (0,))",
+    "(((1,), (0,)), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 15.7
+  },
+  "rank 1 + adjoint (N=2*), the third global form": {
+   "lines": [
+    "(((0,), (0,)), (0,))",
+    "(((0,), (2,)), (0,))",
+    "(((Fraction(1, 2),), (1,)), (0,))",
+    "(((Fraction(1, 2),), (-1,)), (0,))",
+    "(((1,), (0,)), (0,))"
+   ],
+   "K": 4,
+   "weyl": 2,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 15.9
+  },
+  "SU(3)+adjoint (N=2*)": {
+   "lines": [
+    "(((0, 0), (0, 0)), (0,))",
+    "(((0, 0), (1, 0)), (0,))",
+    "(((1, 1), (0, 0)), (0,))",
+    "(((1, 1), (1, 0)), (0,))"
+   ],
+   "K": 3,
+   "weyl": 6,
+   "slots": 1,
+   "pairs": 16,
+   "compared": 8,
+   "printed_eq_trace": 8,
+   "class_eq_torus": 8,
+   "printed_delta_plus_O_q": 8,
+   "unshifted_detected": true,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.1
+  },
+  "SU(3)+symmetric": {
+   "lines": [
+    "(((0, 0), (0, 0)), (0,))",
+    "(((0, 0), (1, 0)), (0,))",
+    "(((1, 1), (0, 0)), (0,))",
+    "(((1, 1), (1, 0)), (0,))"
+   ],
+   "K": 3,
+   "weyl": 6,
+   "slots": 1,
+   "pairs": 16,
+   "compared": 12,
+   "printed_eq_trace": 12,
+   "class_eq_torus": 12,
+   "printed_delta_plus_O_q": 12,
+   "unshifted_detected": true,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.0
+  },
+  "SU(3)+symmetric+1": {
+   "lines": [
+    "(((0, 0), (0, 0)), ((0,), (0,)))",
+    "(((0, 0), (1, 0)), ((0,), (0,)))",
+    "(((1, 1), (0, 0)), ((0,), (0,)))",
+    "(((1, 1), (1, 0)), ((0,), (0,)))"
+   ],
+   "K": 3,
+   "weyl": 6,
+   "slots": 2,
+   "pairs": 16,
+   "compared": 4,
+   "printed_eq_trace": 4,
+   "class_eq_torus": 4,
+   "printed_delta_plus_O_q": 4,
+   "unshifted_detected": null,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.4
+  },
+  "Spin(5)+vector": {
+   "lines": [
+    "(((0, 0), (0, 0)), (0,))",
+    "(((0, 0), (1, 0)), (0,))",
+    "(((1, 1), (0, 0)), (0,))",
+    "(((1, 1), (1, 0)), (0,))",
+    "(((2, 1), (0, 0)), (0,))"
+   ],
+   "K": 3,
+   "weyl": 8,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 18,
+   "printed_eq_trace": 18,
+   "class_eq_torus": 18,
+   "printed_delta_plus_O_q": 18,
+   "unshifted_detected": true,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.0
+  },
+  "SO(5)+vector": {
+   "lines": [
+    "(((0, 0), (0, 0)), (0,))",
+    "(((0, 0), (1, 0)), (0,))",
+    "(((Fraction(1, 1), Fraction(1, 2)), (0, 0)), (0,))",
+    "(((Fraction(1, 1), Fraction(1, 2)), (1, 0)), (0,))",
+    "(((1, 1), (0, 0)), (0,))"
+   ],
+   "K": 3,
+   "weyl": 8,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 20,
+   "printed_eq_trace": 20,
+   "class_eq_torus": 20,
+   "printed_delta_plus_O_q": 20,
+   "unshifted_detected": true,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.0
+  },
+  "G2+7": {
+   "lines": [
+    "(((0, 0), (0, 0)), (0,))",
+    "(((0, 0), (1, 0)), (0,))",
+    "(((1, 2), (0, 0)), (0,))",
+    "(((1, 2), (1, 0)), (0,))",
+    "(((2, 3), (0, 0)), (0,))"
+   ],
+   "K": 3,
+   "weyl": 12,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 6,
+   "printed_eq_trace": 6,
+   "class_eq_torus": 6,
+   "printed_delta_plus_O_q": 6,
+   "unshifted_detected": null,
+   "stopped_by": "1800 s",
+   "error": null,
+   "seconds": 1800.1
+  },
+  "SU(2)xSU(2)+bifundamental": {
+   "lines": [
+    "(((0, 0), (0, 0)), (0,))",
+    "(((0, 0), (1, 0)), (0,))",
+    "(((1, 0), (0, 0)), (0,))",
+    "(((1, 0), (1, 0)), (0,))",
+    "(((0, 1), (0, 0)), (0,))"
+   ],
+   "K": 3,
+   "weyl": 4,
+   "slots": 1,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 85.3
+  },
+  "U(1)-U(2)+3": {
+   "lines": [
+    "(((0, 0, 0), (0, 0, 0)), ((0,), (0, 0, 0)))",
+    "(((0, 0, 0), (1, 0, 0)), ((0,), (0, 0, 0)))",
+    "(((1, 0, 0), (0, 0, 0)), ((0,), (0, 0, 0)))",
+    "(((1, 0, 0), (1, 0, 0)), ((0,), (0, 0, 0)))",
+    "(((0, 1, 0), (0, 0, 0)), ((0,), (0, 0, 0)))"
+   ],
+   "K": 3,
+   "weyl": 2,
+   "slots": 4,
+   "pairs": 25,
+   "compared": 25,
+   "printed_eq_trace": 25,
+   "class_eq_torus": 25,
+   "printed_delta_plus_O_q": 25,
+   "unshifted_detected": true,
+   "stopped_by": null,
+   "error": null,
+   "seconds": 586.0
+  }
+ },
+ "counts": {
+  "pass": 93,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed pairing is |W|·(delta + O(q)) on every compared pair (no negative q-power, delta at q^0); pure SU(2) and SU(3), whose pairs the fast run also compares, are among the theories",
+  "negative": "the unshifted measure (every sector at the m = 0 measure) changes the printed pairing of the first magnetic line with itself"
+ },
+ "elapsed_s": 15661.801,
+ "notes": "Extensive population of eq:Iexplicit: five lines per lineup theory (identity, the smallest Wilson line, the two smallest magnetic charges at the smallest admitted electric charge, one dyonic line; four where the window has a single nonzero magnetic charge), all ordered pairs, q^4 (q^3 with matter above rank one), 1800 s and 5 GB per theory, each theory in its own process.  Total 15661.8 s.",
+ "checks": [
+  {
+   "name": "pure SU(2): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): negative control — the unshifted measure changes the printed pairing of ((1,), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): negative control — the unshifted measure changes the printed pairing of ((1,), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: negative control — the unshifted measure changes the printed pairing of ((Fraction(1, 2),), (1,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 6; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): negative control — the unshifted measure changes the printed pairing of ((1, 1), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 6; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): negative control — the unshifted measure changes the printed pairing of ((Fraction(2, 3), Fraction(1, 3)), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 8; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): negative control — the unshifted measure changes the printed pairing of ((1, 1), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 8; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): negative control — the unshifted measure changes the printed pairing of ((1, 1), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 8; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): negative control — the unshifted measure changes the printed pairing of ((Fraction(1, 1), Fraction(1, 2)), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 12; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: negative control — the unshifted measure changes the printed pairing of ((1, 2), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: negative control — the unshifted measure changes the printed pairing of (((1,), (0,)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: negative control — the unshifted measure changes the printed pairing of (((1,), (0,)), (0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+3: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 16 pairs of 5 lines through q^4 (9 of 25 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+3: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 16 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+3: positive control — the printed pairing is |W|·(delta + O(q)) on the same 16 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+3: negative control — the unshifted measure changes the printed pairing of (((1,), (0,)), (0, 0, 0)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+4: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 6 pairs of 5 lines through q^4 (19 of 25 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+4: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 6 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+4: positive control — the printed pairing is |W|·(delta + O(q)) on the same 6 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): negative control — the unshifted measure changes the printed pairing of (((1,), (0,)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): negative control — the unshifted measure changes the printed pairing of (((Fraction(1, 2),), (0,)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: negative control — the unshifted measure changes the printed pairing of (((Fraction(1, 2),), (1,)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 6; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 8 pairs of 4 lines through q^3 (8 of 16 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 8 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): positive control — the printed pairing is |W|·(delta + O(q)) on the same 8 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): negative control — the unshifted measure changes the printed pairing of (((1, 1), (0, 0)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 6; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 12 pairs of 4 lines through q^3 (4 of 16 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 12 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: positive control — the printed pairing is |W|·(delta + O(q)) on the same 12 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: negative control — the unshifted measure changes the printed pairing of (((1, 1), (0, 0)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric+1: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 6; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 4 pairs of 4 lines through q^3 (12 of 16 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric+1: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 4 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric+1: positive control — the printed pairing is |W|·(delta + O(q)) on the same 4 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 8; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 18 pairs of 5 lines through q^3 (7 of 25 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 18 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: positive control — the printed pairing is |W|·(delta + O(q)) on the same 18 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: negative control — the unshifted measure changes the printed pairing of (((1, 1), (0, 0)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(5)+vector: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 8; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 20 pairs of 5 lines through q^3 (5 of 25 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(5)+vector: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 20 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(5)+vector: positive control — the printed pairing is |W|·(delta + O(q)) on the same 20 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(5)+vector: negative control — the unshifted measure changes the printed pairing of (((Fraction(1, 1), Fraction(1, 2)), (0, 0)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "G2+7: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 12; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 6 pairs of 5 lines through q^3 (19 of 25 pairs not reached within 1800 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "G2+7: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 6 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "G2+7: positive control — the printed pairing is |W|·(delta + O(q)) on the same 6 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 4; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: negative control — the unshifted measure changes the printed pairing of (((1, 0), (0, 0)), (0,)) with itself",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: the conjectural half — the printed sum over m of contour integrals (eq:Iexplicit, |W| = 2; each sector at |v| = 1 against its own shifted measure) equals Tr(rho(f)·g) as the class computes it (the Schur residue of the magnetic-0 residual of rho(f)·g, assembled sector by sector) on 25 pairs of 5 lines through q^3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: consistency of two computations of Tr(rho(f)·g) — the class's sector assembly and the torus product rho(f)·g give the same Schur residue on the same 25 pairs (equal by a theorem; not the conjecture)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: positive control — the printed pairing is |W|·(delta + O(q)) on the same 25 pairs (no negative q-power, delta at q^0)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: negative control — the unshifted measure changes the printed pairing of (((1, 0, 0), (0, 0, 0)), ((0,), (0, 0, 0))) with itself",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

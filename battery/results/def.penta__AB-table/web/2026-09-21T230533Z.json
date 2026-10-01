@@ -1,0 +1,53 @@
+{
+ "id": "def:penta/AB-table",
+ "labels": [
+  "eq:ABdef",
+  "tab:pentagon-stabilization"
+ ],
+ "date": "2026-09-21T23:05:33Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "n": "<= 10 for eq:ABdef, <= 8 for the ratio, table rows 3..6",
+  "K": 40
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the table rows reproduced from the recursion",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.061,
+ "notes": "A_n, B_n are generated from eq:pentarec alone (T_n = T_{n-1} + q^{2n-2} T_{n-2}), independently of pentagon_trace.py, then compared both with the printed table and with the class's traces.",
+ "checks": [
+  {
+   "name": "tab:pentagon-stabilization rows n = 3..6 verbatim (A_n, B_n from the recursion)",
+   "ok": true,
+   "note": "A_3 = +1q^1, B_3 = +1q^0 +1q^4; A_4 = +1q^1 +1q^7, B_4 = +1q^0 +1q^4 +1q^6"
+  },
+  {
+   "name": "eq:ABdef  q^(n^2-1) Tr L^n = A_n Tr 1 + B_n Tr L_1 against the class trace, n <= 10, to q^40",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the ratio Tr L_1/Tr 1 agrees with -A_n/B_n to O(q^{n^2}), n = 2..8",
+   "ok": true,
+   "note": "agreement order (first differing power) per n: n=2: 5, n=3: 11, n=4: 19, n=5: 29, n=6: 41, n=7: 55, n=8: None"
+  },
+  {
+   "name": "Tr L^n has no negative powers of q and starts at order >= 1, n <= 8",
+   "ok": true,
+   "note": "valuations: n=1: q^1, n=2: q^2, n=3: q^3, n=4: q^4, n=5: q^5, n=6: q^6, n=7: q^7, n=8: q^8"
+  },
+  {
+   "name": "continued fraction 1 - q Tr L_i/Tr 1 = 1 + q^2/(1 + q^4/(1 + ...)): convergents approach to increasing order",
+   "ok": true,
+   "note": "first differing power per depth: 1: 6, 2: 12, 3: 20, 4: 30, 5: 42, 6: 56, 7: None, 8: None"
+  }
+ ]
+}

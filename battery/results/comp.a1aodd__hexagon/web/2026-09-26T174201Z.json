@@ -1,0 +1,55 @@
+{
+ "id": "comp:a1aodd/hexagon",
+ "labels": [
+  "comp:a1aodd"
+ ],
+ "date": "2026-09-26T17:42:01Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": 1,
+  "products": 36,
+  "balanced labels": 73,
+  "seconds": 0.0
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed rho on the six generators, and all 36 products reproduced",
+  "negative": "rho without its powers of z breaks 8 products; the q-commutation powers exchanged break 12"
+ },
+ "elapsed_s": 0.02,
+ "notes": "The k = 1 presentation transcribed from the companion (three crossing relations at j = 0, the q-commutations, rho with its fugacity powers, bar) and compared with ungauge_u1a1aodd(1).multiply on every ordered pair of the six generators.",
+ "checks": [
+  {
+   "name": "the printed rho eq:comp-aodd-hexrho on the six generators: rho(L_2;j) = L_2;j+1, rho(L_{1;j,1;j+3}) = L_{1;j+1,1;j+4} (j = 0, 1), rho(L_2;2) = z^-1 L_2;0, rho(L_{1;2,1;5}) = z^-2 L_{1;0,1;3}",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the printed q-commutations eq:comp-aodd-hexqc (12 ordered products), the three printed relations eq:comp-aodd-hex with their rho images and bar images (18 ordered crossing products) and the squares give all 36 ordered products of the six generators",
+   "ok": true,
+   "note": "agree 36, differ 0"
+  },
+  {
+   "name": "every balanced label at k = 1 (73: up to four letters, exponents up to 3) is a monomial of one of the six cones {L_2;j, L_{1;j,1;j+3}}, {L_2;j, L_{1;j+1,1;j+4}}",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: rho without its powers of z (rho(L_2;2) = L_2;0, ...) breaks 8 of the 36 products",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the two q-commutation powers exchanged breaks 12 of the 36 products",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

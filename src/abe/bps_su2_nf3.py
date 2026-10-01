@@ -1,7 +1,7 @@
 """bps_su2_nf3 — canonical `BPSKAlgebra` for SU(2) + N_f = 3 with
 **manifest SU(4) flavour symmetry on a rank-3 flavour lattice**.
 
-User-specified SU(4)-manifest BPS quiver (5 nodes in 5-dim lattice,
+Author-specified SU(4)-manifest BPS quiver (5 nodes in 5-dim lattice,
 2 gauge + 3 flavour = rank-3 SU(4) Cartan):
 
     γ_1 = (1, 0, 0, 0, 0)                  [SU(2) gauge node]

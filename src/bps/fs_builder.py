@@ -9,7 +9,7 @@ other: at each cone degree it places the BPS factors that `S`'s leading data
 forces, then reads off the palindromic `F`-coefficients that
 `F_γ·S = X_γ + O(𝖖)` forces, and moves up a degree.
 
-THE CONSTRUCTION (user, 2026-08-13)
+THE CONSTRUCTION
 
     "The crystalline S builder suggests a crystalline builder for F_γ S which
      does not rely on S but rather directly solves for FS = X_γ + O(𝖖) by adding
@@ -29,9 +29,7 @@ factor at `γ'` enters through `S`, hence reaches `F·S` shifted by the quantum-
 torus bracket and smeared by the `E_𝖖` tail `L = 𝖖/(1−𝖖²)`; an `F`-summand at
 `γ+γ'` enters against `S_0 = 1`, hence bare and unshifted.
 
-WHY THEY ARE THE SAME ALPHABET — THE ENLARGED QUIVER (user, 2026-08-13; the
-reason the construction works, and the reason `F·S` is a *gauge* and not the
-object).  Adjoin to the BPS quiver one node at `γ + γ_0`, with `γ_0` a **pure
+WHY THEY ARE THE SAME ALPHABET — THE ENLARGED QUIVER.  Adjoin to the BPS quiver one node at `γ + γ_0`, with `γ_0` a **pure
 flavour** direction, so `X_{γ_0}` is central.  Expanding the enlarged quiver's
 spectrum generator in powers of `X_{γ_0}`:
 
@@ -656,7 +654,7 @@ def F_from_enlarged_quiver(
 ) -> dict[Vec, LaurentPoly]:
     """`F_γ` read off the factor multiplicities of the enlarged quiver.
 
-    THE CONSTRUCTION (user, 2026-08-13).  Adjoin a node at `γ + γ_0` with `γ_0`
+    THE CONSTRUCTION.  Adjoin a node at `γ + γ_0` with `γ_0`
     pure flavour.  Expanding the enlarged quiver's spectrum generator in powers
     of the central `X_{γ_0}`,
 
@@ -708,7 +706,7 @@ def fs_linear_sector(
 ) -> dict[Vec, HabiroElement]:
     """`F_γ S` with the summands placed WHEREVER `piece_key` says.
 
-    THE GENERAL PRESENTATION (user, 2026-08-13).  `F_γ·S` collects every summand
+    THE GENERAL PRESENTATION.  `F_γ·S` collects every summand
     on the far left; in general the object is
 
         Σ over pieces  ( ∏ E's before ) · ω(s,γ')·χ_s·X_{γ+γ'} · ( ∏ E's after )
@@ -778,7 +776,7 @@ def fs_closed_form(
 ):
     """`F_γ S = E_1 · X_γ · E_2` — no recursion, no solve.  `None` if unavailable.
 
-    THE HYPOTHESIS THIS ANSWERS (user, 2026-08-13): *"letting the order of factors
+    THE HYPOTHESIS THIS ANSWERS: *"letting the order of factors
     in `S` depend on the choice of `γ` may make the FS builder better than
     building `S` and finding `F` in the usual way"*.
 

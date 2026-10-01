@@ -591,7 +591,7 @@ class Triangulation:
             flip_e(Delta).sigma()  ==  mu_e(Delta.sigma())
 
         (the Fomin-Shapiro-Thurston flip/mutation compatibility; pinned
-        empirically in `tests/test_triangulation_flip.py` over every
+        empirically in the suite in the source repository over every
         edge of every fixture, both construction paths).
 
         Flips routinely CREATE multi-edges and self-loops even from

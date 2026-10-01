@@ -1,0 +1,38 @@
+{
+ "id": "comp:su3ad/is-kalgebra",
+ "labels": [
+  "comp:su3ad"
+ ],
+ "date": "2026-09-22T04:39:37Z",
+ "commit": "89fdd791dbad2bee0721155b40fe41f7a1450d01",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "labels": 15,
+  "K": 4,
+  "seconds": 10.1
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity row",
+  "negative": "n.a."
+ },
+ "elapsed_s": 10.077,
+ "notes": "Emergent: the relations are static data, the trace BPS-free.",
+ "checks": [
+  {
+   "name": "K1-K5 verifiers on all pairs of a window of 15 labels (identity, the eight generators, chi_(1,0), chi_(0,1), the four T_i D_i tiles) at K=4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "F5: Tr L_rho(a) = rho(Tr L_a) with the outer star on R(SU(3)), on the window at K=4",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

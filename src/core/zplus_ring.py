@@ -70,8 +70,8 @@ Concrete cases shipped here:
     Klimyk's formula + Freudenthal weight multiplicities, ⋆(p,q) = (q,p)
     (complex conjugation, 3 ↔ 3̄).  Embeds in `AbelianZPlusRing(rank=2)`
     as the S_3-Weyl-symmetric subring.  Used when a BPS quiver carries an
-    S_3-orbit of three rays at the fundamental weights of SU(3); see
-    `SU3BPSKAlgebra`.
+    S_3-orbit of three rays at the fundamental weights of SU(3) (a gauge
+    node plus an S_3-orbit of flavour nodes).
 
 The corresponding KAlgebra coefficient ring is `R[q^±]`, implemented here as
 `RLaurent[R]`.  Two distinct involutions live on this ring:
@@ -170,7 +170,7 @@ class ZPlusRing(ABC):
         """Rank `c` of the group of **1-dimensional representations**
         `Λ ≅ Z^c` — the *lift torsor* of the design record.  `Λ = R(G_f^ab)` is the rep
         ring of the abelianization; within the connected-reductive scope
-        (ruling A2) it is free abelian, `c` = number of central `U(1)`
+ it is free abelian, `c` = number of central `U(1)`
         factors of `G_f`.  `0` for semisimple / trivial `G_f`."""
 
     @abstractmethod
@@ -219,13 +219,13 @@ class ZPlusRing(ABC):
 
     def one_dim_reps(self) -> "AbelianZPlusRing":
         """`Λ` as an abstract ring: `AbelianZPlusRing(c)`, `c = one_dim_rep_rank()`
-        (free abelian within the connected-reductive scope; ruling A2)."""
+        (free abelian within the connected-reductive scope)."""
         return AbelianZPlusRing(self.one_dim_rep_rank())
 
     def one_dim_rep_inclusion(self) -> "RingHom":
         """The group-like inclusion `ι : AbelianZPlusRing(c) → R`,
         `μ^f ↦ embed_one_dim_rep(f)` — the handle the lift/section machinery
-        (ruling T4) uses to range over and apply twists by `Λ`."""
+ uses to range over and apply twists by `Λ`."""
         Lam = self.one_dim_reps()
         return RingHom(
             Lam, self,
@@ -641,8 +641,7 @@ class SU2ZPlusRing(ZPlusRing):
 
 class UNZPlusRing(ZPlusRing):
     """The Z₊-ring `R(U(n))` — the flavour ring of `n` copies of the SAME
-    matter irrep (user ruling, 2026-07-28: *"you could have `U(n_i)` if there
-    are `n_i` copies of the same irrep"*).
+    matter irrep.
 
     Basis: `U(n)`-dominant weights — weakly decreasing integer `n`-tuples, with
     **negative entries allowed** (the `det`-twisted reps).  `(0,)*n` is trivial,
@@ -662,7 +661,7 @@ class UNZPlusRing(ZPlusRing):
     1-dim reps: the `det` powers `det^k = (k,)*n` — so `one_dim_rep_rank() == 1`
     (the centre `U(1) ⊂ U(n)`), which is exactly the Plan-32 lift torsor here.
 
-    Relation to the standing D5 ruling.  For a **U(N) gauge node** with `N_f`
+    Relation to the standing flavour convention.  For a **U(N) gauge node** with `N_f`
     fundamentals the flavour ring is `R(SU(N_f))`, because the diagonal
     `U(1) ⊂ U(N_f)` sits inside the gauge centre and is level bookkeeping, not
     flavour.  A general `G` need not have a centre to absorb it (`G₂` is
@@ -799,7 +798,7 @@ class TensorZPlusRing(ZPlusRing):
     structure constants.  `⋆` acts factor-wise.
 
     This is the 'missing infrastructure piece' for SU(2)^n-flavoured
-    KAlgebras (the design notes); the per-factor
+    KAlgebras; the per-factor
     un-branch from the `U(1)^k` Cartan (`AbelianZPlusRing(k)`) up to the
     non-abelian product is a `FlavourEnhancementKAlgebra`-style wrapper
     (Weyl group `∏_i W(R_i)`; for SU(2)^n the per-puncture `μ_p ↔ μ_p⁻¹`).
@@ -873,6 +872,136 @@ class TensorZPlusRing(ZPlusRing):
             out.append(fac.embed_one_dim_rep(tuple(f[i:i + ci])))
             i += ci
         return tuple(out)
+
+    # ----- the product torus embedding ----------------------------------
+    #
+    # The per-factor un-branch from the `U(1)^k` Cartan up to the non-abelian
+    # product, which this class's docstring above anticipated but did not carry.
+    # Without it a product flavour ring has fusion, duality and dimension but no
+    # WEIGHTS, so nothing that needs a weight diagram — a Weyl-character lift, a
+    # Schur trace un-branched into multiplets — can use a product group at all.
+
+    def factor_torus_ranks(self) -> tuple:
+        """Each factor's Cartan rank, read off its own identity image.
+
+        Derived rather than switched on the factor's class name: the abelian
+        image of `1` is a single weight, and its coordinate count IS the rank
+        (`0` for a rank-0 factor such as `SUNZPlusRing(1)`).
+        """
+        cached = getattr(self, "_factor_ranks", None)
+        if cached is not None:
+            return cached
+        ranks = []
+        for f in self.factors:
+            if not hasattr(f, "to_abelian"):
+                raise NotImplementedError(
+                    f"TensorZPlusRing: factor {f!r} has no `to_abelian`, so the "
+                    "product has no torus embedding")
+            img = f.to_abelian(f.basis_element(f.one_basis()))
+            keys = list(img.terms)
+            if len(keys) != 1:
+                raise ValueError(
+                    f"TensorZPlusRing: factor {f!r} maps 1 to {len(keys)} weights")
+            ranks.append(len(keys[0]))
+        ranks = tuple(ranks)
+        self._factor_ranks = ranks
+        return ranks
+
+    def torus_rank(self) -> int:
+        """`Σ_i rk T_i` — the rank of the product Cartan."""
+        return sum(self.factor_torus_ranks())
+
+    def to_abelian(self, elt: "RElement",
+                   target: "AbelianZPlusRing | None" = None) -> "RElement":
+        """`⊗_i R_i → R(U(1)^{Σ rk T_i})`: the weight diagram of a product
+        character, in the CONCATENATED per-factor coordinates.
+
+        The product character is the outer product of the factors', so its
+        diagram is the outer product of theirs and each factor's coordinate
+        block keeps that factor's own convention.
+        """
+        ranks = self.factor_torus_ranks()
+        if target is None:
+            target = AbelianZPlusRing(rank=sum(ranks))
+        out: dict[tuple, int] = {}
+        for key, c in elt.terms.items():
+            if not c:
+                continue
+            if len(key) != len(self.factors):
+                raise ValueError(
+                    f"TensorZPlusRing.to_abelian: basis tuple must have length "
+                    f"{len(self.factors)}; got {key!r}")
+            acc: dict[tuple, int] = {(): c}
+            for f, k in zip(self.factors, key):
+                piece = f.to_abelian(f.basis_element(k)).terms
+                nxt: dict[tuple, int] = {}
+                for pre, pc in acc.items():
+                    for w, m in piece.items():
+                        kk = pre + tuple(w)
+                        nxt[kk] = nxt.get(kk, 0) + pc * m
+                acc = nxt
+            for w, m in acc.items():
+                out[w] = out.get(w, 0) + m
+        return RElement(target, {k: v for k, v in out.items() if v})
+
+    def from_abelian(self, u_relt: "RElement",
+                     allow_virtual: bool = True) -> "RElement":
+        """`R(U(1)^{Σ rk T_i}) → ⊗_i R_i`: un-branch a product weight function.
+
+        Peeled one factor at a time — split each weight into this factor's
+        coordinate block and the rest, group by the rest, un-branch each slice
+        through **that factor's own** `from_abelian`, and recurse on the
+        remainder carried by each irrep.  Raises if the input is not a virtual
+        product character (each factor's `from_abelian` decides its own block).
+        """
+        ranks = self.factor_torus_ranks()
+        total = sum(ranks)
+        fn: dict[tuple, int] = {}
+        for k, c in u_relt.terms.items():
+            if not c:
+                continue
+            kk = tuple(int(x) for x in k)
+            if len(kk) != total:
+                raise ValueError(
+                    f"TensorZPlusRing.from_abelian: weight {kk!r} has "
+                    f"{len(kk)} coordinates, expected {total}")
+            fn[kk] = fn.get(kk, 0) + c
+        return RElement(self, self._peel_factor(fn, 0, ranks, allow_virtual))
+
+    def _peel_factor(self, fn: dict, i: int, ranks: tuple,
+                     allow_virtual: bool) -> dict:
+        if i == len(self.factors):
+            c = fn.get((), 0)
+            return {(): c} if c else {}
+        f, r = self.factors[i], ranks[i]
+        by_tail: dict[tuple, dict] = {}
+        for w, c in fn.items():
+            head, tail = w[:r], w[r:]
+            slot = by_tail.setdefault(tail, {})
+            slot[head] = slot.get(head, 0) + c
+        per_irrep: dict[object, dict] = {}
+        ab = AbelianZPlusRing(rank=r)
+        for tail, head_fn in by_tail.items():
+            head_fn = {h: c for h, c in head_fn.items() if c}
+            if not head_fn:
+                continue
+            if r == 0:
+                dec = {f.one_basis(): head_fn.get((), 0)}
+            else:
+                dec = f.from_abelian(
+                    RElement(ab, head_fn), allow_virtual=allow_virtual).terms
+            for lam, m in dec.items():
+                if m:
+                    slot = per_irrep.setdefault(lam, {})
+                    slot[tail] = slot.get(tail, 0) + m
+        out: dict[tuple, int] = {}
+        for lam, tail_fn in per_irrep.items():
+            for rest, m in self._peel_factor(
+                    tail_fn, i + 1, ranks, allow_virtual).items():
+                if m:
+                    key = (lam,) + rest
+                    out[key] = out.get(key, 0) + m
+        return {k: v for k, v in out.items() if v}
 
     def __repr__(self) -> str:
         return f"TensorZPlusRing([{', '.join(repr(f) for f in self.factors)}])"
@@ -1107,7 +1236,7 @@ class SU3ZPlusRing(ZPlusRing):
     Embedding in the maximal-torus ring.  `R(SU(3)) ↪ R(U(1)²) =
     Z[μ_1^±, μ_2^±]` as the Weyl-symmetric subring (S_3 acting by
     permuting the three weights of the fundamental).  In the
-    "fundamental orbit basis" used by SU3BPSKAlgebra — where the
+    "fundamental orbit basis" — where the
     three weights of the fundamental are `(1, 0)`, `(0, 1)`,
     `(-1, -1)` — the Weyl group S_3 is generated by:
 
@@ -1123,8 +1252,7 @@ class SU3ZPlusRing(ZPlusRing):
     Use: coefficient ring for a flavoured KAlgebra whose flavour symmetry is
     enhanced to SU(3) — the natural enhancement for a BPS quiver
     containing an S_3-orbit of three rays at the three fundamental
-    weights of SU(3).  See `SU3BPSKAlgebra` for the worked example
-    (gauge node + 3-orbit of flavour nodes).
+    weights of SU(3) (gauge node + 3-orbit of flavour nodes).
     """
 
     # --- Weyl group S_3 in the fundamental-orbit basis ---
@@ -1253,7 +1381,7 @@ class SU3ZPlusRing(ZPlusRing):
         # Convert ν (fundamental-orbit lattice) → Dynkin displacement.
         a, b = nu
         # Lattice basis: ω_1 = (0, 1), ω_2 = (1, 1) in fundamental-orbit
-        # coords.  So (a, b) = a·(1, 0) + b·(0, 1) (the user's lattice
+        # coords.  So (a, b) = a·(1, 0) + b·(0, 1) (the author's lattice
         # basis e_3, e_4) = (a, b) in user's basis.  We need to express
         # (a, b) in the ω-basis: ω_1 = (0, 1), ω_2 = (1, 1) (lattice).
         # So (a, b) = c_1·(0, 1) + c_2·(1, 1) ⟹ c_2 = a, c_1 = b - a.
@@ -1436,8 +1564,8 @@ class SU3ZPlusRing(ZPlusRing):
 
         Weights are expressed in the fundamental-orbit basis (where the
         three fundamental weights are (1, 0), (0, 1), (-1, -1)) — the
-        same basis used by SU3BPSKAlgebra.  Mostly diagnostic / used by
-        SU3BPSKAlgebra.trace for the reverse direction.
+        same basis used by the SU(3)-flavoured BPS realisations.  Mostly
+        diagnostic / used by their traces for the reverse direction.
         """
         if elt.ring is not self:
             raise ValueError("to_abelian: element's ring is not this SU3ZPlusRing")
@@ -2324,6 +2452,7 @@ class RPowerSeries:
     def one(cls, ring: ZPlusRing, K: int) -> "RPowerSeries":
         return cls(ring, {0: 1}, K)
 
+
     def is_zero(self) -> bool:
         return not self.coeffs
 
@@ -2333,13 +2462,28 @@ class RPowerSeries:
         Probing **beyond the truncation window** raises: the series is
         unknown there, and silently returning zero manufactures phantom
         coefficients (the same corruption family as the unwidened
-        trace-pairing assembly, the audit A18)."""
+        trace-pairing assembly, the audit)."""
         if q_exp > self.K:
             raise IndexError(
                 f"RPowerSeries[{q_exp}]: beyond the truncation window "
                 f"K={self.K} — the coefficient is unknown, not zero."
             )
         return self.coeffs.get(q_exp, self.ring.zero())
+
+    def star(self) -> "RPowerSeries":
+        """The Z₊-ring `⋆` (Lusztig–Ostrik rep-ring duality `V ↦ V*`) applied
+        coefficientwise; the `𝖖`-grading and the truncation order are untouched.
+        Mirrors `RLaurent.star()`; **not** a bar involution — `R((𝖖))` carries no
+        `𝖖 ↦ 𝖖⁻¹` (a truncated power series has no image under it, so this class
+        deliberately has no `.bar()`).
+
+        This is the operation in the `KAlgebra` trace axiom `Tr(ρ(L_a)) = ⋆Tr(L_a)`
+        (`KAlgebra.verify_trace_intertwines_rho_star`) and its pairing form
+        `I_{b,a} = ⋆(I_{a,b})`: `ρ` acts on the coefficient ring through its own
+        restriction to the centre, which is `⋆`."""
+        return RPowerSeries(
+            self.ring, {n: c.star() for n, c in self.coeffs.items()}, self.K,
+        )
 
     def __add__(self, other: "RPowerSeries") -> "RPowerSeries":
         if not isinstance(other, RPowerSeries):
@@ -2523,10 +2667,11 @@ class RingHom:
         """Linear extension of phi to `RElement[source] -> RElement[target]`."""
         if r.ring != self.source:
             raise ValueError("RingHom.apply_RElement: source ring mismatch")
-        out = self.target.zero()
+        out: dict[BasisElement, int] = {}
         for b, c in r.terms.items():
-            out = out + self.apply_basis(b) * c
-        return out
+            for tb, tc in self.apply_basis(b).terms.items():
+                out[tb] = out.get(tb, 0) + tc * c
+        return RElement(self.target, out)
 
     def apply_RLaurent(self, L: RLaurent) -> RLaurent:
         """Apply phi to each R-coefficient; q-grading preserved."""
@@ -2550,14 +2695,29 @@ class RingHom:
                 new_coeffs[q_exp] = mapped
         return RPowerSeries(self.target, new_coeffs, P.K)
 
-    # ------- compatibility with augmentation + 1-dim reps (the design record T1b / D8) -------
+    # ------- compatibility with augmentation + 1-dim reps -------
     #
     # A Z₊-ring hom that "forgets part of a flavour symmetry" is a restriction
     # φ = α* of a compact-group hom α : H → G.  Such a φ PRESERVES DIMENSION
     # (ε_target ∘ φ = ε_source, since restriction preserves dim) and carries
     # 1-dim reps to 1-dim reps (so it induces a map Λ(source) → Λ(target) on the
     # lift torsors).  These are *verifiers*, not enforced invariants — a RingHom
-    # is a low-level tool (ruling D8); the shipped flavour homs all pass them.
+    # is a low-level tool; the shipped flavour homs all pass them.
+
+    def verify_commutes_with_star(self, samples) -> bool:
+        """`φ(b⋆) == φ(b)⋆` on the given source basis `samples` — the third
+        required property in this class's docstring, previously stated but never
+        checked.  It is what lets the `KAlgebra` trace axiom `Tr(ρ(a)) = ⋆Tr(a)`
+        transport through `base_change` / `forget` / `lower_flavour`: both sides
+        are pushed through `φ`, so the identity survives iff `φ` and `⋆` commute.
+        Measured on every shipped hom at 2026-09-18 (augmentation, identity,
+        `un_to_sun_hom`, `un_to_cartan_hom`, `su2_to_u1_hom`): all commute."""
+        for b in samples:
+            lhs = self.apply_basis(self.source.star_basis(b))
+            rhs = self.apply_basis(b).star()
+            if lhs != rhs:
+                return False
+        return True
 
     def verify_preserves_augmentation(self, samples) -> bool:
         """`ε_target ∘ φ == ε_source` on the given source basis `samples`
@@ -2603,7 +2763,7 @@ class RingHom:
 
 
 # ---------------------------------------------------------------------------
-# R(SU(N)) — the general unitary-flavour rep ring (ruling D8).
+# R(SU(N)) — the general unitary-flavour rep ring.
 # ---------------------------------------------------------------------------
 
 
@@ -2688,7 +2848,7 @@ def _sun_kostka(lam: tuple, mu: tuple) -> int:
 
 
 class SUNZPlusRing(ZPlusRing):
-    """The Z₊-ring `R(SU(N))` for arbitrary `N ≥ 1` (ruling D8: the
+    """The Z₊-ring `R(SU(N))` for arbitrary `N ≥ 1` (the
     faithful flavour ring of a U-gauge node with `N` fundamentals).
 
     Basis: dominant SU(N) weights as **partitions with < N rows**
@@ -2781,6 +2941,51 @@ class SUNZPlusRing(ZPlusRing):
             w = tuple(int(x) for x in basis) + (0,)   # lift to U(N) weight
             poly[w] = poly.get(w, 0) + int(c)
         poly = {w: c for w, c in poly.items() if c}
+        # GUARD: the input must be `S_N`-invariant, i.e. the weight diagram of a
+        # (virtual) character.  `sun_characters.decompose` does NOT check this —
+        # it keeps the strictly-decreasing part and silently drops any
+        # non-invariant residue, so an unguarded call turns corrupt data into a
+        # plausible character.  `SU2ZPlusRing` and `SU3ZPlusRing` already raise
+        # on exactly this; without it here, whether a product flavour ring
+        # catches a bad weight function depends on which isomorphic factor class
+        # the caller happened to construct.  ("virtual" licenses NEGATIVE
+        # multiplicities, never a non-invariant function.)
+        #
+        # The test is in the PROJECTED coordinates `x_i = w_i − w_N`, not in the
+        # lifted `w`: the lift appends a trailing zero, which is a choice of
+        # section (the level is divided out afterwards by `split_su_level`), so
+        # the lifted support is deliberately NOT `S_N`-stable.  On `x` the
+        # generators are the adjacent swaps `x_{k-1} ↔ x_k` (`k < N−1`) and the
+        # last transposition `w_{N−1} ↔ w_N`, which reads
+        # `x_j ↦ x_j − x_{N−2}`, `x_{N−2} ↦ −x_{N−2}`.
+        proj = {}
+        for basis, c in u_relt.terms.items():
+            if c:
+                k = tuple(int(x) for x in basis)
+                proj[k] = proj.get(k, 0) + int(c)
+        proj = {k: c for k, c in proj.items() if c}
+        r = N - 1
+        gens = []
+        for i in range(r - 1):                       # adjacent swaps
+            def _swap(x, i=i):
+                y = list(x)
+                y[i], y[i + 1] = y[i + 1], y[i]
+                return tuple(y)
+            gens.append(_swap)
+        if r >= 1:
+            def _last(x):
+                t = x[r - 1]
+                return tuple([x[j] - t for j in range(r - 1)] + [-t])
+            gens.append(_last)
+        for g in gens:
+            for w, c in proj.items():
+                gw = g(w)
+                if proj.get(gw, 0) != c:
+                    raise ValueError(
+                        f"from_abelian: input not S_{N}-invariant; coefficient at "
+                        f"{w} is {c} but at its Weyl image {gw} it is "
+                        f"{proj.get(gw, 0)} — this is not the weight diagram of "
+                        "any virtual character")
         out: dict = {}
         for wdom, mult in _SC.decompose(N, poly).items():
             if not mult:
@@ -3202,6 +3407,62 @@ def su2_to_u1_hom(
     return RingHom(source, target, _on_basis)
 
 
+def _su3_to_su2u1_by_weights(
+    source: "SU3ZPlusRing", pq: tuple[int, int],
+) -> dict[tuple[int, int], int]:
+    """The branching of `χ_pq` from its weight system, the route
+    `su3_to_su2u1_hom` took until 2026-09-26 (it is kept as the witness of the
+    Gelfand–Tsetlin rule): the weights
+    `(a, b)` of the fundamental-orbit basis map to `(a − b, a + b)` and each
+    U(1) charge's SU(2)-weight multiset is peeled from the top."""
+    p, q = pq
+    # weight multiset, branched to (su2 weight, u1 charge)
+    by_charge: dict[int, dict[int, int]] = {}
+    for (a, b), m in source._irrep_weights(pq).items():
+        w, c = a - b, a + b
+        by_charge.setdefault(c, {})[w] = (
+            by_charge.get(c, {}).get(w, 0) + m)
+    # per-charge top-weight peel into SU(2) characters
+    out: dict[tuple[int, int], int] = {}
+    for c, wts in sorted(by_charge.items()):
+        rem = {w: m for w, m in wts.items() if m}
+        while rem:
+            k = max(abs(w) for w in rem)
+            mult = rem.get(k, 0)
+            if mult <= 0:
+                raise ValueError(
+                    f"su3_to_su2u1_hom: non-positive multiplicity "
+                    f"{mult} at top weight {k} (charge {c}) of "
+                    f"χ_{pq} — weight bookkeeping error")
+            out[(k, c)] = out.get((k, c), 0) + mult
+            for w in range(-k, k + 1, 2):
+                nm = rem.get(w, 0) - mult
+                if nm < 0:
+                    raise ValueError(
+                        f"su3_to_su2u1_hom: negative remainder at "
+                        f"weight {w} (charge {c}) of χ_{pq}")
+                if nm:
+                    rem[w] = nm
+                else:
+                    rem.pop(w, None)
+    return out
+
+
+def _su3_to_su2u1_gelfand_tsetlin(p: int, q: int) -> dict[tuple[int, int], int]:
+    """The branching of `χ_(p,q)` by Gelfand–Tsetlin interlacing: as a U(3)
+    irrep `χ_(p,q)` has highest weight `(p+q, q, 0)`, which restricts to
+    `U(2)×U(1)` as the sum, each once, of `(μ₁, μ₂)` with
+    `p+q ≥ μ₁ ≥ q ≥ μ₂ ≥ 0`; `(μ₁, μ₂)` is the SU(2) irrep `χ_{μ₁−μ₂}` at
+    U(1) charge `(μ₁+μ₂) − 2·(p+2q−μ₁−μ₂) = 3(μ₁+μ₂) − 2(p+2q)`."""
+    out: dict[tuple[int, int], int] = {}
+    total = p + 2 * q
+    for mu1 in range(q, p + q + 1):
+        for mu2 in range(0, q + 1):
+            key = (mu1 - mu2, 3 * (mu1 + mu2) - 2 * total)
+            out[key] = out.get(key, 0) + 1
+    return out
+
+
 def su3_to_su2u1_hom(
     source: "SU3ZPlusRing | None" = None,
     target: "SU2xU1ZPlusRing | None" = None,
@@ -3216,16 +3477,15 @@ def su3_to_su2u1_hom(
     flavour restricted to the SU(2)×U(1) visible to the A₁D₄ chart, so
     `a1d4 = SU3ADKAlg.base_change(su3_to_su2u1_hom())`.
 
-    Computed exactly from the weight system: in the fundamental-orbit
-    weight basis of `SU3ZPlusRing` (fundamental weights (1,0), (0,1),
-    (-1,-1)) the branching is the linear map on the weight lattice
-
-        (a, b)  ↦  (su2_weight, u1_charge) = (a - b, a + b),
-
-    after which the SU(2)-weight multiset at each fixed U(1) charge is
-    resolved into χ_k's by top-weight peeling.  Branching positivity
-    (multiplicities ≥ 0) and the exact dimension count
-    `Σ (k+1)·mult = (p+1)(q+1)(p+q+2)/2` are asserted per irrep.
+    Computed exactly by Gelfand–Tsetlin interlacing
+    (`_su3_to_su2u1_gelfand_tsetlin`, `(p+1)(q+1)` terms, each of
+    multiplicity one), and the exact dimension count
+    `Σ (k+1)·mult = (p+1)(q+1)(p+q+2)/2` is asserted per irrep.  Until
+    2026-09-26 it was computed from the weight system (the fundamental-orbit
+    weights `(a, b)` mapped to `(su2_weight, u1_charge) = (a − b, a + b)`,
+    then peeled per charge); that route, `_su3_to_su2u1_by_weights`, is the
+    witness in the tests — its weight diagrams made it the slow step of the
+    a1d4 seeds at high 𝖖-order.
     """
     if source is None:
         source = SU3ZPlusRing()
@@ -3246,35 +3506,7 @@ def su3_to_su2u1_hom(
         if p < 0 or q < 0:
             raise ValueError(f"su3_to_su2u1_hom: Dynkin labels must be "
                              f"≥ 0; got {pq}")
-        # weight multiset, branched to (su2 weight, u1 charge)
-        by_charge: dict[int, dict[int, int]] = {}
-        for (a, b), m in source._irrep_weights(pq).items():
-            w, c = a - b, a + b
-            by_charge.setdefault(c, {})[w] = (
-                by_charge.get(c, {}).get(w, 0) + m)
-        # per-charge top-weight peel into SU(2) characters
-        out: dict[tuple[int, int], int] = {}
-        for c, wts in sorted(by_charge.items()):
-            rem = {w: m for w, m in wts.items() if m}
-            while rem:
-                k = max(abs(w) for w in rem)
-                mult = rem.get(k, 0)
-                if mult <= 0:
-                    raise ValueError(
-                        f"su3_to_su2u1_hom: non-positive multiplicity "
-                        f"{mult} at top weight {k} (charge {c}) of "
-                        f"χ_{pq} — weight bookkeeping error")
-                out[(k, c)] = out.get((k, c), 0) + mult
-                for w in range(-k, k + 1, 2):
-                    nm = rem.get(w, 0) - mult
-                    if nm < 0:
-                        raise ValueError(
-                            f"su3_to_su2u1_hom: negative remainder at "
-                            f"weight {w} (charge {c}) of χ_{pq}")
-                    if nm:
-                        rem[w] = nm
-                    else:
-                        rem.pop(w, None)
+        out = _su3_to_su2u1_gelfand_tsetlin(p, q)
         dim = sum((k + 1) * m for (k, _c), m in out.items())
         want = (p + 1) * (q + 1) * (p + q + 2) // 2
         if dim != want:
@@ -3298,14 +3530,14 @@ def un_to_sun_hom(
 
         χ_λ  ↦  χ_{λ − λ_M·(1,…,1)}       (then trimmed to an SU(M) partition)
 
-    This is ruling **D8b written as a ring hom**, and it is the seam between the
+    This **ring hom** is the seam between the
     two flavour conventions live in the repo:
 
     * `GMatterAbeKAlgebra` at a general `(G, N)` carries `R(U(n_i))` for `n_i`
-      copies of the same matter irrep (ruling TM7) — a general `G` need not have
+      copies of the same matter irrep — a general `G` need not have
       a centre to absorb the diagonal `U(1)`, so the full `U(n_i)` is faithful
       there (`G₂` is centreless);
-    * `UNNfKAlgebra` at a **U(N) gauge node** carries `R(SU(N_f))` (ruling D5),
+    * `UNNfKAlgebra` (retired 2026-09-19) at a **U(N) gauge node** carried `R(SU(N_f))`,
       because there the diagonal `U(1) ⊂ U(N_f)` *does* sit inside the gauge
       centre and is level bookkeeping rather than flavour.
 
@@ -3317,7 +3549,7 @@ def un_to_sun_hom(
 
     `M = 1` is the degenerate case: `U(1)` is *entirely* central, so the whole
     ring is specialized away and the target is `TrivialZPlusRing` — matching
-    `UNNfKAlgebra(N, 1).coefficient_ring()` on the nose.
+    what `UNNfKAlgebra(N, 1).coefficient_ring()` was, on the nose.
 
     Multiplicativity is inherited rather than asserted: on `U(M)` weights the
     product is the Littlewood–Richardson expansion of `s_λ·s_μ`, and subtracting
@@ -3374,7 +3606,7 @@ def un_to_cartan_hom(
       hypermultiplet slots one `U(1)` each — `AbelianZPlusRing(M)`, because the
       μ-levels are what the RG cone is graded by;
     * the **native** class (`GMatterAbeKAlgebra`) packages `n_i` copies of the
-      same matter irrep into `R(U(n_i))` (ruling TM7), because those slots are
+      same matter irrep into `R(U(n_i))`, because those slots are
       genuinely interchangeable.
 
     So flow and native present the same algebra over rings related by this hom:
@@ -3382,8 +3614,7 @@ def un_to_cartan_hom(
     That is the honest form of the comparison — sharper than comparing after
     `augmentation_hom` (which forgets the flavour refinement entirely).
 
-    Distinct from `un_to_sun_hom`, which quotients the *centre* (`det ↦ 1`,
-    ruling D8b, the U(N)-gauge-node seam); this one restricts to the *maximal
+    Distinct from `un_to_sun_hom`, which quotients the *centre* (`det ↦ 1`, the U(N)-gauge-node seam); this one restricts to the *maximal
     torus* and keeps every fugacity.
     """
     n = int(n)

@@ -1,0 +1,81 @@
+{
+ "id": "sec:skein/trace",
+ "labels": [
+  "sec:skein"
+ ],
+ "date": "2026-09-27T06:27:59Z",
+ "commit": "a4a0540697e55bad5b05cd939d5297b03c1e5007",
+ "environment": "web",
+ "depth": "extensive",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "atlases (flips, trace-equivariant, rho-equivariant, samples)": {
+   "pentagon": [
+    2,
+    2,
+    2,
+    21
+   ],
+   "heptagon": [
+    4,
+    4,
+    4,
+    21
+   ],
+   "[A_1,D_3]": [
+    3,
+    3,
+    3,
+    21
+   ],
+   "U(1)-gauged square": [
+    1,
+    1,
+    1,
+    21
+   ],
+   "U(1)-gauged hexagon": [
+    3,
+    3,
+    3,
+    21
+   ],
+   "[A_1,D_5]": [
+    5,
+    5,
+    5,
+    21
+   ]
+  },
+  "K": 4,
+  "seconds": 2337.9
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "every certified flip from the root",
+  "negative": "a wrong chamber (the flipped chart's spec reversed)"
+ },
+ "elapsed_s": 2337.889,
+ "notes": "Reusing labels verbatim across a flip (a wrong dictionary) is NOT caught on the pentagon: that map is trace-preserving there, so the control is a wrong trace, not a wrong dictionary.  The closed surfaces are not in this sweep: one flip of the four-punctured sphere's chart did not finish its trace comparison at q^2 within 900 s.",
+ "checks": [
+  {
+   "name": "the trace is flip-invariant, every flip from the root chart: pentagon 2/2, heptagon 4/4, [A_1,D_3] 3/3, U(1)-gauged square 1/1, U(1)-gauged hexagon 3/3, [A_1,D_5] 5/5 (21 samples per atlas, to q^4)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "each flip commutes with rho: pentagon 2/2, heptagon 4/4, [A_1,D_3] 3/3, U(1)-gauged square 1/1, U(1)-gauged hexagon 3/3, [A_1,D_5] 5/5",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the pentagon's flipped chart rebuilt with its spec reversed (a wrong chamber) disagrees with the root chart's trace on 15 of 21 samples",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

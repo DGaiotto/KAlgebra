@@ -1,5 +1,4 @@
-"""`PureU2QTConeKAlg` — pure U(2) presented as a **`QTCone` `ConeKAlgebra`**
-(user direction, 2026-06-16).
+"""`PureU2QTConeKAlg` — pure U(2) presented as a **`QTCone` `ConeKAlgebra`**.
 
 The point of this realisation is to exhibit pure U(2)'s **quantum-torus
 cone** structure explicitly: the *central* `U(1)` (the free photon) — the
@@ -10,7 +9,9 @@ is exactly the mechanism that sidesteps the obstruction documented in
 `pure_u2_object` (`BPSKAlgebra(UN_Nf(2,0))` does not terminate — the rank-4
 positive cone has no negating spec because of the free photon).
 
-Cone structure (read off / certified against the keystone `PureUNKAlgebra(2)`):
+Cone structure (read off / certified against the pure-U(2) abelianized algebra —
+`PureGAbeKAlgebra(u_n(2))` since 2026-09-19, the retired `PureUNKAlgebra(2)`
+keystone before):
 
 * **conventional gens** — the minuscule monopoles `E = L_{((1,0),(0,0))}`
   and `F = L_{((0,-1),(0,0))}` (powers strictly positive in canonical
@@ -39,11 +40,12 @@ cocycles + the `det·det⁻¹ = w2·w2⁻¹ = 1` torus collapse — entirely fro
 cone data, with no keystone call.  That sector (`λ₁ = λ₂`: magnetic
 monomials `E^{m₁−m₂}·det^{m₂}` dressed by the central `w2` torus) is closed
 under multiplication, and the cone-derived products match the keystone
-exactly (certified, `tests/test_pure_u2_object.py`).  The only fusing
+exactly (certified, the suite in the source repository).  The only fusing
 direction is the SU(2) Wilson (`λ₁≠λ₂`) — a `CharacterCone` (Chebyshev)
 direction, *not* a single q-commuting monomial; those products are taken
-from the certified `PureUNKAlgebra(2)` engine.  `ρ` / `ρ⁻¹` / `trace`
-likewise delegate to the keystone (ρ is the QTCone shear/torus-inversion
+from the pure-U(2) abelianized algebra (`PureGAbeKAlgebra(u_n(2))`; the retired
+`PureUNKAlgebra(2)` engine until 2026-09-19).  `ρ` / `ρ⁻¹` / `trace`
+likewise delegate to it (ρ is the QTCone shear/torus-inversion
 label permutation; trace the Schur-measure residue) — the same light-wrapper
 pattern as `AbelianizedSU2KAlg`.  The canonical basis is the keystone's
 lower-Kapustin `(m, λ)`; `to_cone_label` / `from_cone_label` implement the
@@ -68,7 +70,8 @@ from laurent_poly import LaurentPoly
 from zplus_ring import TrivialZPlusRing, RPowerSeries
 from cone_data import ConeData, CrossProductTerm, Cone
 from cone_kalgebra import ConeKAlgebra
-from pure_un_kalgebra import PureUNKAlgebra, default_rays
+from pure_g_abe_kalgebra import PureGAbeKAlgebra
+from root_datum import u_n
 
 
 __all__ = ["PureU2QTConeData", "PureU2QTConeKAlg",
@@ -106,7 +109,9 @@ def u2_wilson_fusion(a, b):
 
 class PureU2QTConeData(ConeData):
     """The pure-U(2) `QTCone` structure, with every primitive certified
-    against the keystone `PureUNKAlgebra(2)` (passed in at construction).
+    against the pure-U(2) abelianized algebra passed in at construction
+    (`PureGAbeKAlgebra(u_n(2))`; the retired `PureUNKAlgebra(2)` keystone until
+    2026-09-19).
 
     Conventional gens `{E, F, W}`; torus gens `{det^{±1}, w2^{±1}}`.
     `q_commute` / `cocycle` / `cross_product` are *read off* the keystone
@@ -114,7 +119,7 @@ class PureU2QTConeData(ConeData):
     implement the clean magnetic-det monomial bijection (the QTCone where
     the photon-as-torus statement lives)."""
 
-    def __init__(self, keystone: PureUNKAlgebra) -> None:
+    def __init__(self, keystone) -> None:
         self._ks = keystone
         self._one = LaurentPoly.one()
 
@@ -252,7 +257,7 @@ class PureU2QTConeKAlg(ConeKAlgebra):
     _R = TrivialZPlusRing()
 
     def __init__(self, K: int = 12, max_len: int = 2) -> None:
-        self._ks = PureUNKAlgebra(2, default_rays(2), max_len=max_len, K=K)
+        self._ks = PureGAbeKAlgebra(u_n(2))    # the general class (2026-09-19); K / max_len ignored
         self._cone_data_inst = PureU2QTConeData(self._ks)
 
     def coefficient_ring(self):

@@ -196,6 +196,44 @@ def _bps_solve_in_basis(nodes, gamma):
 class BPSKAlgebra(RGKAlgebra):
     """A `KAlgebra` realized via a BPS-quiver RG flow to a quantum torus.
 
+    **Cross-reference with the author's `K_𝖖-algebras` draft** ("Seiberg–Witten
+    RG flows", cross-referenced 2026-09-19, refreshed against the 2026-09-21
+    version; full label map in the design notes
+    "Cross-reference with the `K_𝖖-algebras` draft"):
+
+    * the group `𝓖` of `1 + Σ_{γ∈Γ_+} g_γ(𝖖)X_γ`, `g_γ ∈ Z[𝖖^±,(1−𝖖^{2n})⁻¹]` —
+      `HabiroElement` coefficients on the quantum torus, support the positive
+      cone of the node charges; the quantum dilogarithm
+      `E_𝖖(x) = (−𝖖x;𝖖²)^{−1}_∞` and its spin-`s` version `E^{(s)}_𝖖`
+      (`eq:mult`) — the factors of `bps_factor_spectrum`; the subgroup `𝓔`
+      they generate (the draft's unlabelled Definition 4.8, with its remark
+      that every `g ∈ 𝓔` has `g⁻¹(𝖖) = g(𝖖⁻¹)` — the S⁻¹(𝖖) = S(𝖖⁻¹) identity) is where every
+      shipped `S` lives.
+    * Definition `def:sw`, `eq:quiver` — `K_𝖖[IR] = Q_𝖖(Γ)`, `S ∈ 𝓔`,
+      `S = 1 − 𝖖Σ_i X_{γ_i} + O(𝖖²)`: `auxiliary()` is `QuantumTorusKAlg(pairing)`;
+      the BPS quiver `⟨γ_i,γ_j⟩ = #(i→j) − #(j→i)` is `pairing` /
+      `node_charges`; the spec/`S` engine is `bps_factor_spectrum`
+      (the design notes "S-finding").
+    * Conjecture `conj:S-unique` and `conj:pbw` (PBW factorisation
+      `S = ∏_{γ,s} E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` in ANY total order on
+      `Γ_+ × ½N`) — `bps_factor_spectrum`'s order is any total order on the
+      pairs `(γ, s)`, `factor_order_search` searches it;
+      the draft's remark that a solution exists in every order and
+      uniqueness is order-independence is what `BPSAtlas.verify_spec_equivalence`
+      tests across charts.
+    * `S_cluster` (`conj:cluster`, maximal green sequences) —
+      `BPSQuiver.find_negating_sequence` (the cluster definition of the DT
+      invariant) and the green-sequence replay of `dictionaries/enumerated`;
+      `conj:dt` (`S_DT`) and `conj:coha` (`S_CoHA`) are not encoded.
+    * Conjecture `conj:upper` (`RG_γ` are Laurent polynomials in `Q_𝖖(Γ)`,
+      the upper cluster algebra, with a label permutation `ρ_UV`) — the
+      F-solver (`solve_F_via_s_coefficient` and kin, `F(a)`), and `ρ_UV` is
+      the `σ`-ρ (the half-monodromy on BPS labels).
+    * flavoured BPS quivers (`eq:fleq`, `eq:flavouredquiver`, `𝓔_{G_f}` — the
+      unlabelled Definition 4.13) — the
+      FLAVOURED dictionary tiers (`lookup_flavoured(orbit_size=N)`),
+      `flavoured_factor_spectrum`, `add_flavour`.
+
     Inherits from `RGKAlgebra` (and thus from `KAlgebra`): the BPS
     realisation *is* an RG flow, with `auxiliary()` the
     `QuantumTorusKAlg(pairing)` and `RG(L_a) = F(L_a)` lifted into the
@@ -237,13 +275,17 @@ class BPSKAlgebra(RGKAlgebra):
         Two modes are supported:
 
         **Spec mode**: pass `spec` (or `negating_sequence`, or omit both
-        to auto-find one via `BPSQuiver.find_negating_sequence` -- a
-        bidirectional BFS over the mutation graph of `node_charges`,
-        with an edge-multiplicity heuristic.  Auto-find is the default
-        fallback but is a desperate move for large quivers (n >= 8 or
-        dense pairings can take minutes or fail to terminate); supply
-        `spec` or `negating_sequence` directly when you know one.
-        σ is derived automatically.
+        to auto-find one via `BPSQuiver.find_negating_sequence(strategy=
+        "auto")` -- the spec-finder ladder of the design notes §6/§9).
+        The quiver is first split into its strongly connected components
+        (every node of one reaching every other along arrows), in an order
+        where every arrow between two components points forward; each
+        single node is mutated once, each larger component is searched on
+        its own, and the pieces are concatenated.  So
+        the cost follows the largest component, not the rank, and an
+        acyclic quiver needs no search at all; a large strongly connected
+        component can still take minutes or fail, and then supplying `spec`
+        or `negating_sequence` is the way.  σ is derived automatically.
 
         **Recipe mode**: pass `s_coefficient` (a callable
         `γ → HabiroElement` returning `[S|0⟩]_γ`), plus `sigma` and
@@ -253,9 +295,7 @@ class BPSKAlgebra(RGKAlgebra):
         **Spec-free mode** (`build_S=True`): build the spectrum generator
         `S` directly from the BPS quiver — no spec, no green-sequence BFS.
         Which engine does it is `build_S_engine`, **`"factors"` by default since
-        2026-08-12 and the only active engine since 2026-08-13** (user rulings:
-        replace the peel engine; then retire it temporarily, without erasing
-        it): `"factors"` is `bps_factor_spectrum` — prescribe `S`'s leading data
+        2026-08-12 and the only active engine since 2026-08-13**: `"factors"` is `bps_factor_spectrum` — prescribe `S`'s leading data
         and read the palindromic factor multiplicities off degree by degree —
         while `"peel"` is `recursive_spectrum`'s peel recursion (remove a node,
         solve `F_γ · S_sub = X_γ + O(𝖖)`, reattach `E_𝖖(F_γ)`), which is now
@@ -267,7 +307,7 @@ class BPSKAlgebra(RGKAlgebra):
         character-charge (matter) node and honest-fails, so N=2\\*/Markov and the
         wild quivers could not be built through spec-free mode at all; the factor
         engine has no such step, and the two produce the *same* `S` wherever
-        both run.  Precedence (user 2026-06-28): a finite spec is
+        both run.  Precedence: a finite spec is
         the *ideal* outcome, so unless `extract_spec=False` the built `S` is
         run through the extractor first and a recovered finite chamber drops
         into fast spec mode.  Only when no finite spec is found does the
@@ -312,7 +352,8 @@ class BPSKAlgebra(RGKAlgebra):
         spec, negating_sequence
             See "Spec mode" above.  When neither is given, the
             constructor invokes `BPSQuiver.find_negating_sequence`
-            (bidirectional BFS) to discover one.
+            (the "auto" ladder, strongly connected components first) to
+            discover one.
         s_coefficient, sigma, sigma_inverse
             See "Recipe mode" above.
         cone_gens
@@ -326,12 +367,14 @@ class BPSKAlgebra(RGKAlgebra):
             (chart-internal, used to disambiguate cone-minima during
             F-decomposition).
         shorten_spec
-            If True (and a `spec` is supplied or auto-found), greedily
-            replace sub-ranges with shorter equivalent middles via
-            local-moves search (`spec_shortening.shorten_spec`).
-            Default False -- opt-in.  Or use the post-construction
-            method `A.shorten_spec()` to get a new instance with a
-            shorter spec.
+            If True, greedily replace sub-ranges of the spec — supplied,
+            replayed from `negating_sequence`, or auto-found — with
+            shorter equivalent middles via local-moves search
+            (`spec_shortening.shorten_spec`).  Default False -- opt-in.
+            An auto-found spec is composed from its strongly connected
+            components' and is not claimed shortest.  Or use the
+            post-construction method `A.shorten_spec()` to get a new
+            instance with a shorter spec.
         verify
             Controls the *expensive* checks: spec verification,
             pointed-cone search.  The cheap **contract checks** --
@@ -392,7 +435,7 @@ class BPSKAlgebra(RGKAlgebra):
                 "spec_free_sigma must be 'trg' (spec-free σ via tRG; the "
                 "default fallback), 'principled' (spec-free σ = −upper(F), the "
                 "principled relation), or 'auto' (alias for 'trg').")
-        # Priority (user 2026-06-28): a provided spec wins; failing that, the
+        # Priority: a provided spec wins; failing that, the
         # S-finder's *ideal* outcome is to recover a finite spec (extraction A,
         # run iff `extract_spec`); only when no spec is found does the spec-free
         # fallback engage, and `spec_free_sigma` chooses it — 'trg' (C) or the
@@ -400,11 +443,11 @@ class BPSKAlgebra(RGKAlgebra):
         # path (for benchmarking/validating B/C even where a spec exists).
         self._spec_free_sigma = "trg" if spec_free_sigma == "auto" else spec_free_sigma
         # Which spec-free engine builds `S`.  Default flipped to the BPS-factor
-        # engine 2026-08-12 (user: replace the peel engine, leave it accessible)
+        # engine 2026-08-12
         # for coverage — the peel engine's monomial-charge gate honest-fails on a
         # character-charge (matter) node, so N=2*/Markov was unreachable through
         # spec-free mode; the two engines agree on `S` wherever both build.
-        # Then RETIRED 2026-08-13 (user: retire it temporarily, do not erase).
+        # Then RETIRED 2026-08-13.
         # An unknown name and a retired name get DIFFERENT errors on purpose: a
         # caller who asks for 'peel' should be told it exists and how to reach
         # it, not that it is not a thing.
@@ -460,8 +503,7 @@ class BPSKAlgebra(RGKAlgebra):
 
         # ----- spec-free: build S, then recover a finite spec if one exists ---
         # `build_S=True` builds the spectrum generator by the recursion (no
-        # green-sequence BFS).  Preferred path (user 2026-06-27, "A"; reaffirmed
-        # 2026-06-28 — "finding a spec is the ideal outcome of the S-finder"):
+        # green-sequence BFS).  Preferred path:
         # extract a finite-chamber spec from the built S and run the *fast spec
         # mode* (combinatorial σ).  This runs whenever `extract_spec` (default),
         # regardless of `spec_free_sigma`.  Only if no finite spec exists (e.g.
@@ -573,8 +615,7 @@ class BPSKAlgebra(RGKAlgebra):
                 lambda g, _c=csum, _W=W: tuple(-(g[i] + _W * _c[i])
                                                for i in range(len(g))))
             if self._spec_free_sigma == "principled":
-                # Path B — the principled spec-free σ (user 2026-06-27,
-                # "do a principled analysis of the axioms").  σ⁻¹(a)=−upper(F_a),
+                # Path B — the principled spec-free σ.  σ⁻¹(a)=−upper(F_a),
                 # σ(a)=−upper(F̃_a), read off the canonical's support against the
                 # *already-built* S (no spec, no tRG).  ρ/ρ⁻¹ use these exact maps
                 # via the fast section-rectified map (see rho/rho_inverse) instead
@@ -645,10 +686,12 @@ class BPSKAlgebra(RGKAlgebra):
                 **kwargs,
             )
             self.spec = [tuple(g) for g in self._chart.spec]
-            # Optional spec shortening via local moves on S.
-            # Only run if spec was user-supplied (auto-found / cached
-            # specs are already optimal for the search the BFS uses).
-            if shorten_spec and spec is not None:
+            # Optional spec shortening via local moves on S, whatever the
+            # spec's origin: an auto-found spec is composed from its strongly
+            # connected components' and is not claimed shortest — its
+            # length is acceptable as it is, and shortening is optional
+            # post-processing.
+            if shorten_spec:
                 shorter = _shorten_spec_via_local_moves(
                     self.spec,
                     exchange=[list(row) for row in pairing],
@@ -1116,7 +1159,7 @@ class BPSKAlgebra(RGKAlgebra):
             # The K_joint linear joint-bound prune is RETIRED: it was a
             # linear lower bound on a *super-linear* assembled q-order, so it
             # under-included contributing charges on mixed-sign / sheared
-            # frames (audit A10 regression).  Soundness now comes from
+            # frames (audit regression).  Soundness now comes from
             # the adaptive two-cutoff-stability shell (`_schur_index_stable`),
             # which widens `eff_cutoff` until the q^K result stabilises; here
             # `eff_cutoff` is that already-chosen shell.
@@ -1394,7 +1437,7 @@ class BPSKAlgebra(RGKAlgebra):
         minimum-shift tuple has shift > K; these contribute only
         at q-orders > K and are invisible to ``expand(K)``.
 
-        Implementation: Strategy A from D5 — two-stage with lazy
+        Implementation: Strategy A — two-stage with lazy
         ``s_γ`` lookup. The inclusion pass walks Nahm tuples
         (``nahm_local.gammas_to_q_order``); per-γ ``s_γ`` is fetched
         via ``nahm_local.s_gamma_habiro`` (already module-level
@@ -1466,11 +1509,11 @@ class BPSKAlgebra(RGKAlgebra):
                                  window (F_a's q-coefficients are
                                  palindromic).
             "orthonormality"  : `verify_orthonormality(a, b, K)` over
-                                 the window (Goal 2.1's
+                                 the window (orthonormality's
                                  `I_{a,b} = δ_{a,b} + O(q)`).
 
         The intertwining identity `F(L_a) · S = S · ρ_QT(F(L_{σ(a)}))` (Goal
-        3.3) and the Schur transport identity (Goal 2.8) are *not*
+        3.3) and the Schur transport identity are *not*
         included.  Both involve subtleties around the
         truncation-window of `S` that the abstract `RGKAlgebra`
         verifiers (`verify_rg_twist`, `verify_rg_inner_product`)
@@ -1819,7 +1862,10 @@ class BPSKAlgebra(RGKAlgebra):
             not depend on it, but the *content* and the cost do.  **`None`
             (default) takes `BPSFactorSpectrum`'s own phase-free default** — `"strip"`
             on an acyclic quiver (the source/sink strip, `rank` factors, spin-0
-            only), `"random"` where the strip leaves a core.  It used to default
+            only), the component order `"component"` on a cyclic quiver that is
+            not strongly connected (each strongly connected component built on
+            its own, the product assembled source-first; user, 2026-09-23), and
+            `"random"` on a strongly connected one.  It used to default
             to `"phase"`, synthesising a generic central charge, which
             contradicted the 2026-08-13 ruling that a central charge is used only
             when supplied; `S` is unaffected, the reported `Ω` is not, so ask for
@@ -1837,7 +1883,7 @@ class BPSKAlgebra(RGKAlgebra):
         piece_key
             `(charge (node coords), 2s) -> sortable`: an arbitrary total order on
             the **pairs `(γ, s)`**, which is what the construction actually
-            requires (user, 2026-08-13).  The general form; the other two are
+            requires.  The general form; the other two are
             special cases of it.  At most one of the three may be given.
         leading_data
             Optional `charge -> int` overriding the prescribed `𝖖¹`-coefficient.
@@ -2553,7 +2599,7 @@ class BPSKAlgebra(RGKAlgebra):
             # The K_joint linear joint-bound prune is RETIRED: it was a
             # linear lower bound on a *super-linear* assembled q-order, so it
             # under-included contributing charges on mixed-sign / sheared
-            # frames (audit A10 regression).  Soundness now comes from
+            # frames (audit regression).  Soundness now comes from
             # the adaptive two-cutoff-stability shell (`_schur_index_stable`),
             # which widens `eff_cutoff` until the q^K result stabilises; here
             # `eff_cutoff` is that already-chosen shell.

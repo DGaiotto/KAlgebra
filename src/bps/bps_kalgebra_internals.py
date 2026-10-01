@@ -780,7 +780,7 @@ def _enumerate_output_charges(
         ``fs_dict_for_eta_set`` (the inner Nahm walk) and
         ``_warm_fs_cache_for_schur``.  Recommended.
 
-    `K_joint` (audit A10 fix; needs `cone_witness`): additionally prune
+    `K_joint` (audit fix; needs `cone_witness`): additionally prune
     by the PAIRED-CONTRIBUTION bound.  The Schur path pairs
     ``c_a(γ)·c_b(γ)`` and truncates at ``q^{K_joint}``; each side obeys
     the cone-witness Nahm bound

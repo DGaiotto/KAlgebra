@@ -3,14 +3,13 @@ U(N₁)×⋯×U(N_n) quivers (bifundamental on each link, optional fundamentals
 per node).
 
 Elements live **natively in the f presentation on the product cocharacter
-lattice** (user direction 2026-06-11: "same strategy → `U_{m₁,…,m_n}` with
-magnetic charge `m_i` at the i-th node"):
+lattice**:
 
     x  =  Σ_{m⃗}  f_{m⃗}(𝔮^{m⃗} v) · U_{m⃗},        f_{m⃗} = Σ_{k⃗} f^{(k⃗)}_{m⃗}·μ^{k⃗},
 
 with `v = (v⁽¹⁾|…|v⁽ⁿ⁾)` the flat product-torus variables (rank `M = ΣN_a`)
 and `k⃗ ∈ Z^L` the μ-levels (one slot per link, then per fundamental flavour
-— the `quiver_over_pure` slot layout).  `U_{m⃗}` is the quiver theory's own
+— the slot layout of the `quiver_over_pure` flow, retired 2026-09-19).  `U_{m⃗}` is the quiver theory's own
 monopole atom — `(⊗_a U⁽ᵃ⁾_{m_a})` normalized by the √(full measure); the
 matter half of that normalization is the per-cell rung product
 
@@ -20,7 +19,7 @@ matter half of that normalization is the per-cell rung product
 `d_jl = m⁽ᵃ⁾_j − m⁽ᵃ⁺¹⁾_l` the link pair-differences — i.e. the certified
 U(N)+N_f zero-mode ladder **per (j,l) cell** at rung variable
 `x_jl = μ_e·v⁽ᵃ⁾_j/v⁽ᵃ⁺¹⁾_l` (the gauged-flavour structure certified
-against the flow in `tests/test_quiver_over_pure.py`).  As in
+against that flow in the suite in the source repository, before its retirement).  As in
 `MatterURQTorus`, the dressing is **internal bookkeeping** of the
 dress/de-dress converters and the cocycles, not part of the API.
 
@@ -58,9 +57,8 @@ from laurent_poly import LaurentPoly
 from abelianized_torus import VRational, VLaurent
 from urq_torus import URQTorus, RHO, _shift, _qbar, _Rtilde
 
-from pure_un_closed_form import _levi_decompose
-from pure_un_kalgebra import (
-    _vinv_vrational, _vdiv, _inv_root, _v0_coeff, _cached_poch2N,
+from urq_torus import (
+    _levi_decompose, _vinv_vrational, _vdiv, _inv_root, _v0_coeff, _cached_poch2N,
     _schur_measure_euler, _laurent_truncate, _vlaurent_truncate)
 
 from math import factorial
@@ -586,8 +584,7 @@ class QuiverURQTorus:
         Nf = tuple(int(x) for x in (Nf if Nf is not None else (0,) * n))
         off = _offsets(ranks)
         M = off[-1]
-        sys.path.insert(0, os.path.join(_HERE, "implementations"))
-        from un_nf_dressed_generators import _schur_monomials
+        from urq_torus import _schur_monomials
         terms = {}
         for ve, z in _schur_monomials(tuple(sorted(e, reverse=True))).items():
             ne = [0] * M

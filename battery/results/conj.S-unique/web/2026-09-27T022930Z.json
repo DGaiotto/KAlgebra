@@ -1,0 +1,63 @@
+{
+ "id": "conj:S-unique",
+ "labels": [
+  "conj:S-unique"
+ ],
+ "date": "2026-09-27T02:29:30Z",
+ "commit": "d4c399d1e913cfe01a41c7bd7fd5f037ed54b3af",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "lineup": [
+   "pentagon",
+   "A_3",
+   "[A_1,D_4]",
+   "Kronecker (pure SU(2))",
+   "SU(2)+1",
+   "SU(2)+2",
+   "SU(2)+3",
+   "Markov"
+  ],
+  "sample": "first 120 entries with n <= 4 of dictionaries/enumerated (shard format 3, E = 11: 111987 strongly connected quivers, 104086 with a green spec, 7901 crystalline-only, 0 uncertified)",
+  "seconds": 58.0
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon's S; agreement with the repo engine",
+  "negative": "the order axis moves the factor count (vacuity guard)"
+ },
+ "elapsed_s": 57.984,
+ "notes": "Order independence is the computable half of uniqueness: two orders giving different elements would refute it; agreement does not prove it.  Prior sweep: 1108/1108 quivers of the seed-closure dictionary n_001..n_008 (2026-09-04, pronilpotent_group_conjecture.md 6c).",
+ "checks": [
+  {
+   "name": "controls of the independent arithmetic: the E_q expansion, the forced Omega, the pentagon's S, agreement with the repo engine on four quivers: 10/10",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "the Section 4 lineup: S from the five orders is one element on every quiver, the Markov quiver (no maximal green sequence) included: pentagon 5/5 at cone depth 6, A_3 5/5 at cone depth 6, [A_1,D_4] 5/5 at cone depth 5, Kronecker (pure SU(2)) 5/5 at cone depth 6, SU(2)+1 5/5 at cone depth 6, SU(2)+2 5/5 at cone depth 5, SU(2)+3 5/5 at cone depth 5, Markov 5/5 at cone depth 6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "vacuity guard: the number of factors moves with the order on every lineup quiver (pentagon [7, 7, 2, 7, 2]; A_3 [19, 19, 3, 24, 4]; [A_1,D_4] [4, 4, 37, 4, 4]; Kronecker (pure SU(2)) [18, 18, 2, 27, 12]; SU(2)+1 [39, 39, 8, 54, 18]; SU(2)+2 [55, 55, 4, 53, 12]; SU(2)+3 [70, 90, 5, 64, 28]; Markov [62, 62, 26, 77, 18])",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the first 120 entries with n <= 4 of dictionaries/enumerated (shard format 3, E = 11: 111987 strongly connected quivers, 104086 with a green spec, 7901 crystalline-only, 0 uncertified): S from the five orders is one element on 120/120",
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

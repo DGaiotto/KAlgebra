@@ -49,7 +49,7 @@ Ungauged (`hexagon_object`):
 * ``'ungauged'`` — `ungauge_u1a1aodd(1)`: the centralizer `Z(E)` with
   μ-fugacity coefficient ring; trace certified against the independent
   `A1AoddToEvenRGKAlgebra` μ-flavoured `[A₁,A₃]` index
-  (`tests/test_ungauge_kalgebra.py`).
+  (the suite in the source repository).
 * ``'bps'`` — `BPSKAlgebra` on the **linear A₃ quiver** (no frozen
   node), μ-flavour from the rank-1 kernel of `B_UNGAUGED`
   (the `hexagon_bps_iso_v2` parallel-ungauging pattern).

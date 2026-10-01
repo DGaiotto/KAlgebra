@@ -1,5 +1,5 @@
 """`quiver_wrq_torus` — `QuiverWRQTorus`: linear U(N_i) chains with per-node
-fundamentals on the **group-general WRQ substrate** (D10 Stage 3).
+fundamentals on the **group-general WRQ substrate**.
 
 The multi-node generalization of `matter_wrq_torus.MatterWRQTorus`, over the
 **product root datum** (`root_datum.product_datum` — block-embedded roots, no

@@ -21,7 +21,7 @@ its basis label.
 
 The convention constants (cap values, exchange exponents, stacking
 order, smoothing orientation) are the ones pinned EMPIRICALLY by the
-triangle presentation rel1-rel4 (`tests/test_stated_triangle.py`); they
+triangle presentation rel1-rel4 (the suite in the source repository); they
 live here as the single source of truth and are re-exported by
 `stated_triangle` for backward compatibility.
 """

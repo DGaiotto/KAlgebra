@@ -1,0 +1,49 @@
+{
+ "id": "sec:uqsl2/recursion",
+ "labels": [
+  "eq:uqsl2rec",
+  "eq:uqsl2con"
+ ],
+ "date": "2026-09-22T00:03:47Z",
+ "commit": "8da697afb50102e74e4b0745297e9de689c480a6",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "n": "|n| <= 4 (traces to |n| <= 6)",
+  "K": 10,
+  "iteration": "|n| <= 11"
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the class's traces satisfy the recursion",
+  "negative": "n.a."
+ },
+ "elapsed_s": 3.609,
+ "notes": "Truncating the infinite system at |n| <= K+1 is safe because Tr K^n = O(q^|n|) (measured on the trace row), so the dropped terms enter beyond q^K.",
+ "checks": [
+  {
+   "name": "eq:uqsl2rec  q^2n (Tr K^n + q χ_1 Tr K^n+1 + q^2 Tr K^n+2) = Tr K^n + q χ_1 Tr K^n-1 + q^2 Tr K^n-2 on the SQED_2 traces, 0 <= n <= 4, through q^10",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:uqsl2con (n < 0 form)  (1 - q^-2n) Tr K^n = -q χ_1 Tr K^n+1 - q^2 Tr K^n+2 + q^1-2n χ_1 Tr K^n-1 + q^2-2n Tr K^n-2, -4 <= n <= -1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "iterating eq:uqsl2con from Tr 1 = [x^0]G and Tr K^n = O(q) reproduces [x^n]G for 1 <= |n| <= 4 through q^10 (the unique solution)",
+   "ok": true,
+   "note": "all agree"
+  },
+  {
+   "name": "the iteration is well-posed: every right-hand-side term carries a positive power of q (orders < k determine order k)",
+   "ok": true,
+   "note": "by inspection of eq:uqsl2con: the coefficients q^{2n+1}, q^{2n+2}, q, q^2 (n>0) and q, q^2, q^{1-2n}, q^{2-2n} (n<0) are all positive powers"
+  }
+ ]
+}

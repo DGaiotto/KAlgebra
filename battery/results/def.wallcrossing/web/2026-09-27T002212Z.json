@@ -1,0 +1,87 @@
+{
+ "id": "def:wallcrossing",
+ "labels": [
+  "def:wallcrossing"
+ ],
+ "date": "2026-09-27T00:22:12Z",
+ "commit": "6006d0adcc4702dc1e9b90813557b3a4a3af8886",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "charts": {
+   "pentagon": "head (1, 0); spec rotated True; 8/8 labels",
+   "pentagon, 3-factor spec": "head (0, 1); spec rotated True; 8/8 labels",
+   "A_3": "head (1, 0, 0); spec rotated True; 16/16 labels",
+   "[A_1,D_4]": "head (0, 1, 0, 0); spec rotated True; 27/27 labels",
+   "Kronecker (pure SU(2))": "head (1, 0); spec rotated True; 8/8 labels",
+   "SU(2)+1": "head (0, -1, 1); spec rotated True; 16/16 labels",
+   "SU(2)+2": "head (1, 0, 1, 0); spec rotated True; 27/27 labels",
+   "SU(2)+3": "head (1, 0, 0, 0, 0); spec rotated True; 41/41 labels"
+  },
+  "seconds": 0.3
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon (both specs)",
+  "negative": "conjugation by another node's factor"
+ },
+ "elapsed_s": 0.355,
+ "notes": "RG^(2)_a S^(2̄1) = S^(2̄1) ρ^-1(RG^(1)_ρ(a)) and R3 of the new flow follow from R3 of the old one and the two relations checked.",
+ "checks": [
+  {
+   "name": "pentagon: mutation at the spec head (1, 0) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 8/8 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pentagon, 3-factor spec: mutation at the spec head (0, 1) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 8/8 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "A_3: mutation at the spec head (1, 0, 0) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 16/16 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "[A_1,D_4]: mutation at the spec head (0, 1, 0, 0) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 27/27 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "Kronecker (pure SU(2)): mutation at the spec head (1, 0) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 8/8 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+1: mutation at the spec head (0, -1, 1) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 16/16 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+2: mutation at the spec head (1, 0, 1, 0) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 27/27 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+3: mutation at the spec head (1, 0, 0, 0, 0) is a wall-crossing relation — the mutated chart's spec is the old one with its head moved to the end and negated, and conjugating F by E_q(X_head) gives the mutated chart's F (rebuilt independently) on 41/41 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: conjugating by E_q of another node (paired with the head) instead of the head's changes the image on some label of every chart",
+   "ok": true,
+   "note": "{'pentagon': '7/8 labels differ when conjugating by (0, 1)', 'pentagon, 3-factor spec': '7/8 labels differ when conjugating by (1, 0)', 'A_3': '14/16 labels differ when conjugating by (0, 1, 0)', '[A_1,D_4]': '20/27 labels differ when conjugating by (1, 0, 0, 0)', 'Kronecker (pure SU(2))': '7/8 labels differ when conjugating by (-1, 2)', 'SU(2)+1': '15/16 labels differ when conjugating by (1, 0, 0)', 'SU(2)+2': '22/27 labels differ when conjugating by (-1, 1, 0, 1)', 'SU(2)+3': '28/41 labels differ when conjugating by (0, 1, 1, 0, 0)'}"
+  },
+  {
+   "name": "the draft's note, witnessed: pure SU(2) at a weak-coupling central charge carries the W boson (Ω(γ1+γ2) = χ_1/2: {-1: 1, 1: 1}), and its factor E^(1/2)_q(X_(γ1+γ2)), a partial factor of S, has X-coefficient -(1+q^2)/(1-q^2) = -1q^0 -2q^2 -2q^4 -2q^6 + O(q^7), of valuation 0: not 1 + O(q)",
+   "ok": true,
+   "note": "{(0, 1): {0: 1}, (1, 0): {0: 1}, (1, 1): {-1: 1, 1: 1}, (1, 2): {0: 1}, (2, 1): {0: 1}}"
+  }
+ ]
+}

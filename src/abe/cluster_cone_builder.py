@@ -2774,7 +2774,7 @@ def _make_finite_bps_kalgebra_class():
         :meth:`to_cone_kalgebra` (TBD: absorbs the older
         finite_bps_kalgebra machinery).
 
-        Flavour-lift coordinate (Plan 32).  As a ``BPSKAlgebra`` subclass,
+        Flavour-lift coordinate.  As a ``BPSKAlgebra`` subclass,
         ``FiniteBPSKAlgebra`` inherits ``r_label_decompose`` /
         ``r_label_compose`` — implemented *directly* on ``BPSKAlgebra`` from the
         ``ker(B)`` section/kernel bases, independent of the to-be-retired
@@ -2924,7 +2924,7 @@ def _make_finite_bps_kalgebra_class():
             Locate cluster C whose cone contains γ.  At C, the canonical
             basis element L_γ is a single monomial X^{γ_at_C}, so the
             Schur-index Nahm sum collapses with massive cancellations
-            (per the user).  Delegates to a temp BPSKAlgebra constructed
+            (per the author).  Delegates to a temp BPSKAlgebra constructed
             with C's spec (POC -- per-call construction; cache later).
             """
             from bps_kalgebra import BPSKAlgebra

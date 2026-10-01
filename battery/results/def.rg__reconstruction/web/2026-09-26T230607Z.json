@@ -1,0 +1,52 @@
+{
+ "id": "def:rg/reconstruction",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-26T23:06:07Z",
+ "commit": "39f11ccd46b37adbc64634a85a1317f25324b344",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "presentations": [
+   "pentagon: BPS chart vs closed form, cone, a1a2k, sqed1 flow, skein (traces q^8)",
+   "pure SU(2): Kronecker chart vs abelianized (traces q^10)",
+   "U_q(sl_2) vs the SQED_2 chart (traces q^8)"
+  ],
+  "seconds": 13.4
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the three isomorphisms (each a full KAlgebraIso battery)",
+  "negative": "the pentagon from the reversed factor order: eq:quiver fails, the pairing does not return; its node products are unchanged, so products alone cannot detect a wrong S"
+ },
+ "elapsed_s": 13.712,
+ "notes": "The UV algebra rebuilt from (IR, S) -- BPSKAlgebra's F-solver F(a)S = X_a + O(q) -- is compared with presentations that do not use S.  Uniqueness of the solution ('fully characterizes') is sec:rg/F-unique, not this row.",
+ "checks": [
+  {
+   "name": "pentagon: the BPS chart (rebuilt from the quantum torus and S) is isomorphic to the independent presentations ['a1a2k', 'bps', 'closed-form', 'cone-frozen', 'rg-sqed1', 'skein', 'skein-cone', 'skein-pinned']: 8 witness edges (5 touch the chart), unit/round-trip/products/ρ/traces through q^8",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "pure SU(2): the Kronecker-quiver chart (rebuilt from the quantum torus and S) is isomorphic to the abelianized presentation: unit, round_trip, multiplicative (36 pairs), rho, trace through q^10",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative (36 pairs)': True, 'rho': True, 'trace through q^10': True}"
+  },
+  {
+   "name": "U_q(sl_2) (built from the draft's definition) is isomorphic to the SQED_2 chart (rebuilt from the quantum torus and S): 30 labels, 81 generator pairs, traces through q^8",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "negative control: the pentagon rebuilt from the reversed order E_q(X_γ2)E_q(X_γ1) has the SAME node products as the correct S (a product check cannot see it); its S violates eq:quiver at X_(γ1+γ2) (valuation 1, correct S: 3); the pairing of the identity with itself: no return within 10 s; correct S: returned 1 + q^4 + O(q^5) in 0.0 s",
+   "ok": true,
+   "note": "{'right': 'returned 1 + q^4 + O(q^5) in 0.0 s', 'wrong': 'no return within 10 s'}"
+  }
+ ]
+}

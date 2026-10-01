@@ -3,8 +3,8 @@
 bootstrap.
 
 The non-abelian (SU(2)) sibling of the trivial-R `_generate_bootstrap` and the
-abelian-flavour `u1_bootstrap`.  The mechanism is identical — `Tr(1)` (the
-vacuum character, served spine-free) is the only external input, the
+abelian-flavour `u1_bootstrap`.  The mechanism is identical — `Tr(1)` comes from
+`elem_traces._vacuum_rps` (the exact Nahm sum on the embedded BPS spectrum), the
 cone-data Layer-1 reducer expresses each deep single-mult-gen
 label `((i,a),)` as `Σ_s P_s(𝖖)·Tr(s)` (cheaply), and the vanishing of every
 closed `𝖖^{≤0}` coefficient of `Tr(L)=δ_{L,1}+O(𝖖)` is one exact linear
@@ -18,15 +18,15 @@ equation — with one twist that distinguishes su2 from u1:
     still an exact *integer* linear system (the fusion structure constants are
     0/1), solved by the shared `_solve_full`.
 
-Two simplifications make su2 the *easy* non-trivial case (the flavour rule:
-ρ²-orbit folding is valid for trivial/su2, invalid for the
+Two simplifications make su2 the *easy* non-trivial case (the repo's flavour
+theorem: ρ²-orbit folding is valid for trivial/su2, invalid for the
 unit-character u1):
 
   * **su2 folds like trivial-R** (`fold_policy = "rho2"`): `⋆ = id` on SU(2)
     irreps (every rep is self-dual), so there is no `μ^δ` twist to carry and the
     seeds from `seed_set` are already ρ²-orbit reps — exactly the trivial-R
     structure, no orbit walk.
-  * traces live **natively in the irrep basis** `{𝖖:{n:c}}` (the frozen format,
+  * traces live **natively in the irrep basis** `{𝖖:{n:c}}` (the record format,
     via `_series_to_data`'s `_su2_decompose`), so no abelian↔irrep round-trip is
     needed: the bootstrap solves for the irrep coefficients directly.
 
@@ -35,17 +35,25 @@ Gaussian elimination over all `(seed, 𝖖-order, irrep)` unknowns suffices — 
 u1 module's ρ²-orbit reduction + forward-triangular sweep (needed for a7/e7's
 65–90 seeds) is unnecessary here.
 
-`generate_su2(short_id, K)` returns the standard frozen-table record; it is the
-su2 path of `elem_traces.generate`.  Validated BPS-free against the frozen
-a1d3 (K=40) / a1d5 (K=32) / a1d7 (K=16) tables.
+`generate_su2(short_id, K)` returns the standard elementary-trace record; it is
+the su2 path of `elem_traces.generate`.  Validated BPS-free against the frozen
+a1d3 (K=40) / a1d5 (K=32) / a1d7 (K=16) tables (since removed).
+
+Known defect, OPEN and off the serving path (found 2026-09-23): `_sweep`
+reads a never-solved lower-order seed value as 0.  On
+a1d3 at `K = 30` a seed uncovered at orders 13–22 is read as 0 by 55 later
+equations and the sweep stops "inconsistent at k=23"; no wrong value is served
+(a seed left free makes the record refused).  The zoo no longer serves any
+entry from this module (a1d3 from `a1d3_seeds`, a1d5 / a1d7
+from closed forms); it remains a witness.
 """
 from __future__ import annotations
 
 from elem_traces import (
-    _standalone_algebra, _bps_oracle, _series_to_data, _solve_full,
+    _standalone_algebra, _series_to_data, _solve_full,
     _vacuum_rps, _BootstrapUnavailable, fold_policy,
 )
-from regen import _load_standalone, REGEN_SPECS
+from regen import REGEN_SPECS
 
 
 # ---------------------------------------------------------------------------
@@ -128,6 +136,16 @@ def _sweep(pool: list, Tr1: dict, K: int, *, strict: bool):
                             buckets.setdefault((ei, N), [{}, 0])[1] -= c
         eqs = [(co, rhs) for (co, rhs) in buckets.values() if co or rhs]
         unk = sorted({u for co, _ in eqs for u in co})
+        # Reach-boundary coverage check (2026-08-31, found in the general-k
+        # coefficient is carried by NO firing entry never becomes a solve
+        # variable, and the sweep silently left its 𝖖^k coefficient at zero,
+        # corrupting the top order(s) just below the loud inconsistency.  A
+        # seed absent from every live equation is a REACH failure, not a
+        # zero — mark it free so the caller raises instead of fabricating.
+        all_seeds = {key for (P, _e, _d) in pool for key in P if key != "id"}
+        covered = {u[0] for co, _ in eqs for u in co}
+        if eqs and covered != all_seeds:
+            free_seeds |= all_seeds - covered
         sol, free, consistent = _solve_full(eqs, unk)
         if not consistent:
             if strict:
@@ -150,11 +168,11 @@ def _sweep(pool: list, Tr1: dict, K: int, *, strict: bool):
 def generate_su2(short_id: str, K: int, *, margin: int = 2,
                  verbose: bool = False) -> dict:
     """BPS-free elementary-trace record for a su2 entry (the su2 path of
-    `elem_traces.generate`).  `Tr(1)` via the spine-free vacuum path; the
-    seed traces via the SU(2)-irrep orthonormality bootstrap (forward 𝖖-order
-    sweep).  Raises `_BootstrapUnavailable` if a seed is left unpinned, so
-    the caller can fall back to the per-seed BPS engine (which requires the
-    BPS realisation layer, not available in this configuration)."""
+    `elem_traces.generate`).  `Tr(1)` from `_vacuum_rps` (the exact Nahm sum);
+    the seed traces via the SU(2)-irrep orthonormality bootstrap (forward
+    𝖖-order sweep).  Raises `_BootstrapUnavailable` if the system is
+    inconsistent or a seed is left unpinned; the serving path then raises
+    `NotImplementedError` (there is no per-seed BPS fallback)."""
     flavor = REGEN_SPECS[short_id][2]
     if flavor != "su2":
         raise _BootstrapUnavailable(f"{short_id}: flavour {flavor!r} is not su2")
@@ -168,9 +186,6 @@ def generate_su2(short_id: str, K: int, *, margin: int = 2,
     n = len(seedlabs)
     Ki = K + margin
 
-    mod, prefix = _load_standalone(short_id)
-    gens = getattr(mod, f"{prefix}_MULT_GENS_LATTICE")
-    rank = len(gens[0])
     if verbose:
         print(f"[{short_id}] su2 bootstrap: Tr(1) via Nahm-sum (spec) at K={Ki} "
               f"(spine-free) ...", flush=True)
@@ -214,21 +229,18 @@ def generate_su2(short_id: str, K: int, *, margin: int = 2,
         raise _BootstrapUnavailable(f"{short_id}: {status}")
     free_in_K = {j for j in free}
 
-    # assemble; per-seed BPS fallback for anything still unpinned in [1,K]
-    orbits: dict[int, dict] = {}
-    for j, idx in enumerate(idxs):
-        if j in free_in_K:
-            if verbose:
-                print(f"[{short_id}] seed mg{idx} not pinned; BPS fallback",
-                      flush=True)
-            orbits[idx] = _series_to_data(
-                short_id, _bps_oracle(short_id).trace(gens[idx], K=K))
-        else:
-            orbits[idx] = {k: t for k in range(1, K + 1)
-                           if (t := Tr.get((j, k), {}))}
+    # assemble; a seed still unpinned in [1,K] makes the record unavailable
+    # (the serving path raises; there is no per-seed BPS fallback)
+    if free_in_K:
+        raise _BootstrapUnavailable(
+            f"{short_id}: seeds {sorted(idxs[j] for j in free_in_K)} not "
+            f"pinned through q^{K}")
+    orbits: dict[int, dict] = {
+        idx: {k: t for k in range(1, K + 1) if (t := Tr.get((j, k), {}))}
+        for j, idx in enumerate(idxs)}
     if verbose:
-        print(f"[{short_id}] su2 bootstrap pinned {n - len(free_in_K)}/{n} "
-              f"seeds ({len(pool)} pool entries, consistent)", flush=True)
+        print(f"[{short_id}] su2 bootstrap pinned all {n} seeds "
+              f"({len(pool)} pool entries, consistent)", flush=True)
     return {
         "K": K,
         "flavor": flavor,

@@ -1,0 +1,68 @@
+{
+ "id": "sec:coulomb/adjoint",
+ "labels": [
+  "eq:adjsquare",
+  "eq:adjbubble"
+ ],
+ "date": "2026-09-24T22:56:41Z",
+ "commit": "c269224773f3aadeb1ba1ad1cdbbc212ac139513",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "lines": "SO(3) form: L_10, L_20, μ, 175 labels for rho; SU(2) form: L_20, 140 labels for rho"
+ },
+ "counts": {
+  "pass": 8,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed product and residual reproduced",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.06,
+ "notes": "GNAbeKAlgebra(so_n(3), (1,), nf=1) is the N=2* SO(3) theory (the SO(3) fundamental is the adjoint); GNAbeKAlgebra(su_2(), highest_root, nf=1) the SU(2) form; μ is the flavour label (((0,),(0,)),(1,)).",
+ "checks": [
+  {
+   "name": "eq:adjsquare  L_10 · L_10 = L_20 + μ",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:adjbubble  f_0(L_20) = μ[(q+q^-1)(μ+μ^-1)v^2 + (1+v^2)^2]/((1-q^2v^2)(1-q^-2v^2)), level by level in μ (SO(3) coordinates v^2 -> v)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the U_±2 coefficients of L_20 are 1 and the U_±1 coefficients of L_10 are 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "κ ≡ 0 for adjoint matter (gauge and matter contributions cancel) and κ_f(m) = -m, m = 0..4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho is the antipode (m,e) -> (-m,-e) with the flavour shifted by -m, on 175 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "L_20 with adjoint matter passes the class's certification (the matter (★)-guarded solve: unique, bar-invariant, W2) and was built by the axiom route",
+   "ok": true,
+   "note": "route 'solve' (the matter tier names its guarded solve 'solve')"
+  },
+  {
+   "name": "eq:adjbubble in the SU(2) form of N=2*: f_0(L_20) as printed, verbatim in SU(2) coordinates (the draft's L_20 is the coroot cell, its v^2 = v^α), level by level in μ, and the U-coefficients of L_20 are 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) form: rho is the antipode with the flavour shifted by -2m in SU(2) units (the draft's κ_f(m) = -m, whose units give the coroot m = 2), on 140 labels",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

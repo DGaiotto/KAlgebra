@@ -1,0 +1,91 @@
+{
+ "id": "comp:a1dodd/geometry",
+ "labels": [
+  "comp:a1dodd"
+ ],
+ "date": "2026-09-26T18:04:44Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "classes": {
+   "a1d5": {
+    "generators": 20,
+    "q-commuting pairs": 90,
+    "iso samples": 22,
+    "trace K": 6
+   },
+   "a1d7": {
+    "generators": 42,
+    "q-commuting pairs": 420,
+    "iso samples": 44,
+    "trace K": 6
+   }
+  },
+  "seconds": 2.9
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed curve set reproduced; the iso's verify_all",
+  "negative": "two rho-orbits swapped in the generator map fail multiplicativity"
+ },
+ "elapsed_s": 3.213,
+ "notes": "The curve set and the rotation are transcribed from the companion's text; the labels are read through the class's geometric_label, i.e. through finite_kalgebras.zoo_geometry and the served generator map.",
+ "checks": [
+  {
+   "name": "a1d5: each of the 20 generators is one curve (x, l), x in Z/5, 2 <= l <= 5, and the 5*4 curves are named once each",
+   "ok": true,
+   "note": "bad shapes []"
+  },
+  {
+   "name": "a1d5: rho is the rotation (x, l) -> (x + 1, l) on all 20 generators",
+   "ok": true,
+   "note": "fails at []"
+  },
+  {
+   "name": "a1d5: each of the 90 q-commuting generator pairs is named by the union of its two curves",
+   "ok": true,
+   "note": "fails at []"
+  },
+  {
+   "name": "a1d5: the generator map onto A1DoddConeKAlg(1) passes KAlgebraIso.verify_all (unit, round trip, multiplicative on 21^2 ordered pairs each way, rho-equivariant, trace-equivariant through q^6)",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}"
+  },
+  {
+   "name": "negative control (a1d5): the map with two rho-orbits of generators swapped fails multiplicativity",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d7: each of the 42 generators is one curve (x, l), x in Z/7, 2 <= l <= 7, and the 7*6 curves are named once each",
+   "ok": true,
+   "note": "bad shapes []"
+  },
+  {
+   "name": "a1d7: rho is the rotation (x, l) -> (x + 1, l) on all 42 generators",
+   "ok": true,
+   "note": "fails at []"
+  },
+  {
+   "name": "a1d7: each of the 420 q-commuting generator pairs is named by the union of its two curves",
+   "ok": true,
+   "note": "fails at []"
+  },
+  {
+   "name": "a1d7: the generator map onto A1DoddConeKAlg(2) passes KAlgebraIso.verify_all (unit, round trip, multiplicative on 43^2 ordered pairs each way, rho-equivariant, trace-equivariant through q^6)",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}"
+  },
+  {
+   "name": "negative control (a1d7): the map with two rho-orbits of generators swapped fails multiplicativity",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

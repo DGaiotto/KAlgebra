@@ -98,7 +98,7 @@ The unified class and its roster (`skein_kalgebra`, `bordered_skein_kalg`,
 `cone_rgkalgebra`, and the per-theory instances: the polygon family
 `skein_pentagon`/`skein_pentagon_kalg`/`skein_square_kalg`/`skein_heptagon_kalg`/
 `skein_oddgon_kalg`/`skein_evengon_kalg`/`skein_nonagon_kalg`/
-`u1_hexagon_pentagon_kalg`/`skein_u1hexagon_kalg`/`u1a1aodd_general`, the sphere
+`u1_hexagon_pentagon_kalg`/`skein_u1hexagon_kalg`, the sphere
 and annulus theories `skein_sphere_kalg`/`skein_annulus_kalg`/
 `su2_nf4_sample_kalgebra` and its character / trace / symmetry machinery
 `su2_nf4_skein_chars`/`su2_nf4_trace`/`su2_nf4_symmetry`/`su2_nf4_so8`/

@@ -15,7 +15,7 @@ disk; see `skein_su2_nf{2,3}_disk`):
     Argyres-Douglas point of SU(2) N_f=k.
 
 Certified (flavour-neutral vacuum Schur index, K=4) in
-`tests/test_su2_cut_rg.py`:
+the suite in the source repository:
     N_f=2 --I1I2-->  N_f=1 {1,1};      N_f=2 --radial-->  A1D3 {1,3,9}
     N_f=3 --I1I2-->  N_f=2 {1,6,17};   N_f=3 --radial-->  A1D4 {1,8,36}
 """

@@ -2,9 +2,8 @@
 
 The frozen standalones (``finite_pentagon_kalg.py``, …) embed the
 multiplication data for one specific finite ConeKAlgebra.  This module
-is regeneration tooling whose generator driver
-(``generate_finite_kalg``) is **not included in this repository** —
-the standalones were frozen with it externally.  What is provided here:
+is regeneration tooling whose generator driver is
+``generate_finite_kalg`` — the standalones were frozen with it.  What is provided here:
 
 * :func:`rebuild_data(short_id)` — re-runs the quiver build pipeline
   from the BPS pairing + node-charges literals embedded in the
@@ -124,9 +123,8 @@ def rebuild_data(short_id: str, *, verbose: bool = False) -> dict:
 
     Uses the BPS pairing + node-charges embedded in the standalone as
     the input spec — so a successful round-trip ``native_data ↔
-    rebuild_data`` is a true regression check.  Requires the external
-    generator module ``generate_finite_kalg``, which is not included in
-    this repository.
+    rebuild_data`` is a true regression check.  Requires the generator
+    module ``generate_finite_kalg``.
     """
     mod, prefix = _load_standalone(short_id)
     _, _, flavor, max_charts = _spec(short_id)
@@ -490,3 +488,73 @@ def kalgebra_isomorphism(
         if _verify_permutation(perm, data_a, data_b):
             return perm
     return None
+
+
+# ---------------------------------------------------------------------------
+# zoo words for the Z-form KAlgebraIsos
+# ---------------------------------------------------------------------------
+#
+# The seeds modules (`aodd_seeds`, `a1dodd_seeds`, `a1deven_seeds`) carry a
+# zoo word to a family label letter by letter.  Their `kalgebra_iso` needs the
+# way back: the zoo word whose letters' images make up a given multiset of
+# family letters.  These two helpers are shared by the three constructors.
+
+def _canonical_zoo_word(zoo, word) -> tuple:
+    """The zoo standalone `zoo`'s canonical cone word at the lattice point of
+    `word` (a word over one cone; the exported cone data rewrite a
+    non-simplicial cone's words onto one, `canonicalize_cone_label`).  The
+    `𝖖`-phase between the two words is dropped: it relates two
+    normalisations of one lattice point, while an iso of canonical bases sends
+    the canonical element to the canonical element.  Identity on words of at
+    most one letter, and on every word of a simplicial cone."""
+    word = tuple(sorted((g, p) for g, p in word if p))
+    if len(word) < 2:
+        return word
+    cd = zoo.cone_data()
+    gens, powers = cd.to_cone_label(word)
+    cone = cd.cone_of_label(word)
+    g2, p2, _qph = cd.canonicalize_cone_label(cone.mult_gens(), gens, powers)
+    return cd.from_cone_label(frozenset(g for g in g2 if p2.get(g)),
+                              {g: p for g, p in p2.items() if p})
+
+
+def _zoo_word_of(counts: dict, singles: dict, pairs: dict,
+                 side: dict) -> tuple:
+    """The zoo word `((g, p), …)` whose generators' images add up to the
+    multiset `counts` (`{family letter: multiplicity}`), for a family whose
+    generators are single letters (`singles`: letter → generator) and pairs of
+    letters of opposite sign (`pairs`: (letter, letter) → generator, `side`:
+    letter → a nonzero integer, its sign the side of the pair it sits on — the
+    magnetic charge of the letter in the families that use this, the U(1)
+    ungaugings `ungauge_u1a1aodd(k)` and `A1DevenKAlg(k)`).
+
+    The negative letters are paired with the positive ones in sorted order.
+    On a label of those families every such pair is a generator (the letters
+    of a label pairwise do not cross, and every non-crossing pair of opposite
+    charges is a generator), so the pairing never fails there; a different
+    pairing gives another word of the same lattice point, which
+    `_canonical_zoo_word` identifies.  `ValueError` on a multiset that is not
+    a label: a letter of no generator, unbalanced sides, or a pair that is not
+    a generator."""
+    word: dict = {}
+    neg, pos = [], []
+    for x, m in sorted(counts.items()):
+        if m < 0:
+            raise ValueError(f"negative multiplicity {m} of {x!r}")
+        if x in singles:
+            word[singles[x]] = word.get(singles[x], 0) + m
+        elif side.get(x, 0) < 0:
+            neg.extend([x] * m)
+        elif side.get(x, 0) > 0:
+            pos.extend([x] * m)
+        else:
+            raise ValueError(f"{x!r} is the letter of no generator")
+    if len(neg) != len(pos):
+        raise ValueError(f"unbalanced: {len(neg)} letters of negative charge, "
+                         f"{len(pos)} of positive charge")
+    for a, b in zip(neg, pos):
+        g = pairs.get((a, b), pairs.get((b, a)))
+        if g is None:
+            raise ValueError(f"{a!r} and {b!r} are not a generator's pair")
+        word[g] = word.get(g, 0) + 1
+    return tuple(sorted((g, p) for g, p in word.items() if p))

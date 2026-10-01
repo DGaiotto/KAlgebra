@@ -1,0 +1,41 @@
+{
+ "id": "comp:a1dodd/is-kalgebra",
+ "labels": [
+  "comp:a1dodd"
+ ],
+ "date": "2026-09-23T02:53:04Z",
+ "commit": "7a0f87b75020e640f781cb1828fa1ca589d78dfb",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "window sizes": {
+   "a1d5": 7,
+   "a1d7": 9
+  },
+  "K": 4,
+  "seconds": 5.7
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity row",
+  "negative": "n.a."
+ },
+ "elapsed_s": 5.683,
+ "notes": "",
+ "checks": [
+  {
+   "name": "a1d5: K1-K5 verifiers on all pairs of a window of 7 labels (identity, the 4 seeds, products) at K=4",
+   "ok": true,
+   "note": "verify_bar_involution fails 0; verify_identity_in_basis fails 0; verify_unit_law fails 0; verify_associativity fails 0; verify_rho_fixes_identity fails 0; verify_rho_inverse fails 0; verify_rho_is_automorphism fails 0; verify_orthonormality fails 0; verify_trace_pairing_faces fails 0; verify_rho_twisted_trace fails 0; verify_trace_intertwines_rho fails 0; verify_pairing_rho_star_symmetric fails 0"
+  },
+  {
+   "name": "a1d7: K1-K5 verifiers on all pairs of a window of 9 labels (identity, the 6 seeds, products) at K=4",
+   "ok": true,
+   "note": "verify_bar_involution fails 0; verify_identity_in_basis fails 0; verify_unit_law fails 0; verify_associativity fails 0; verify_rho_fixes_identity fails 0; verify_rho_inverse fails 0; verify_rho_is_automorphism fails 0; verify_orthonormality fails 0; verify_trace_pairing_faces fails 0; verify_rho_twisted_trace fails 0; verify_trace_intertwines_rho fails 0; verify_pairing_rho_star_symmetric fails 0"
+  }
+ ]
+}

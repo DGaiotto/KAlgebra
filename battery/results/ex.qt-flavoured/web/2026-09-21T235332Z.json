@@ -1,0 +1,113 @@
+{
+ "id": "ex:qt-flavoured",
+ "labels": [
+  "ex:qt-flavoured",
+  "eq:qt-flavoured-trace"
+ ],
+ "date": "2026-09-21T23:53:32Z",
+ "commit": "628db109ef669800c8769de79435c2855d9309fd",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "pairings": [
+   "rank 3, Γ_f = Z e_3",
+   "rank 3, kernel (1,-1,0) (non-split coordinates)",
+   "rank 4, Γ_f = Z^2"
+  ],
+  "labels": "|γ_i| <= 1",
+  "K": 8
+ },
+ "counts": {
+  "pass": 16,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the class's gauge rank equals an independent matrix rank",
+  "negative": "wrong prefactor exponent detected"
+ },
+ "elapsed_s": 0.612,
+ "notes": "The flavour group is the algebraic torus T_(Γ_f) (R = Z[μ_1^±,...]); the example's trace, the identification of X_(γ_f) with the 1d characters and the F-axioms are all reproduced.",
+ "checks": [
+  {
+   "name": "rank 3, Γ_f = Z e_3: rk(Γ/Γ_f) = rank of the pairing = 2, the class's gauge rank agrees",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, Γ_f = Z e_3: Tr X_γ = (q^2;q^2)_∞^2 χ_γ δ_(γ in Γ_f) on 27 labels to q^8 (independent series; χ_γ = μ^flav(γ))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, Γ_f = Z e_3: X_(γ_f) are the characters: embed_R(μ^f) = X_(γ_f) for |f_i| <= 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, Γ_f = Z e_3: I_(γ,γ') = (q^2;q^2)_∞^2 μ^(flav(γ')-flav(γ)) δ_(gauge γ = gauge γ') — in R + q R[[q]], identity summand δ_(γ,γ')",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, Γ_f = Z e_3: F1-F6 all pass (5394 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, kernel (1,-1,0) (non-split coordinates): rk(Γ/Γ_f) = rank of the pairing = 2, the class's gauge rank agrees",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, kernel (1,-1,0) (non-split coordinates): Tr X_γ = (q^2;q^2)_∞^2 χ_γ δ_(γ in Γ_f) on 27 labels to q^8 (independent series; χ_γ = μ^flav(γ))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, kernel (1,-1,0) (non-split coordinates): X_(γ_f) are the characters: embed_R(μ^f) = X_(γ_f) for |f_i| <= 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, kernel (1,-1,0) (non-split coordinates): I_(γ,γ') = (q^2;q^2)_∞^2 μ^(flav(γ')-flav(γ)) δ_(gauge γ = gauge γ') — in R + q R[[q]], identity summand δ_(γ,γ')",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 3, kernel (1,-1,0) (non-split coordinates): F1-F6 all pass (5394 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, Γ_f = Z^2: rk(Γ/Γ_f) = rank of the pairing = 2, the class's gauge rank agrees",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, Γ_f = Z^2: Tr X_γ = (q^2;q^2)_∞^2 χ_γ δ_(γ in Γ_f) on 81 labels to q^8 (independent series; χ_γ = μ^flav(γ))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, Γ_f = Z^2: X_(γ_f) are the characters: embed_R(μ^f) = X_(γ_f) for |f_i| <= 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, Γ_f = Z^2: I_(γ,γ') = (q^2;q^2)_∞^2 μ^(flav(γ')-flav(γ)) δ_(gauge γ = gauge γ') — in R + q R[[q]], identity summand δ_(γ,γ')",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, Γ_f = Z^2: F1-F6 all pass (5396 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: a prefactor exponent rk Γ instead of rk(Γ/Γ_f) is detected",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

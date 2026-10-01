@@ -2,39 +2,36 @@
 octagon_kalg.py
 ===============
 
-`OctagonKAlg` — ungauged octagon K-algebra (k=2), μ-flavoured wrapper around
-the standalone `U1OctagonKAlg` (u(1)-gauged [A_1, A_5]).  The k=2 sibling of
-`HexagonKAlg`.
+`OctagonKAlg` — the ungauged μ-flavoured `[A_1, A_5]` on the octagon (8-gon) (k = 2), the
+k = 2 member of `ungauged_polygon_kalg.UngaugedPolygonKAlg`: the centralizer
+of the gauge generator `E` in the closed-form `u1a1aodd_kalg.U1A1AoddKAlg(2)`,
+with `E` the flavour fugacity μ.  No frozen data, no BPS and no bootstrap:
+products are the gauged closed-form peel, traces the measure-restored sum of
+the gauged closed-form traces (see `ungauged_polygon_kalg`).
 
-The shared construction lives in `ungauged_polygon_kalg.UngaugedPolygonKAlg`
-(centralizer of the gauge generator E=μ + measure-restored, **BPS-free**,
-ungauged trace):
-
-    Tr_ung(a)(z)  =  [ Σ_n z^n · Tr_gauged(a·μ^n) ] / (fq²;fq²)_∞²
-                  =  ungauge_kalgebra.ungauge_u1polygon(2).trace .
-
-Physical chord families (mag-zero / flavour-neutral): type 2 only
-(8 long chords); the type-1 short chords are magnetic and the type-3
-diameter is composite.
+Labels: `U1A1AoddKAlg(2)`'s balanced multisets of non-crossing diagonals of
+the octagon (8-gon) with the μ-charge; physical single
+chords (magnetic charge 0) are the even types {2} (8 chords).  They replaced, on
+2026-09-23, the letters of the retired stand-alone `U1OctagonKAlg`;
+the dictionary is in `ungauged_polygon_kalg`'s docstring.
 """
 from __future__ import annotations
 
 import sys, os
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+    sys.path.append(_HERE)
 
 from ungauged_polygon_kalg import UngaugedPolygonKAlg
-from u1_octagon_kalg import U1OctagonKAlg
-import u1a1aodd_k2_chord_charges as _charges
 
 
 class OctagonKAlg(UngaugedPolygonKAlg):
-    """Ungauged octagon K-algebra (k=2), μ-flavoured."""
+    """Ungauged octagon K-algebra (k=2), μ-flavoured: `UngaugedPolygonKAlg(2)`."""
 
     k = 2
-    _GAUGED_CLASS = U1OctagonKAlg
-    _CHARGES = _charges
+
+    def __init__(self) -> None:
+        super().__init__(2)
 
 
 if __name__ == "__main__":

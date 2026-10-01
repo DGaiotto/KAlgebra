@@ -10,7 +10,7 @@ Conjecture (heptagon-derived):
   * a per-orbit ρ-shift  d_i  selects which lattice charge sits at the
     'starting vertex' index 0.
 
-User's full geometric rule:
+The author's full geometric rule:
   * chords disjoint  (no shared vertex, no interior cross)  ↔
         L_a · L_b commute exactly (q-power 0)
   * chords share a vertex  (no cross)  ↔  q-commute with q^{2⟨γ_a, γ_b⟩}

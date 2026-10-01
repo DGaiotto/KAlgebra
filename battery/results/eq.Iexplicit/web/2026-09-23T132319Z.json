@@ -1,0 +1,102 @@
+{
+ "id": "eq:Iexplicit",
+ "labels": [
+  "eq:Iexplicit"
+ ],
+ "date": "2026-09-23T13:23:19Z",
+ "commit": "840e3d06bd7b70c13c3ed834fd611b787b184352",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) lines": 6,
+  "pairs": 36,
+  "SO(3)+adjoint lines": 5,
+  "K": 10,
+  "SU(3) lines (trace)": 5,
+  "trace-face pairs": 61,
+  "widened (2026-09-23)": {
+   "SU(3) pairs": 16,
+   "non-simply-laced traces": 4,
+   "SU(3)+1 pairs": 9,
+   "seconds": 408.8
+  }
+ },
+ "counts": {
+  "pass": 13,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "orthonormality read off the formula",
+  "negative": "the unshifted measure fails; the rank-one prefactor fails at SU(3)"
+ },
+ "elapsed_s": 531.798,
+ "notes": "The repository computes the trace and pairing through the rational sector measure B_m (kalgebra.md, proved equal to the printed infinite products); here the printed formulas are evaluated directly, so this is an independent check of that equality on the lines listed.  The class's pairing is the sector formula, so the comparison with Tr(ρ(f)·g) is a separate check (added 2026-09-23; before that the eq:Iexplicit row's conjectural half was tested only by tests/test_wrq_sector_pairing.py, 72 SU(2) and 32 SU(3) pairs).",
+ "checks": [
+  {
+   "name": "eq:measure  Tr f = (q^2;q^2)^2_∞/|W| ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on six SU(2) lines through q^10 (independent series; contour integral = constant term)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit  I_fg as the sum over m of contour integrals against the |<m,α>|-shifted measure, on all 36 pairs of six SU(2) lines through q^10",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "orthonormality read off the formula: I_ab[q^0] = δ_ab on the six lines (the leading Weyl orbit contributes δ, the bubbling O(q))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure with matter  SO(3) + adjoint: the μ-dependent measure Π_w (-q μ^(w_f) v^w;q^2)^-1 (-q μ^-w_f v^-w;q^2)^-1 reproduces the class's traces of five lines through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit with matter  SO(3) + adjoint on all 25 pairs of five lines through q^8: the shifted vector and matter factors reproduce the class's pairing",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit, the conjectural half  the sum over m of contour integrals equals Tr(ρ(f)·g) (multiply-then-trace: ρ(f)·g by the cocycle convolution, then its magnetic-0 residue) on all 36 SU(2) pairs through q^10 and all 25 SO(3)+adjoint pairs through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure at rank two  SU(3): Tr f = (q^2;q^2)^4_∞/6 ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on 5 lines through q^6 (rk = 2, |W| = 6)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the rank-one prefactor (q^2;q^2)^2_∞/2 at SU(3) is detected",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the pairing formula with the unshifted measure (|<m,α>| dropped) fails at m != 0",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit at rank two  SU(3): the printed pairing, prefactor (q^2;q^2)^4/6, equals the class's on all 16 pairs of 4 lines through q^4",
+   "ok": true,
+   "note": "16/16"
+  },
+  {
+   "name": "eq:Iexplicit, the conjectural half, at rank two  SU(3): the pairing equals Tr(rho(f)·g) by multiply-then-trace on all 16 pairs",
+   "ok": true,
+   "note": "16/16"
+  },
+  {
+   "name": "eq:measure at the non-simply-laced Spin(5): the printed trace, prefactor (q^2;q^2)^4/|W| (|W| = 8), equals the class's on 4 lines",
+   "ok": true,
+   "note": "4/4"
+  },
+  {
+   "name": "eq:measure / eq:Iexplicit with matter at rank two  SU(3)+1: the printed trace (3/3 lines) and pairing (9/9 pairs), the matter factors (-q^(1+|<m,w>|) mu^(±1) v^(±w); q^2)^-1 over the weights of the fundamental, equal the class's through q^3; and the pairing equals Tr(rho(f)·g) on 9/9 pairs",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

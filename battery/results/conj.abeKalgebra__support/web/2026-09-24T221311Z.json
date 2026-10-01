@@ -1,0 +1,344 @@
+{
+ "id": "conj:abeKalgebra/support",
+ "labels": [
+  "conj:abeKalgebra"
+ ],
+ "date": "2026-09-24T22:13:11Z",
+ "commit": "005e34e34fcd8647ab3c6e6b35e60bdcba5edd3d",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "labels": 13,
+   "unreached": [],
+   "contained": true,
+   "enlarged_support": {
+    "labels": 13,
+    "unreached": [],
+    "errors": {},
+    "steps": [
+     "2×(1,)"
+    ],
+    "unique": 13,
+    "zero": 13,
+    "equal": 13,
+    "added": 52,
+    "reps": 26,
+    "free": 13,
+    "free_lines": 13,
+    "seconds": 2.3
+   }
+  },
+  "pure SO(3)": {
+   "labels": 13,
+   "unreached": [],
+   "contained": true,
+   "enlarged_support": {
+    "labels": 13,
+    "unreached": [],
+    "errors": {},
+    "steps": [
+     "2×(2,)"
+    ],
+    "unique": 13,
+    "zero": 13,
+    "equal": 13,
+    "added": 52,
+    "reps": 26,
+    "free": 13,
+    "free_lines": 13,
+    "seconds": 0.3
+   }
+  },
+  "pure SU(3)": {
+   "labels": 8,
+   "unreached": [],
+   "contained": true,
+   "enlarged_support": {
+    "labels": 8,
+    "unreached": [],
+    "errors": {},
+    "steps": [
+     "1×(1, 1)",
+     "2×(1, 1)"
+    ],
+    "unique": 8,
+    "zero": 8,
+    "equal": 8,
+    "added": 114,
+    "reps": 27,
+    "free": 19,
+    "free_lines": 8,
+    "seconds": 14.4
+   }
+  },
+  "pure Sp(4)": {
+   "labels": 5,
+   "unreached": [],
+   "contained": true,
+   "enlarged_support": {
+    "labels": 5,
+    "unreached": [],
+    "errors": {},
+    "steps": [
+     "1×(1, 0)",
+     "2×(1, 0)"
+    ],
+    "unique": 5,
+    "zero": 5,
+    "equal": 5,
+    "added": 48,
+    "reps": 12,
+    "free": 7,
+    "free_lines": 5,
+    "seconds": 8.5
+   }
+  },
+  "pure G2": {
+   "labels": 4,
+   "unreached": [],
+   "contained": true
+  },
+  "SU(2) + 1 fund. (roster su2-nf1)": {
+   "labels": 5,
+   "unreached": [],
+   "contained": true
+  },
+  "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour)": {
+   "labels": 5,
+   "unreached": [],
+   "contained": true
+  },
+  "SO(3) + adjoint (N=2*)": {
+   "labels": 5,
+   "unreached": [],
+   "contained": true
+  },
+  "SU(3) + 1 fund. (roster su3-nf1)": {
+   "labels": 4,
+   "unreached": [],
+   "contained": true
+  },
+  "grafts": {
+   "SU(2) L_((2,), (0,)) (donor L_((4,), (0,)))": {
+    "positive_control": true,
+    "single-cell": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    },
+    "Weyl-symmetrised": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    }
+   },
+   "SU(2) L_((2,), (1,)) (donor L_((4,), (0,)))": {
+    "positive_control": true,
+    "single-cell": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    },
+    "Weyl-symmetrised": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    }
+   },
+   "SU(2) L_((1,), (0,)) (donor L_((3,), (0,)))": {
+    "positive_control": true,
+    "single-cell": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    },
+    "Weyl-symmetrised": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    }
+   },
+   "SU(3) L_((1, 1), (0, 0)) (donor L_((2, 2), (0, 0)))": {
+    "positive_control": true,
+    "single-cell": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    },
+    "Weyl-symmetrised": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    }
+   },
+   "Spin(5) L_((1, 1), (0, 0)) (donor L_((2, 2), (0, 0)))": {
+    "positive_control": true,
+    "single-cell": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    },
+    "Weyl-symmetrised": {
+     "tried": 6,
+     "other_conditions_hold": 6,
+     "star_rejects": 6
+    }
+   }
+  }
+ },
+ "counts": {
+  "pass": 28,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "each genuine line passes all five conditions of star_bubbling.verify_axioms and is Weyl-covariant; the enlarged-support solve returns the production line at SU(2) L_(2,0) before any theory is scanned",
+  "negative": "the grafts themselves (the support condition fails for them by construction; the finding is that (★) alone also rejects them); for the enlarged support, the same system without the residue rows, which leaves the added cells strictly inside the larger hull free"
+ },
+ "elapsed_s": 38.955,
+ "notes": "The repository's measurement (kalgebra.md, 30/30) grafts onto a single cell, which also breaks Weyl covariance, part of the paper's A1; the Weyl-symmetrised grafts keep A1 and isolate (★).  The containment of the built lines in conv(W·m) is structural (the solver's unknowns live there); the enlarged-support solve is the measurement.  Total 39.0 s.",
+ "checks": [
+  {
+   "name": "pure SU(2): the bubbling of all 13 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SO(3): the bubbling of all 13 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SU(3): the bubbling of all 8 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure Sp(4): the bubbling of all 5 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure G2: the bubbling of all 4 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): the bubbling of all 5 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): the bubbling of all 5 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): the bubbling of all 5 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): the bubbling of all 4 built window lines lies in conv(W·m) (tropical_support)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "positive control: at SU(2) L_((2,), (0,)) the enlarged-support solve returns the production line, zero outside conv(W·m), and its control finds an added cell that bar + O(q) leave free",
+   "ok": true,
+   "note": "{'status': 'unique', 'zero': True, 'equal': True, 'layers': 2, 'step': (1,), 'added': 4, 'reps': 2, 'free': 1}"
+  },
+  {
+   "name": "pure SU(2): enlarged support — on all 13 window lines, (★) + bar + O(q) solved on the cells of conv(W·(m + k·β)), the hull grown by 2 steps of (1,) (β the smallest dominant coroot), have a unique solution; it vanishes on all 52 added cells and equals the production line",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): control — without the residue rule, 13 of the 26 added Weyl-orbit representatives (on 13 of the 13 lines) admit a nonzero bar-invariant O(q) filling, which (★) forces to zero; the rest, the outermost layer, are emptied by bar + O(q) alone",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): enlarged support — on all 13 window lines, (★) + bar + O(q) solved on the cells of conv(W·(m + k·β)), the hull grown by 2 steps of (2,) (β the smallest dominant coroot), have a unique solution; it vanishes on all 52 added cells and equals the production line",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): control — without the residue rule, 13 of the 26 added Weyl-orbit representatives (on 13 of the 13 lines) admit a nonzero bar-invariant O(q) filling, which (★) forces to zero; the rest, the outermost layer, are emptied by bar + O(q) alone",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): enlarged support — on all 8 window lines, (★) + bar + O(q) solved on the cells of conv(W·(m + k·β)), the hull grown by 1 step of (1, 1) or 2 steps of (1, 1) (β the smallest dominant coroot), have a unique solution; it vanishes on all 114 added cells and equals the production line",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): control — without the residue rule, 19 of the 27 added Weyl-orbit representatives (on 8 of the 8 lines) admit a nonzero bar-invariant O(q) filling, which (★) forces to zero; the rest, the outermost layer, are emptied by bar + O(q) alone",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): enlarged support — on all 5 window lines, (★) + bar + O(q) solved on the cells of conv(W·(m + k·β)), the hull grown by 1 step of (1, 0) or 2 steps of (1, 0) (β the smallest dominant coroot), have a unique solution; it vanishes on all 48 added cells and equals the production line",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): control — without the residue rule, 7 of the 12 added Weyl-orbit representatives (on 5 of the 5 lines) admit a nonzero bar-invariant O(q) filling, which (★) forces to zero; the rest, the outermost layer, are emptied by bar + O(q) alone",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) L_((2,), (0,)): 6 single-cell grafts outside conv(W·m) keep bar, the seed and O(q); (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) L_((2,), (0,)): 6 Weyl-symmetrised grafts outside conv(W·m) keep bar, the seed and O(q) and Weyl covariance; (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) L_((2,), (1,)): 6 single-cell grafts outside conv(W·m) keep bar, the seed and O(q); (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) L_((2,), (1,)): 6 Weyl-symmetrised grafts outside conv(W·m) keep bar, the seed and O(q) and Weyl covariance; (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) L_((1,), (0,)): 6 single-cell grafts outside conv(W·m) keep bar, the seed and O(q); (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) L_((1,), (0,)): 6 Weyl-symmetrised grafts outside conv(W·m) keep bar, the seed and O(q) and Weyl covariance; (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3) L_((1, 1), (0, 0)): 6 single-cell grafts outside conv(W·m) keep bar, the seed and O(q); (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3) L_((1, 1), (0, 0)): 6 Weyl-symmetrised grafts outside conv(W·m) keep bar, the seed and O(q) and Weyl covariance; (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5) L_((1, 1), (0, 0)): 6 single-cell grafts outside conv(W·m) keep bar, the seed and O(q); (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5) L_((1, 1), (0, 0)): 6 Weyl-symmetrised grafts outside conv(W·m) keep bar, the seed and O(q) and Weyl covariance; (★) rejects every one (true line passes all five conditions: True)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

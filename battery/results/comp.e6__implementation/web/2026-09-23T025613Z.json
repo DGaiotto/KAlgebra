@@ -1,0 +1,39 @@
+{
+ "id": "comp:e6/implementation",
+ "labels": [
+  "comp:e6"
+ ],
+ "date": "2026-09-23T02:56:13Z",
+ "commit": "008b80f0e3383560f8d3b0bb943a333bcb1e9e88",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "generators": 42,
+  "cones": 833,
+  "witness pairs": 40,
+  "seconds": 6.1
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the literals' counts",
+  "negative": "n.a."
+ },
+ "elapsed_s": 6.124,
+ "notes": "The flavour is trivial, so the zoo's abelian cone-to-BPS witness certifies every product it samples.",
+ "checks": [
+  {
+   "name": "42 generators, 833 cones all of size 6, rho a permutation of the generators of order 14, trivial flavour",
+   "ok": true,
+   "note": "n=42, cones=833, order=14, ring=TrivialZPlusRing"
+  },
+  {
+   "name": "the cone-to-BPS isomorphism witness: unit, rho-equivariant on all 42 generators, multiplicative on 40 sampled generator pairs",
+   "ok": true,
+   "note": "unit True, rho True, mult True"
+  }
+ ]
+}

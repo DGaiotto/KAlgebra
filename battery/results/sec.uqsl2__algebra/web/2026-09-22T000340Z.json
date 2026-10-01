@@ -1,0 +1,93 @@
+{
+ "id": "sec:uqsl2/algebra",
+ "labels": [
+  "sec:uqsl2"
+ ],
+ "date": "2026-09-22T00:03:40Z",
+ "commit": "8da697afb50102e74e4b0745297e9de689c480a6",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "generators": "E, F, K^{±1}, χ_1",
+  "window": "12 labels",
+  "orbit": "rho^k(E), k <= 12"
+ },
+ "counts": {
+  "pass": 13,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed relations reproduced as elements",
+  "negative": "altered relation detected"
+ },
+ "elapsed_s": 0.036,
+ "notes": "The class carries the Casimir as a label coordinate (coefficient ring Z), so the flavoured trace lives on the SQED_2 realisation (next rows); K4/K5 are checked there.  The bar involution here is antimultiplicative and fixes K (a false friend of the literature).",
+ "checks": [
+  {
+   "name": "KE = q^-2 EK",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "KF = q^2 FK",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "EF = χ_1 + q K + q^-1 K^-1 (χ_1 the central Casimir label)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "FE = χ_1 + q^-1 K + q K^-1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "[E,F] = (q - q^-1)(K - K^-1)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the Casimir is central: χ_1 commutes with E, F, K",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "E_{a,b} = q^-ab E^a K^b and F_{a,b} = q^ab F^a K^b (E^a K^b = q^ab E_{a,b}), a <= 3, |b| <= 3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure powers: E^a = E_{a,0}, F^a = F_{a,0}, K^n K^m = K^{n+m}",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho(K) = K^-1, rho(E) = q^-1 F K^-1 = F_{1,-1}, rho(F) = q K E = E_{1,1}, rho fixes χ_1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho has infinite order (Lusztig's braid): rho^k(E) distinct for k <= 12, alternating F_{1,-(2m+1)} and E_{1,2m}",
+   "ok": true,
+   "note": "orbit: [('E', 1, 0, 0), ('F', 1, -1, 0), ('E', 1, 2, 0), ('F', 1, -3, 0), ('E', 1, 4, 0), ('F', 1, -5, 0)]"
+  },
+  {
+   "name": "rho covers the Weyl reflection: rho^2(K) = K, rho^2(E) = E_{1,2} = q^-2 E K^2 (not E)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K1 bar-invariance on 144 pairs; K2 unit and associativity on 343 triples; K3 rho automorphism and inverse",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the altered relation EF = χ_1 + q^2 K + q^-2 K^-1 is detected",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

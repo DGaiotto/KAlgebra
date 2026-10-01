@@ -1445,13 +1445,13 @@ def u_order(w: tuple):
     dominant Weyl-orbit representative, `max` the most-dominant
     (lexicographic on the raw tuple — the convention the pure-U(N)
     engine is certified with).  Relocated from the AbeKAlgebra tier
-    (Plan 30 T2 / D4: no DOp-frame utilities on the contract)."""
+    (no DOp-frame utilities on the contract)."""
     return tuple(w)
 
 
 def simplify_dop(F: "DOp") -> "DOp":
     """Simplify each `VRational` coefficient in `F` (cancel root / sq
     factors that divide the numerator).  Relocated from the AbeKAlgebra
-    tier (Plan 30 T2 / D4)."""
+    tier."""
     return DOp({u: c.simplify() for u, c in F._terms.items()},
                n=F._n, n_gauge=F._n_gauge)

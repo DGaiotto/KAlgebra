@@ -2,6 +2,17 @@
 (u(1)-gauged E7) — the "orthonormality fixes traces up to Tr(1)" demo for this
 quantum-torus cone class.
 
+**Status (2026-09-23): not on `U1E7ConeKAlgebra`'s serving path.**  On the
+tables rebuilt from the flow with dressing chord `(3, 0)` (72 neutral
+generators), `solve_chord_seeds` raised `MemoryError` at `K = 4` after 324 s
+under a 3.5 GB cap.  Independently of memory, a `c0 = 0` word that never
+enters the constraint pool is absent from the returned dict, and the former
+caller served every absent word as exact 0.  The class now serves the neutral
+labels through the ungauged `[A₁,E₇]` algebra instead (`FiniteE7KAlgebra`'s
+closed-form traces, through a label map certified by products; see
+`U1E7ConeKAlgebra._neutral_chord_trace`).  This module is kept as the record of
+the bootstrap route.
+
 Mirrors `u1aodd_trace_bootstrap` (the proven forward sweep, order k=1..K solving
 the small per-order frontier).  The trace of a single cone-word `L_c` is taken
 **flat** — the `ρ²`-canonical word itself is the trace symbol (no peeling) — so

@@ -80,7 +80,22 @@ class E6RGKAlgebra(RGKAlgebra):
         if not diams_mag1:
             raise RuntimeError("no magnetic-charge-1 diameter chord in U1A1AoddKAlg(2)")
         self._La = diam_type
+        # Charge alone does not pin the chord: the mag-+1 diameters are a
+        # ρ²-orbit, but `_a5_chain()` finds its reference chain by search, so
+        # the chord moves relative to the chain and only some of them give the
+        # E₆ Cartan determinant 3 (measured; the same effect is documented at
+        # E8RGKAlgebra).  Select by that defining property, so the choice is
+        # independent of the auxiliary's label convention.
         self._i0 = diams_mag1[0]
+        for i in diams_mag1:
+            self._i0 = i
+            if self.uv_cartan_determinant() == 3:
+                break
+        else:
+            raise RuntimeError(
+                "no magnetic-charge-+1 diameter chord of U1A1AoddKAlg(2) has "
+                f"UV Cartan determinant 3 (tried {diams_mag1}) — the E6 "
+                "attachment is not present in this auxiliary")
 
     # ----- magnetic grading helper ---------------------------------------
 

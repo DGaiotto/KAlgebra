@@ -1,0 +1,72 @@
+{
+ "id": "rem:flavour-change",
+ "labels": [
+  "rem:flavour-change"
+ ],
+ "date": "2026-09-21T23:53:35Z",
+ "commit": "628db109ef669800c8769de79435c2855d9309fd",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "source": "rank-4 torus, G_f = U(1)^2",
+  "homs": [
+   "diagonal U(1) -> U(1)^2 (f_1, f_2) -> f_1 + f_2",
+   "first factor U(1) -> U(1)^2 (f_1, f_2) -> f_1"
+  ],
+  "labels": "|γ_i| <= 1 (81)",
+  "K": 6
+ },
+ "counts": {
+  "pass": 8,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the augmentation case reproduces forget()",
+  "negative": "two different lowerings are told apart"
+ },
+ "elapsed_s": 2.324,
+ "notes": "Lowering is KAlgebra.lower_flavour(φ) with φ = restriction_hom (the pullback R_(G_f) -> R_(H_f) of a group hom H_f -> G_f); the map is (section, χ) -> (section, φ(χ)).",
+ "checks": [
+  {
+   "name": "diagonal U(1) -> U(1)^2 (f_1, f_2) -> f_1 + f_2: the map A_q[G_f] -> A_q[H_f] is an algebra homomorphism on all 6561 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "diagonal U(1) -> U(1)^2 (f_1, f_2) -> f_1 + f_2: the map commutes with rho and with Tr (Tr' = φ∘Tr) on 81 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "diagonal U(1) -> U(1)^2 (f_1, f_2) -> f_1 + f_2: the lowered algebra is an H_f-flavoured K_q-algebra: F1-F5 verifiers on 45 lowered labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "first factor U(1) -> U(1)^2 (f_1, f_2) -> f_1: the map A_q[G_f] -> A_q[H_f] is an algebra homomorphism on all 6561 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "first factor U(1) -> U(1)^2 (f_1, f_2) -> f_1: the map commutes with rho and with Tr (Tr' = φ∘Tr) on 81 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "first factor U(1) -> U(1)^2 (f_1, f_2) -> f_1: the lowered algebra is an H_f-flavoured K_q-algebra: F1-F5 verifiers on 27 lowered labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "lowering along the augmentation R_(G_f) -> Z is the forgetful map (multiply agrees with forget() after relabelling)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "sensitivity: the two lowerings give different traces on some flavour generator (μ^(f_1+f_2) vs μ^(f_1))",
+   "ok": true,
+   "note": "e.g. [(0, 0, -1, -1), (0, 0, -1, 1), (0, 0, 0, -1)]"
+  }
+ ]
+}

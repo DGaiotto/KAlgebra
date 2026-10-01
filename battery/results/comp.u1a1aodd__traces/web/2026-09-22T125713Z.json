@@ -1,0 +1,92 @@
+{
+ "id": "comp:u1a1aodd/traces",
+ "labels": [
+  "comp:u1a1aodd"
+ ],
+ "date": "2026-09-22T12:57:13Z",
+ "commit": "bb858e64b315391b0efed4da0872f4fb16959c93",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": [
+   1,
+   2,
+   3
+  ],
+  "K": 20,
+  "seconds": 0.0
+ },
+ "counts": {
+  "pass": 12,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed k = 1 heads",
+  "negative": "the swapped branch table is detected"
+ },
+ "elapsed_s": 0.024,
+ "notes": "Partial-theta sums transcribed from the companion's formulas; the class serves the seeds through u1_pgon_layer2 with its well-formedness guard.",
+ "checks": [
+  {
+   "name": "k=1 (p=3): Tr(E^n) = the printed singlet partial-theta characters for n = -3..3 through q^20",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1 (p=3): Tr(L_2;i E^e) = the printed four-partial-theta sum at the character index n = 0, 1, 2 fixed by the seed's gauge charge and position (6 seeds) through q^20",
+   "ok": true,
+   "note": "[]; tested (i, e, n): [(0, 1, 0), (0, 2, 1), (0, 3, 2), (1, -3, 2), (1, -2, 1), (1, -1, 0)]"
+  },
+  {
+   "name": "k=1: negative control — the branch table with the odd/even columns exchanged differs from the printed one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=1: Tr(L_t;i) = 0 for every odd-type chord (6 letters; gauge-charged rho^2-orbits)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2 (p=4): Tr(E^n) = the printed singlet partial-theta characters for n = -3..3 through q^20",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2 (p=4): Tr(L_2;i E^e) = the printed four-partial-theta sum at the character index n = 0, 1, 2 fixed by the seed's gauge charge and position (6 seeds) through q^20",
+   "ok": true,
+   "note": "[]; tested (i, e, n): [(0, -2, 2), (0, -1, 1), (0, 0, 0), (1, 0, 0), (1, 1, 1), (1, 2, 2)]"
+  },
+  {
+   "name": "k=2: negative control — the branch table with the odd/even columns exchanged differs from the printed one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: Tr(L_t;i) = 0 for every odd-type chord (12 letters; gauge-charged rho^2-orbits)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3 (p=5): Tr(E^n) = the printed singlet partial-theta characters for n = -3..3 through q^20",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3 (p=5): Tr(L_2;i E^e) = the printed four-partial-theta sum at the character index n = 0, 1, 2 fixed by the seed's gauge charge and position (6 seeds) through q^20",
+   "ok": true,
+   "note": "[]; tested (i, e, n): [(0, -2, 2), (0, -1, 1), (0, 0, 0), (1, 0, 0), (1, 1, 1), (1, 2, 2)]"
+  },
+  {
+   "name": "k=3: negative control — the branch table with the odd/even columns exchanged differs from the printed one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=3: Tr(L_t;i) = 0 for every odd-type chord (20 letters; gauge-charged rho^2-orbits)",
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

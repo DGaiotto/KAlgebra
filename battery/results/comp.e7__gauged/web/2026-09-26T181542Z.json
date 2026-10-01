@@ -1,0 +1,65 @@
+{
+ "id": "comp:e7/gauged",
+ "labels": [
+  "comp:e7"
+ ],
+ "date": "2026-09-26T18:15:42Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "E-tower": 7,
+  "neutral labels": 270,
+  "magnetic generators": 130,
+  "seconds": 4.9
+ },
+ "counts": {
+  "pass": 7,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the E-tower against the gauged Nahm sum",
+  "negative": "[mu^{+r}] in place of [mu^{-r}]; the measure dropped"
+ },
+ "elapsed_s": 4.952,
+ "notes": "The formula and the seeds are transcribed from the companion's text; the label map phi enters only through the class's dictionary of generator preimages (_E7_GENERATOR_PREIMAGES), whose product certificate is comp:e7/implementation.",
+ "checks": [
+  {
+   "name": "U1E7ConeKAlgebra: 202 generators (E^{+-1} and 200 others of magnetic charge -3..3), 4160 cones, served from its two stored tables (no flow loaded)",
+   "ok": true,
+   "note": "generators 202, magnetic charges [-3, -2, -1, 0, 1, 2, 3], cones 4160"
+  },
+  {
+   "name": "the E-tower Tr E^n (n = -3..3) is the printed formula at z = 1: [mu^-n]((q^2;q^2)^2 Tr 1) through q^14",
+   "ok": true,
+   "note": "{0: {0: 1, 2: -1, 12: 1, 6: 1}, 1: {3: -1, 13: -1}}"
+  },
+  {
+   "name": "the printed heads: Tr 1 = 1 - q^2 + q^6 + q^12 + ... and Tr E^{+-1} = -q^3 + ... (through q^12)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the 90 neutral generator labels shifted by E^n (n = -1, 0, 1) trace by eq:comp-e7-gauged with the printed seeds, through q^10",
+   "ok": true,
+   "note": "failures []"
+  },
+  {
+   "name": "negative controls: the [mu^{+r}] reading, and the formula without (q^2;q^2)^2, are caught",
+   "ok": true,
+   "note": "122 and 231 labels differ"
+  },
+  {
+   "name": "every generator of nonzero magnetic charge (130) has trace 0 through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the E-tower equals the gauged Nahm sum on the E7 BPS spectrum through q^10",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

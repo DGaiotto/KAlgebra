@@ -1,63 +1,85 @@
 # Frozen-data provenance
 
-This repository ships two kinds of frozen artifacts whose *builders* are
-not included: the eight `.pkl` cone/trace tables in `src/cone/` and the
-fourteen generated `finite_*_kalg.py` modules.  This note records, for
+This repository ships two kinds of frozen artifacts: the two `.pkl` product
+tables in `src/cone/` and the fourteen generated `finite_*_kalg.py` modules.  **None of them is trace data**: every
+trace in the cone layer comes from a closed form or from a class's own data
+and the orthonormality axiom, and no frozen trace table remains.  This note records, for
 each artifact, where it came from, its content hash (so any later copy
 can be checked against this ledger), and — most importantly — **what
 validates it inside this repository**, independent of the builder.
 
-## Why the builders are not shipped
+## How the frozen data is checked
 
-Every builder runs a *realisation engine* (an RG-flow oracle or a BPS
-solver) over machinery deliberately excluded from the spine-free layers
-of this release.  The frozen tables are the point: once built, the
-runtime is engine-free.  The public check on the frozen data is
-therefore not "re-run the builder" but the **axiom batteries**: the
-tables feed `multiply` / `ρ` / `trace`, and `run_tests.py` exercises
-orthonormality (`I_{a,b} = δ_{a,b} + O(𝖖)`), bar involution, ρ²-twisted
-cyclicity, and cross-presentation isomorphisms on top of them.  A
-corrupted or stale table fails those batteries; the off-diagonal
+Every builder runs a *realisation engine* (an RG flow or a BPS solver).  Since
+this release the builders ship too — in the RG and skein layers, where those
+engines live — but the cone layer that consumes the tables never imports them:
+once built, the runtime is engine-free, and `tests/test_cones.py` ends by
+asserting that no module of `src/bps/` or `src/rg/` was imported.  Regenerating a
+table is not part of the gate.  The public check on the frozen data is the
+**axiom batteries**: the tables feed `multiply` / `ρ` / `trace`, and
+`run_tests.py` exercises orthonormality (`I_{a,b} = δ_{a,b} + O(𝖖)`), bar
+involution, ρ²-twisted cyclicity, and cross-presentation isomorphisms on top of
+them.  A corrupted or stale table fails those batteries; the off-diagonal
 orthonormality sweep in particular is a sensitive integrity net.
 
 ## `.pkl` tables (`src/cone/`)
 
-| file | SHA-256 | built by (not shipped) | consumed by | public validation |
+| file | SHA-256 | built by | consumed by | public validation |
 |---|---|---|---|---|
-| `u1a1aodd_tables_k1.pkl` | `a4f10b86adaf…698fc0` | `u1a1aodd_gauged_rg` (gauged-RG oracle) | `u1a1aodd_kalg.U1A1AoddKAlg(1)` | `tests/test_cones.py` battery; hexagon trace vs the A₃ chain |
-| `u1a1aodd_tables_k2.pkl` | `2d7a483f9163…7bf9f8` | 〃 | `U1A1AoddKAlg(2)` | 〃 |
-| `u1a1aodd_tables_k3.pkl` | `084b51d28abb…4da91a` | 〃 | `U1A1AoddKAlg(3)` | 〃 |
-| `u1a1aodd_tables_k4.pkl` | `38b724456d50…55c6ea` | 〃 | `U1A1AoddKAlg(4)` | 〃 |
-| `u1a1deven_tables_k1.pkl` | `b992636d390b…0815e0b` | `u1a1deven_via_dodd_rg` (D-even build over the A1Dodd × QT oracle) | `u1a1deven_cone_kalgebra.U1A1DevenConeKAlgebra(1)` | `tests/test_cones.py` battery + the `q⁷⁰` improvability witness (`check_improvable`) |
-| `u1a1deven_traces_k1.pkl` | `a46468121bff…0e620b1` | 〃 | 〃 | 〃 |
-| `u1e7_cone_tables.pkl` | `21f311e12598…3d03e77` | `u1e7_cone_derivation` + `u1e7_gauged_rg` (E₇ gauged-RG oracle) | `u1e7_cone_kalgebra.U1E7ConeKAlgebra` | `tests/test_cones.py` battery (182 dyonic chords, rank-1 torus) |
-| `u1e7_rho_tables.pkl` | `1526b1dd2b44…39fc107d` | 〃 | 〃 | 〃 |
+| `u1e7_cone_tables.pkl` | `ddfb2935becf…3b678250` | `u1e7_cone_derivation` on the gauged flow `U1A1E7RGKAlgebra` dressed with the central chord `(3, 0)` | `u1e7_cone_kalgebra.U1E7ConeKAlgebra` (products) | `tests/test_cones.py` battery (200 dyonic chords, rank-1 torus); `Tr(E^{±1}) = −𝖖³` in `check_ade_rows` |
+| `u1e7_rho_tables.pkl` | `f6ebee635cf8…af9322e4` | 〃 | 〃 (ρ on the generators) | 〃 |
+
+Both tables are **product** data (cone cross-products and ρ); the traces of
+`U1E7ConeKAlgebra` are closed forms (the magnetic sector vanishes, the
+neutral sector goes through `FiniteE7KAlgebra`'s closed-form traces).  The
+tables of earlier releases (SHA-256 `21f311e12598…53d03e77` and
+`1526b1dd1b24…339fc107d`) were learned from a flow dressed with the chord
+`(2, 2)`, which is the u(1)-gauged `[A₁, D₇]`, not the u(1)-gauged
+`[A₁, E₇]`; `u1e7_cone_kalgebra` refuses those two hashes on load.
+
+**Retired pickles.**  Earlier releases also shipped `u1a1aodd_tables_k{1..4}.pkl`
+(the cone tables of the frozen predecessor of `U1A1AoddKAlg`) and
+`u1a1deven_tables_k1.pkl` / `u1a1deven_traces_k1.pkl` (the `k = 1` table
+presentation of `U1A1DevenConeKAlgebra`).  All six are gone: `U1A1AoddKAlg`
+derives its tables analytically on demand at every `k`, and
+`U1A1DevenConeKAlgebra` is the curve frame, whose products are closed forms
+and whose traces come from Creutzig's closed form and an exact transport
+built without the flow, at every `k`.  (An earlier revision of this table
+named the D-even pickles' builder as the D-even build over the A1Dodd × QT
+flow; they were in fact built on the older `A1A2k(1) ⊗ QT(Z²) ⊗ SU(2)` flow,
+and the trace pickle was keyed in that frame.)
 
 Loading is `pickle` of plain containers (builtins + in-repo classes; no
-third-party types).  If you need to regenerate a table, that currently
-requires the development repository; treat the hashes above as the
-authoritative fingerprints of the shipped state.
+third-party types).  Treat the hashes above as the authoritative fingerprints of
+the shipped state.
 
 ## Generated finite-type zoo (`src/cone/finite_*_kalg.py`, 14 modules)
 
-Generated by `generate_finite_kalg` (not shipped) from the finite-type
+Generated by `generate_finite_kalg` (the E₆ module by `generate_finite_e6_kalg`) from the finite-type
 cone data: `finite_{pentagon,heptagon}_kalg.py`,
 `finite_a{3,5,7}_kalg.py`, `finite_a1d{3..8}_kalg.py`,
 `finite_e{6,7,8}_kalg.py`.  Each module is a self-contained
 `ConeKAlgebra` realisation (frozen cone tables inline).  Public
 validation: every one of them runs the `tests/test_cones.py` battery
-(multiply / ρ / trace / orthonormality), and the elementary traces are
-pinned against exact closed-form characters where those are shipped
-(`exact_characters`, `a1d5_layer2` / `a1d7_layer2`, `elem_traces`).
+(multiply / ρ / trace / orthonormality).  Their cone tables are product data;
+their elementary traces are served by `elem_traces` from closed forms
+(`a1d5_layer2` / `a1d7_layer2`, `w3_seeds`, `e7_seeds`) or from a geometric
+class through a generator map built and certified at runtime (`aeven_seeds`,
+`aodd_seeds`, `a1d3_seeds`, `a1d4_seeds`, `a1deven_seeds`) — no frozen trace
+table (`elem_trace_data` is empty).
 
 ## Oracle-side lazy imports
 
-A number of modules keep *lazy* imports of development-repository
-builders/oracles inside builder- or cross-validation-only functions
-(e.g. `u1e7_cone_kalgebra` → `u1e7_gauged_rg`, `u1a1deven_cone_build` →
-`u1a1deven_rgkalgebra`, `a1dodd_kalg` → `a1dodd_rgkalgebra`,
-`regen` → `generate_finite_kalg`).  These paths run only where those
-modules are available; nothing on the shipped runtime (construct /
-multiply / ρ / trace / verify) reaches them — the validation gate is
-the proof, since it exercises the shipped paths with only this
-repository on `sys.path`.
+A number of cone-layer modules keep *lazy* imports of builders and oracles
+from later layers inside builder- or cross-validation-only functions
+(e.g. `u1e7_cone_kalgebra` → `u1e7_gauged_rg`, `u1a1deven_trace_transport`
+→ `u1a1deven_via_dodd_rg` (the flow-label entry point, a witness),
+`a1dodd_kalg` → `a1dodd_rgkalgebra`, `regen` → `generate_finite_kalg`).
+Nothing on the runtime of those modules (construct / multiply / ρ / trace /
+verify) reaches them — the validation gate is the proof: `tests/test_cones.py`
+exercises those paths and ends by asserting that no module of `src/bps/` or
+`src/rg/` was imported.  Two
+witnesses reach the BPS layer of this repository on explicit request only:
+`elem_traces.generate(..., method="bps")` (the per-seed BPS engine) and
+`u1a1aodd_kalg.gauged_quiver_bps` (the gauged polygon's BPS chart, used by
+the skein atlas).

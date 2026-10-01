@@ -1,4 +1,4 @@
-"""Object-layer (Plan 25) views of the SU2A1D4 (det-1) single-node RG flows.
+"""Object-layer views of the SU2A1D4 (det-1) single-node RG flows.
 
 * :func:`su2a1d4_tail_drop_object` — the **forgetful-RG ladder SU2A1D4 → SU2A1D3**.
   Dropping the tail-end node (the only flavour-charged node) gives an IR whose
@@ -8,9 +8,9 @@
 
 The matter-drop flow (→ pure SU(2) × (SQED₁ + flavour)) is exposed as the verified
 `SingleNodeRG` `su2a1d3_gauged.su2a1d4_det1_matter_drop_flow`; its IR factorisation
-is checked in `tests/test_su2a1d4_rg.py`.
+is checked in the suite in the source repository.
 
-Run `PYTHONPATH=. python implementations/su2a1d4_rg_object.py` for the smoke test.
+Run `PYTHONPATH=$(ls -d src/* | paste -sd:) python3 src/abe/su2a1d4_rg_object.py` for the smoke test.
 """
 from __future__ import annotations
 

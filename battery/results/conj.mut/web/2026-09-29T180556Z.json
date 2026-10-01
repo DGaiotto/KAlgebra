@@ -1,0 +1,138 @@
+{
+ "id": "conj:mut",
+ "labels": [
+  "conj:mut",
+  "eq:mut-charges"
+ ],
+ "date": "2026-09-29T18:05:56Z",
+ "commit": "54e2524d5c36638fc26ba3c77bf4635af65fde81",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "lineup": {
+   "pentagon": {
+    "depth": 6,
+    "edges": "2/2",
+    "charges compared beyond the leading data": [
+     25,
+     19
+    ],
+    "support violations": 0
+   },
+   "A_3": {
+    "depth": 5,
+    "edges": "3/3",
+    "charges compared beyond the leading data": [
+     52,
+     38,
+     38
+    ],
+    "support violations": 0
+   },
+   "[A_1,D_4]": {
+    "depth": 4,
+    "edges": "4/4",
+    "charges compared beyond the leading data": [
+     30,
+     65,
+     65,
+     65
+    ],
+    "support violations": 0
+   },
+   "Kronecker (pure SU(2))": {
+    "depth": 6,
+    "edges": "2/2",
+    "charges compared beyond the leading data": [
+     25,
+     15
+    ],
+    "support violations": 0
+   },
+   "SU(2)+1": {
+    "depth": 5,
+    "edges": "3/3",
+    "charges compared beyond the leading data": [
+     38,
+     29,
+     38
+    ],
+    "support violations": 0
+   },
+   "SU(2)+2": {
+    "depth": 4,
+    "edges": "4/4",
+    "charges compared beyond the leading data": [
+     65,
+     65,
+     37,
+     37
+    ],
+    "support violations": 0
+   },
+   "SU(2)+3": {
+    "depth": 4,
+    "edges": "5/5",
+    "charges compared beyond the leading data": [
+     120,
+     92,
+     92,
+     92,
+     92
+    ],
+    "support violations": 0
+   },
+   "Markov": {
+    "depth": 5,
+    "edges": "3/3",
+    "charges compared beyond the leading data": [
+     29,
+     29,
+     29
+    ],
+    "support violations": 0
+   }
+  },
+  "sample": "first 120 entries with n <= 4 of dictionaries/enumerated (shard format 3, E = 12: 728921 strongly connected quivers, 674597 with a green spec, 54324 crystalline-only, 0 uncertified), every node",
+  "seconds": 30.1
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon, where the relation is the pentagon identity",
+  "negative": "the two mixed lattice identifications"
+ },
+ "elapsed_s": 30.143,
+ "notes": "mutation_s_relation.py is the implementation; its local sweep (orbits, crystalline tier entries of ranks 3-12, witness paths across the weight cutoff) is recorded in the source repository.",
+ "checks": [
+  {
+   "name": "every edge Q -> mu_j(Q) of the Section 4 lineup, every node j: S' = E(X_g_j)^-1 S E(X_-g_j) on every compared charge and E(X_g_j)^-1 S inside the cone of Q': 26/26 edges",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative controls: both mixed variants (one side with the wrong lattice identification) fail on 26/26 lineup edges",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "an independent construction of S (the forced recursion of experiments/pbw_e_group.py) gives the same verdict on every lineup edge: 26/26",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "every edge of the first 120 entries with n <= 4 of dictionaries/enumerated (shard format 3, E = 12: 728921 strongly connected quivers, 674597 with a green spec, 54324 crystalline-only, 0 uncertified): 404/404",
+   "ok": true,
+   "note": "[]"
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 """`AbeKAlgebra` — `KAlgebra` presented on the abelianized (enriched-torus)
-chart: the **completed contract** (the design record; rulings D1–D4, D7, D8).
+chart: the **completed contract**.
 
 `AbeKAlgebra(KAlgebra)` is the chart/torus-presentation tier, beside `RGKAlgebra` (flow presentation):
 
@@ -7,9 +7,13 @@ chart: the **completed contract** (the design record; rulings D1–D4, D7, D8).
     ├── RGKAlgebra        presented by an RG flow over a graded auxiliary
     └── AbeKAlgebra       presented faithfully on an enriched rational
           │               quantum torus (THIS TIER)
-          ├── PureUNKAlgebra        (retrofit: ruling T3)
-          ├── UNNfKAlgebra          (born from this contract: T4)
-          └── UNQuiverKAlgebra      (born from this contract: T4)
+          ├── PureSU2KAlgebra       (pure SU(2): the native adjoint-monopole fiber)
+          ├── PureGAbeKAlgebra      (pure gauge at any RootDatum: the design record)
+          └── GNAbeKAlgebra         ((G, N): matter at any datum and rep: the design record)
+
+    (The contract's first realisations — `PureUNKAlgebra` (retrofit), `UNNfKAlgebra` and `UNQuiverKAlgebra` (born from this contract) —
+    were retired to the source repository's archive on 2026-09-19; `PureGAbeKAlgebra(u_n(N))` and
+    `GNAbeKAlgebra` are their replacements.)
 
 The presentation (repo-pinned definitions — read this, not the literature)
 --------------------------------------------------------------------------
@@ -17,7 +21,8 @@ Elements live in the **f-presentation** on the product cocharacter lattice
 
     x  =  Σ_{m⃗}  f_{m⃗}(𝔮^{m⃗} v) · U_{m⃗},      f_{m⃗} = Σ_{k⃗} f^{(k⃗)}_{m⃗}·μ^{k⃗},
 
-with `U_{m⃗}` the enriched atoms of `quiver_urq_torus.QuiverURQTorus`
+with `U_{m⃗}` the enriched atoms of the substrate selected by
+`torus_shape()` — the group-general **WRQTorus** family (`wrq_torus` / `matter_wrq_torus` / `quiver_wrq_torus`)
 (per-node pure normalization × the per-cell matter rung products), labels
 in **lower Kapustin** convention per node, ρ the √(full measure)
 G-cocycle, the trace the (product) Schur-measure residue with the matter
@@ -26,23 +31,23 @@ palindromicity), and the canonical basis characterized executably by
 `well_formed` = W1 + the single-leading-orbit q-extreme (W2) — the
 Kazhdan–Lusztig read.  The literature's abelianization (BFN et al.) is a
 *related* construction and is **non-load-bearing here**: no contract
-semantics may be imported from it (the design notes "false friends"; ruling D2).
+semantics may be imported from it (the design notes "false friends").
 
-**No DOp on this tier** (ruling D4): the f-presentation is the single
+**No DOp on this tier**: the f-presentation is the single
 public language; chart-operator machinery (`abelianized_torus.DOp`) is
 engine-internal only.  The pioneer DOp-speaking tier is frozen at
 the archived tree.
 
-The contract (ruling D3 — the minimal triple)
+The contract (the minimal triple)
 ---------------------------------------------
 Concrete realisations supply exactly three primitives:
 
   * `torus_shape()` — the `TorusShape` of the enriched torus (per-node
     `RootDatum`s, matter multiplicities, links; type-A chains via
-    `TorusShape.from_ranks_nf`).  This is the D6 shape surface (re-ruled
+    `TorusShape.from_ranks_nf`).  This is the shape surface (re-ruled
     2026-07-02 to the root-datum form).
   * `chart(label)` — the faithful f-presentation image of the canonical
-    `L_label` (a `QuiverURQTorus` element).
+    `L_label` (an element of the substrate `torus()` selects).
   * `decompose(x)` — a torus element as `Element({label: C(q)})`: the
     **no-target**, level-ascending canonical read.  It must honest-fail
     (raise) off its certified scope — never guess.
@@ -53,14 +58,28 @@ Everything else is derived here: `multiply`, `rho`, `rho_inverse`,
 
 constructive-build rule (contract-enforced)
 ---------------------------------
-A canonical may be constructed **only** as a polynomial in basis
-generators minus already-built lower canonicals; acceptance is
-`well_formed` equality with the intended label.  This tier exposes **no
-solve entry point**, and `decompose` is a read (it has no target to
-fabricate toward).  Where a build does not reach, the realisation must
-honest-fail — never fit, never solve.  (the design notes, the constructive-build rule.)
+What the rule bars is an **unguarded** solve, not solving as such.  An
+unguarded linear-system solve can land OUTSIDE the canonical span, and
+orthonormality and the M-test are pairings defined *within* the span, so
+both pass on off-span garbage.
 
-Flavour rings (ruling D8)
+**This tier exposes no solve entry point**, and that is still true and
+still enforced here: `decompose` is a read (it has no target to fabricate
+toward), and acceptance is `well_formed` equality with the intended label.
+What changed is that a **post-hoc guard exists**
+— (★), the affine-Weyl residue cancellation, equivalently "the element's
+`𝖖`-difference operator preserves `Λ = R(G)`", a membership condition on
+the presentation rather than a pairing inside the span.  A (★)-guarded
+solve is therefore licensed, and the license lives in ONE auditable module
+(`star_bubbling.py`), which applies unique-and-verified-over-`Z` + W1 + (★)
++ a box certificate before returning anything.  That
+route is the tier's whole production surface at every `(G, N)`;
+two declared, individually switchable optimizations sit beside it.
+
+Where a build does not reach, the realisation must still honest-fail —
+never fit, never fabricate.  (the design notes, the constructive-build rule.)
+
+Flavour rings
 -------------------------
 The faithful flavour symmetry of a U(N) node with `M` fundamentals is
 **SU(M)** (the central U(1) is absorbed by the gauge centre); link μ's
@@ -99,7 +118,7 @@ def _defining_weight(datum):
 
 class TorusShape:
     """The declared shape of the enriched torus — the tier's "which theory am
-    I" surface (ruling D6, re-ruled 2026-07-02 to the root-datum form, option
+    I" surface (since 2026-07-02 the root-datum form, option
     (b): one honest object).
 
     Fields: `data` — the per-node `RootDatum`s (gauge factors); `matter` —
@@ -110,8 +129,7 @@ class TorusShape:
     `from_root_data`.  Equality compares datum names + `matter_reps` + links
     (factory data are name-canonical).
 
-    **Matter is a representation, not a count** (user ruling, 2026-07-28: *"fix
-    the torusshape so `GMatterAbeKAlgebra` can name itself"*).  The field was
+    **Matter is a representation, not a count**.  The field was
     originally one `int` per node — per-node *fundamental* multiplicities, the
     type-A reading "`N_f` fundamentals".  For a general `(G, N)` the matter is a
     representation `N = ⊕N_i`, so `Sp(4)`+**4**, `Spin(5)`+**5** and
@@ -206,8 +224,7 @@ def _datum_fingerprint(d) -> dict:
     """A structural + BEHAVIOURAL digest of a `RootDatum`, for cache provenance.
 
     Structure alone is not enough.  A datum's atom phase and ρ-sign are
-    *callables* (`atom_phase=` / `rho_sign=` constructor overrides), and ruling
-    D31 turns exactly on their values at odd `⟨Σ⁺, m⟩` — two data with identical
+    *callables* (`atom_phase=` / `rho_sign=` constructor overrides), and turns exactly on their values at odd `⟨Σ⁺, m⟩` — two data with identical
     roots and a different phase convention produce different charts, both
     well-formed.  So the phase is PROBED: evaluated on the simple coroots and
     their pairwise sums, which is a canonical finite set determined by the datum
@@ -236,7 +253,7 @@ def _datum_fingerprint(d) -> dict:
 
 class AbeTorus:
     """The enriched **WRQTorus** substrate of an `AbeKAlgebra`, SELECTED by its
-    `TorusShape` (D9/D10: the group-general WRQTorus is the *universal*
+    `TorusShape` (the group-general WRQTorus is the *universal*
     substrate — the pure `WRQTorus` / matter `MatterWRQTorus` / quiver
     `QuiverWRQTorus` element type falls out of the shape, so there is no
     per-tier substrate/algebra class).  A realisation picks its substrate purely
@@ -289,8 +306,59 @@ class AbeKAlgebra(KAlgebra):
     torus — supply `torus_shape` / `chart` / `decompose`, inherit the
     algebra.  See the module docstring for the pinned conventions.
 
+    **Cross-reference with the author's `K_𝖖-algebras` draft** (Section
+    `sec:coulomb`, "The Abelianized presentation", and Conjecture
+    `conj:abeKalgebra`; cross-referenced 2026-09-19, refreshed against the
+    2026-09-21 version; full label map in kalgebra.md "Cross-reference with the `K_𝖖-algebras` draft"):
+
+    * residuals `f_m(v)` of the form `v^e g_m(v^α)`, Weyl-covariant in
+      `(m, v)`, denominators `(1−𝖖^k v^α)`, bar `𝖖 ↦ 𝖖⁻¹` with `v` fixed —
+      the `WRQTorus` / `MatterWRQTorus` residual families on
+      `weyl_torus_ring.TorusRational`; `bar`.
+    * `eq:fgprod` (the product), `eq:ccprod` / `eq:ccclosed` (the cocycle,
+      one denominator factor per positive root, one numerator factor per
+      matter weight, on the closed Clebsch–Gordan range) — `__mul__`,
+      `wrq_torus.CC`, `CC_root_factor` (verbatim), `cocycle_range`,
+      `matter_wrq_torus.CC_N`, `matter_factor_exponents`; `eq:cocydef` —
+      `cocycle_R`.
+    * `eq:rho-witten`, `eq:rhotorus` — `wrq_torus.rho_label` (the explicit
+      label-level `ρ`) and the substrate `rho` (the monomial twist
+      `v^{κ(m)}μ^{κ_f(m)}`, derived in `sector_measure_closed_form`).
+    * `eq:measure`, `eq:Iexplicit` — `trace` / `trace_residual` and
+      `inner_product` / `inner_by_sector`; the `|⟨m,α⟩|`, `|⟨m,w⟩|`-shifted
+      measure of `eq:Iexplicit` is `sector_measure_closed_form` /
+      `matter_sector_measure_closed_form` exactly.  The draft's remark that
+      `I_{f,g} = Tr ρ(f)g` holds at integrand level up to contour shifts, with
+      pole compatibility conjectural, is the item recorded under axiom 5
+      (kalgebra.md).
+    * `eq:cocha`, `d_a = f_a(𝖖^a v)·cocha_a(v)` — `dressing_psi` is the
+      FLOORED `ψ` (the draft's fractional `(−𝖖)^{½Σ}` prefactor stripped,
+      restored through the integral coboundary in `cocycle_R`); the
+      `d`-form is the frame of the (★) solve.
+    * the leading Weyl orbit `f_{w·m} = w·χ^{𝔤_m}_e` — the W2 seed (the Levi
+      character); the "bubbling correction" — the solved residuals of
+      `star_bubbling` / `matter_multislot`.
+    * Conjecture A1 (`ab:bar`; bubbling Weyl-covariant and bar-invariant) — W1
+      of `certify_canonical`; A2 (`ab:ofq`; bubbling `O(𝖖)`) — W2; A3 (`ab:res`,
+      `eq:star`,
+      `Res_{v^α=𝖖^{2l}}[d_a + d_b] = 0`, `b = s_α(a) − lα^∨`) — (★),
+      `star_bubbling.criterion` / `wall_partner`, the production route.
+      The draft's note that the subdominant-orbit support "appears to follow
+      from the above axioms" is `star_bubbling.tropical_support`; its
+      simplification remark (bar + `O(𝖖)` bubbling may suffice) is the
+      direction the one-route ruling (2026-08-25) already took.  The
+      subsection after the conjecture restates the residue rule as a
+      well-defined action of the rational torus on the characters,
+      `u^m χ_e(v) = χ_e(𝖖^{2m}v)` — the (★) reading of
+      `residue_cancellation_recognition.md` §2/§5, i.e. the line preserves
+      `Λ = R(G)`.
+    * the pure `SU(2)` / `SO(3)` and `N = 2*` examples (`eq:su2so3lat` …
+      `eq:adjbubble`) — `PureGAbeKAlgebra(su_2())`, `so_n(3)`, the third form
+      via `global_form.LineLattice`; `roster("su2-adjoint")` on
+      `GNAbeKAlgebra`.
+
     The substrate is the **group-general WRQTorus**, selected by `torus_shape()`
-    and exposed as the `torus()` property (D9/D10, user 2026-07-04: use WRQ
+    and exposed as the `torus()` property (use WRQ
     universally, no extra WRQ-named classes — the substrate is a property of
     `AbeKAlgebra` picked by the subclass's shape)."""
 
@@ -316,8 +384,11 @@ class AbeKAlgebra(KAlgebra):
 
     @abstractmethod
     def chart(self, label: Label):
-        """`L_label` as a `QuiverURQTorus` element (the f-presentation
-        image; faithful for all derived operations)."""
+        """`L_label` as an element of the substrate `torus()` selects — a
+        `WRQTorus` / `MatterWRQTorus` / `QuiverWRQTorus` by `torus_shape()`
+        (the `URQTorus` family remains the Route-A chart source
+        and the pure-U(N) engine substrate).  The f-presentation image;
+        faithful for all derived operations."""
 
     @abstractmethod
     def decompose(self, x) -> Element:
@@ -353,9 +424,9 @@ class AbeKAlgebra(KAlgebra):
     def rho(self, a: Label) -> Label:
         """ρ on labels.  The tier's PRIMARY ρ is the explicit label-level
         closed form `wrq_torus.rho_label` (+ `rho_level_star` on flavour;
-        promoted by user ruling 2026-08-23), wired per realisation since each
-        realisation owns its label frame — the U(N) keystone's
-        `pure_un_kalgebra.rho_label` Witten-shift maps are its type-A special
+        promoted), wired per realisation since each
+        realisation owns its label frame — the retired U(N) keystone's
+        `pure_un_kalgebra.rho_label` Witten-shift maps were its type-A special
         case.  This default — the torus √measure conjugation read back through
         `decompose` (a sign-free basis permutation, coefficient 1) — is the
         DEMOTED route: it remains only as (i) the fallback for a realisation
@@ -367,8 +438,7 @@ class AbeKAlgebra(KAlgebra):
         return self._single_label(self.chart(a).rho_inverse(), "rho_inverse")
 
     def verify_rho_via_twist(self, a: Label) -> bool:
-        """The demoted chart→twist→`decompose` route as a TEST (user ruling
-        2026-08-23: "chart/twist/decompose then becomes a test"): certify the
+        """The demoted chart→twist→`decompose` route as a TEST: certify the
         realisation's label-level ρ and ρ⁻¹ against the torus √measure
         conjugation read back through `decompose`.  Emergent for every
         realisation that overrides `rho` with the closed form; tautological
@@ -392,7 +462,7 @@ class AbeKAlgebra(KAlgebra):
         method is obsoletable, and `forget()` / ring-hom flavour reduction
         (`base_change(restriction)`) + promotion (`base_change(unit_hom)`) read
         this coordinate cleanly.  A realisation that instead carries the flavour
-        irrep in a **label slot** (e.g. `UNNfKAlgebra`'s `((m, λ), w)`) overrides
+        irrep in a **label slot** (e.g. `GNAbeKAlgebra`'s `((m, e), w)`) overrides
         this with its gauge/weight split."""
         return label, self.coefficient_ring().one_basis()
 
@@ -424,10 +494,7 @@ class AbeKAlgebra(KAlgebra):
     def _chart_trace(chart, K: int):
         """`chart.trace(K=K)` with the **Nahm window `W` tied to `K`**.
 
-        *This is a correctness fix, not a tuning knob* (user, 2026-07-28: the trace
-        "cannot fail … probably a truncation effect", and "it is possible that the
-        AbeKAlgebra trace tool escaped previous efforts to make trace truncation
-        reliable" — it had).
+        *This is a correctness fix, not a tuning knob*.
 
         The matter-carrying charts expand the flavour factor
         `∏_{i,j} E(μ_i v_j)E(μ_i^{-1} v_j^{-1})` only to Nahm level `W`, defaulting to
@@ -442,13 +509,23 @@ class AbeKAlgebra(KAlgebra):
         `W=8 → 𝖖⁹`, `W=10 → 𝖖¹¹` — and at `W = K` the two sides agree to all of `K`.
 
         `W = K + 2` rather than the minimal `W = K`, to match the **existing
-        precedent**: `UNNfKAlgebra.trace` already passes `W = K + 2`, i.e. an earlier
-        session found and fixed this for the type-A class, and the later group-general
-        classes simply did not inherit the lesson.  Consistency with that convention is
+        precedent**: `UNNfKAlgebra.trace` (the type-A class, retired 2026-09-19)
+        passed `W = K + 2`, i.e. an earlier session found and fixed this for the
+        type-A class, and the later group-general classes simply did not inherit
+        the lesson.  Consistency with that convention is
         worth more than saving one Nahm level.
 
         Passed only where the signature accepts it: the pure-gauge `WRQTorus.trace`
-        has no matter factor and therefore no `W`."""
+        has no matter factor and therefore no `W`.
+
+        **`K + 2` is the bound for a residual that starts at `𝖖^{≥ −2}` only**
+        (2026-09-23, the audit): the Nahm term of level `n` is `O(𝖖ⁿ)` and
+        the measure starts at `𝖖⁰`, so a left-out term reaches `𝖖^{W+1−pad}`,
+        `pad` the depth of the residual's 𝖖-expansion below `𝖖⁰` — the "exactly
+        `W + 1`" above is its `pad = 0` case.  `MatterWRQTorus._mu_trace_rows`
+        therefore raises the window to `K + pad` itself, for every caller; a
+        ρ-image of a line of large electric charge reaches `pad = 4` at SU(2)+1,
+        where `W = K + 2` put a spurious `(μ⁶+μ⁻⁶)𝖖⁴` into a pairing."""
         try:
             import inspect
             if "W" in inspect.signature(chart.trace).parameters:
@@ -475,16 +552,68 @@ class AbeKAlgebra(KAlgebra):
         return RPowerSeries(R, acc, K)
 
     def inner_product(self, a: Label, b: Label, K: int = 20) -> RPowerSeries:
-        """`I_{a,b} = Tr(ρ(L_a)·L_b)` — evaluated entirely chart-side
-        (torus ρ, torus product, torus trace): exact, no decompose.
+        """`I_{a,b}` — the Schur pairing as a **sum over magnetic sectors of contour
+        integrals**, on the pure-gauge `WRQTorus`
+        substrate.  This is the route the production pure classes take —
+        `PureGAbeKAlgebra` and `PureSU2KAlgebra` each call
+        `chart(a).inner_by_sector(chart(b))` in their own `inner_product`
+        overrides (asserted with call counters in
+        the suite in the source repository leg 4, after a review found the
+        first version of this method unreachable from them), and — on the
+        matter substrate, user requirement 2026-09-19 — the route
+        `GNAbeKAlgebra.inner_product` takes through
+        `MatterWRQTorus.inner_by_sector` with the per-sector measure
+        `matter_sector_weight` (the pure measure times the matter factor of the
+        cocycle over the μ-level shifts) — and the route this base method
+        takes for any `WRQTorus` or `MatterWRQTorus` chart:
 
-        Same Nahm-window fix as `trace` (`_chart_trace`): the matter factor is now
-        expanded to level `K` rather than the default 4, so `I_{a,b}` is trustworthy
-        to the requested order instead of only to `𝖖⁴`."""
+            I_{a,b} = (𝖖²;𝖖²)_∞^{2·dim}/|W| · Σ_m [u⁰]( M_m(u) · f^a_m(1/u) · f^b_m(u) ),
+
+        `M_m = T_{+m}μ · B_m` the half-shift-centred per-sector measure
+        (`wrq_torus.sector_measure`; `μ` the Schur measure), the two residuals
+        entering symmetrically at `1/u` and `u`.  This is a genuinely separate
+        expression from `Tr(ρ(a)·b)` — it never forms `ρ(a)` and touches only the
+        shared magnetic support — and the two coincide by the total-charge-0 part
+        of the cocycle convolution, certified in `tests/test_wrq_sector_pairing.py`
+        (72/72 at pure SU(2), 32/32 at pure SU(3), both `w_cutoff` modes) rather
+        than assumed.  It is also the frame in which axiom 5,
+        `I_{b,a} = ⋆(I_{a,b})`, is MANIFEST: exchanging the slots is `u → 1/u`,
+        under which the constant term is invariant and `M_m` is invariant by the
+        exact certificate `wrq_torus.verify_sector_measure_inversion_symmetric`
+        — since 2026-09-19 a THEOREM: the measure has the derived closed form
+        `B_m = u^{Σ_{α>0}⟨m,α⟩α}·∏_{α>0} b_{|⟨m,α⟩|}(u^α)` for every `RootDatum`
+        (`wrq_torus.sector_measure_closed_form`, each `b_t` inversion-invariant,
+        `Q_m` the monomial `u^{−2Σ⟨m,α⟩α}`), and on the matter tier
+        `B^N_m = B_m·∏_{i,w} Ξ_{⟨m,w⟩}(μ_i u^w)` with `Ξ_c(1/x) = x^c Ξ_c(x)`
+        (`matter_wrq_torus.matter_sector_measure_closed_form`,
+        `verify_matter_sector_measure_inversion_symmetric`, `⋆` included).
+        At `𝖖 → 0` `M_m` is the m-Levi Vandermonde exactly, which is why
+        `I_{a,b} = δ_{a,b} + O(𝖖)` from the seeds.  Faster than the convolution
+        route by ~2× at SU(2) (supports to 9).
+
+        `QuiverWRQTorus` charts (no live producer since the 2026-09-19
+        retirement of `UNQuiverKAlgebra`) take the chart-side route
+        `Tr(ρ(chart a)·chart b)` — torus ρ, torus product, torus trace — exact
+        and honest, not an approximation.
+
+        Same Nahm-window fix as `trace` (`_chart_trace`) on that route: the matter
+        factor is expanded to level `K` rather than the default 4, so `I_{a,b}` is
+        trustworthy to the requested order instead of only to `𝖖⁴`."""
+        from wrq_torus import WRQTorus
+        from matter_wrq_torus import MatterWRQTorus
         R = self.coefficient_ring()
-        prod = self.chart(a).rho() * self.chart(b)
+        xa, xb = self.chart(a), self.chart(b)
+        if isinstance(xa, WRQTorus) and isinstance(xb, WRQTorus):
+            levels = {(): xa.inner_by_sector(xb, K=K)}
+        elif isinstance(xa, MatterWRQTorus) and isinstance(xb, MatterWRQTorus):
+            # the matter twin: per-sector measure `matter_sector_weight`, the
+            # μ-refined residue, Nahm window tied to K as `_chart_trace` does
+            levels = xa.inner_by_sector(xb, K=K, W=K + 2)
+        else:
+            prod = xa.rho() * xb
+            levels = self._trace_levels(self._chart_trace(prod, K))
         acc: dict = {}
-        for lev, lp in self._trace_levels(self._chart_trace(prod, K)).items():
+        for lev, lp in levels.items():
             for e, c in lp._coeffs.items():
                 if not (0 <= e <= K) or not c:
                     continue
@@ -534,7 +663,7 @@ class AbeKAlgebra(KAlgebra):
 
     # ----- memoization: the first universal optimization -----------------
     # Stage 2 closes with two optimizations on the GENERAL tier and everything
-    # else devolved to specializations (user, 2026-08-25): *"the θ-twist applied
+    # else devolved to specializations: *"the θ-twist applied
     # to general `(m,e)` is a useful optimization … and memoization of course"*,
     # with *"other obsolete optimizations … left maybe to specific
     # specializations of `AbeKAlgebra` which make assumptions on `G` and `N`"*.
@@ -615,7 +744,7 @@ class AbeKAlgebra(KAlgebra):
 
         Persisted alongside the charts so a reloaded instance can still answer
         `route(label)` — which is the single most informative number about a
-        build (see `gn_abe_kalgebra`'s benchmark docstring) and
+        build (see `src/gn/gn_abe_kalgebra.py`'s benchmark docstring) and
         would otherwise be silently lost across a save/load."""
         return None
 
@@ -626,7 +755,7 @@ class AbeKAlgebra(KAlgebra):
         A realisation that delegates part of its build to another `AbeKAlgebra`
         declares it here, so one file holds everything one instance needs.  The
         `(G, N)` tier does: `decompose` reads its lowest μ-level slice with the
-        inner pure-`G` engine (ruling D3, `Q[0⃗] = pure`), so a matter cache
+        inner pure-`G` engine (`Q[0⃗] = pure`), so a matter cache
         without the pure charts still pays for them on the first read — which is
         exactly the cost the file exists to avoid.  Each section carries its own
         fingerprint and is verified on its own terms."""
@@ -650,7 +779,7 @@ class AbeKAlgebra(KAlgebra):
         * the **phase convention**, probed rather than described: `atom_phase_doubled`
           and `rho_sign_exp` evaluated on the simple coroots and their pairwise
           sums.  A datum's phase is a CALLABLE and cannot be compared any other
-          way, and the phase is exactly what ruling D31's odd-`⟨Σ⁺,m⟩` correction
+          way, and the phase is exactly what the odd-`⟨Σ⁺,m⟩` correction
           moves — so two data agreeing on structure and disagreeing here produce
           different, both-well-formed, charts;
         * the **line lattice** — its name and its centre-class pairs, since the

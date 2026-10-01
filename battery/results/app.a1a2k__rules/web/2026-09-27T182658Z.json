@@ -1,0 +1,156 @@
+{
+ "id": "app:a1a2k/rules",
+ "labels": [
+  "app:a1a2k",
+  "fig:heptagon-orbits"
+ ],
+ "date": "2026-09-27T18:26:58Z",
+ "commit": "1f82fe55cfdafe90f86a24a863e24c96aa8249a5",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "rules": {
+   "k=1": {
+    "q-commuting pairs": "15/15",
+    "Ptolemy pairs": "10/10",
+    "opposite orientation": "5/15, 0/10",
+    "m(a) draft": [
+     1
+    ],
+    "m(a) code": [
+     1
+    ]
+   },
+   "k=2": {
+    "q-commuting pairs": "126/126",
+    "Ptolemy pairs": "70/70",
+    "opposite orientation": "70/126, 0/70",
+    "m(a) draft": [
+     2,
+     1
+    ],
+    "m(a) code": [
+     2,
+     1
+    ]
+   },
+   "k=3": {
+    "q-commuting pairs": "477/477",
+    "Ptolemy pairs": "252/252",
+    "opposite orientation": "297/477, 0/252",
+    "m(a) draft": [
+     3,
+     1,
+     2
+    ],
+    "m(a) code": [
+     3,
+     1,
+     2
+    ]
+   },
+   "k=4": {
+    "q-commuting pairs": "1276/1276",
+    "Ptolemy pairs": "660/660",
+    "opposite orientation": "836/1276, 0/660",
+    "m(a) draft": [
+     4,
+     1,
+     3,
+     2
+    ],
+    "m(a) code": [
+     4,
+     1,
+     3,
+     2
+    ]
+   },
+   "k=5": {
+    "q-commuting pairs": "2795/2795",
+    "Ptolemy pairs": "1430/1430",
+    "opposite orientation": "1885/2795, 0/1430",
+    "m(a) draft": [
+     5,
+     1,
+     4,
+     2,
+     3
+    ],
+    "m(a) code": [
+     5,
+     1,
+     4,
+     2,
+     3
+    ]
+   },
+   "k=6": {
+    "q-commuting pairs": "5370/5370",
+    "Ptolemy pairs": "2730/2730",
+    "opposite orientation": "3690/5370, 0/2730",
+    "m(a) draft": [
+     6,
+     1,
+     5,
+     2,
+     4,
+     3
+    ],
+    "m(a) code": [
+     6,
+     1,
+     5,
+     2,
+     4,
+     3
+    ]
+   }
+  },
+  "BPS chart": {
+   "k=1": "25/25",
+   "k=2": "196/196",
+   "k=3": "729/729"
+  },
+  "seconds": 17.3
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the transcribed rules against the class; the class against the BPS chart",
+  "negative": "the rules with the opposite orientation"
+ },
+ "elapsed_s": 17.348,
+ "notes": "The draft's figure places vertex i at angle 90 - 360 i / 7 degrees, i.e. its indices increase clockwise; the rules hold with increasing index, so the text's 'CCW' is clockwise in that figure.",
+ "checks": [
+  {
+   "name": "the draft's c_ab rule and quantum Ptolemy rule, transcribed from the text, reproduce A1A2kKAlg(k) on every ordered pair of letters, k = 1..6 (at k = 6: 5370/5370 q-commuting, 2730/2730 Ptolemy), with 'CCW' read as increasing vertex index",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: with the opposite orientation the Ptolemy rule fails on every crossing pair (k = 6: 3690/5370, 0/2730), so the orientation is load-bearing -- and it is the one in which the draft's heptagon figure numbers its vertices clockwise",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "every term of every letter product is a non-crossing multiset of chords, k = 1..6",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "the draft's m(a) (a/2 for even a, k - (a-1)/2 for odd a) is the class's, k = 1..6",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "the class's letter products equal the BPS chart's (A_2k quiver, default spec) through the additive charge map, on every ordered pair: k=1 25/25, k=2 196/196, k=3 729/729",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

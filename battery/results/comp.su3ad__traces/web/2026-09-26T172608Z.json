@@ -1,0 +1,76 @@
+{
+ "id": "comp:su3ad/traces",
+ "labels": [
+  "comp:su3ad"
+ ],
+ "date": "2026-09-26T17:26:08Z",
+ "commit": "6994c1721953b68a1e7816c420b928194f617094",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "printed heads K": 6,
+  "even-D formulas K": 16,
+  "Kac-Wakimoto witness K": 100,
+  "bootstrap witness K": 80,
+  "seconds": 144.7
+ },
+ "counts": {
+  "pass": 9,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed heads; the served Tr 1 against the Kac-Wakimoto character",
+  "negative": "D_0's offset moved, D_1's image in place of D_0's, z with the opposite U(1) charge; a vacuum character without the adjoint at q^2 fails the BPS comparison"
+ },
+ "elapsed_s": 144.734,
+ "notes": "The served route (since 2026-09-24): the even-D k = 1 closed forms through the curve map, summed over the gauge charge with the measure restored (sl3_su3_traces), checked against the formulas of comp:a1deven transcribed here; the Kac-Wakimoto character (Tr 1) and the forward bootstrap SU3ElemTraces (Tr T_0, Tr D_0) are the witnesses, at the depths the companion prints; the BPS chart's Tr 1 is a third, at low order.",
+ "checks": [
+  {
+   "name": "Tr 1, Tr T_0, Tr D_0 through q^6 equal the printed expansions",
+   "ok": true,
+   "note": "Tr1 1 + ([(1, 1)])*q^2 + (1 + [(1, 1)] + [(2, 2)])*q^4 + (1 + [(0, 3)] + 2*[(1, 1)] + [(2, 2)] + [(3, 0)] + [(3, 3)])*q^6 + O(q^7); TrT -q + (-[(1, 1)])*q^5 + O(q^7); TrD (-[(1, 0)])*q + (-[(2, 1)])*q^3 + (-[(0, 2)] - [(1, 0)] - [(2, 1)] - [(3, 2)])*q^5 + O(q^7)"
+  },
+  {
+   "name": "the served Tr 1, Tr T_0, Tr D_0, restricted to SU(2) x U(1), are the even-D k = 1 formulas of comp:a1deven through q^16: the ungauged trace of the images (), {(0,4),(1,2)}, {(1,3)} with offsets Delta = 0, 0, 1 (the gauge tower for Tr 1, the seed rules for T_0, D_0; transcribed from the text)",
+   "ok": true,
+   "note": "{'1': True, 'T_0': True, 'D_0': True}"
+  },
+  {
+   "name": "negative controls: D_0's offset moved by 3, D_1's image in place of D_0's, and z read with U(1) charge -3 each disagree with the served traces",
+   "ok": true,
+   "note": "{'D_0 offset + 3': True, \"D_1's image {(2,3)} for D_0\": True, 'z of U(1) charge -3': True}"
+  },
+  {
+   "name": "the served seed series (Cartan fugacities), symmetrized, are the class's Tr 1, Tr T_0, Tr D_0 through q^24",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the served Tr 1 equals the Kac-Wakimoto vacuum character of sl(3) at level -3/2 through q^100 (witness 94.4 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the served Tr T_0 and Tr D_0 (both parities) equal the orthonormality bootstrap SU3ElemTraces through q^80 (witness 46.7 s)",
+   "ok": true,
+   "note": "{('Tr_T',): True, ('Tr_D', 0): True, ('Tr_D', 1): True}"
+  },
+  {
+   "name": "Tr 1 of the BPS chart SU3BPSKAlgebra (the exact Habiro engine) equals the served Tr 1 through q^6",
+   "ok": true,
+   "note": "BPS: 1 + ([(1, 1)])*q^2 + (1 + [(1, 1)] + [(2, 2)])*q^4 + (1 + [(0, 3)] + 2*[(1, 1)] + [(2, 2)] + [(3, 0)] + [(3, 3)])*q^6 + O(q^7)"
+  },
+  {
+   "name": "Tr(T_0^a) and Tr(D_0^a) are O(q^a) for a = 1, 2, 3 (the constraint the bootstrap deconvolves)",
+   "ok": true,
+   "note": "[(('T', 0), 1, 1), (('D', 0), 1, 1), (('T', 0), 2, 2), (('D', 0), 2, 2), (('T', 0), 3, 3), (('D', 0), 3, 3)]"
+  },
+  {
+   "name": "negative control: the BPS chart's Tr 1 has chi_(1,1) at q^2, so a vacuum character without the adjoint current would fail",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

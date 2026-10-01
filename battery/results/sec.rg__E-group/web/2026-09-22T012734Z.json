@@ -1,0 +1,53 @@
+{
+ "id": "sec:rg/E-group",
+ "labels": [
+  "eq:mult"
+ ],
+ "date": "2026-09-22T01:27:34Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "K": 24,
+  "n": "<= 6",
+  "s": "0, 1/2"
+ },
+ "counts": {
+  "pass": 5,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed leading terms; E_q and E^(s) for s <= 3/2 exactly",
+  "negative": "asymmetric shifts fail; mixed exponents are bar-invariant instead"
+ },
+ "elapsed_s": 0.022,
+ "notes": "Exact rational arithmetic in one variable (each generator is a function of a single X_gamma).  The statement for every g in the group follows from the generators because the bar involution is ANTImultiplicative on the quantum torus: bar(gh) = bar(h)bar(g) = h^-1 g^-1 = (gh)^-1.  Non-membership of E_{q^2} is the degree-one argument for an indecomposable gamma: only the factors E^(s)(X_gamma) contribute at degree gamma, so (1-q^2)[X_gamma]g is a Laurent polynomial while (1-q^2)[x]E_{q^2} = -q^2/(1+q^2) is not.",
+ "checks": [
+  {
+   "name": "printed: E_q(x) = 1 - q/(1-q^2) x + ... ([x^1] = -q - q^3 - q^5 - ...)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "g^-1(q) = g(q^-1) for g = E_q(x): [x^n] of the inverse (-qx;q^2)_∞ equals the bar image of [x^n] E_q, n <= 6, through q^24",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:mult  E^(s)_q(x) = Π_{j=-s}^{s} E_q((-1)^{2s} q^{2j} x)^{(-1)^{2s}} satisfies g^-1(q) = g(q^-1) for s = 0, 1/2, 1, 3/2: [x^n] compared EXACTLY as Laurent polynomials over (q^2;q^2)_n^{2s+1}, n <= 6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative controls: the asymmetric shifts E_q(-x)^-1 E_q(-q x)^-1 fail g^-1(q) = g(q^-1), and the mixed exponents E_q(-q^-1 x)^-1 E_q(-q x) are bar-INVARIANT instead (bar g = g, not g^-1)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "E_{q^2}(x) is not in the group: (1-q^2)·[x^1]E_{q^2} = -q^2 + q^4 - q^6 + ... is an infinite series while every generator's (1-q^2)·[x^1]E^(s) is a Laurent polynomial (s <= 4 listed), so no finite integral combination matches degree one",
+   "ok": true,
+   "note": "target·(1-q^2) through q^10: -1q^2 +1q^4 -1q^6 +1q^8 -1q^10 + O(q^11); generator polynomials: 2s=0: -1q^1 + O(q^13); 2s=1: -1q^0 -1q^2 + O(q^13); 2s=2: -1q^-1 -1q^1 -1q^3 + O(q^13)"
+  }
+ ]
+}

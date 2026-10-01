@@ -1,0 +1,48 @@
+{
+ "id": "eq:rhotorus",
+ "labels": [
+  "eq:rhotorus"
+ ],
+ "date": "2026-09-23T04:41:10Z",
+ "commit": "c59fdd987f3c6f550f34f47f7365293d9f585710",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure labels": 155,
+  "matter labels": 261,
+  "torus lines": 5
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the label-level rho agrees with the printed κ everywhere",
+  "negative": "the matter term of κ is needed"
+ },
+ "elapsed_s": 0.07,
+ "notes": "κ recomputed from the root datum's roots and the representation's weights with the datum's pairing; labels compared after Weyl canonicalisation (fold).",
+ "checks": [
+  {
+   "name": "eq:rho-witten  rho(m,e) = (-m, κ(m) - e) with κ(m) = Σ_(α:<α,m>>0) <α,m> α (pure gauge; Weyl-canonical labels) on 155 labels of SU(2), SO(3), SU(3), Sp(4), G2",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:rho-witten with matter  κ(m) carries -Σ <w,m> w and the flavour shifts by κ_f(m) = -D(m) w_f (f -> f^* ⊗ det^-D, in the diagonal U(1) of U(n_f)) on 261 labels of four (G, N)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:rhotorus  (rho f)_-m(v) = v^κ(m) f_m(v^-1) on the torus images of five SU(2) lines, every magnetic sector",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: dropping the matter term from κ is detected on SU(2)+1 fundamental",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

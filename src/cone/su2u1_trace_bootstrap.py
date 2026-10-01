@@ -216,7 +216,24 @@ def _bps_seed_nw(B, gamma, K):
 
 def _sweep(pool, Tr1, K, *, strict, wmax=0):
     """Forward 𝖖-sweep; frontier unknowns `(seed j, (n,w2))`, fusion on n.
-    Returns `(Tr:{(j,k):{(n,w2):int}}, free_seeds, appeared, status)`.
+    Returns `(Tr:{(j,k):{(n,w2):int}}, free_seeds, appeared, touched,
+    status)`.
+
+    `touched` is the set of `(j, k)` whose unknowns entered **any**
+    surviving equation at order `k`: a `(j, k)` absent from `touched` was
+    never constrained at all (no pool relation's frontier reaches that
+    seed at that order) — it is *unknown*, NOT zero.  This is the
+    bookkeeping that closes audit finding A21: a seed could stall
+    silently (its relations exhausted below `K`) while remaining absent
+    from both the solved values and `free_seeds`, and the record then
+    served the missing orders as zeros — which in turn POISONED later
+    orders of *other* seeds (their equations back-referenced the gapped
+    orders through `Tr.get(..., {})`, silently consuming the missing
+    values as zeros: a1d4's even seeds pinned −1314 instead of −36 at
+    𝖖⁹ that way).  Hence the second half of the fix: an equation whose
+    back-reference `(key, ix)` is *unresolved* (neither solved nor
+    touched at `ix`) is DROPPED at this order — the `trace_uniqueness`
+    no-silently-truncated-equations discipline.
 
     `wmax` widens the U(1) candidate window (see `_cand_nw`); if 0 it is
     derived from the max |w2| appearing in `Tr1` so the frontier can absorb a
@@ -226,11 +243,22 @@ def _sweep(pool, Tr1, K, *, strict, wmax=0):
     Tr = {}
     free_seeds = set()
     appeared = set()
+    touched = set()
+    unresolved = set()                     # (j, k) gaps: unknown, not zero
     for k in range(1, K + 1):
         buckets = {}                                   # (entry, (N,W2)) -> [co, rhs]
         for ei, (P, emin, delta) in enumerate(pool):
             m = k + emin
             if m > 0:
+                continue
+            # A21 discipline: an equation whose back-reference lands on an
+            # UNRESOLVED (seed, order) would silently consume the missing
+            # value as zero — drop the whole entry at this order instead.
+            poisoned = any(
+                key != "id" and 1 <= (m - e) < k and (key, m - e) in unresolved
+                for key, qnw in P.items() for e in qnw
+            )
+            if poisoned:
                 continue
             if delta and m == 0:
                 buckets.setdefault((ei, (0, 0)), [{}, 0])[1] += 1
@@ -253,19 +281,29 @@ def _sweep(pool, Tr1, K, *, strict, wmax=0):
         eqs = [(co, rhs) for (co, rhs) in buckets.values() if co or rhs]
         unk = sorted({u for co, _ in eqs for u in co})
         appeared |= {u[0] for u in unk}
+        touched_k = {u[0] for u in unk}
+        touched |= {(j, k) for j in touched_k}
         sol, free, consistent = _solve_full(eqs, unk)
         if not consistent:
             if strict:
-                return None, None, None, f"inconsistent at k={k}"
+                return None, None, None, None, f"inconsistent at k={k}"
             free_seeds |= {u[0] for u in unk}
+            unresolved |= {(j, k) for j in touched_k}
             continue
         for (j, nw), v in (sol or {}).items():
             if v != 0:
                 if v.denominator != 1:
-                    return None, None, None, f"non-integer at k={k}: {v}"
+                    return (None, None, None, None,
+                            f"non-integer at k={k}: {v}")
                 Tr.setdefault((j, k), {})[nw] = int(v)
         free_seeds |= {j for (j, _nw) in free}
-    return Tr, free_seeds, appeared, "ok"
+        # gaps at this order: seeds never constrained here, plus seeds
+        # whose unknowns stayed free in the solve
+        all_seeds = {key for (P, _e, _d) in pool for key in P if key != "id"}
+        unresolved |= {(j, k) for j in all_seeds - touched_k}
+        unresolved |= {(j, k) for (j, _nw) in free}
+    resolved = touched - unresolved
+    return Tr, free_seeds, appeared, resolved, "ok"
 
 
 def _cand_nw(k, wmax=0):
@@ -358,35 +396,91 @@ def generate_su2u1_trace(short_id, K, *, margin=2, bps_fallback=False,
             except Exception:
                 pass
 
-    Tr, free, appeared, status = _sweep(pool, Tr1, Ki, strict=True)
+    Tr, free, appeared, resolved, status = _sweep(pool, Tr1, Ki, strict=True)
     if Tr is None:
         raise _BootstrapUnavailable(f"{short_id}: {status}")
     free_in_K = (set(range(n)) - appeared) | free
     pinned = n - len(free_in_K)
+    # A21: per-(seed, order) coverage — an order the sweep never resolved
+    # is UNKNOWN, not zero.  (`resolved` = constrained and consistently
+    # solved, possibly to zero.)
+    order_gaps = {j: sorted(k for k in range(1, K + 1)
+                            if (j, k) not in resolved)
+                  for j in range(n)}
     if verbose:
+        n_gapped = sum(1 for j in range(n)
+                       if j not in free_in_K and order_gaps[j])
         print(f"[{short_id}] su2u1 bootstrap pinned {pinned}/{n} seeds "
-              f"BPS-free ({len(pool)} pool entries)", flush=True)
+              f"BPS-free ({len(pool)} pool entries; {n_gapped} with "
+              f"order gaps to fill)", flush=True)
 
     orbits = {}
     bps_filled = []
+    bps_order_filled = {}
+    unfilled = {}
+    sweep_bps_conflicts = {}
+    _B_oracle = [None]                  # lazy: one BPS realization at most
+
+    def _bps(gamma):
+        if _B_oracle[0] is None:
+            _B_oracle[0] = _bps_oracle(short_id)
+        return _bps_seed_nw(_B_oracle[0], gamma, K)
+
     for j, idx in enumerate(idxs):
         if j not in free_in_K:
-            orbits[idx] = {k: {(nn, w2): v
-                               for (nn, w2), v in Tr.get((j, k), {}).items()}
-                           for k in range(1, K + 1) if Tr.get((j, k))}
+            swept = {k: {(nn, w2): v
+                         for (nn, w2), v in Tr.get((j, k), {}).items()}
+                     for k in range(1, K + 1) if Tr.get((j, k))}
+            gaps = order_gaps[j]
+            if gaps and bps_fallback:
+                nw = _bps(gens[idx])
+                # cross-validate the sweep against BPS wherever both
+                # resolved an order.  A mismatch means the sweep's
+                # relations lied at that order (observed on a1d4: an
+                # ε-null flavour block at q³ on the even seeds, invisible
+                # to every augmented check — audit).  Serve the BPS
+                # (ground-truth) value, and record the conflict LOUDLY —
+                # never silently paper over in either direction.
+                for k in sorted(swept):
+                    ref = {kk: vv for kk, vv in nw.get(k, {}).items() if vv}
+                    if ref != swept[k]:
+                        sweep_bps_conflicts.setdefault(idx, {})[k] = {
+                            "sweep": dict(swept[k]), "bps": dict(ref)}
+                        if verbose:
+                            print(f"[{short_id}] SWEEP/BPS CONFLICT seed "
+                                  f"{idx} q^{k}: sweep {swept[k]} vs BPS "
+                                  f"{ref} — serving BPS (A22)", flush=True)
+                        if ref:
+                            swept[k] = ref
+                        else:
+                            del swept[k]
+                for k in gaps:
+                    d = {kk: vv for kk, vv in nw.get(k, {}).items() if vv}
+                    if d:
+                        swept[k] = d
+                bps_order_filled[idx] = gaps
+            elif gaps:
+                unfilled[idx] = gaps
+            orbits[idx] = swept
         elif bps_fallback:
-            nw = _bps_seed_nw(B, gens[idx], K)
+            nw = _bps(gens[idx])
             orbits[idx] = {k: d for k, d in nw.items() if 1 <= k <= K and d}
             bps_filled.append(idx)
-    if bps_fallback and verbose and bps_filled:
-        print(f"[{short_id}] BPS fallback filled {len(bps_filled)} seeds "
-              f"-> complete table", flush=True)
+        else:
+            unfilled[idx] = list(range(1, K + 1))
+    if bps_fallback and verbose and (bps_filled or bps_order_filled):
+        print(f"[{short_id}] BPS fallback: {len(bps_filled)} whole seeds, "
+              f"order-fills {bps_order_filled} -> complete table",
+              flush=True)
 
     return {
         "K": K, "flavor": "su2u1", "fold": fold_policy(short_id),
         "pinned": pinned, "n_seeds": n,
         "free": [] if bps_fallback else sorted(free_in_K),
         "bps_filled": sorted(bps_filled),
+        "bps_order_filled": bps_order_filled,
+        "sweep_bps_conflicts": sweep_bps_conflicts,
+        "unfilled_order_gaps": unfilled,
         "identity": {e: t for e, t in Tr1.items() if e <= K},
         "orbits": orbits,
     }

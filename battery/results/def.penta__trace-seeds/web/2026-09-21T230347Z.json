@@ -1,0 +1,78 @@
+{
+ "id": "def:penta/trace-seeds",
+ "labels": [
+  "def:penta"
+ ],
+ "date": "2026-09-21T23:03:47Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "K": 30,
+  "seeds": 2,
+  "orbit": 5
+ },
+ "counts": {
+  "pass": 10,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the paper's printed expansions",
+  "negative": "perturbed seed detected"
+ },
+ "elapsed_s": 0.002,
+ "notes": "Both closed forms of each seed (Nahm sum, Yang-Lee product) recomputed independently of the repository's series types.",
+ "checks": [
+  {
+   "name": "printed: Tr 1 = 1 + q^4 + q^6 + q^8 + q^10 + ...",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "printed: Tr L_i = -q - q^7 - q^9 - q^11 + ...",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr 1 = Σ q^(2n(n+1))/(q^2;q^2)_n to q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr L_i = -Σ q^(2(n+1)^2-1)/(q^2;q^2)_n to q^30, all five i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "printed: χ_0 = 1 + q^2 + q^3 + q^4 + q^5 + 2q^6 + 2q^7 + 3q^8 + 3q^9 + 4q^10",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "printed: χ_1 = 1 + q + q^2 + q^3 + 2q^4 + 2q^5 + 3q^6 + 3q^7 + 4q^8 + 5q^9",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Rogers-Ramanujan: χ_0 product = Σ q^(n(n+1))/(q;q)_n and χ_1 product = Σ q^(n^2)/(q;q)_n to q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr 1 = χ_0(q^2) to q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Tr L_i = q^-1 (χ_0(q^2) - χ_1(q^2)) to q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the perturbed-seed class differs from the Nahm sum",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

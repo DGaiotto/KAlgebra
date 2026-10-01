@@ -1,4 +1,4 @@
-"""`RGKAlgebraObject`s for the SU2A1D3 single-node RG flows (Plan 25 object layer
+"""`RGKAlgebraObject`s for the SU2A1D3 single-node RG flows (the design record object layer
 applied to flows).
 
 Each object holds **one** node-deletion flow of SU(2)-gauged [A_1,D_3] in two live
@@ -25,9 +25,9 @@ verified IR `KAlgebraIso`).
 
 * :func:`su2a1d3_tail_drop_object` — **drop the tail/U(1) node (3): IR = U(2)
   N_f=1** (coarse build), swapped for the certified `flavour_free_un_nf_bps(2,1)`
-  (PR #522).
+  (PR).
 
-Run `PYTHONPATH=. python implementations/su2a1d3_rg_object.py` for the smoke test.
+Run `PYTHONPATH=$(ls -d src/* | paste -sd:) python3 src/abe/su2a1d3_rg_object.py` for the smoke test.
 """
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def su2a1d3_matter_drop_abe_object() -> RGKAlgebraObject:
 
 def su2a1d3_tail_drop_object() -> RGKAlgebraObject:
     """Tail/U(1)-drop flow (drop node 3): IR = U(2) N_f=1, swapped for the certified
-    `flavour_free_un_nf_bps(2,1)` standalone (PR #522)."""
+    `flavour_free_un_nf_bps(2,1)` standalone (PR)."""
     flow, phi, _u2 = tail_drop_iso_to_u2nf1()
     return _drop_flow_object(
         flow, phi,

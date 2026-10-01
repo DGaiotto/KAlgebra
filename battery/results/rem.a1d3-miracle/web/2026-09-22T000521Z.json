@@ -1,0 +1,42 @@
+{
+ "id": "rem:a1d3-miracle",
+ "labels": [
+  "rem:a1d3-miracle"
+ ],
+ "date": "2026-09-22T00:05:21Z",
+ "commit": "8da697afb50102e74e4b0745297e9de689c480a6",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "a": "1..8",
+  "K": 24
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the a = 2 rows match the trace-recursions note",
+  "negative": "n.a. (a measured convergence)"
+ },
+ "elapsed_s": 0.274,
+ "notes": "Measured, not derived: a=1: 1->4, T->1, D->5; a=2: 1->4, T->7, D->5; a=3: 1->6, T->7, D->7; a=4: 1->8, T->9, D->9; a=5: 1->10, T->11, D->11; a=6: 1->12, T->13, D->13; a=7: 1->14, T->15, D->15; a=8: 1->16, T->17, D->17",
+ "checks": [
+  {
+   "name": "the minors of (Tr T_0^a, Tr T_0^a D_0), divided by (μ^2q^2;q^2)(μ^-2q^2;q^2), approach (Tr 1, Tr T_0, Tr D_0): first differing powers grow with a",
+   "ok": true,
+   "note": "a=1: 1->4, T->1, D->5; a=2: 1->4, T->7, D->5; a=3: 1->6, T->7, D->7; a=4: 1->8, T->9, D->9; a=5: 1->10, T->11, D->11; a=6: 1->12, T->13, D->13; a=7: 1->14, T->15, D->15; a=8: 1->16, T->17, D->17"
+  },
+  {
+   "name": "at a = 8 all three components agree through q^11 at least",
+   "ok": true,
+   "note": "a=8 leading terms: {'1': q^0:[+1m(0,)] q^2:[+1m(-2,) +1m(0,) +1m(2,)] q^4:[+1m(-4,) +2m(-2,) +3m(0,) +2m(2,) +1m(4,)] q^6:[+1m(-6,) +2m(-4,) +4m(-2,) +5m(0,) +4m(2,) +2m(4,) +1m(6,)] +O(q^7), 'T': q^1:[-1m(0,)] q^5:[-1m(-2,) -1m(0,) -1m(2,)] +O(q^7), 'D': q^1:[-1m(-1,) -1m(1,)] q^3:[-1m(-3,) -1m(-1,) -1m(1,) -1m(3,)] q^5:[-1m(-5,) -2m(-3,) -3m(-1,) -3m(1,) -2m(3,) -1m(5,)] +O(q^7)}"
+  },
+  {
+   "name": "positive control: the rows of Tr T_0^2 and Tr(q T_0 D_0) are the note's (q^-2+1, q^-3, χ_1 q^-1) and (χ_1 q^-1, 0, q^-2+1), normalised",
+   "ok": true,
+   "note": "rows: [q^1:[+1m(0,)] q^3:[+1m(0,)] +O(q^226), q^0:[+1m(0,)] +O(q^225), q^2:[+1m(-1,) +1m(1,)] +O(q^227)] | [q^1:[+1m(-1,) +1m(1,)] +O(q^226),  +O(q^227), q^0:[+1m(0,)] q^2:[+1m(0,)] +O(q^225)]"
+  }
+ ]
+}

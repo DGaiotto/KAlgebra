@@ -1,7 +1,7 @@
 """bps_su2_nf1 — canonical `BPSKAlgebra` for SU(2) + N_f = 1.
 
 **Auxiliary** reference oracle for `su2_nf1_kalgebra.SU2Nf1KAlgebra`.
-Uses the canonical-surface `BPSKAlgebra` (Plan 07, repo root); the
+Uses the canonical-surface `BPSKAlgebra` (the design record, repo root); the
 coefficient ring is `AbelianZPlusRing(rank=1)` because `ker(B)` is
 the third lattice direction (γ_3 is the U(1)_F flavour direction).
 

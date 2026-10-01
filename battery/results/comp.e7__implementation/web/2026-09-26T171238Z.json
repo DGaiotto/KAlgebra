@@ -1,0 +1,75 @@
+{
+ "id": "comp:e7/implementation",
+ "labels": [
+  "comp:e7"
+ ],
+ "date": "2026-09-26T17:12:38Z",
+ "commit": "d40823aef6ec43d0dff2b02bbdc330e36dc38716",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "generators": 90,
+  "cones": 3300,
+  "generator products (gauged witness)": 8100,
+  "BPS witness sample": {
+   "mu-free": 36,
+   "mu-carrying": 4,
+   "rho": 90
+  },
+  "seconds": 15.4
+ },
+ "counts": {
+  "pass": 8,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the literals' counts and the maximal-clique enumeration; the gauged tables through phi",
+  "negative": "a delta_i moved by one breaks rho^10 = id; phi with E -> mu^-1 fails the product comparison"
+ },
+ "elapsed_s": 15.499,
+ "notes": "The object layer's cone-to-BPS witness carries coefficients across unchanged, so it cannot read a power of mu; the products with mu are certified through the gauged class's tables, built by a different engine (the flow), under the label map of src/cone/u1e7_cone_kalgebra.py.",
+ "checks": [
+  {
+   "name": "90 generators; 3300 cones: the 2600 of size 6 are exactly the maximal sets of pairwise q-commuting generators, the other 700 are faces of them; the cocycle is antisymmetric",
+   "ok": true,
+   "note": "n=90, cones=3300 [(1, 20), (2, 95), (3, 260), (4, 325), (6, 2600)], maximal cliques 2600, faces ok True, cocycle ok True"
+  },
+  {
+   "name": "the flavour: rank B = 6 with ker B spanned by e0 - e2 + e6; the coefficient ring is R(U(1)) = Z[mu^+-1]",
+   "ok": true,
+   "note": "rank 6, e0-e2+e6 in ker True, ring AbelianZPlusRing"
+  },
+  {
+   "name": "the 5880 ordered pairs of generators that do not q-commute all have their product in the table, with powers of mu from -2 to 2",
+   "ok": true,
+   "note": "5880 pairs, mu-powers [-2, -1, 0, 1, 2]"
+  },
+  {
+   "name": "rho permutes the generators in nine orbits of length 10 (order 10, as Table tab:finite_type lists with U(1)); delta_i in {0,-1,-2}, 41 of 90 nonzero; rho^10 (rho_element, eq:comp-e7-rho) is the identity on every generator",
+   "ok": true,
+   "note": "cycles [10, 10, 10, 10, 10, 10, 10, 10, 10], nonzero delta 41, rho^10 = id on 90/90"
+  },
+  {
+   "name": "negative control: with delta_4 moved by 1, rho^10 is no longer the identity on L_4",
+   "ok": true,
+   "note": "rho^10(L_4) = {((4, 1),): '[(-1,)]'}"
+  },
+  {
+   "name": "all 8100 ordered generator products agree with U1E7ConeKAlgebra's stored tables (built from the flow U1A1E7RGKAlgebra) under phi, E -> mu (1.9 s)",
+   "ok": true,
+   "note": "disagreeing pairs 0; gauged class served from its stored tables: True"
+  },
+  {
+   "name": "negative control: the same comparison with E -> mu^-1 fails",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "kalgebra_object('e7') holds the cone presentation and the BPS chart; its witness is multiplicative on the 36 products of the 6 single-node-charge generators, which carry no mu in a coefficient (3540 of the 8100 generator products are of that kind), and fails on 4 products with one; rho-equivariant on the 49 generators with delta = 0 and on none of the 41 others (12.5 s for the products)",
+   "ok": true,
+   "note": "mu-free 3540; multiplicative 36/36 mu-free, 0/4 mu-carrying; rho 49/49 and 0/41"
+  }
+ ]
+}

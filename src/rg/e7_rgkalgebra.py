@@ -49,8 +49,14 @@ The UV BPS quiver is the **E₇ Dynkin**: the A₆ chain (the type-1 chords
 `(1,0)..(1,5)`, a 6-path) plus the central node `L` has Cartan determinant
 `uv_cartan_determinant() == 2` (E₇), vs `8` (A₇) for an end chord, `4` (D₇) for
 a second-from-end chord — the central-vs-end fork.  Among trees on 7 nodes only
-E₇ has Cartan det 2, certifying E₇ uniquely; this matches the standard E₇ Dynkin
-that `BPSKAlgebra` is built from.
+E₇ has Cartan det 2; this matches the standard E₇ Dynkin that `BPSKAlgebra` is
+built from.  **That is a necessary condition, not a certificate of the flow**
+(measured 2026-09-23): the chord `(2, 4)` crosses the chain at the same single
+node with the same determinant 2, yet with `L = (2, 4)` the vacuum's `q²`
+coefficient is `μ⁻¹ + 1 + μ` (three currents), not the Nahm e7 sum's `1`.
+What identifies this flow as `[A_1, E_7]` is the vacuum against the Nahm e7
+sum (equal through `q⁶`; the gauged flow `U1A1E7RGKAlgebra` matches
+`(q²;q²)²·Nahm e7` on its `E`-tower through `q⁸`).
 """
 from __future__ import annotations
 
@@ -195,13 +201,17 @@ class E7RGKAlgebra(RGKAlgebra):
 
     def uv_cartan_determinant(self) -> int:
         """UV BPS quiver Cartan determinant: the A₆ chain plus the central chord
-        `L`.  `== 2` (E₇) — the structural witness that this flow realises
-        `[A_1, E_7]` (vs 8 = A₇ for an end chord)."""
+        `L`.  `== 2` (E₇; vs 8 = A₇ for an end chord) — a necessary structural
+        check, not a certificate that the flow realises `[A_1, E_7]`: the
+        `(2, 4)` dressing also gives 2 and a different vacuum (module
+        docstring)."""
         L = (self._La, self._i0)
         return self._cartan_det(self._a6_chain() + [L])
 
     def verify_is_E7(self) -> bool:
-        """`uv_cartan_determinant() == 2` — the UV BPS quiver is the E₇ Dynkin."""
+        """`uv_cartan_determinant() == 2` — the crossing graph of the A₆ chain and
+        `L` is the E₇ Dynkin.  Necessary only: it does not certify the algebra
+        (see `uv_cartan_determinant`)."""
         return self.uv_cartan_determinant() == 2
 
 

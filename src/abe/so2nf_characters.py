@@ -5,7 +5,7 @@ its Cartan torus `U(1)^{Nf}`.
 The flavour symmetry of SU(2) with `Nf` fundamental hypers is `SO(2Nf)`
 (pseudoreal fundamental ⇒ the `2Nf` half-hypers form the `SO(2Nf)` vector),
 realized on the index as its simply-connected cover `Spin(2Nf)`.  A
-`U(1)^{Nf}`-flavoured presentation (e.g. `su2_nf_over_pure_rgflow`) only
+`U(1)^{Nf}`-flavoured presentation (e.g. `su2_nf_over_pure`) only
 *manifests the Cartan torus* `T = U(1)^{Nf}`; the enhancement is the statement
 
     R(Spin(2Nf))  ≅  R(T)^{W(D_Nf)}                                      (★)

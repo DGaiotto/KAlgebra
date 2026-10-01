@@ -1,12 +1,13 @@
 """`g_matter_over_pure` — `G` gauge theory with `T^*N` matter as an `RGKAlgebra`
 wrapping **pure `G`** at a general `RootDatum`.
 
-The group-general counterpart of `un_nf_over_pure_rgflow.UNNfOverPure` (U(N)+N_f)
-and `quiver_over_pure.QuiverOverPure` (unitary quivers), built by the same
-standard recipe and with the same division of labour:
+The group-general counterpart of the type-A flows `un_nf_over_pure_rgflow.UNNfOverPure`
+(U(N)+N_f) and `quiver_over_pure.QuiverOverPure` (unitary quivers) — retired to
+the source repository's archive on 2026-09-19, this class and the general tier being their replacement —
+built by the same standard recipe and with the same division of labour:
 
   1. take **pure `G`** = `pure_g_abe_kalgebra.PureGAbeKAlgebra(datum)` — the
-     `AbeKAlgebra` on the group-general `WRQTorus` (ruling D5/D6);
+     `AbeKAlgebra` on the group-general `WRQTorus`;
   2. promote it to the flavoured K-algebra the standard way —
      `add_flavour(AbelianZPlusRing(M))`, one `U(1)` per hypermultiplet slot;
   3. wrap it in an `RGKAlgebra` whose only extra datum is the matter spectrum
@@ -26,7 +27,7 @@ Why this is the same object as `UNNfOverPure` at type A
 At `datum = u_n(N)` with `N_i` the defining representation, `wt(N_i) = {e_j}`
 and `v^{e_j} = v_j`, so `Ψ = ∏_{i,j} E_𝖖(μ_i v_j)` — the U(N)+N_f generator
 verbatim.  That equality is the certification anchor
-(the suite in the source repository), not a design aspiration.
+(`tests/test_g_matter_over_pure.py`), not a design aspiration.
 
 The two type-A-specific steps of the U(N) flow both collapse onto **one**
 group-general object, the Weyl character `wrq_torus.levi_character(datum, 0, ·)`:
@@ -67,7 +68,7 @@ general datum it predicts
 
 reducing to the U(N) formula at `w = e_j`, `⟨m,e_j⟩ = m_j`.  This is the same
 `c = ⟨m,w⟩` sign split as the independently derived per-cell matter window `Ξ`
-of the vacuum pairing (the design notes §4m).  `matter_dressing` below
+of the vacuum pairing (`aux_vacuum_pairing.md` §4m).  `matter_dressing` below
 is that prediction, exposed for the Step-2 comparison against the measured
 `rg_chart` — it is a **prediction to test**, not an input to the flow.
 
@@ -79,14 +80,14 @@ Scope / honesty
   (`sun_flavour_enhancement` in type A).  For a general `(G, N)` the faithful
   flavour group also depends on whether `N` is complex, real or pseudo-real
   (`U(M)` vs `SO(2M)` vs `Sp(M)`); that is a physics call, deliberately not
-  guessed here.  **First ruled instance (user, 2026-07-30, ruling D33):** for
+  guessed here.  **First ruled instance:** for
   the **adjoint** — a real rep — at one hyper the flavour symmetry is `SU(2)`
   with the hyper a **doublet**, not the `U(1)` the tier currently carries.  That
   settles the `n = 1` real case; the general `Sp(2n)` reading is extrapolation,
   not a ruling, and the conservative `∏_i U(n_i)` branch still stands.
 * Everything the auxiliary honest-fails on, this flow honest-fails on — but odd
   `⟨Σ⁺, m⟩` cocharacters are **no longer among them**: the "theorem" this list
-  used to cite is retracted by ruling D31, and they build on the `AbeKAlgebra`
+  used to cite is retracted, and they build on the `AbeKAlgebra`
   tier like any other charge.  Pure-`G` charts outside the global form's line
   lattice are still refused.
 * Wilson×Wilson fusion routes through the auxiliary's own `multiply` (the
@@ -136,8 +137,9 @@ def E_q_coefficient(n: int) -> HabiroElement:
     """`a_n = [E_𝖖(x)]_n = (−1)^n 𝖖^n / (𝖖²;𝖖²)_n`, exact (zero for `n < 0`).
 
     The same coefficient the U(N)+N_f flow uses; kept local so this module
-    states its own convention, and pinned against `UNNfOverPure` end-to-end by
-    the certification test rather than by sharing a private symbol."""
+    states its own convention, and was pinned against `UNNfOverPure` end-to-end
+    by the certification test (before that flow's retirement) rather than by
+    sharing a private symbol."""
     if n < 0:
         return HabiroElement.zero()
     return HabiroElement.nahm_term((-1) ** n, n, [n])
@@ -372,7 +374,7 @@ def fuse_characters(datum: RootDatum, e1, e2, cache: dict | None = None) -> dict
     **7** is recognised as dominant, `_levi_dom_rep` silently returns its input,
     and the peel fails to terminate — `PureGAbeKAlgebra(g_2()).multiply(1, χ_7)`
     raises.  Certified equal to the auxiliary's `multiply` wherever that path
-    works (type A), by the suite in the source repository."""
+    works (type A), by `tests/test_g_matter_over_pure.py`."""
     cache = {} if cache is None else cache
     w1 = _char_weights(datum, e1, cache)
     w2 = _char_weights(datum, e2, cache)
@@ -392,12 +394,10 @@ def single_hyper_character_expansion(datum: RootDatum, lam, k: int,
     `[∏_{w ∈ wt(lam)} E_𝖖(μ v^w)]_{μ^k}` as `{dominant weight e: HabiroElement}`
     over the Wilson-line characters `χ_e`.
 
-    With `conjugate=True` the other admissible orientation of `S` is used (user,
-    2026-08-02: *"`∏_{w ∈ wt(lam)} E_𝖖(μ^{-1} v^{-w})` also works as an `S`, with
-    appropriate positive cone."*), i.e. `[∏_w E_𝖖(μ⁻¹v^{−w})]_{μ^{−k}}`.
+    With `conjugate=True` the other admissible orientation of `S` is used, i.e. `[∏_w E_𝖖(μ⁻¹v^{−w})]_{μ^{−k}}`.
 
     **That is exactly the DUAL representation**, which is the whole content of the
-    `N` vs `N*` care the user flagged: negating every weight of `lam` gives the
+    `N` vs `N*` care the author flagged: negating every weight of `lam` gives the
     weight multiset of `lam*`, so
 
         expansion(lam, k, conjugate=True)  ==  expansion(lam*, k)
@@ -407,7 +407,7 @@ def single_hyper_character_expansion(datum: RootDatum, lam, k: int,
     the flag is therefore a no-op (SU(2) fundamental, any adjoint), which is why a
     comparison run only at SU(2)+1 cannot see the orientation at all; SU(3)+1 is the
     cheapest place it bites.  `E_𝖖` itself is untouched — the conjugation is in the
-    argument, never `E_{𝖖⁻¹}` (standing user ruling).
+    argument, never `E_{𝖖⁻¹}` (the author's standing ruling).
 
     The group-general analogue of
     `un_nf_over_pure_rgflow.single_hyper_wilson_expansion`."""

@@ -1,0 +1,81 @@
+{
+ "id": "def:rg/rho-family",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-26T23:38:18Z",
+ "commit": "59f685b58114e16b7e3ff38b65b12609912a4c14",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "charts": [
+   "pentagon",
+   "Kronecker (pure SU(2))"
+  ],
+  "labels": [
+   [
+    0,
+    0
+   ],
+   [
+    1,
+    0
+   ],
+   [
+    0,
+    1
+   ],
+   [
+    1,
+    1
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    -1,
+    1
+   ],
+   [
+    1,
+    -1
+   ]
+  ],
+  "K": 6,
+  "seconds": 39.9
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon chart",
+  "negative": "a permutation other than rho breaks I_ab = I_(rho^-1 b, rho^-1 a)"
+ },
+ "elapsed_s": 39.91,
+ "notes": "A regression check of the realisation: the statement is derived from the axioms.",
+ "checks": [
+  {
+   "name": "pentagon: the negated chart's F is the negation of F on 8 labels; I_(a,b) = I_(rho^-1(b), rho^-1(a)) and R4 of the transformed flow on 25 pairs, through q^6",
+   "ok": true,
+   "note": "{'F negation symmetry': True, 'I_ab = I_(rho^-1 b, rho^-1 a)': True, 'R4 of the transformed flow': True}"
+  },
+  {
+   "name": "Kronecker (pure SU(2)): the negated chart's F is the negation of F on 8 labels; I_(a,b) = I_(rho^-1(b), rho^-1(a)) and R4 of the transformed flow on 25 pairs, through q^6",
+   "ok": true,
+   "note": "{'F negation symmetry': True, 'I_ab = I_(rho^-1 b, rho^-1 a)': True, 'R4 of the transformed flow': True}"
+  },
+  {
+   "name": "negative control: with rho^-1 replaced by a permutation that swaps (1,0) and (0,1), the identity fails on 8 of 25 pentagon pairs",
+   "ok": true,
+   "note": "[((1, 0), (1, 1)), ((1, 0), (2, 1)), ((0, 1), (1, 1))]"
+  }
+ ]
+}

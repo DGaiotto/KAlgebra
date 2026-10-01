@@ -35,6 +35,7 @@ What the tests actually certify:
 
 | check | scope |
 |---|---|
-| `tests/test_cones.py` — cone-contract cases (multiply / ρ / trace / orthonormality) | 31 cases; orthonormality at K = 3 on the unit plus up to 2 generators each |
+| `tests/test_cones.py` — cone-contract cases (multiply / ρ / trace / orthonormality) | 35 cases; orthonormality at K = 3 on the unit plus up to 2 generators each (the hand-listed classes: every listed generator), with bar involution and ρ²-twisted cyclicity on the exercised pairs |
+| `tests/test_cones.py` — `check_ade_rows` (the ADE finite-type rows) | geometric labels of the A and D families, the complete generator sets of the ungauged `[A₁,A₂ₖ₊₁]` / `[A₁,D₂ₖ₊₂]`, the Z-form round trip of the even-D classes, orthonormality on generator pairs, the `A1DnKAlg ≅ A1DoddConeKAlg` iso, and the pinned corrections of the zoo and of the u(1)-gauged `[A₁,E₇]` |
 | `tests/test_cones.py` — the `check_improvable` trace-improvability probes | traces extended to q³⁰–q⁷⁰ |
 | `tests/test_sample_cone_iso.py` — sample ↔ cone isomorphisms | 3 isomorphisms, verified bidirectionally, with trace-equivariance to q¹² |

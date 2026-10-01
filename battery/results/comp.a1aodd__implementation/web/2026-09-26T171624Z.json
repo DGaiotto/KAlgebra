@@ -1,0 +1,194 @@
+{
+ "id": "comp:a1aodd/implementation",
+ "labels": [
+  "comp:a1aodd"
+ ],
+ "date": "2026-09-26T17:16:24Z",
+ "commit": "d37bb95f341a2d6079f0d792ca0c4606d3d344dc",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": [
+   1,
+   2,
+   3
+  ],
+  "census": {
+   "1": {
+    "letters": 9,
+    "window": 645,
+    "balanced": 111,
+    "generators": 6,
+    "product_pairs": 36,
+    "rho_labels": 79,
+    "rho_without_drift_differs": 28,
+    "lift_opposite_sign_fails": 21
+   },
+   "2": {
+    "letters": 20,
+    "window": 8763,
+    "balanced": 1239,
+    "generators": 24,
+    "product_pairs": 576,
+    "rho_labels": 229,
+    "rho_without_drift_differs": 38,
+    "lift_opposite_sign_fails": 21
+   },
+   "3": {
+    "letters": 35,
+    "window": 4833,
+    "balanced": 1053,
+    "generators": 65,
+    "product_pairs": 300,
+    "rho_labels": 474,
+    "rho_without_drift_differs": 69,
+    "lift_opposite_sign_fails": 21
+   }
+  },
+  "seconds": 3.8
+ },
+ "counts": {
+  "pass": 26,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "at k = 1 the transcribed generators are HexagonKAlg's six hand-named ones",
+  "negative": "an off-by-one parity rule, rho without the drift, and the lift with the opposite sign are each caught"
+ },
+ "elapsed_s": 4.107,
+ "notes": "The magnetic charge, balance, generators, lift and rho transcribed from the companion (eq:comp-aodd-mag, eq:comp-aodd-lift, eq:comp-aodd-rho) and the gauged example's printed charges and drift; the products are the gauged class's analytic route.",
+ "checks": [
+  {
+   "name": "k=1: E L_t;i = q^mag L_t;i E on all 9 letters, mag = -2/+2/0 by endpoint parity = 2<mu, gamma_t;i> of the printed charges (eq:comp-aodd-mag)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: a canonical label (F, e) commutes with E iff F is balanced (as many even-even as odd-odd diagonals): the printed rule, the multiply-based test and the class agree on 645 labels (111 balanced; up to 3 letters, exponents 1, 2, e in {-1, 0, 2})",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: mult_generators = the 3 balanced chords and the 3 non-crossing (even-even, odd-odd) pairs, 6 = k(k+2) + (k+2) C(k+2,3) in all; geometric labels are the multisets of diagonals",
+   "ok": true,
+   "note": "6 gens, 6 transcribed, geo True"
+  },
+  {
+   "name": "k=1: the product is the gauged product (U1A1AoddKAlg) and every term of it is balanced, on 36 ordered generator pairs",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: L_(F,e) = E^e L_(F,0) = z^-e L_(F,0) (eq:comp-aodd-lift): r_label_decompose, the product with E^e, and Tr L_(F,e) = z^-e Tr L_(F,0) through q^6 on 21 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: rho(L_(F,e)) = L_(F', d(F)-e) (eq:comp-aodd-rho, the drift eq:comp-drift) and rho^-1 inverts it, on 79 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: rho^H = id on every generator (H = 6); modulo powers of z the order of rho is 3, the order of the zoo's a3 rho-permutation",
+   "ok": true,
+   "note": "orders [6], mod z 3, zoo 3"
+  },
+  {
+   "name": "k=2: E L_t;i = q^mag L_t;i E on all 20 letters, mag = -2/+2/0 by endpoint parity = 2<mu, gamma_t;i> of the printed charges (eq:comp-aodd-mag)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: a canonical label (F, e) commutes with E iff F is balanced (as many even-even as odd-odd diagonals): the printed rule, the multiply-based test and the class agree on 8763 labels (1239 balanced; up to 3 letters, exponents 1, 2, e in {-1, 0, 2})",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: mult_generators = the 8 balanced chords and the 16 non-crossing (even-even, odd-odd) pairs, 24 = k(k+2) + (k+2) C(k+2,3) in all; geometric labels are the multisets of diagonals",
+   "ok": true,
+   "note": "24 gens, 24 transcribed, geo True"
+  },
+  {
+   "name": "k=2: the product is the gauged product (U1A1AoddKAlg) and every term of it is balanced, on 576 ordered generator pairs",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: L_(F,e) = E^e L_(F,0) = z^-e L_(F,0) (eq:comp-aodd-lift): r_label_decompose, the product with E^e, and Tr L_(F,e) = z^-e Tr L_(F,0) through q^6 on 21 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: rho(L_(F,e)) = L_(F', d(F)-e) (eq:comp-aodd-rho, the drift eq:comp-drift) and rho^-1 inverts it, on 229 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: rho^H = id on every generator (H = 8); modulo powers of z the order of rho is 8, the order of the zoo's a5 rho-permutation",
+   "ok": true,
+   "note": "orders [8], mod z 8, zoo 8"
+  },
+  {
+   "name": "k=3: E L_t;i = q^mag L_t;i E on all 35 letters, mag = -2/+2/0 by endpoint parity = 2<mu, gamma_t;i> of the printed charges (eq:comp-aodd-mag)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: a canonical label (F, e) commutes with E iff F is balanced (as many even-even as odd-odd diagonals): the printed rule, the multiply-based test and the class agree on 4833 labels (1053 balanced; up to 2 letters, exponents 1, 2, e in {-1, 0, 2})",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: mult_generators = the 15 balanced chords and the 50 non-crossing (even-even, odd-odd) pairs, 65 = k(k+2) + (k+2) C(k+2,3) in all; geometric labels are the multisets of diagonals",
+   "ok": true,
+   "note": "65 gens, 65 transcribed, geo True"
+  },
+  {
+   "name": "k=3: the product is the gauged product (U1A1AoddKAlg) and every term of it is balanced, on 300 ordered generator pairs",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: L_(F,e) = E^e L_(F,0) = z^-e L_(F,0) (eq:comp-aodd-lift): r_label_decompose, the product with E^e, and Tr L_(F,e) = z^-e Tr L_(F,0) through q^6 on 21 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: rho(L_(F,e)) = L_(F', d(F)-e) (eq:comp-aodd-rho, the drift eq:comp-drift) and rho^-1 inverts it, on 474 labels",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: rho^H = id on every generator (H = 10); modulo powers of z the order of rho is 10, the order of the zoo's a7 rho-permutation",
+   "ok": true,
+   "note": "orders [10], mod z 10, zoo 10"
+  },
+  {
+   "name": "k=3: with A1 = {0,2}, A2 = {2,4}, B1 = {5,7}, B2 = {7,9}, the products L_{A1,B1} L_{A2,B2} and L_{A1,B2} L_{A2,B1} are single terms on the one label {A1, A2, B1, B2}",
+   "ok": true,
+   "note": "(q^2)*L_(((1, 0, 1), (1, 2, 1), (1, 5, 1), (1, 7, 1)), 0) / L_(((1, 0, 1), (1, 2, 1), (1, 5, 1), (1, 7, 1)), 0)"
+  },
+  {
+   "name": "positive control: at k = 1 the transcribed generators are HexagonKAlg's six hand-named ones (3 diameters, 3 short-diagonal pairs)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the parity rule applied to the diagonal one vertex longer, {i, i+t+2}, disagrees with the E-commutator on {1: 9, 2: 20, 3: 35} letters at k = 1, 2, 3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: rho without the drift differs from the class on [28, 38, 69] of the rho labels at k = 1, 2, 3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the lift with the opposite sign, L_(F,e) = z^e L_(F,0), fails the trace on [21, 21, 21] labels at k = 1, 2, 3",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

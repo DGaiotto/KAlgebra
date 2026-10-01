@@ -12,9 +12,8 @@ no flavour symmetry; rank 6/8 = `U1A1AoddKAlg(2/3)`'s rank `2k+2`), so the
 auxiliary is the gauged-odd cone directly — no `add_flavour`, no quantum torus.
 
 This suite depends on Step 1 (KAlgebra) + Step 2 (ConeKAlgebra: the cone
-auxiliary `U1A1AoddKAlg`, whose frozen `.pkl` tables are what make these flows
-**spine-free** at runtime — the tables come from a derivation that is not run,
-or needed, here).
+auxiliary `U1A1AoddKAlg`, whose tables are derived analytically on demand — no
+stored data — which is what makes these flows **spine-free** at runtime).
 
 For each: exact-FS, truncation-stable vacuum Schur index, the KAlgebra axioms +
 orthonormality, and a no-spine-imported assertion.
@@ -94,15 +93,20 @@ def test_e8():
 def test_u1a1e7():
     """The u(1)-gauged `[A₁, E₇]` — the E₇ representative (the ungauged E₇ has a
     slow `add_flavour(1)` refined trace; gauging the U(1) makes it pure exact-FS).
-    aux = `A1A2kKAlg(3) ⊗ QT(Z²)`, `S_RG = E_𝖖(X_{(0,1)}·L_{(2,2)})`."""
+    aux = `A1A2kKAlg(3) ⊗ QT(Z²)`, `S_RG = E_𝖖(X_{(0,1)}·L_{(3,0)})` — the
+    central chord.  The chord `(2,2)` of earlier releases gives the u(1)-gauged
+    `[A₁,D₇]` instead: its vacuum carries `+q⁸ + q¹⁰` and `Tr(E^{±1}) = +q²`,
+    where the gauged `[A₁,E₇]` has `Tr(E^{±1}) = −q³` (checked below)."""
     A = U1A1E7RGKAlgebra()
     assert A._fs_exact_available()
-    assert (A.DRESS_TYPE, A._i0) == (2, 2)             # node-4 interior dressing
+    assert (A.DRESS_TYPE, A._i0) == (3, 0)             # the central chord
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         v10 = _ser(A.trace(A.identity(), 10), 10)
         nw = len(w)
-    assert nw == 0 and v10 == {0: "1", 2: "-1", 6: "1", 8: "1", 10: "1"}, ("U1A1E7 vac", v10, nw)
+    assert nw == 0 and v10 == {0: "1", 2: "-1", 6: "1"}, ("U1A1E7 vac", v10, nw)
+    for n in (1, -1):
+        assert _ser(A.trace(((), (0, n)), 6), 6) == {3: "-1"}, ("U1A1E7 Tr(E^n)", n)
     assert _ser(A.trace(A.identity(), 6), 6) == _ser(A.trace(A.identity(), 10), 6)
     labs = [A.identity(), (((1, 0, 1),), (0, 0)), (((1, 1, 1),), (0, 0)),
             ((), (0, 1)), ((), (1, 0))]

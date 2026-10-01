@@ -11,7 +11,7 @@ level 1 — precisely where the multi-index has more than one component
 
 So here the μ-level is a genuine multi-index `k⃗ ∈ Z_{≥0}^M`, one component per
 irrep summand `N_i` — which is also what the flavour convention demands (one
-`U(1)` per summand, user ruling 2026-07-27).
+`U(1)` per summand).
 
 Everything else carries over unchanged in shape:
 
@@ -201,7 +201,8 @@ def cells_from_rg_chart_vec(chart: dict) -> dict:
 
 
 def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
-                               verbose: bool = False, lines=None):
+                               verbose: bool = False, lines=None,
+                               support=None, stats=None):
     """`L_{m,e}` for `(G, N)` with `M ≥ 2` slots, as `{k⃗: {cell: TorusRational}}`.
 
     Solves the μ-sectors `k⃗ ≤ Δ⃗_N(m)` in **total-degree order** (a linear
@@ -215,7 +216,21 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
     to the **simply connected** form.  Measured consequence of omitting it
     (2026-07-28): PSU(3)'s minuscule 't Hooft line builds in the pure theory but
     honest-fails as soon as matter is added, because the inner pure algebra refuses
-    the fractional coweight it was never told about."""
+    the fractional coweight it was never told about.
+
+    `support` (default `None` = the hull `conv(W·m)`, unchanged) MEASURES the
+    support condition rather than assuming it (the design record,
+    `conj:abeKalgebra/support`): every μ-sector is solved on that larger
+    Weyl-invariant set of cells (`star_bubbling.joint_solve`, `support=`), the
+    `O(𝖖)` offsets run over all of its cells, and the returned tower carries them
+    — zero outside the hull wherever the support condition follows from the
+    other conditions.  With `support` EVERY sector is solved: the degree law
+    below is a statement about the hull's cells, and it must not decide the
+    cells it is being tested against.  Measured 2026-09-26: at all 47 sectors it
+    forces at U(2)+2, `m = (0,−2), (0,−3), (0,−4)`, the solve at the default
+    window returns the forced answer.  `stats` (a dict, diagnostic) receives,
+    per sector, `forced_on_hull` (the degree law's decision on the hull),
+    `status` and the `offset` handed to the solve."""
     from pure_g_abe_kalgebra import PureGAbeKAlgebra
 
     m, e = tuple(m), tuple(e)
@@ -234,6 +249,9 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
     orbit = {tuple(datum.act_cochar(w, m)) for w in datum.weyl_elements()}
     lead = delta_N_vec(datum, matter, m)
     M = len(lead)
+    # the cells the tower lives on: the pure chart's, or those and the override's
+    cells = list(pres) if support is None else list(dict.fromkeys(
+        list(pres) + [tuple(p) for p in support]))
 
     sectors = [k for k in product(*[range(t + 1) for t in lead])]
     sectors.sort(key=lambda k: (sum(k), k))
@@ -250,7 +268,7 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
     for k in sectors:
         offset: dict = {}
         if any(k):
-            for cell in pres:
+            for cell in cells:
                 if cell in orbit:
                     continue
                 Zc = Z_levels_vec(datum, matter, cell, kmax=k)
@@ -276,18 +294,29 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
         # across the whole support, so every sector above `0⃗` is forced; the
         # offset there was verified equal to the oracle's `Z·Q` cell by cell,
         # and with the short-circuit the label builds in 0.1 s with `Q ==
-        # UNNfKAlgebra.chart` exactly (it previously honest-failed outright).
+        # UNNfKAlgebra.chart` exactly — the type-A oracle, since retired (it
+        # previously honest-failed outright).
         # Constructive: this reads off a measured law, it does not solve.  The
         # strict divisibility guard below still re-checks D1/D2/D3 on the
         # assembled element.
+        # RE-MEASURED 2026-09-26 (the design record, the support measurement): the
+        # `inconsistent` above does not reproduce on the current solver — at all
+        # 47 sectors the law forces at U(2)+N_f=2, `m = (0,−2), (0,−3), (0,−4)`,
+        # sector (1,1) of `m = (0,−4)` included, the solve at the default window
+        # is unique and returns the forced answer.  The short-circuit stays: it
+        # is cheaper, and its answer is axiom-checked below either way.
         forced = any(k) and not any(
             all(k[t] <= budget[c][t] for t in range(M))
             for c in pres if c not in orbit)
+        if stats is not None:
+            stats.setdefault("sectors", {})[k] = dict(forced_on_hull=bool(forced),
+                                                      offset=offset)
+        if support is not None:
+            forced = False          # every sector solved (docstring)
         if forced:
             Ff = {c: offset.get(c, TorusRational.zero(datum))
                   for c in pres if c not in orbit}
-            # D2 PROPOSES; the axioms DISPOSE (user ruling, 2026-07-28: D2 is a
-            # heuristic, "should not be needed a priori").  Assemble the sector
+            # D2 PROPOSES; the axioms DISPOSE.  Assemble the sector
             # and check (★)+W1; fall through to the solve if it does not hold.
             trial = dict(Ff)
             for a in pres:
@@ -304,7 +333,9 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
         if not forced:
             status, Ff, _interior = solve_level(
                 datum, matter, m, e, k, pad=pad, verbose=verbose,
-                oq_offset=offset or None, lines=lines)
+                oq_offset=offset or None, lines=lines, support=support)
+            if stats is not None:
+                stats["sectors"][k]["status"] = status
             if status != "unique":
                 raise DivisibilityFailure(
                     f"{datum.name}: L_{{{m},{e}}} μ-sector {k} not pinned by "
@@ -318,7 +349,7 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
                           else (pres[a] * TorusRational.from_laurent(Zk)
                                 ).simplify())
         if not forced:
-            # A **SOLVED** sector is checked against the axioms too — user ruling,
+            # A **SOLVED** sector is checked against the axioms too — the author's ruling,
             # 2026-07-30: *"a solved-for `L_{m,e}` should be axiom-checked if the
             # solver does not do it automatically"*.  On this path it does not:
             #
@@ -333,7 +364,7 @@ def solve_canonical_matter_vec(datum, matter, m, e, pad: int = 1,
             # and "unique, verified over `Z`" means the answer satisfies **its own
             # assembled rows**, not that those rows are the right ones.  A wrong
             # ansatz yielding a unique wrong answer would have passed silently.
-            # (ruling D35's defect was an ansatz CUTOFF, which showed up as
+            # (the defect was an ansatz CUTOFF, which showed up as
             # `inconsistent` rather than as a wrong answer, so this gap was not what
             # bit there — but it is the gap that would hide the same class of bug the
             # next time it produced an answer instead of a refusal.)

@@ -89,9 +89,7 @@ arithmetic **bit-for-bit** (verified) and changes only how it is organised:
 WHAT THE ORDER IS, AND WHAT IT IS NOT.  The recursion needs only a **total order
 on the pairs `(γ, s)`** — one position per BPS factor
 `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}`, each placeable at an arbitrary position among the
-pre-existing ones (user, 2026-08-13: *"given any total order of pairs (γ,s), we
-have an algorithm to build an `S`"*; the coarser charge-level relaxation is the
-user's 2026-08-10 one).  Three parametrizations, from most to least
+pre-existing ones.  Three parametrizations, from most to least
 general:
 
     piece_key=  (γ, 2s) -> sortable     THE CONTRACT: any total order on pairs
@@ -109,12 +107,17 @@ algorithm requires; the engine consumes all three only through `_pkey`.
 dictionary at charge level and at piece level.  What the choice *does* move is
 the content `Ω`, which is what `factor_order_search.py` searches over.
 
-So **no central charge is used unless one is supplied** (user, 2026-08-13).  The
+So **no central charge is used unless one is supplied**.  The
 default is the phase-free `"strip"` heuristic — the source/sink strip's node order
 (the repo's own mantle theorem) extended to the cone by `mean_rank_key`, which
 reproduces a good central charge's minimum-factor chamber *exactly* (`rank` factors,
-spin-0 only) — falling back to `"random"` placement of the individual `(s, γ)`
-pieces where the strip leaves a core and so determines nothing.  Placing each
+spin-0 only).  Where the strip leaves a core but the quiver is not strongly
+connected, the default is the **component order** — each strongly connected component
+built on its own and the product assembled source-first,
+the design notes §1.3 — and only on a strongly connected quiver,
+where the decomposition determines nothing, or under a custom `leading_data`,
+does it fall back to `"random"` placement of the individual `(s, γ)` pieces.
+Placing each
 `(s, γ)` piece independently is licensed: `⟨γ,γ⟩ = 0` makes the pieces at one `γ`
 commute, and `S` is measured unchanged over 30 independent-placement
 builds.
@@ -288,7 +291,7 @@ def nahm_generators(charge: Vec, omega: dict[int, int]) -> list[tuple]:
     `m_s(γ) = ∏_{j=−2s,step 2}^{2s} E_𝖖((−1)^{2s} 𝖖^j X_γ)^{(−1)^{2s}}`.
 
     The per-factor coefficients follow from the two series (derivation and
-    pinning in `implementations.nahm_local.general_nahm_habiro`):
+    pinning in `nahm_local.general_nahm_habiro`):
 
         exponent +1  ->  linear 1+j,  diagonal 0,  sign base −σ
         exponent −1  ->  linear j,    diagonal 1,  sign base  σ
@@ -552,8 +555,7 @@ class BPSFactorSpectrum:
 
         WHAT THE ENGINE ACTUALLY REQUIRES IS A TOTAL ORDER ON THE PAIRS `(γ, s)`,
         and nothing more — every BPS factor `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` may be
-        placed at an arbitrary position among the pre-existing ones (user,
-        2026-08-13; the charge-level relaxation is the 2026-08-10 one).  A
+        placed at an arbitrary position among the pre-existing ones.  A
         central charge is one
         *parametrization* of such an order, not the requirement, and a narrow one:
         at rank 2 the phase order is monotone in slope, so a linear `Z` reaches
@@ -565,8 +567,25 @@ class BPSFactorSpectrum:
           order, extended to the cone by `mean_rank_key`.  Phase-free, and
           measured to place exactly `rank` factors, spin-0 only — the same chamber a
           well-chosen central charge selects.
-        * `"random"` (DEFAULT otherwise) — every `(s, γ)` piece at its own random
-          position.  Verified to leave `S` unchanged (measured).
+        * `"component"` (DEFAULT on a cyclic quiver that is not strongly
+          connected; user, 2026-09-23) — the component order of
+          the design record §1.3: the strongly connected components
+          (`quiver_enumeration.strongly_connected_components`, source-first —
+          every arrow between two of them points from an earlier one to a later
+          one), each component's pieces before those of every later component.
+          In that order `Ω = 0` is FORCED at every charge whose support meets two
+          or more components (its coefficient in the partial product is a
+          product of two or more coefficients in `𝖖ℤ[[𝖖]]`), so the engine
+          builds each component ALONE, on its own cone and in its own default
+          order, and assembles `S` as their ordered product — one term per
+          coefficient, since a charge splits among the components in exactly
+          one way.  `Ω` is the disjoint union of the components'.  Needs the BPS
+          leading data (the zero at mixed charges is where the forcing comes
+          from), so a custom `leading_data` is refused.  On a strongly connected
+          quiver it is the component's own default, i.e. `"random"`.
+        * `"random"` (DEFAULT on a strongly connected quiver) — every `(s, γ)`
+          piece at its own random position.  Verified to leave `S` unchanged
+          (a probe in the source repository).
         * `"key"` — ordered by the key: `piece_key` if given, else `order_key`,
           else `arg Z_γ` from `phases`.  Not degree-compatible, so it is built
           with cached prefix products.  With `piece_key` the placement unit is the
@@ -583,7 +602,7 @@ class BPSFactorSpectrum:
     phases
         Complex central charge per node — the *linear* parametrization of the
         order.  **Supplying it is what asks for a central-charge order** and the
-        only way one is ever used (user, 2026-08-13); omitted, no phase is
+        only way one is ever used; omitted, no phase is
         computed at all.  Falls back to a generic spread across the upper half
         plane when a key-driven mode is named without either knob.  Mutually
         exclusive with `order_key`.
@@ -602,7 +621,7 @@ class BPSFactorSpectrum:
     piece_key
         `(charge (node coords), 2s) -> sortable` — **the contract's own form**: an
         arbitrary total order on the pairs `(γ, s)`, one position per multiplet
-        factor `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` (user, 2026-08-13).  Ties break on
+        factor `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}`.  Ties break on
         `(charge, 2s)`, so a constant key degenerates to lexicographic rather than
         becoming ill-defined.  Mutually exclusive with `phases` and `order_key`.
 
@@ -645,8 +664,16 @@ class BPSFactorSpectrum:
         self._piece_key = piece_key
         self.order_requested = order
         order = _MODE_ALIASES.get(order, order)
+        # Only a caller who asked for no order at all gets the component order
+        # by default; an explicit order, key or central charge is honoured as is.
+        default_order = order is None and not given
+        if order == "component" and given:
+            raise ValueError(
+                "order='component' is an order of its own — the strongly "
+                "connected components in source-first order, each in its own "
+                "default order — so it takes no phases / order_key / piece_key.")
         # DEFAULT MODE SELECTION — no central charge unless one is supplied
-        # (user, 2026-08-13).  Supplying `phases` IS the request for a
+        #  Supplying `phases` IS the request for a
         # central-charge order; otherwise the default is a combinatorial
         # heuristic, and only where that heuristic has nothing to say does it
         # fall back to random placement.
@@ -699,6 +726,26 @@ class BPSFactorSpectrum:
                  for r in range(self.dim)) for b in self.nodes]
             for a in self.nodes
         ]
+
+        # The component order: the default on a cyclic
+        # quiver that is not strongly connected, and available by name on any
+        # quiver.  `"random"` is reached by default only on a cyclic quiver, so
+        # that is where the decomposition is asked for.
+        self._components: list[list[int]] | None = None
+        if self.order == "component" or (default_order and self.order == "random"):
+            from quiver_enumeration import strongly_connected_components
+            comps = strongly_connected_components(self._bnode)
+            if self.order == "component":
+                if leading_data is not None:
+                    raise ValueError(
+                        "order='component' needs the BPS leading data: the zero "
+                        "multiplicity at every charge meeting two components is "
+                        "forced by the leading data vanishing there, so a custom "
+                        "leading_data is built with the ordinary engine instead.")
+                self._components = comps
+            elif len(comps) > 1 and leading_data is None:
+                self.order = "component"
+                self._components = comps
 
         # A generic linear central charge: strictly decreasing argument across
         # the upper half plane, so no two cone charges share a phase and the
@@ -784,15 +831,19 @@ class BPSFactorSpectrum:
         seam `fs_builder.FSBuilder` uses to grow `F_γ` in lockstep with `S`; it
         fires at every degree, including one that places nothing.
 
-        Three shapes:
+        Three shapes, and the component order built from them:
 
+        * `"component"` (the DEFAULT on a cyclic quiver that is not strongly
+          connected) — each strongly connected component run as its own
+          engine in its own default order, the product assembled source-first
+          (`_run_components`); no charge meeting two components is ever read.
         * `"strip"` (the DEFAULT where it applies) — the source/sink strip's node
           order, extended to the cone by `mean_rank_key`.  **No central charge**,
-          which is the point (user, 2026-08-13): the recursion needs only some
+          which is the point: the recursion needs only some
           total order, and the default must not smuggle in physics it does not
           need.  Measured to reproduce the central charge's minimum-factor chamber
           exactly — `rank` factors, spin-0 only — so being phase-free costs nothing.
-        * `"random"` (the DEFAULT fallback, on a quiver whose strip leaves a core)
+        * `"random"` (the DEFAULT fallback, on a strongly connected quiver)
           — each `E^{(s)}_𝖖(X_γ)^{Ω(γ,s)}` goes at its own uniformly random
           position among those already placed.  Prefix-cached like `"key"`, since a
           random position is an interior insertion.
@@ -806,6 +857,8 @@ class BPSFactorSpectrum:
           places far fewer and much smaller `Ω`, and it is the only mode whose `Ω`
           is a chamber's BPS spectrum — ask for it when that is what you want.
         """
+        if self.order == "component":
+            return self._run_components(after_degree)
         if self.order == "random":
             return self._run_piece_insert(keyed=False, after_degree=after_degree)
         if self.order in ("strip", "key"):
@@ -876,6 +929,95 @@ class BPSFactorSpectrum:
 
         self._S = prefix[-1]
         return self.omega
+
+    def _run_components(self, after_degree=None) -> dict[Vec, dict[int, int]]:
+        """The component order: each strongly connected component built alone,
+        `S` assembled as the ordered product (the design notes
+        §1.3; user, 2026-09-23).
+
+        Each component runs as its own `BPSFactorSpectrum` — its node bracket,
+        the standard basis, this cutoff and seed, and its own default order
+        (`"strip"` for a single node, `"random"` for a cyclic component).  That
+        IS this engine in the total order placing every component's pieces
+        before the later components' — the readout at a charge of one component
+        sees only that component's factors, and at a charge meeting two or more
+        components `Ω` is forced to zero — so no mixed charge is ever read out.
+
+        `after_degree` keeps its contract: the partial product after every piece
+        of degree `≤ d` is the ordered product of the components' own partial
+        products at degree `d`, assembled and delivered once each component has
+        been built.
+        """
+        builds = []
+        for comp in self._components:
+            m = len(comp)
+            sub = BPSFactorSpectrum(
+                [[self._bnode[i][j] for j in comp] for i in comp],
+                [tuple(1 if c == r else 0 for c in range(m)) for r in range(m)],
+                self.degree_cap, seed=self.seed)
+            partials: list | None = [] if after_degree is not None else None
+            sub.run(after_degree=None if partials is None
+                    else (lambda d, p, _into=partials: _into.append(p)))
+            builds.append((comp, sub, partials))
+        self.omega = {}
+        for comp, sub, _ in builds:
+            for k, om in sub.omega.items():
+                self.omega[self._embed(k, comp)] = om
+        if after_degree is not None:
+            for d in range(1, self.degree_cap + 1):
+                after_degree(d, self._assemble(
+                    [(comp, partials[d - 1]) for comp, _, partials in builds]))
+        self._S = self._assemble([(comp, sub._S) for comp, sub, _ in builds])
+        return self.omega
+
+    def _embed(self, k: Vec, comp: Sequence[int]) -> Vec:
+        """A component's node coordinates, as this quiver's."""
+        out = [0] * self.rank
+        for a, node in enumerate(comp):
+            out[node] = k[a]
+        return tuple(out)
+
+    def _assemble(self, parts) -> dict[Vec, HabiroElement]:
+        """`∏_k S_k` in the order of `parts` — `(component nodes, coefficients in
+        the component's node coordinates)`, source-first — truncated to this
+        cone.  The supports are disjoint, so a product charge `Σ_k γ_k` arises
+        from exactly one tuple of parts and its coefficient is the single term
+        `𝖖^{Σ_{k<l} ⟨γ_k, γ_l⟩} ∏_k (S_k)_{γ_k}` — no sums, and the exponent is
+        never negative, every arrow between two components pointing forward."""
+        D, n = self.degree_cap, self.rank
+        zero = tuple([0] * n)
+        acc: dict[Vec, HabiroElement] = {zero: H1}
+        acc_deg: dict[Vec, int] = {zero: 0}
+        for comp, coeffs in parts:
+            m = len(comp)
+            items = []
+            for ka, ca in coeffs.items():
+                da = sum(ka)
+                if not da or ca.is_zero():
+                    continue
+                # w[j] = ⟨γ_j, the embedded ka⟩, so ⟨key, ka⟩ = Σ_j key_j w_j.
+                w = [sum(self._bnode[j][comp[b]] * ka[b] for b in range(m))
+                     for j in range(n)]
+                items.append((da, self._embed(ka, comp), ca, w))
+            items.sort(key=lambda t: t[0])
+            new, new_deg = dict(acc), dict(acc_deg)     # the (S_k)_0 = 1 term
+            for key, c in acc.items():
+                room = D - acc_deg[key]
+                for da, emb, ca, w in items:
+                    if da > room:
+                        break
+                    br = 0
+                    for j, kj in enumerate(key):
+                        if kj:
+                            br += kj * w[j]
+                    term = c * ca
+                    if br:
+                        term = term * q_pow(br)
+                    nk = tuple(a + b for a, b in zip(key, emb))
+                    new[nk] = term
+                    new_deg[nk] = acc_deg[key] + da
+            acc, acc_deg = new, new_deg
+        return acc
 
     def _readout(self, partial: dict[Vec, HabiroElement],
                  degree: int) -> list[tuple[Vec, dict[int, int]]]:
@@ -1134,7 +1276,7 @@ class BPSFactorSpectrum:
 
 
 PLACEMENT_ORDERS = ("strip", "random", "key", "degree-key",
-              "lex", "phase", "degree-phase")
+              "lex", "phase", "degree-phase", "component")
 
 
 
@@ -1185,7 +1327,9 @@ def build_spectrum_generator_from_factors(
     The order is any total order on the pairs `(γ, s)`; pass it as `piece_key`
     (the general form), `order_key` (charge level) or `phases` (a linear central
     charge).  **`order` now defaults to `None` = the `BPSFactorSpectrum` default**, which
-    is phase-free (`"strip"` on an acyclic quiver, `"random"` otherwise).  It used
+    is phase-free (`"strip"` on an acyclic quiver, the component order `"component"`
+    on a cyclic quiver that is not strongly connected, `"random"` on a strongly
+    connected one).  It used
     to default to `"phase"`, which synthesised a generic central charge — that
     contradicted the 2026-08-13 ruling that no central charge is used unless one is
     supplied, and the ruling had reached `BPSFactorSpectrum` but not this wrapper.  `S`

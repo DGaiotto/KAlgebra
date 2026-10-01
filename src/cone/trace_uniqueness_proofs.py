@@ -121,9 +121,13 @@ def reduction_cyclicity_differences(A, pairs):
     On the pentagon/heptagon every difference vanishes identically —
     the seeds are free coordinates of the cyclic-functional space.  On
     e6 they do NOT all vanish: cyclicity imposes genuine relations
-    BETWEEN ρ²-orbit seeds (e.g. e6 forces `T₂ = T₆`, satisfied
-    exactly by the canonical trace, while `T₄ ≠ T₅` stays free — the
-    relations are subtler than blanket `Tr∘ρ = Tr`).  Each nonzero
+    BETWEEN ρ²-orbit seeds — e6 forces `T₂ = T₆` (satisfied exactly by
+    the canonical trace) and `T₀ = T₂ + 𝖖²T₄`.  `T₂ = T₆` is axiom 5
+    (ρ-equivariance of the trace, `Tr∘ρ = Tr` at trivial flavour) on the
+    ρ-paired seeds 2↔6; the other ρ-paired seeds 5↔7 also satisfy it in
+    the frozen table, though degree-1 cyclicity does not force that one.
+    Seeds 4 and 5 lie in different ρ-orbits, so `T₄ ≠ T₅` is expected and
+    is not a statement about ρ (corrected 2026-09-18).  Each nonzero
     difference is therefore a certified *instance of the cyclicity
     axiom* and enters the proof system as exact homogeneous rows on
     the seed unknowns."""

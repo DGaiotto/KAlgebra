@@ -40,8 +40,8 @@ If three chords meet at a point (possible for symmetric inputs), the
 parameter spacing is perturbed deterministically and the layout
 retried.
 
-Self-contained: depends only on `skein_sphere.triangulation` and
-`skein_sphere.multicurve`.
+Self-contained: depends only on `triangulation` and
+`multicurve`.
 """
 
 from __future__ import annotations

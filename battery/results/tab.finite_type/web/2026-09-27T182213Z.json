@@ -1,0 +1,754 @@
+{
+ "id": "tab:finite_type",
+ "labels": [
+  "app:finite",
+  "tab:finite_type"
+ ],
+ "date": "2026-09-27T18:22:13Z",
+ "commit": "1f82fe55cfdafe90f86a24a863e24c96aa8249a5",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "presentations": {
+   "A1A2kKAlg(1)": {
+    "window": 16,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 13
+   },
+   "A1A2kKAlg(2)": {
+    "window": 56,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 27
+   },
+   "A1A2kKAlg(3)": {
+    "window": 72,
+    "dressed": 0,
+    "labels": 9,
+    "sections": 9,
+    "flavoured": 9,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 40
+   },
+   "PentagonKAlg": {
+    "window": 16,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 13
+   },
+   "HeptagonKAlg": {
+    "window": 56,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 26
+   },
+   "ungauge_u1a1aodd(1)": {
+    "window": 39,
+    "dressed": 7,
+    "labels": 6,
+    "sections": 3,
+    "flavoured": 6,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 22
+   },
+   "ungauge_u1a1aodd(2)": {
+    "window": 96,
+    "dressed": 17,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 53
+   },
+   "ungauge_u1a1aodd(3)": {
+    "window": 134,
+    "dressed": 23,
+    "labels": 10,
+    "sections": 10,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 47
+   },
+   "HexagonKAlg": {
+    "window": 39,
+    "dressed": 7,
+    "labels": 6,
+    "sections": 3,
+    "flavoured": 6,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 22
+   },
+   "OctagonKAlg": {
+    "window": 96,
+    "dressed": 17,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 53
+   },
+   "DecagonKAlg": {
+    "window": 134,
+    "dressed": 23,
+    "labels": 10,
+    "sections": 10,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 47
+   },
+   "DodecagonKAlg": {
+    "window": 183,
+    "dressed": 0,
+    "labels": 12,
+    "sections": 12,
+    "flavoured": 12,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 47
+   },
+   "A1DnKAlg(3)": {
+    "window": 23,
+    "dressed": 0,
+    "labels": 3,
+    "sections": 3,
+    "flavoured": 3,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 17
+   },
+   "A1DnKAlg(5)": {
+    "window": 65,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 55
+   },
+   "A1DnKAlg(7)": {
+    "window": 88,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 52
+   },
+   "A1DoddConeKAlg(0)": {
+    "window": 23,
+    "dressed": 0,
+    "labels": 3,
+    "sections": 3,
+    "flavoured": 3,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 20
+   },
+   "A1DoddConeKAlg(1)": {
+    "window": 72,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 52
+   },
+   "A1DoddConeKAlg(2)": {
+    "window": 97,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 50
+   },
+   "A1DevenKAlg(1)": {
+    "window": 64,
+    "dressed": 6,
+    "labels": 4,
+    "sections": 4,
+    "flavoured": 4,
+    "group": "SU(2)xU(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 26
+   },
+   "A1DevenKAlg(2)": {
+    "window": 98,
+    "dressed": 19,
+    "labels": 6,
+    "sections": 6,
+    "flavoured": 6,
+    "group": "SU(2)xU(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 78
+   },
+   "A1DevenKAlg(3)": {
+    "window": 175,
+    "dressed": 11,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "SU(2)xU(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 67
+   },
+   "SU3ADKAlg": {
+    "window": 52,
+    "dressed": 8,
+    "labels": 4,
+    "sections": 4,
+    "flavoured": 4,
+    "group": "SU(3)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 33
+   },
+   "zoo pentagon": {
+    "window": 16,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 13
+   },
+   "zoo heptagon": {
+    "window": 56,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 28
+   },
+   "zoo a3": {
+    "window": 19,
+    "dressed": 0,
+    "labels": 3,
+    "sections": 3,
+    "flavoured": 6,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 14
+   },
+   "zoo a5": {
+    "window": 81,
+    "dressed": 0,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 48
+   },
+   "zoo a7": {
+    "window": 134,
+    "dressed": 0,
+    "labels": 10,
+    "sections": 10,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 48
+   },
+   "zoo a1d3": {
+    "window": 19,
+    "dressed": 0,
+    "labels": 3,
+    "sections": 3,
+    "flavoured": 3,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 15
+   },
+   "zoo a1d4": {
+    "window": 29,
+    "dressed": 0,
+    "labels": 4,
+    "sections": 4,
+    "flavoured": 4,
+    "group": "SU(2)xU(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 18
+   },
+   "zoo a1d5": {
+    "window": 69,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 43
+   },
+   "zoo a1d7": {
+    "window": 99,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "SU(2)",
+    "star": 1,
+    "control_moved": 0,
+    "control": 55
+   },
+   "FiniteE6KAlgebra (zoo e6)": {
+    "window": 101,
+    "dressed": 0,
+    "labels": 14,
+    "sections": 14,
+    "flavoured": 14,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 56
+   },
+   "FiniteE8KAlgebra (zoo e8)": {
+    "window": 269,
+    "dressed": 0,
+    "labels": 16,
+    "sections": 16,
+    "flavoured": 16,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 176
+   },
+   "zoo a1d6": {
+    "window": 105,
+    "dressed": 0,
+    "labels": 6,
+    "sections": 6,
+    "flavoured": 6,
+    "group": "SU(2)xU(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 52
+   },
+   "zoo a1d8": {
+    "window": 260,
+    "dressed": 0,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "SU(2)xU(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 244
+   },
+   "FiniteE7KAlgebra (zoo e7)": {
+    "window": 169,
+    "dressed": 0,
+    "labels": 10,
+    "sections": 10,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 72
+   },
+   "BPS chart A2": {
+    "window": 5,
+    "dressed": 0,
+    "labels": 5,
+    "sections": 5,
+    "flavoured": 5,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 0
+   },
+   "BPS chart A3": {
+    "window": 9,
+    "dressed": 0,
+    "labels": 6,
+    "sections": 3,
+    "flavoured": 6,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 1
+   },
+   "BPS chart A4": {
+    "window": 14,
+    "dressed": 0,
+    "labels": 7,
+    "sections": 7,
+    "flavoured": 7,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 4
+   },
+   "BPS chart A5": {
+    "window": 20,
+    "dressed": 0,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 10
+   },
+   "BPS chart A6": {
+    "window": 27,
+    "dressed": 0,
+    "labels": 9,
+    "sections": 9,
+    "flavoured": 9,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 20
+   },
+   "BPS chart A7": {
+    "window": 35,
+    "dressed": 0,
+    "labels": 10,
+    "sections": 10,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 35
+   },
+   "BPS chart A9": {
+    "window": 54,
+    "dressed": 0,
+    "labels": 12,
+    "sections": 12,
+    "flavoured": 12,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 40
+   },
+   "BPS chart D4": {
+    "window": 14,
+    "dressed": 0,
+    "labels": 4,
+    "sections": 4,
+    "flavoured": 4,
+    "group": "U(1)^2",
+    "star": 2,
+    "control_moved": 0,
+    "control": 4
+   },
+   "BPS chart D5": {
+    "window": 20,
+    "dressed": 0,
+    "labels": 10,
+    "sections": 5,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 10
+   },
+   "BPS chart D6": {
+    "window": 27,
+    "dressed": 0,
+    "labels": 6,
+    "sections": 6,
+    "flavoured": 6,
+    "group": "U(1)^2",
+    "star": 2,
+    "control_moved": 0,
+    "control": 20
+   },
+   "BPS chart D7": {
+    "window": 35,
+    "dressed": 0,
+    "labels": 14,
+    "sections": 7,
+    "flavoured": 14,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 35
+   },
+   "BPS chart D8": {
+    "window": 44,
+    "dressed": 0,
+    "labels": 8,
+    "sections": 8,
+    "flavoured": 8,
+    "group": "U(1)^2",
+    "star": 2,
+    "control_moved": 0,
+    "control": 40
+   },
+   "BPS chart E6": {
+    "window": 27,
+    "dressed": 0,
+    "labels": 14,
+    "sections": 14,
+    "flavoured": 14,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 20
+   },
+   "BPS chart E7": {
+    "window": 35,
+    "dressed": 0,
+    "labels": 10,
+    "sections": 10,
+    "flavoured": 10,
+    "group": "U(1)",
+    "star": 2,
+    "control_moved": 0,
+    "control": 35
+   },
+   "BPS chart E8": {
+    "window": 44,
+    "dressed": 0,
+    "labels": 16,
+    "sections": 16,
+    "flavoured": 16,
+    "group": "---",
+    "star": 1,
+    "control_moved": 0,
+    "control": 40
+   }
+  },
+  "table entries": {
+   "A2": [
+    [
+     "[A1,A_2n]",
+     "---",
+     5
+    ]
+   ],
+   "A3": [
+    [
+     "[A1,D_2n+1]",
+     "SU(2)",
+     3
+    ],
+    [
+     "[A1,A_3]",
+     "SU(2)",
+     3
+    ]
+   ],
+   "A4": [
+    [
+     "[A1,A_2n]",
+     "---",
+     7
+    ]
+   ],
+   "A5": [
+    [
+     "[A1,A_2n+3]",
+     "U(1)",
+     8
+    ]
+   ],
+   "A6": [
+    [
+     "[A1,A_2n]",
+     "---",
+     9
+    ]
+   ],
+   "A7": [
+    [
+     "[A1,A_2n+3]",
+     "U(1)",
+     10
+    ]
+   ],
+   "A9": [
+    [
+     "[A1,A_2n+3]",
+     "U(1)",
+     12
+    ]
+   ],
+   "D4": [
+    [
+     "[A1,D_2n+2]",
+     "SU(2)xU(1)",
+     4
+    ],
+    [
+     "[A1,D_4]",
+     "SU(3)",
+     4
+    ]
+   ],
+   "D5": [
+    [
+     "[A1,D_2n+1]",
+     "SU(2)",
+     5
+    ]
+   ],
+   "D6": [
+    [
+     "[A1,D_2n+2]",
+     "SU(2)xU(1)",
+     6
+    ]
+   ],
+   "D7": [
+    [
+     "[A1,D_2n+1]",
+     "SU(2)",
+     7
+    ]
+   ],
+   "D8": [
+    [
+     "[A1,D_2n+2]",
+     "SU(2)xU(1)",
+     8
+    ]
+   ],
+   "E6": [
+    [
+     "[A1,E_6]",
+     "---",
+     14
+    ]
+   ],
+   "E7": [
+    [
+     "[A1,E_7]",
+     "U(1)",
+     10
+    ]
+   ],
+   "E8": [
+    [
+     "[A1,E_8]",
+     "---",
+     16
+    ]
+   ]
+  },
+  "n": "1..3",
+  "seconds": 9.3
+ },
+ "counts": {
+  "pass": 9,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "rho^order on a second window of every presentation",
+  "negative": "every single-entry perturbation of the table"
+ },
+ "elapsed_s": 9.285,
+ "notes": "The order of rho depends on the flavour group a presentation is taken over: the duality is trivial on R(SU(2)) and inverts U(1) charges, so over the Cartan U(1) of the enhanced SU(2) (the hexagon, the ungauged u(1)-gauged hexagon, the BPS charts of A3, D5, D7) the table's odd orders double.  On the unflavoured algebra the order is the table's on every presentation.",
+ "checks": [
+  {
+   "name": "the table's double entries nest: at A3, D4 the family row names an equal-rank subgroup of the explicit row's group, with the order lcm(explicit order, duality order of the subgroup)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "flavour rank = corank of the Dynkin quiver's exchange matrix, on all 15 table entries (n <= 3)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "order of rho on the unflavoured algebra (sections) = the table's, on 51 of 51 presentations (cone classes, zoo, BPS charts)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "every presentation's flavour group is the table's, or an equal-rank subgroup of it: 51 of 51 (42 over the table's group, 9 over a subgroup)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "over the table's own group, the order of rho on the flavoured algebra = the table's: 42 of 42",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "over an equal-rank subgroup H, the flavoured order = lcm(table order, duality order on R(H)): 9 of 9; it differs from the table's exactly where the table's order is odd and H has a U(1): 6 presentations",
+   "ok": true,
+   "note": "ungauge_u1a1aodd(1) (U(1) in SU(2): 6 for 3); HexagonKAlg (U(1) in SU(2): 6 for 3); zoo a3 (U(1) in SU(2): 6 for 3); BPS chart A3 (U(1) in SU(2): 6 for 3); BPS chart D5 (U(1) in SU(2): 10 for 5); BPS chart D7 (U(1) in SU(2): 14 for 7)"
+  },
+  {
+   "name": "every table entry (n <= 3) has a presentation over its own flavour group: 17 of 17",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "positive control: rho^order fixes every label of a second window (products of other generator pairs; triple sums on the charts) on 51 of 51 presentations",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: of 126 single-entry perturbations of the table (each order replaced by a proper divisor or its double, each group by another), rejected: 120; not rejected by any measurement (6): a larger group of the same rank, which only a presentation over it could confirm",
+   "ok": true,
+   "note": "A5: SU(2) for U(1); A7: SU(2) for U(1); A9: SU(2) for U(1); D6: SU(3) for SU(2)xU(1); D8: SU(3) for SU(2)xU(1); E7: SU(2) for U(1)"
+  }
+ ]
+}

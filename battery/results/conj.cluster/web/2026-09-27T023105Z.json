@@ -1,0 +1,63 @@
+{
+ "id": "conj:cluster",
+ "labels": [
+  "conj:cluster"
+ ],
+ "date": "2026-09-27T02:31:05Z",
+ "commit": "d4c399d1e913cfe01a41c7bd7fd5f037ed54b3af",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "sample": "first 120 entries with n <= 4 of dictionaries/enumerated (shard format 3, E = 11: 111987 strongly connected quivers, 104086 with a green spec, 7901 crystalline-only, 0 uncertified), cell order",
+  "lineup": [
+   "pentagon",
+   "A_3",
+   "[A_1,D_4]",
+   "Kronecker (pure SU(2))",
+   "SU(2)+1",
+   "SU(2)+2",
+   "SU(2)+3"
+  ],
+  "depth": 4,
+  "seconds": 41.6
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon's two chambers",
+  "negative": "five wrong pentagon specs and a doubled node factor are caught"
+ },
+ "elapsed_s": 41.567,
+ "notes": "Web-tier sample; the manifest certifies every entry (104086 green, 7901 crystalline-only, axiom mismatches 0).  The rich build's spec families (several green sequences per quiver) are the local machine's.",
+ "checks": [
+  {
+   "name": "controls: the pentagon's S from the independent arithmetic, both pentagon chambers satisfy the constraint, and wrong specs (reversed, repeated, missing, spurious, a doubled node factor) are caught: 7/7",
+   "ok": true,
+   "note": "{}"
+  },
+  {
+   "name": "def:sw / eq:quiver  on the first 120 entries with n <= 4 of dictionaries/enumerated (shard format 3, E = 11: 111987 strongly connected quivers, 104086 with a green spec, 7901 crystalline-only, 0 uncertified): every stored spec is accepted at depth 4 (green replay, the finite-depth constraint, agreement with the crystalline S): 98/98; stored without a spec: 22",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "conj:cluster  the same specs by the independent arithmetic: S_cluster satisfies the constraint 98/98 and equals S 98/98; green replay 98/98",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "conj:cluster  the lineup's specs (the pentagon's two chambers give one S): pentagon 2/2 equal to S (1 with a non-node charge); A_3 1/1 equal to S; [A_1,D_4] 1/1 equal to S; Kronecker (pure SU(2)) 1/1 equal to S; SU(2)+1 1/1 equal to S (1 with a non-node charge); SU(2)+2 1/1 equal to S; SU(2)+3 1/1 equal to S",
+   "ok": true,
+   "note": "{'pentagon': (2, 2, 2, 1), 'A_3': (1, 1, 1, 0), '[A_1,D_4]': (1, 1, 1, 0), 'Kronecker (pure SU(2))': (1, 1, 1, 0), 'SU(2)+1': (1, 1, 1, 1), 'SU(2)+2': (1, 1, 1, 0), 'SU(2)+3': (1, 1, 1, 0)}"
+  }
+ ]
+}

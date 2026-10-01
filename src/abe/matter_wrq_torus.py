@@ -1,8 +1,8 @@
 """`matter_wrq_torus` — `MatterWRQTorus`: the `(G, N)` enriched torus on the
-**group-general WRQ substrate** (D10 Stage 2).
+**group-general WRQ substrate**.
 
 The flavoured extension of `WRQTorus` per the validated design
-(the suite in the source repository): the gauge foundation is unchanged (the WRQ
+(`tests/test_flavoured_wrq.py`): the gauge foundation is unchanged (the WRQ
 cocycle IS the flavoured gauge backbone), and matter enters **additively** —
 
   * a **μ-level grading** on residuals: `f = {atom m: {k ∈ Z^{#slots}:
@@ -21,7 +21,7 @@ cocycle IS the flavoured gauge backbone), and matter enters **additively** —
     slot's rung count);
   * the **μ-refined trace**: the matter factors `∏_{i,w} E(μ_i v^w)·E(μ_i⁻¹
     v^{−w})` (Nahm window `W`) inserted into the datum-general Schur residue
-    `wrq_torus.trace_residual` (which carries the D10 k=0-pole folding +
+    `wrq_torus.trace_residual` (which carries the k=0-pole folding +
     completeness pad).
 
 **Matter is a representation, not a count** (widened 2026-07-28 so the
@@ -36,10 +36,10 @@ is the same rung law as `matter_star_bubbling.matter_monomials`, which is what
 lets `GMatterAbeKAlgebra` present its charts here.
 
 Public language: atoms `U_m`, monomials `v^e`, μ-levels, and the cocycles
-`R̃·W` — no `u`'s, no dressing operators (user ruling 2026-07-02).
+`R̃·W` — no `u`'s, no dressing operators.
 
-Certification (the suite in the source repository): transported
-`UNNfKAlgebra(2,1)` / `(2,2)` charts — multiply, ρ, and the μ-refined trace
+Certification (the suite in the source repository, made before the type-A layer was
+retired on 2026-09-19): transported `UNNfKAlgebra(2,1)` / `(2,2)` charts — multiply, ρ, and the μ-refined trace
 commute with the `VRational → TorusRational` transport, cross-engine against
 the certified `QuiverURQTorus`; plus the widening's own leg (the `int` and
 expanded-weight declarations agree cell for cell, and `Z` matches
@@ -189,9 +189,7 @@ def slot_weights(datum: RootDatum, matter) -> tuple:
       * a sequence of already-expanded weight sets (tuples of weights), passed
         through.
 
-    One μ-slot per irreducible summand `N_i` is the standing flavour convention
-    (user, 2026-07-27: *"if it is a sum of irreps `N_i`, just use a `U(1)`
-    flavour for each for now"*)."""
+    One μ-slot per irreducible summand `N_i` is the standing flavour convention."""
     if isinstance(matter, int):
         w = defining_weight(datum)
         return (rep_weights(datum, w),) * int(matter)
@@ -285,7 +283,7 @@ def _matter_factor_via_Z(datum, m, mp, slots) -> dict:
     """`W_{m,m'} = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}` per μ-level — finite
     net numerator by triangular division (raises past the rung budget).
 
-    The **trivialization** route, no longer the definition (user, 2026-08-24):
+    The **trivialization** route, no longer the definition:
     `Z` trivializes `W` exactly as `ψ` trivializes the gauge cocycle `R`, and
     `_matter_factor` below defines it directly.  Kept, and checked against the
     definition by `verify_Z_trivializes_matter_factor`."""
@@ -342,7 +340,7 @@ def _matter_factor_via_Z(datum, m, mp, slots) -> dict:
 # The matter cocycle as a PRIMITIVE — a product over the matter weights
 # ---------------------------------------------------------------------------
 #
-# The matter half of the user's 2026-08-24 ruling (*"same for the matter
+# The matter half of the author's ruling (*"same for the matter
 # cocycle, which we should not forget"*; *"including matter of course"*).  `W`
 # is defined directly below; `Z` is demoted to a trivialization of it, whose
 # main role is the formulation of the star axiom.
@@ -420,7 +418,7 @@ def _matter_factor(datum, m, mp, slots) -> dict:
 def CC_N(datum, m, mp, slots) -> dict:
     """`CC[N]_{m,m'}` — the cocycle of the `(G, N)` theory, per μ-level.
 
-    Name and split ruled by the user, 2026-08-24: **`CC` for pure gauge,
+    Name and split ruled by the author, 2026-08-24: **`CC` for pure gauge,
     `CC[N]` combining gauge and matter**, so `CC = CC[0]` is a genuine
     specialisation rather than a notational coincidence, matching the repo's
     `(G, N)` / `(G, 0)` convention.  This is exactly what the product law of
@@ -429,7 +427,7 @@ def CC_N(datum, m, mp, slots) -> dict:
     (`_matter_factor`).
 
     ⚠ **`N` must be a representation whose weights are allowed by the global
-    form `G`** (user, 2026-08-24).  Otherwise `CC[N]` is not a cocycle *of that
+    form `G`**.  Otherwise `CC[N]` is not a cocycle *of that
     form* at all: at `PSU(N)` the fundamental is not admissible while the
     adjoint is.  This module sees only a `RootDatum` and the weight lists, so it
     cannot check that itself — `verify_matter_weights_admitted` does, given the
@@ -447,8 +445,7 @@ def CC_N(datum, m, mp, slots) -> dict:
 def verify_matter_weights_admitted(lines, slots) -> bool:
     """Every weight of every matter slot is an electric charge of the form.
 
-    The precondition of `CC[N]` (user, 2026-08-24: *"`N` must be a
-    representation of weight allowed by the global form `G`"*).  `lines` is a
+    The precondition of `CC[N]`.  `lines` is a
     `global_form.LineLattice`; the test is its `m = 0` fibre, i.e. which
     representations are representations *of this form*."""
     return all(lines.elec_admits(tuple(w)) for wts in slots for w in wts)
@@ -466,6 +463,261 @@ def verify_Z_trivializes_matter_factor(datum, m, mp, slots) -> bool:
          for k, v in _matter_factor_via_Z(datum, m, mp, slots).items()
          if not v.simplify().is_zero()}
     return set(a) == set(b) and all(a[k] == b[k] for k in a)
+
+
+
+def _rungs_ED_of(datum, atom, slots):
+    """`(E, D)` of `Z(atom)`: the q-free Z-top v-exponent and the per-slot rung
+    counts (module-level twin of `MatterWRQTorus._rungs_ED`)."""
+    E = [0] * datum.dim
+    D = [0] * len(slots)
+    for (slot, vw, _sh) in _flavour_rungs(atom, slots):
+        D[slot] += 1
+        for t in range(datum.dim):
+            E[t] += vw[t]
+    return E, D
+
+
+def matter_sector_weight(datum, slots, m) -> tuple:
+    """The per-sector weight of the `(G, N)` Schur pairing, `{r⃗: w_{m,r⃗}}` plus
+    the level-star offset `D(−m)` — the matter analogue of
+    `wrq_torus.sector_weight`.
+
+        w_{m,r⃗} = T_{−m}( G̃_m · v^{−E(−m)} ) · CC[N]_{−m,m}[r⃗]
+
+    Derived from this module's two definitions exactly as the pure one was from
+    `wrq_torus`'s: `rho` sends the row `(m, k⃗)` to the atom `−m` with residual
+    `v̄(f)·G̃_m·v^{−E(−m)}` at level `−k⃗ − D(−m)` (the level star), and `__mul__`
+    reaches total charge `0` exactly through the pairs `(−m, m)`, with the
+    cocycle `CC[N]_{−m,m} = Σ_r⃗ w_r⃗ μ^{r⃗}` — gauge and matter together — and
+    `T_{−m}∘v̄ = v̄∘T_{+m}`.  So the matter measure is the pure measure `w_m`
+    times the matter factor `CC[N]/CC[0]` of the cocycle and the q-free Z-top
+    monomial, distributed over the μ-level shifts `r⃗`.
+
+    Closed form, all `(G, N)`: `matter_sector_measure_closed_form` (the
+    `u`-frame object `B^N_m = B_m·∏_{i,w}Ξ_{⟨m,w⟩}(μ_i u^w)`, derived there);
+    this stays the DERIVED object it is certified against."""
+    neg = tuple(-x for x in m)
+    gt = _rho_Gtilde(datum, m, inverse=False)
+    E, D = _rungs_ED_of(datum, neg, slots)
+    base = gt
+    if any(E):
+        base = (base * TorusRational.from_laurent(TorusLaurent(
+            datum, {tuple(-x for x in E): LaurentPoly({0: 1})}))).simplify()
+    base = base.q_shift(neg).simplify()                     # T_{−m}(G̃_m v^{−E(−m)})
+    out = {}
+    for r, w in CC_N(datum, neg, m, slots).items():
+        term = (base * w).simplify()
+        if not term.is_zero():
+            out[tuple(r)] = term
+    return out, tuple(D)
+
+
+# ---------------------------------------------------------------------------
+# The matter sector measure in CLOSED FORM — derived for every (G, N)
+# (2026-09-19; user: "the closed form of the sector measure … for all G and N
+# is needed")
+# ---------------------------------------------------------------------------
+
+
+def matter_sector_measure(datum, slots, m) -> dict:
+    """`B^N_m` — the `(G, N)` per-sector measure in the variable `u = 𝖖^{−m}v`, as
+    a μ-Laurent polynomial `{k⃗: TorusRational}`: the DERIVED object,
+
+        B^N_m  =  Σ_r⃗ T_{+m}( w_{m,r⃗} ) · μ^{ r⃗ − D(−m) },
+
+    i.e. `matter_sector_weight` half-shifted, with ρ's level star `−k⃗ − D(−m)`
+    on the first slot folded into the measure's level (that is what
+    `pairing_residual` does with it).  In this frame the pairing reads
+
+        I_{a,b} = pref · Σ_m [u⁰]( T_{+m}(μ_G μ_N)(u,μ) · B^N_m(u,μ)
+                                    · (v̄⋆F^a_m)(u,μ) · F^b_m(u,μ) ),
+
+    `F_m = Σ_k f_{m,k} μ^k` the μ-resolved residual at `m`, `μ_N` the
+    hypermultiplet Schur factor `∏_{i,w} 1/[(−𝖖μ_i v^w;𝖖²)_∞(−𝖖μ_i⁻¹v^{−w};𝖖²)_∞]`
+    (the trace's Nahm sum `Σ_n (−𝖖x)^n/(𝖖²;𝖖²)_n`), and `v̄⋆` the inversion
+    `(u, μ) ↦ (1/u, 1/μ)`: `T_{+m}∘v̄∘T_{+m} = v̄` and `T_{+m}` of the `v`-frame
+    weight is this object.  Exchanging `a ↔ b` is `v̄⋆` on the integrand, so
+    axiom 5 (ρ-equivariance of the trace) is manifest per sector iff the full
+    measure `T_{+m}(μ_Gμ_N)·B^N_m` is `v̄⋆`-invariant — the certificate
+    `verify_matter_sector_measure_inversion_symmetric`, exact.  The passage from
+    the `v`-frame constant term (where `inner_by_sector` computes) to this one
+    is the contour shift discussed at `wrq_torus.sector_measure`; it is the
+    same identity in the `v`-frame under `ι = v̄∘T_{2m}` (`T_{−m}` of the
+    `u`-frame statement), and the constant term's invariance under `ι` is
+    what remains measured rather than derived (end to end, 36/36 at SU(2)+1,
+    25/25 at U(2)+1 and U(2)+2 — `tests/test_matter_sector_pairing.py`)."""
+    wdict, D = matter_sector_weight(datum, slots, m)
+    m = tuple(m)
+    out = {}
+    for r, w in wdict.items():
+        k = tuple(x - y for x, y in zip(r, D))
+        out[k] = w.q_shift(m).simplify()
+    return out
+
+
+def matter_weight_factor(datum, w, c, slot, n_slots) -> dict:
+    """`Ξ_c(x)`, `x = μ_slot u^w`, `c = ⟨m,w⟩` — the one-weight factor of the
+    closed-form matter measure, as `{k⃗: TorusRational}` (level `k⃗` = the power
+    of `μ_slot`):
+
+        Ξ_c(x)  =  x^{−max(c,0)} · ∏_{j=0}^{|c|−1} (1 + 𝖖^{|c|−1−2j} x),   Ξ_0 = 1.
+
+    **Derivation.**  `CC[N]_{−m,m}` carries, per weight with `c ≠ 0`, the
+    `|c|` numerator factors `(1 + 𝖖^e μ v^w)` with `e = −sgn(c)(2|c|−1−2j)`
+    (`matter_factor_exponents(−c, c)`); the half shift `T_{+m}: v^w ↦ 𝖖^c v^w`
+    makes the exponents `sgn(c)(2j+1−|c|)`, the symmetric set
+    `{1−|c|, 3−|c|, …, |c|−1}` in either order.  The q-free Z-top `v^{−E(−m)}`
+    and the level star `μ^{−D(−m)}` of `matter_sector_weight` are
+    `∏_{c>0}(μ u^w)^{−c}` — the rungs of `Z(−m)` are exactly the weights with
+    `⟨−m,w⟩ < 0`, `c` copies each — which is the `x^{−max(c,0)}`.
+
+    **Inversion:** `Ξ_c(1/x) = x^{c}·Ξ_c(x)` for EITHER sign of `c`.  Over the
+    symmetric exponent set `∏(1+𝖖^k/x) = x^{−|c|}∏(1+𝖖^k x)`; for `c > 0`
+    the prefactor `x^{−c} ↦ x^{c}` combines to `x^{c}`, and for `c < 0` there
+    is no prefactor and `x^{−|c|} = x^{c}`."""
+    c = int(c)
+    d = datum.dim
+    w = tuple(int(x) for x in w)
+    zero = (0,) * n_slots
+    levels = {zero: TorusRational.one(datum)}
+    if c == 0:
+        return levels
+    for j in range(abs(c)):
+        mono = TorusRational.from_laurent(TorusLaurent.monomial(
+            datum, w, LaurentPoly({abs(c) - 1 - 2 * j: 1})))
+        out: dict = {}
+        for k, val in levels.items():
+            out[k] = (out[k] + val).simplify() if k in out else val
+            k2 = tuple(x + (1 if t == slot else 0) for t, x in enumerate(k))
+            term = (val * mono).simplify()
+            out[k2] = (out[k2] + term).simplify() if k2 in out else term
+        levels = {k: v for k, v in out.items() if not v.is_zero()}
+    if c > 0:
+        mono = TorusRational.from_laurent(TorusLaurent.monomial(
+            datum, tuple(-c * x for x in w), LaurentPoly({0: 1})))
+        levels = {tuple(x - (c if t == slot else 0) for t, x in enumerate(k)):
+                  (v * mono).simplify() for k, v in levels.items()}
+    return levels
+
+
+def matter_sector_measure_closed_form(datum, slots, m) -> dict:
+    """`B^N_m` in closed form, for EVERY `(G, N)`:
+
+        B^N_m(u, μ)  =  B_m(u) · ∏_{i} ∏_{w ∈ wt(N_i)} Ξ_{⟨m,w⟩}( μ_i u^w ),
+
+    `B_m` the pure closed form (`wrq_torus.sector_measure_closed_form`) and
+    `Ξ_c` = `matter_weight_factor`.  Derived from `matter_sector_weight`'s
+    definition `w_{m,r⃗} = T_{−m}(G̃_m v^{−E(−m)})·CC[N]_{−m,m}[r⃗]` with the
+    level star: `T_{+m}` puts `G̃_m·T_{+m}(CC)` = `B_m` in front, and the matter
+    factor of the cocycle, the Z-top and the star assemble weight by weight
+    into `Ξ` (see there).  Returned as `{k⃗: TorusRational}` on the same level
+    convention as `matter_sector_measure`.
+
+    Consequences, now theorems rather than measurements:
+
+    * with `x_{i,w} = μ_i u^w` and `c = ⟨m,w⟩`, `Ξ_c(1/x) = x^c Ξ_c(x)`, so
+      `v̄⋆(B^N_m) = Q_m · ∏_{i,w} (μ_i u^w)^{⟨m,w⟩} · B^N_m`, and the
+      hypermultiplet measure gives EXACTLY that monomial as its shift ratio
+      (`matter_sector_measure_inversion_ratio`): the full `u`-frame measure is
+      inversion-invariant and axiom 5 (ρ-equivariance of the trace) is manifest
+      per sector on the matter tier, `⋆` included;
+    * the `c < 0` window is the μ-dressed double window of the design record's per-cell
+      `Ξ` in `aux_space` ("trivial for `c ≥ 0`" there is the `x^{−c}`-free
+      half here, up to that frame's Z-top monomial).
+
+    **The same object in the author's `K_𝖖-algebras` draft (eq. Iexplicit):** the
+    hyper measure there carries `|⟨m,w⟩|` shifts on BOTH members of the pair,
+    `1/(−𝖖^{1+|c|}μ_i v^w;𝖖²)_∞(−𝖖^{1+|c|}μ_i^{−1}v^{−w};𝖖²)_∞`, and no `Ξ`; the
+    ratio to the signed-shift `T_{+m}μ_N` on the `−|c|` side is the finite
+    product `Ξ_c(μ_i u^w)` exactly (pinned per weight,
+    `tests/test_sector_measure_closed_form.py` leg 6), so `T_{+m}μ_N·∏Ξ_c` IS
+    the draft's hyper measure and the μ-window is its `|·|` shift.
+
+    Certified equal to the derived `matter_sector_measure` by
+    `verify_matter_sector_measure_closed_form` — 203/203 cocharacters over the
+    thirteen `g_matter_roster` presets, U(2)+1 to G₂+7 and two-slot Spin(5)
+    spinors (`tests/test_sector_measure_closed_form.py`; 267/267 on the wider
+    development grid)."""
+    from wrq_torus import sector_measure_closed_form
+    m = tuple(m)
+    n = len(slots)
+    levels = {(0,) * n: sector_measure_closed_form(datum, m)}
+    for i, wts in enumerate(slots):
+        for w in wts:
+            c = int(datum.shift_pairing(m, tuple(w)))
+            if c == 0:
+                continue
+            fac = matter_weight_factor(datum, w, c, i, n)
+            out: dict = {}
+            for k1, v1 in levels.items():
+                for k2, v2 in fac.items():
+                    k = tuple(x + y for x, y in zip(k1, k2))
+                    term = (v1 * v2).simplify()
+                    out[k] = (out[k] + term).simplify() if k in out else term
+            levels = {k: v for k, v in out.items() if not v.is_zero()}
+    return levels
+
+
+def matter_sector_measure_inversion_ratio(datum, slots, m) -> tuple:
+    """`Q^N_m = T_{+m}(μ_Gμ_N) / T_{−m}(μ_Gμ_N)` — `(level shift, TorusRational)`:
+    the gauge ratio `Q_m` (`wrq_torus.sector_measure_inversion_ratio`, the finite
+    product) times the matter ratio, which is the MONOMIAL
+
+        ∏_{i} ∏_{w ∈ wt(N_i)} (μ_i u^w)^{⟨m,w⟩}
+
+    — returned as the per-slot level shift `Σ_{w∈wt(N_i)} ⟨m,w⟩` and the
+    `u`-monomial `u^{Σ_{i,w}⟨m,w⟩ w}` multiplying `Q_m`.
+
+    **Derivation.**  The trace inserts, per weight, the Nahm sum
+    `Σ_n (−𝖖x)^n/(𝖖²;𝖖²)_n = 1/(−𝖖x;𝖖²)_∞` at `x = μ_i v^w` and at `1/x`
+    (`MatterWRQTorus._mu_trace_rows`, `HabiroElement.nahm_term((−1)^n, n, [n])`),
+    the hypermultiplet Schur factor.  With `c = ⟨m,w⟩ > 0`,
+
+        [(−𝖖^{1−c}x)_∞/(−𝖖^{1+c}x)_∞] · [(−𝖖^{1+c}/x)_∞/(−𝖖^{1−c}/x)_∞]
+          = ∏_{j<c}(1+𝖖^{1−c+2j}x) / ∏_{j<c}(1+𝖖^{1−c+2j}/x) = x^{c},
+
+    the exponent multiset being symmetric (`(1+𝖖^k/x) = 𝖖^k x^{−1}(1+𝖖^{−k}x)`);
+    `c < 0` gives the reciprocal structure and the same `x^{c}`.  It is the
+    sign convention `(−𝖖x)` — the trace's, matching the cocycle's `(1+𝖖^e μv^w)`
+    rungs — that makes the ratio sign-free."""
+    from wrq_torus import sector_measure_inversion_ratio
+    m = tuple(m)
+    d = datum.dim
+    lev = [0] * len(slots)
+    wt = [0] * d
+    for i, wts in enumerate(slots):
+        for w in wts:
+            c = int(datum.shift_pairing(m, tuple(w)))
+            lev[i] += c
+            for t in range(d):
+                wt[t] += c * int(w[t])
+    mono = TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, tuple(wt), LaurentPoly({0: 1})))
+    return tuple(lev), (sector_measure_inversion_ratio(datum, m) * mono)
+
+
+def verify_matter_sector_measure_closed_form(datum, slots, m) -> bool:
+    """`matter_sector_measure_closed_form == matter_sector_measure`, level by
+    level, exactly."""
+    a = matter_sector_measure(datum, slots, m)
+    b = matter_sector_measure_closed_form(datum, slots, m)
+    return set(a) == set(b) and all(
+        (a[k] - b[k]).simplify().is_zero() for k in a)
+
+
+def verify_matter_sector_measure_inversion_symmetric(datum, slots, m) -> bool:
+    """The manifest-symmetry certificate of the matter tier:
+    `v̄⋆(B^N_m) == Q^N_m · B^N_m` exactly, `v̄⋆ : (u, μ) ↦ (1/u, 1/μ)` — i.e. the
+    `u`-frame measure `T_{+m}(μ_Gμ_N)·B^N_m` is invariant under the exchange of
+    the two slots, `⋆` included.  No states, no truncation."""
+    B = matter_sector_measure(datum, slots, m)
+    lev, Q = matter_sector_measure_inversion_ratio(datum, slots, m)
+    lhs = {tuple(-x for x in k): v.vinv().simplify() for k, v in B.items()}
+    rhs = {tuple(x + y for x, y in zip(k, lev)): (Q * v).simplify()
+           for k, v in B.items()}
+    return set(lhs) == set(rhs) and all(
+        (lhs[k] - rhs[k]).simplify().is_zero() for k in lhs)
 
 
 class MatterWRQTorus:
@@ -671,16 +923,99 @@ class MatterWRQTorus:
                 dst[k] = g if k not in dst else (dst[k] + g).simplify()
         return MatterWRQTorus(self.datum, self.slots, out)
 
+    # ----- the Schur pairing as a sum over magnetic sectors -----
+    def pairing_residual(self, other: "MatterWRQTorus") -> dict:
+        """The magnetic-0 rows `{μ-level K⃗: TorusRational}` of `ρ(self)·other`,
+        assembled DIRECTLY over the shared magnetic support with the two
+        residuals entering symmetrically (the matter twin of
+        `WRQTorus.pairing_residual`):
+
+            f_{0,K⃗} = Σ_m Σ_{k⃗₁,k⃗₂,r⃗: −k⃗₁−D(−m)+k⃗₂+r⃗ = K⃗}
+                        w_{m,r⃗} · v̄( T_{+m} f^a_{m,k⃗₁} ) · T_{−m}( f^b_{m,k⃗₂} )
+
+        with `w_{m,r⃗}, D(−m) = matter_sector_weight(datum, slots, m)`.  Exchanging
+        the two slots is `v → 1/v` together with the level star — which is why
+        `I_{b,a} = ⋆(I_{a,b})` (axiom 5, ρ-equivariance of the trace) is manifest
+        in this form, `⋆` being the flavour duality `μ^{k⃗} ↦ μ^{−k⃗}` on the
+        coefficients.  No `ρ(self)` object and no non-zero sectors of the
+        convolution are formed."""
+        datum = self.datum
+        acc: dict = {}
+        for m, row1 in self._f.items():
+            row2 = other._f.get(m)
+            if not row2:
+                continue
+            neg = tuple(-x for x in m)
+            wdict, D = matter_sector_weight(datum, self.slots, m)
+            for k1, f1 in row1.items():
+                a = f1.q_shift(tuple(m)).vinv()                  # v̄(T_{+m} f^a)
+                kstar = tuple(-x - dd for x, dd in zip(k1, D))   # the level star
+                for k2, f2 in row2.items():
+                    base = (a * f2.q_shift(neg)).simplify()      # · T_{−m} f^b
+                    for r, w in wdict.items():
+                        Kv = tuple(x + y + z for x, y, z in zip(kstar, k2, r))
+                        term = (base * w).simplify()
+                        acc[Kv] = term if Kv not in acc else (acc[Kv] + term).simplify()
+        return {k: v for k, v in acc.items() if not v.is_zero()}
+
+    def inner_by_sector(self, other: "MatterWRQTorus", K: int = 8, W: int = 4) -> dict:
+        """`⟨a,b⟩ = Tr(ρ(a)·b)` as `{μ-level: LaurentPoly}` via the per-sector
+        measure (`pairing_residual`) and the μ-refined Schur residue — a
+        separate expression from `(self.rho() * other).trace(K, W)`, agreeing
+        with it as a theorem (the total-charge-0 part of the convolution),
+        certified in `tests/test_matter_sector_pairing.py`.  Same Nahm window
+        `W` as `trace`; the sector pieces are summed before the residue."""
+        return self._mu_trace_rows(self.pairing_residual(other), K, W)
+
     # ----- μ-refined trace -----
     def trace(self, K: int = 8, W: int = 4) -> dict:
         """`{μ-level: LaurentPoly}` — the flavour matter factors
         `∏_{i,j} E(μ_i v_j)E(μ_i⁻¹ v_j⁻¹)` (Nahm window `W`) inserted into the
         datum-general Schur residue of the magnetic-0 residual."""
-        from habiro import HabiroElement
-        d, Nf = self._d, self.Nf
-        row0 = self._f.get((0,) * d)
+        row0 = self._f.get((0,) * self._d)
         if not row0:
             return {}
+        return self._mu_trace_rows(row0, K, W)
+
+    def _mu_trace_rows(self, row0: dict, K: int, W: int) -> dict:
+        """The μ-refined Schur residue of magnetic-0 rows `{k⃗: TorusRational}`
+        (shared by `trace` and `inner_by_sector`).
+
+        **The Nahm window is raised to `K + pad` when `W` is smaller** — `pad`
+        the depth of the rows' 𝖖-expansion below `𝖖⁰`.  Every other factor of
+        the residue starts at 𝖖⁰ or later: the Nahm term of level `n` is
+        `O(𝖖ⁿ)`, the Schur measure has no negative power.  So a Nahm term the
+        window leaves out (a level `n > W`, or a combination the `Σ|level| ≤ W`
+        pruning drops, whose levels sum past `W`) reaches only orders
+        `≥ W + 1 − pad`, and `W ≥ K + pad` makes the result exact through `𝖖^K`.
+        The expansion is the one `trace_residual` makes (`_factor_inv_series`):
+        `1/(1 − 𝖖^k v^α)` starts at `𝖖⁰` for `k > 0` and at `𝖖^{|k|}` for
+        `k < 0` (`−𝖖^{|k|}v^{−α}/(1 − 𝖖^{|k|}v^{−α})`), so a row `N/D` starts at
+        `val(N) + Σ_{k<0} |k|·mult` — a property of the function, unchanged by a
+        common factor of `N` and `D`.  The callers' `W = K + 2` is the bound at
+        `pad ≤ 2`; ρ-images reach deeper.  Measured (2026-09-23, the audit):
+        at SU(2)+1 the pairing of `L_{(1),(−2)}` with `L_{(1),(2)}` has `pad = 4`
+        (its numerator alone starts at `𝖖⁻¹⁰`), and at `W = K + 2 = 6` it carried
+        a spurious `(μ⁶ + μ⁻⁶)𝖖⁴` — breaking axiom 5's `I_{b,a} = ⋆I_{a,b}` at
+        `𝖖⁴` — while `W ≥ 7` agrees with the printed sum over `m` (which has no
+        Nahm window) through `𝖖⁴`.  On the 81 pairs of that window's lines the
+        window needed never exceeded `K + pad` (numerator depths up to 20, `pad`
+        at most 4)."""
+        from habiro import HabiroElement
+        d, Nf = self._d, self.Nf
+        if not row0:
+            return {}
+        import math
+        pad = 0
+        for f0 in row0.values():
+            low = min((min(lp._coeffs) for lp in f0._num._t.values()
+                       if lp._coeffs), default=0)
+            low += sum(-k * mult for (_a, k), mult in f0._den.items() if k < 0)
+            # exponents may be Fractions (the SO(3)-type sectors carry the
+            # materialised half phase their coboundary removes): the ceiling keeps
+            # W an integer and the bound W ≥ K + depth
+            pad = max(pad, math.ceil(-low))
+        W = max(W, K + pad)
         Kq = K + 10
 
         def a_n(nn):

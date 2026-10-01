@@ -1,0 +1,91 @@
+{
+ "id": "comp:a1dodd/traces",
+ "labels": [
+  "comp:a1dodd"
+ ],
+ "date": "2026-09-23T03:01:29Z",
+ "commit": "7891c51a32af38ca862d4cd4af40914c5146211e",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "classes": {
+   "a1d5": {
+    "K": 16,
+    "bootstrap K": 12
+   },
+   "a1d7": {
+    "K": 12,
+    "bootstrap K": 8
+   }
+  },
+  "seconds": 168.4
+ },
+ "counts": {
+  "pass": 11,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the level -4/3 transcription against A1D3KAlg",
+  "negative": "a recipe with one term dropped fails"
+ },
+ "elapsed_s": 168.593,
+ "notes": "Characters transcribed independently of a1d5_layer2 / a1d7_layer2 and compared as (q, mu)-Laurent series; witnesses: the Nahm-sum vacuum, the su2_reliable bootstrap, the per-seed BPS engine (D5).",
+ "checks": [
+  {
+   "name": "positive control: the transcribed characters at level -4/3 give A1D3KAlg's Tr 1, Tr T_0, Tr D_0 (the paper's [A_1,D_3]) through q^12",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d5: Tr 1 and all 4 seeds equal the printed admissible-character combinations at level -8/5 through q^16",
+   "ok": true,
+   "note": "vacuum True, seeds {0: True, 1: True, 2: True, 3: True}"
+  },
+  {
+   "name": "a1d5: the Nahm-sum vacuum on the embedded BPS spectrum equals kappa_0 through q^16",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d5: the orthonormality bootstrap (su2_reliable, pure powers Tr(seed^a) = O(q^a)) pins the same 4 seeds through q^12",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d7: Tr 1 and all 6 seeds equal the printed admissible-character combinations at level -12/7 through q^12",
+   "ok": true,
+   "note": "vacuum True, seeds {0: True, 1: True, 2: True, 3: True, 4: True, 5: True}"
+  },
+  {
+   "name": "a1d7: the Nahm-sum vacuum on the embedded BPS spectrum equals kappa_0 through q^12",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d7: the orthonormality bootstrap (su2_reliable, pure powers Tr(seed^a) = O(q^a)) pins the same 6 seeds through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d5: the per-seed BPS engine gives the same vacuum and four seeds through q^6",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "a1d5: the printed head Tr 1 = 1 + chi_2 q^2 + (chi_0+chi_2+chi_4) q^4 + (chi_0+3chi_2+chi_4+chi_6) q^6 + (3chi_0+4chi_2+4chi_4+chi_6+chi_8) q^8",
+   "ok": true,
+   "note": "{0: {0: 1}, 8: {8: 1, 6: 1, 4: 4, 2: 4, 0: 3}, 6: {6: 1, 4: 1, 2: 3, 0: 1}, 4: {4: 1, 2: 1, 0: 1}, 2: {2: 1}}"
+  },
+  {
+   "name": "a1d7: the printed head Tr 1 = 1 + chi_2 q^2 + (chi_0+chi_2+chi_4) q^4 + (chi_0+3chi_2+chi_4+chi_6) q^6 + (3chi_0+4chi_2+4chi_4+chi_6+chi_8) q^8",
+   "ok": true,
+   "note": "{0: {0: 1}, 8: {8: 1, 6: 1, 4: 4, 2: 4, 0: 3}, 6: {6: 1, 4: 1, 2: 3, 0: 1}, 4: {4: 1, 2: 1, 0: 1}, 2: {2: 1}}"
+  },
+  {
+   "name": "negative control: seed 0 of D5 with its chi_1-dressed term dropped no longer matches",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

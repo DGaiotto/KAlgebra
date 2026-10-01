@@ -504,7 +504,8 @@ class PentagonKAlg(ConeKAlgebra):
     """The pentagon K-algebra `A_𝖖([A_1, A_2])`, defined intrinsically.
 
     *Definition.*  Generators `L_i` for `i ∈ Z/5`, the chord generators
-    of the pentagon (the `(2k+3)`-gon for `k = 1`).  Relations are the
+    of the pentagon (the `(2k+3)`-gon for `k = 1`): `L_i` is the diagonal
+    `{3i, 3i + 2}` (`curve`, `geometric_label`).  Relations are the
     Z/5 quantum Ptolemy relations (swap and two Plückers; equivalently,
     the `k = 1` case of the chord-pair rules).
     The canonical basis is `L_{i;a,b} = 𝖖^{ab} L_i^a L_{i+1}^b` with
@@ -553,6 +554,57 @@ class PentagonKAlg(ConeKAlgebra):
         i, x, y = a
         return _pent_canon_key(i - 2, x, y)
 
+    # ----- geometry: the diagonals of the pentagon ----------------------
+    #
+    # `L_i` is the diagonal `{3i, 3i + 2}` of the pentagon with marked points
+    # `0, …, 4`.  ρ-equivariance alone fixes this up to the basepoint:
+    # `ρ(L_i) = L_{i+2}` is the rotation `x ↦ x + 1` exactly when `L_i` starts
+    # at `3i + t`, and `t = 0` (`L_0 = {0, 2}`) is a convention — the
+    # rotations are automorphisms, so every `t` presents the algebra
+    # equally.  Measured against `A1A2kKAlg(1)`, whose letter `(1, j)` is
+    # `{j, j + 2}`, under `L_i ↦ (1, 3i)`: all 961 products of the 31
+    # canonical labels with `a, b ≤ 2` agree, and so does ρ on each; the
+    # reflected orientation `L_i ↦ (1, −3i)` agrees on 111 of the 961 and is
+    # not ρ-equivariant (the suite in the source repository).
+
+    H = 5
+
+    @staticmethod
+    def _diagonal(i: int) -> tuple[int, int]:
+        """The diagonal of `L_i`, a sorted pair of marked points."""
+        x = (3 * i) % 5
+        return tuple(sorted((x, (x + 2) % 5)))
+
+    def curve(self, x: int, ell: int):
+        """The label of the diagonal from marked point `x` to `x + ell`,
+        `2 ≤ ell ≤ 3`, as `A1A2kKAlg(1).curve`: the pentagon has no puncture,
+        so `curve(x, ell) == curve(x + ell, 5 − ell)`.  A boundary edge
+        (`ell = 1` or `4`) is the identity and not a letter, and raises, as
+        does any other `ell`."""
+        x, ell = int(x), int(ell)
+        if not 2 <= ell <= 3:
+            raise ValueError(
+                f"PentagonKAlg.curve({x}, {ell}): need 2 <= ell <= 3 (ell = 1 "
+                f"or 4 is a boundary edge of the pentagon)")
+        start = x if ell == 2 else x + 3        # {x, x + 3} = {x + 3, x + 5}
+        return _pent_canon_key(2 * start, 1, 0)  # 3i ≡ start  ⇔  i ≡ 2·start
+
+    def geometric_label(self, label):
+        """The label `(i, a, b)` — the element `𝖖^{ab} L_i^a L_{i+1}^b` — as
+        the multiset of its diagonals: a sorted tuple of pairs `((v1, v2), m)`,
+        `(v1, v2)` a diagonal (sorted marked points) and `m ≥ 1` its power;
+        the unit is `()`.  `L_i` and `L_{i+1}` share the marked point `3i`, so
+        the two diagonals of a label never cross.  The layout of the `curves`
+        of `A1DnKAlg`'s `(curves, κ)`, on this unflavoured polygon without a
+        puncture."""
+        i, a, b = _pent_canon_key(*label)
+        out = []
+        if a:
+            out.append((self._diagonal(i), a))
+        if b:
+            out.append((self._diagonal(i + 1), b))
+        return tuple(sorted(out))
+
     # ----- Layer-2 trace residual ---------------------------------------
     #
     # Canonical ρ²-orbit seeds produced by Layer 1 (tagged-cycle +
@@ -586,22 +638,33 @@ class PentagonKAlg(ConeKAlgebra):
 #
 # Pentagon-style direct realisation as a `KAlgebra` subclass.  Fourteen
 # named generators `L((k, i))` with `k ∈ {1, 2}` (orbit index) and
-# `i ∈ Z/7` (within-orbit ρ-index):
+# `i ∈ Z/7` (within-orbit ρ-index), the diagonals of the heptagon with
+# marked points `0, …, 6`:
 #
-#   * `L((1, i))` -- short-diagonal chord `(i, i+2)`  (orbit-1 in the
-#     `heptagon_kalg.HeptagonKAlg` wrapper).
-#   * `L((2, i))` -- long -diagonal chord `(i+3, i+6)` (orbit-2; the
-#     orbit-2 ρ-index carries a shift of −3 from the chord's starting
-#     vertex).
+#   * `L((1, i))` -- the short diagonal `{i, i+2}`;
+#   * `L((2, i))` -- the long diagonal `{i, i+4}`.
 #
-# The user's geometric rule  cross↔Plücker, share↔fq-commute,
-# disjoint↔commute holds across all 196 ordered pairs.
+# These are the letters of `A1A2kKAlg(2)`, whose `(a, j)` is the diagonal
+# `{j, j+a+1}`, under the relabelling of the orbit-2 index
 #
-# Multiplication is implemented via a single ρ-base table
-# `_HEPT_BASE_TABLE[(k_a, k_b, d)]` listing the canonical-basis
-# expansion of `L((k_a, 0)) · L((k_b, d))`, lifted by ρ-shift to any
-# starting index.  Each ordered pair is either a single basis term
-# (fq-commuting product `fq^c · X`) or a two-term Plücker.
+#     (1, i) ↦ (1, i),        (2, i) ↦ (2, i + 4),
+#
+# which carries all 196 generator products of this class onto
+# `A1A2kKAlg(2)`'s (under the identity map on labels, 140 of them differ).
+# The products are served through it: `HeptagonKAlg.multiply` relabels,
+# multiplies in `A1A2kKAlg(2)` and relabels back, and the per-pair
+# expansions `_hept_pair_product` read by `HEPTAGON_CONE_DATA` (the cone
+# data behind the Layer-1 trace) and by the reducers `_hept_reduce` /
+# `_hept_trace_layer1` are `A1A2kKAlg(2)`'s generator products,
+# relabelled.  No product table is stored in this module.
+#
+# On the 182 ordered pairs of distinct letters, crossing diagonals give a
+# two-term (Plücker) product and non-crossing ones fq-commute.  Whether a
+# non-crossing pair commutes exactly is decided by the arc-parity rule of
+# the chord algebra, not by sharing a vertex: 42 of the 84 vertex-sharing
+# ordered pairs commute exactly, and 14 of the 28 disjoint ones do not
+# (measured 2026-09-23), so the finer reading "share ↔ fq-commute,
+# disjoint ↔ commute" does not hold.
 #
 # Canonical basis labels are sorted tuples  `((k_1, i_1, e_1), ..., (k_m, i_m, e_m))`
 # of (letter, positive exponent) entries, where the letters
@@ -614,89 +677,57 @@ class PentagonKAlg(ConeKAlgebra):
 # Layer 1 reduces  Tr label  to  c0·T_0 + c1·T_1 + c2·T_2  with
 # Z[fq, fq^{-1}] coefficients (= the M(2, 7)-elementary trace space),
 # and the analytic Layer 2 plug-in (T_0, T_1, T_2 → the three M(2, 7)
-# Andrews-Gordon characters via `A1A2kKAlg(2)._compute_T_series`) IS
-# implemented — see the "Layer-2 trace residual" section in the class
-# body below.  (This header predates the plug-in; the original
-# vacuum-only fallback is gone.)
+# Andrews-Gordon characters via `A1A2kKAlg(2)._compute_T_series`) —
+# see the "Layer-2 trace residual" section in the class body below.
 #
 # The cross-check against `heptagon_kalg.HeptagonKAlg` (BPSKAlgebra
-# wrapper) lives in `tests/test_heptagon_kalg_pure.py`.
+# wrapper) lives in the suite of the source repository.
 
 _HEPT_H = 7
+_HEPT_ORBIT2_SHIFT = 4        # (2, i) here is A1A2kKAlg(2)'s (2, i + 4)
 
-# BASE_TABLE[(k_a, k_b, d)] = result of L((k_a, 0)) · L((k_b, d)) at
-# the base ρ-index a=0.  Each entry is a list of (kind, c) terms with
-#   kind = ('I',)                              -- the identity
-#        | ('L', (k, i))                       -- single named letter
-#        | ('X', ((k1, i1), (k2, i2)))         -- fq-commuting pair
-#                                                (= sum charge γ_a+γ_b)
-# and  c  the integer fq-exponent of the LaurentPoly coefficient.
-# Extracted by direct enumeration from the BPSKAlgebra wrapper; pinned
-# in `tests/test_heptagon_kalg_pure.py`.
-_HEPT_BASE_TABLE: dict[tuple[int, int, int], list] = {
-    (1, 1, 0): [(('X', ((1, 0), (1, 0))), 0)],
-    (1, 1, 1): [(('L', (2, 3)), -1), (('I',), 0)],
-    (1, 1, 2): [(('X', ((1, 0), (1, 2))), 1)],
-    (1, 1, 3): [(('X', ((1, 0), (1, 3))), -1)],
-    (1, 1, 4): [(('X', ((1, 0), (1, 4))), 1)],
-    (1, 1, 5): [(('X', ((1, 0), (1, 5))), -1)],
-    (1, 1, 6): [(('I',), 0), (('L', (2, 2)), 1)],
-    (1, 2, 0): [(('X', ((1, 0), (2, 0))), 0)],
-    (1, 2, 1): [(('L', (1, 5)), -1), (('L', (2, 5)), 0)],
-    (1, 2, 2): [(('X', ((1, 0), (2, 2))), 1)],
-    (1, 2, 3): [(('X', ((1, 0), (2, 3))), -1)],
-    (1, 2, 4): [(('L', (2, 0)), 0), (('L', (1, 2)), 1)],
-    (1, 2, 5): [(('X', ((1, 0), (2, 5))), 0)],
-    (1, 2, 6): [(('X', ((1, 0), (2, 6))), 0)],
-    (2, 1, 0): [(('X', ((1, 0), (2, 0))), 0)],
-    (2, 1, 1): [(('X', ((1, 1), (2, 0))), 0)],
-    (2, 1, 2): [(('X', ((1, 2), (2, 0))), 0)],
-    (2, 1, 3): [(('L', (1, 5)), -1), (('L', (2, 3)), 0)],
-    (2, 1, 4): [(('X', ((1, 4), (2, 0))), 1)],
-    (2, 1, 5): [(('X', ((1, 5), (2, 0))), -1)],
-    (2, 1, 6): [(('L', (2, 4)), 0), (('L', (1, 4)), 1)],
-    (2, 2, 0): [(('X', ((2, 0), (2, 0))), 0)],
-    (2, 2, 1): [(('X', ((1, 5), (2, 4))), -1), (('I',), 0)],
-    (2, 2, 2): [(('L', (1, 2)), 0), (('X', ((1, 0), (1, 4))), 1)],
-    (2, 2, 3): [(('X', ((2, 0), (2, 3))), 0)],
-    (2, 2, 4): [(('X', ((2, 0), (2, 4))), 0)],
-    (2, 2, 5): [(('X', ((1, 2), (1, 5))), -1), (('L', (1, 0)), 0)],
-    (2, 2, 6): [(('I',), 0), (('X', ((1, 4), (2, 3))), 1)],
-}
+_HEPT_A1A2K = None
 
 
-def _hept_pair_class(la: tuple[int, int], lb: tuple[int, int]) -> tuple[int, int, int, int]:
-    """For two letters `la=(ka, ia)`, `lb=(kb, ib)`, return the BASE_TABLE
-    key `(ka, kb, d)` with `d = (ib - ia) mod 7`, and the ρ-shift `a = ia`
-    needed to translate base-table outputs back to absolute indices.
-    Returns `(ka, kb, d, a)`."""
-    ka, ia = la
-    kb, ib = lb
-    return (ka, kb, (ib - ia) % _HEPT_H, ia)
+def _hept_a1a2k():
+    """The `A1A2kKAlg(2)` instance that serves `HeptagonKAlg` (built on
+    first use, then shared)."""
+    global _HEPT_A1A2K
+    if _HEPT_A1A2K is None:
+        from a1a2k_kalg import A1A2kKAlg
+        _HEPT_A1A2K = A1A2kKAlg(2)
+    return _HEPT_A1A2K
 
 
-def _hept_lift_term(kind, a_shift: int):
-    """Lift a single BASE_TABLE term `(kind, c)` from base ρ-index 0 to
-    starting ρ-index `a_shift`.  Returns the abstract-letter form:
-       ('I',)                                                  -- identity
-       ('letter', (k, i))                                      -- single
-       ('pair', ((k1, i1), (k2, i2)))                          -- pair
-    with absolute indices."""
-    if kind == ('I',):
-        return ('I',)
-    if kind[0] == 'L':
-        kx, ix = kind[1]
-        return ('letter', (kx, (ix + a_shift) % _HEPT_H))
-    # 'X'
-    ((k1, i1), (k2, i2)) = kind[1]
-    return ('pair', ((k1, (i1 + a_shift) % _HEPT_H),
-                     (k2, (i2 + a_shift) % _HEPT_H)))
+def _hept_letter_to_a1a2k(letter: tuple[int, int]) -> tuple[int, int]:
+    """`(1, i) ↦ (1, i)`, `(2, i) ↦ (2, i + 4)` (indices mod 7)."""
+    k, i = letter
+    return (k, (i + _HEPT_ORBIT2_SHIFT) % _HEPT_H if k == 2 else i % _HEPT_H)
 
 
-# Precomputed per-pair tables.  `_hept_pair_product`, `_hept_qcommute_factor`,
-# and `_hept_forward_q_coeff` are pure functions of `(la, lb)` over the
+def _hept_letter_from_a1a2k(letter: tuple[int, int]) -> tuple[int, int]:
+    """Inverse of `_hept_letter_to_a1a2k`."""
+    k, i = letter
+    return (k, (i - _HEPT_ORBIT2_SHIFT) % _HEPT_H if k == 2 else i % _HEPT_H)
+
+
+def _hept_label_to_a1a2k(label) -> tuple:
+    """A `HeptagonKAlg` label as the `A1A2kKAlg(2)` label of the same
+    element (letters relabelled, entries re-sorted)."""
+    return tuple(sorted(_hept_letter_to_a1a2k((k, i)) + (e,)
+                        for (k, i, e) in label))
+
+
+def _hept_label_from_a1a2k(label) -> tuple:
+    """Inverse of `_hept_label_to_a1a2k`."""
+    return tuple(sorted(_hept_letter_from_a1a2k((k, i)) + (e,)
+                        for (k, i, e) in label))
+
+
+# Per-pair caches.  `_hept_pair_product`, `_hept_qcommute_factor`, and
+# `_hept_forward_q_coeff` are pure functions of `(la, lb)` over the
 # 14 × 14 = 196 ordered letter pairs, hot-pathed millions of times by the
-# trace reducer.  Cache them at module load.
+# trace reducer; each is filled on first use.
 _HEPT_PAIR_PRODUCT_CACHE: dict[
     tuple[tuple[int, int], tuple[int, int]], tuple
 ] = {}
@@ -709,15 +740,39 @@ _HEPT_FWD_Q_CACHE: dict[
 
 
 def _hept_pair_product(la: tuple[int, int], lb: tuple[int, int]):
-    """Return the canonical expansion of `L(la) · L(lb)` as a list of
+    """Return the canonical expansion of `L(la) · L(lb)` as a tuple of
     `(lifted_term, c)` entries.  Each `lifted_term` is one of
-    `('I',)`, `('letter', (k, i))`, `('pair', ((k1, i1), (k2, i2)))`."""
+    `('I',)`, `('letter', (k, i))`, `('pair', ((k1, i1), (k2, i2)))`
+    (a sorted pair; a repeated letter for a square), and `c` is the
+    q-exponent of its coefficient.  Read off `A1A2kKAlg(2)`'s product of
+    the relabelled letters."""
     cached = _HEPT_PAIR_PRODUCT_CACHE.get((la, lb))
     if cached is not None:
         return cached
-    ka, kb, d, a_shift = _hept_pair_class(la, lb)
-    base = _HEPT_BASE_TABLE[(ka, kb, d)]
-    result = tuple((_hept_lift_term(kind, a_shift), c) for (kind, c) in base)
+    A = _hept_a1a2k()
+    prod = A.multiply(A.L(_hept_letter_to_a1a2k(la)),
+                      A.L(_hept_letter_to_a1a2k(lb)))
+    result = []
+    for label, coeff in prod.terms.items():
+        if len(coeff._coeffs) != 1 or next(iter(coeff._coeffs.values())) != 1:
+            raise ValueError(
+                f"_hept_pair_product({la}, {lb}): coefficient {coeff} of "
+                f"{label} is not a single power of q")
+        (c, _one), = coeff._coeffs.items()
+        letters = [(_hept_letter_from_a1a2k((k, i)), e) for (k, i, e) in label]
+        if not letters:
+            term = ('I',)
+        elif len(letters) == 1 and letters[0][1] == 1:
+            term = ('letter', letters[0][0])
+        elif len(letters) == 1 and letters[0][1] == 2:
+            term = ('pair', (letters[0][0], letters[0][0]))
+        elif len(letters) == 2 and letters[0][1] == letters[1][1] == 1:
+            term = ('pair', tuple(sorted(l for l, _e in letters)))
+        else:
+            raise ValueError(
+                f"_hept_pair_product({la}, {lb}): unexpected term {label}")
+        result.append((term, c))
+    result = tuple(result)
     _HEPT_PAIR_PRODUCT_CACHE[(la, lb)] = result
     return result
 
@@ -748,9 +803,9 @@ def _hept_qcommute_factor(la: tuple[int, int],
 def _hept_forward_q_coeff(la: tuple[int, int], lb: tuple[int, int]) -> int:
     """For fq-commuting `(la, lb)`, return the integer `c` such that
     `L(la) · L(lb) = fq^c · X[γ_la + γ_lb]` in the BPS X-basis
-    convention.  This is the `c`-value read off `_HEPT_BASE_TABLE`
-    for the forward order.  Returns 0 when `la == lb` (L_a² = X[2γ_a]
-    without twist)."""
+    convention.  This is the `c`-value of `_hept_pair_product(la, lb)`'s
+    single term.  Returns 0 when `la == lb` (L_a² = X[2γ_a] without
+    twist)."""
     cached = _HEPT_FWD_Q_CACHE.get((la, lb))
     if cached is not None:
         return cached
@@ -762,22 +817,6 @@ def _hept_forward_q_coeff(la: tuple[int, int], lb: tuple[int, int]) -> int:
         out = fwd[0][1]
     _HEPT_FWD_Q_CACHE[(la, lb)] = out
     return out
-
-
-def _hept_prewarm_pair_caches() -> None:
-    """Pre-populate the per-pair caches with all 196 letter combinations."""
-    for ka in (1, 2):
-        for ia in range(_HEPT_H):
-            for kb in (1, 2):
-                for ib in range(_HEPT_H):
-                    la, lb = (ka, ia), (kb, ib)
-                    _hept_pair_product(la, lb)
-                    _hept_qcommute_factor(la, lb)
-                    if _HEPT_QCOMMUTE_CACHE[(la, lb)] is not None:
-                        _hept_forward_q_coeff(la, lb)
-
-
-_hept_prewarm_pair_caches()
 
 
 # ---- LaurentPoly fast-path helpers ----
@@ -1384,47 +1423,57 @@ def _hept_try_cycles_at_tag(label, tag_idx, memo, in_progress
 
 
 class HeptagonKAlg(ConeKAlgebra):
-    """The heptagon K-algebra `A_𝖖([A_1, A_4])`, defined intrinsically.
+    """The heptagon K-algebra `A_𝖖([A_1, A_4])`, on its own labels.
 
     *Definition.*  Generators `L((k, i))` for `k ∈ {1, 2}` and
-    `i ∈ Z/7`, labelling the diagonals of the heptagon (the
-    `(2k+3)`-gon for `k = 2`); 14 letters in total.  Relations are
-    the Z/7 quantum Ptolemy relations at
-    `k = 2`.  Canonical-basis labels are sorted tuples
-    `((k₁, i₁, e₁), ..., (k_m, i_m, e_m))` with `e_r ≥ 1` and the
+    `i ∈ Z/7`, the diagonals of the heptagon (the `(2k+3)`-gon for
+    `k = 2`, marked points `0, …, 6`): `L((1, i))` is the diagonal
+    `{i, i + 2}` and `L((2, i))` the diagonal `{i, i + 4}`; 14 letters in
+    total.  Relations are the Z/7 quantum Ptolemy relations at
+    `k = 2`.  Canonical-basis labels are sorted
+    tuples `((k₁, i₁, e₁), ..., (k_m, i_m, e_m))` with `e_r ≥ 1` and the
     letter pairs `(k_r, i_r)` pairwise q-commuting; the empty tuple
     is the identity.
+
+    *Labels versus `A1A2kKAlg(2)`.*  The tuple format is
+    `A1A2kKAlg(2)`'s, but the orbit-2 index is not: this class's `(2, i)`
+    is `A1A2kKAlg(2)`'s `(2, i + 4)` (there `(a, j)` is the diagonal
+    `{j, j + a + 1}`), while `(1, i)` is `(1, i)`.  The same tuple in the
+    two classes is in general a different element — under the identity
+    map on labels 140 of the 196 generator products differ.  Products are
+    served through `A1A2kKAlg(2)` under this relabelling: `multiply`
+    relabels, multiplies there and relabels back, and the per-pair
+    expansions behind `cone_data()` (`HEPTAGON_CONE_DATA`, which drives
+    the Layer-1 trace) are `A1A2kKAlg(2)`'s generator products,
+    relabelled.  No product table is stored in this module.
 
     *Property.*  Satisfies the KAlgebra axioms; in code, exposed by
     subclassing `cone_kalgebra.ConeKAlgebra` (the closed-form
     presentation tier).  `ρ(L((k, i))) = L((k, i+1))` generates `Z/7`
-    and extends to basis labels by shifting every letter index.
+    and extends to basis labels by shifting every letter index (the
+    rotation of the heptagon, which commutes with the relabelling).
 
     *Property (separate theorem).*  There is a KAlgebra isomorphism
     `A_𝖖([A_1, A_4]) ≅ A_𝖖^BPS(A_4-quiver)`; the chord generators
     correspond to specific F-elements of the BPS realisation.  See
     `kalgebra_iso.KAlgebraIso` and the BPSKAlgebra-wrapper variant
     `heptagon_kalg.HeptagonKAlg` (which exposes the same generator
-    indexing).  This iso is *not* used at runtime here; multiplication
-    is driven by the inlined Plücker + reorder reducer
-    `_HEPT_BASE_TABLE` (the ρ-base table for all 14×14 ordered pairs
-    of named generators, lifted to absolute indices by ρ-shift).
+    indexing).  This iso is *not* used at runtime here.
 
-    Trace is **two-layered** as in pentagon, but only **Layer 1** is
-    implemented here:  `trace_layer1(label) → (c_0, c_L, c_N)`
-    expresses
+    Trace is **two-layered** as in pentagon: `trace_layer1(label) →
+    (c_0, c_L, c_N)` expresses
 
         Tr(label) = c_0 · T_0 + c_L · T_L + c_N · T_N
 
     with `Z[𝖖, 𝖖^{-1}]` coefficients, where  T_0 = Tr(𝟙),
     T_L = Tr(L((2, *))),  T_N = Tr(L((1, *)))  are the three
     elementary trace values matching the three primaries of the
-    M(2, 7) Virasoro minimal model.  Layer 2 IS implemented
-    (`_trace_residual` below): the three seeds are supplied by
-    `A1A2kKAlg(2)`'s Andrews-Gordon M(2,7) character series, so
-    `trace()` is the full exact two-layer trace (certified against
-    the vortex-residue theta forms over the frozen K=48 window,
-    `tests/test_ad_characters.py`)."""
+    M(2, 7) Virasoro minimal model.  Layer 2 (`_trace_residual`
+    below) supplies the three seeds from `A1A2kKAlg(2)`'s
+    Andrews-Gordon M(2,7) character series, so `trace()` is the full
+    exact two-layer trace (certified against the vortex-residue theta
+    forms over the frozen K=48 window, in the suite of the source
+    repository)."""
 
     _R = TrivialZPlusRing()
     H = _HEPT_H
@@ -1440,12 +1489,38 @@ class HeptagonKAlg(ConeKAlgebra):
         k, i = label
         return _hept_single(k, i)
 
+    # ----- geometry: the diagonals of the heptagon ----------------------
+
+    def curve(self, x: int, ell: int):
+        """The label of the diagonal from marked point `x` to `x + ell`,
+        `2 ≤ ell ≤ 5`: `A1A2kKAlg(2).curve(x, ell)` read through this class's
+        relabelling.  The heptagon has no puncture, so
+        `curve(x, ell) == curve(x + ell, 7 − ell)`; a boundary edge (`ell = 1`
+        or `6`) is the identity and not a letter, and raises, as does any
+        other `ell`."""
+        return _hept_label_from_a1a2k(_hept_a1a2k().curve(x, ell))
+
+    def geometric_label(self, label):
+        """The label — letters `(k, i, e)` — as the multiset of its diagonals:
+        a sorted tuple of pairs `((v1, v2), e)`, `(v1, v2)` the letter's
+        diagonal (sorted marked points: `{i, i + 2}` for `k = 1`,
+        `{i, i + 4}` for `k = 2`, the class docstring) and `e ≥ 1` its power;
+        the unit is `()`.  The letters of a label pairwise q-commute, so its
+        diagonals do not cross.  The layout of the `curves` of `A1DnKAlg`'s
+        `(curves, κ)`, on this unflavoured polygon without a puncture."""
+        span = {1: 2, 2: 4}
+        return tuple(sorted(
+            (tuple(sorted((i % _HEPT_H, (i + span[k]) % _HEPT_H))), e)
+            for (k, i, e) in label))
+
     def cone_data(self):
         from heptagon_cone_data import HEPTAGON_CONE_DATA
         return HEPTAGON_CONE_DATA
 
     def multiply(self, a, b):
-        # Cache structure constants on the instance.
+        """`L_a · L_b`, served by `A1A2kKAlg(2)` through the orbit-2
+        relabelling `(2, i) ↦ (2, i + 4)` (class docstring); structure
+        constants are cached on the instance."""
         cache = getattr(self, "_multiply_cache", None)
         if cache is None:
             cache = {}
@@ -1454,16 +1529,18 @@ class HeptagonKAlg(ConeKAlgebra):
         hit = cache.get(key)
         if hit is not None:
             return hit
-        # Layer through cone_data's generic reducer.
-        result = self._multiply_via_cone_data(a, b)
+        prod = _hept_a1a2k().multiply(_hept_label_to_a1a2k(a),
+                                      _hept_label_to_a1a2k(b))
+        result = Element({_hept_label_from_a1a2k(lbl): c
+                          for lbl, c in prod.terms.items()})
         cache[key] = result
         return result
 
     def _legacy_multiply(self, a, b):
         """Legacy multiplication via `_hept_reduce` + BPS X-vs-L-product
-        offset twist.  Kept as an independent reference for testing
-        `multiply` (which now routes through cone_data).  Not on the
-        live `multiply` path."""
+        offset twist.  Kept as a reference for testing `multiply`: a
+        separate reducer over the same per-pair expansions
+        (`_hept_pair_product`).  Not on the live `multiply` path."""
         # Basis labels `a`, `b` are in the BPS X-basis; their L-product
         # representations are  fq^{-T_bps_*} · sorted-letters-of-*.
         # Concatenating the WORDS  list(a) + list(b)  and handing to
@@ -1513,9 +1590,8 @@ class HeptagonKAlg(ConeKAlgebra):
     #   Tr(())                       = T_0,
     #   Tr(((2, i, 1),))             = T_L,
     #   Tr(((1, i, 1),))             = T_N.
-    # Higher-weight labels are out of scope for this initial commit
-    # and raise `NotImplementedError`; the cyclicity-based linear-system
-    # reducer for the higher-weight basis is the next planned step.
+    # Every other label is reduced to these by the cone data's tagged
+    # ρ²-cyclicity (`trace_layer1` below).
 
     def trace_layer1(self, label) -> tuple[LaurentPoly, LaurentPoly, LaurentPoly]:
         """Layer 1 trace reduction via the generic cone-data engine.
@@ -1585,25 +1661,21 @@ class HeptagonKAlg(ConeKAlgebra):
     # with `m` looked up via the natural-orbit ↔ alternating-pattern
     # length table in `A1A2k_naming_audit.predicted_lengths_and_shifts`.
     # See `a1a2k_kalg.A1A2kKAlg._compute_T_series` for the verified
-    # formula (PR #188, k = 1..6).
+    # formula (PR, k = 1..6).
     #
     # The Heptagon trace seeds T_0, T_1, T_2 correspond to A1A2k(k=2)'s
-    # T_0, T_1, T_2 respectively (same indexing: orbit-a maps to T_a).
+    # T_0, T_1, T_2 respectively (same indexing: orbit-a maps to T_a; the
+    # orbit-2 relabelling only moves a seed within its ρ-orbit).
     #
-    # `multiply` and `trace` are inherited from `ConeKAlgebra`.  ρ²-
-    # invariance on the 7 + 7 single-mult-gen seeds is enforced by
-    # Layer 1, not by this method.
-
-    _A1A2K2_INSTANCE = None  # lazy cache for the k=2 character provider
+    # `trace` is inherited from `ConeKAlgebra` (`multiply` is served by
+    # `A1A2kKAlg(2)`, above).  ρ²-invariance on the 7 + 7 single-mult-gen
+    # seeds is enforced by Layer 1, not by this method.
 
     def _trace_residual(self, seed_label, K):
-        # Lazy-instantiate A1A2kKAlg(k=2) once; reuse across calls.
-        if HeptagonKAlg._A1A2K2_INSTANCE is None:
-            from a1a2k_kalg import A1A2kKAlg
-            HeptagonKAlg._A1A2K2_INSTANCE = A1A2kKAlg(k=2)
-        a1a2k_k2 = HeptagonKAlg._A1A2K2_INSTANCE
-        # Compute T_0, T_1, T_2 as RPowerSeries in q.  Cache on the
-        # instance keyed by K (each K request rebuilds).
+        # The shared A1A2kKAlg(2) instance (the one serving `multiply`).
+        a1a2k_k2 = _hept_a1a2k()
+        # Compute T_0, T_1, T_2 as RPowerSeries in q (each K request
+        # rebuilds).
         T_series = a1a2k_k2._compute_T_series(K)
         # T_series is a list [T_0, T_1, T_2] of RPowerSeries.
         if seed_label == ():

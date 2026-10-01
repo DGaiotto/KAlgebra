@@ -1877,12 +1877,12 @@ class PureADE:
                 # 2*rho in alpha basis = Cinv . (2, 2, ..., 2)
                 # which is a Fraction vector; actually integer for
                 # simply-laced because (2,2,...,2) = sum of rows of C.
-                two_rho_alpha = [Fraction(0)] * r_
+                sigma_plus_alpha = [Fraction(0)] * r_
                 for i in range(r_):
                     s = Fraction(0)
                     for j in range(r_):
                         s += Cinv[i][j] * 2
-                    two_rho_alpha[i] = s
+                    sigma_plus_alpha[i] = s
                 # In the doubled-Dynkin basis with convention
                 #   f.gamma_{i,+} = f[2i] = 1
                 #   f.gamma_{i,-} = f[2i+1 via electric map] = 2*rho_i
@@ -1922,7 +1922,7 @@ class PureADE:
                     rhs.append(Fraction(1))
                 for i in range(r_):
                     A_sys.append([Fraction(root_block[i][k]) for k in block_cols])
-                    rhs.append(two_rho_alpha[i])
+                    rhs.append(sigma_plus_alpha[i])
                 # Solve (overdetermined-but-consistent).  Use Gauss-
                 # Jordan: find a particular solution with free vars = 0.
                 n_cols = len(block_cols)
@@ -2124,7 +2124,7 @@ def _antifund_wilson_support_UN(N: int) -> list[tuple[int, ...]]:
     different — in particular, the right-placed fundamental block in
     ``UN_Nf(matter_side='right')`` uses
     ``[(-alpha) for alpha in _antifund_wilson_support_UN(N)]`` , not the
-    fund support itself.  See ``tests/test_un_nf_right_fundamental.py``.
+    fund support itself.  See `the suite in the source repository`.
     """
     if N < 1:
         raise ValueError(f"N >= 1 required, got N={N}")
@@ -2156,7 +2156,7 @@ def _antifund_wilson_support_UN(N: int) -> list[tuple[int, ...]]:
 # construction with the  w_0 -conjugated pure-gauge presentation -- a
 # genuinely different BPS quiver presenting the same theory.
 #
-# Confirmed empirically (`experiments/chirality_placement_audit.py`):
+# Confirmed empirically (a probe in the source repository):
 # this single operation lets us realise every combination of
 # chirality x spec-position for fund / antisym^2 / bifund matter, with
 # `BPSQuiver.verify_spectrum_generator` passing on each.
@@ -2626,7 +2626,7 @@ class SUN_Nf_mixed:
     spectrum generator -- a "mixed" chart of the same
     SU(N) / N_f = n_f + n_af  theory.  Verified via
     ``BPSQuiver.verify_spectrum_generator``  for a wide  (N, n_f, n_af)
-    sweep -- see ``tests/test_sun_nf_fundamental.py``.
+    sweep -- see `the suite in the source repository`.
     """
 
     def __init__(self, N: int, n_f: int = 1, n_af: int = 0,
@@ -3395,7 +3395,7 @@ class UN_Nf:
 # ---------------------------------------------------------------------------
 # UN_antisym :  U(N) gauge with antisymmetric-tensor matter blocks.
 # ---------------------------------------------------------------------------
-# Recipe (see experiments/twoindex_tensor_search.py for derivation):
+# Recipe (see a probe in the source repository for derivation):
 #   For one antisym^2(fund) hyper of  U(N) , the matter spec is a product
 #   of  |P_N| = 2(N-1)(N-2) + 1  E_q factors, with charges
 #
@@ -3449,8 +3449,7 @@ def _antisym2_dfs_order(
     """Find an ordering of  matter_charges_unordered  that completes a
     valid negating sequence on the given BPS quiver.
 
-    Implements the guided-DFS strategy from  experiments/twoindex_tensor_
-    search.py : at each step, try mutating the unique node whose current
+    Implements the guided-DFS strategy from  a probe in the source repository : at each step, try mutating the unique node whose current
     charge lies in the un-used matter set; prioritise candidates by the
     (a + b, -a)  pair-key.
 

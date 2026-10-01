@@ -136,6 +136,26 @@ class ConeKAlgebra(KAlgebra):
     """`KAlgebra` defined by a `ConeData` instance + a residual-trace
     rule.  See module docstring.
 
+    **Cross-reference with the author's `K_𝖖-algebras` draft** (cross-referenced
+    2026-09-19, refreshed against the 2026-09-21 version; full label map in
+    the design notes "Cross-reference with the
+    `K_𝖖-algebras` draft"): the draft has no separate "cone" definition — this
+    tier is the repo's concise presentation of the draft's worked finite-type
+    examples.  The pentagon `K_𝖖([A_1,A_2])` (`sec:pentagon`, `def:penta`,
+    trace recursion `eq:pentarec`) is `pentagon_cone_data.py` /
+    `finite_pentagon_kalg.py`; `K_𝖖([A_1,D_3])` (`sec:a1d3`, `eq:a1d3trace`)
+    is `a1d3_cone_data.py` / `finite_a1d3_kalg.py`; the odd polygons
+    `K_𝖖([A_1,A_{2k}])` (App. `app:a1a2k`) are `a1a2k_cone_data.py` /
+    `a1a2k_kalg.py`; App. `app:finite` as a whole is
+    the design notes and `finite_kalgebra_objects`.  The draft's
+    trace recursions are this class's residual-trace rule.  Its `U_𝖖(sl_2)`
+    flavoured example (`sec:uqsl2`) is `src/samples/uq_sl2_pbw.py` on the
+    algebra side only — that module's `trace` deliberately raises; the trace
+    generating function `eq:uqsl2trace` is the draft's own `eq:measure` at
+    SQED₂, reproduced by `GNAbeKAlgebra(u_n(1), (1,), nf=2)` (exact through
+    `𝖖⁹` at `n = 0, ±1, 2` after `base_change(un_to_sun_hom(2))`, 2026-09-21)
+    and recorded in the design notes §(B)–(C).
+
     Promoted from `KAlgebra`'s optional `cone_data() -> ConeData | None`
     to a load-bearing primitive: subclasses must return a non-None
     `ConeData`.  The `multiply` and `trace` `KAlgebra` primitives are

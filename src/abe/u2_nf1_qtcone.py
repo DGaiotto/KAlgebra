@@ -1,5 +1,5 @@
 """`U2Nf1QTConeKAlg` — U(2)+N_f=1 (no flavour) as a **`QTCone`
-`ConeKAlgebra`** (user direction, 2026-06-16): the matter sibling of
+`ConeKAlgebra`**: the matter sibling of
 `pure_u2_qtcone.PureU2QTConeKAlg`.
 
 The physics this realisation exhibits — **the hyper screens the central
@@ -18,10 +18,12 @@ No flavour
 ----------
 At N_f=1 the genuine flavour group is `SU(N_f)=SU(1)=trivial` (D5/D8b — the
 hyper's U(1)_F is inside the U(2) gauge centre), so this is the native
-trivial-flavour algebra `UNNfKAlgebra(2,1)` (coefficient ring `Z`).  No `μ`
+trivial-flavour algebra — `roster('u2-nf1').forget()` since 2026-09-19, the
+retired `UNNfKAlgebra(2,1)` before (coefficient ring `Z`).  No `μ`
 fugacity anywhere.
 
-Cone structure (certified against the keystone `UNNfKAlgebra(2,1)`):
+Cone structure (certified against the keystone `UNNfKAlgebra(2,1)`, retired
+2026-09-19; the general tier's U(2)+1 is its replacement):
 
 * **conventional gens** — `E = L_{((1,0),(0,0))}`, `F = L_{((0,-1),(0,0))}`
   (minuscule monopoles), `det = L_{((1,1),(0,0))}` and `det⁻¹` (now
@@ -42,8 +44,10 @@ positive-magnetic monomials `E^{m₁−m₂}·det^{m₂}` (`m₁ ≥ m₂ ≥ 0`
 the rank-1 central `w2` torus (`λ₁ = λ₂`) — via `cone_data().derived_multiply`
 (cocycles + the `w2·w2⁻¹ = 1` collapse), no keystone call; that sector is
 closed and the cone-derived products match the keystone (certified,
-`tests/test_u2_nf1_object.py`).  Two directions fall outside it and are
-taken from the certified `UNNfKAlgebra(2,1)` engine: the **matter-screened
+the suite in the source repository).  Two directions fall outside it and are
+taken from the U(2)+1 abelianized algebra (`U2Nf1FlavourFree`, the general
+tier's `roster('u2-nf1')` with flavour forgotten; the retired `UNNfKAlgebra(2,1)`
+engine until 2026-09-19): the **matter-screened
 `det⁻¹`** (`det·det⁻¹` is the meson tower, not `1`) and the fusing SU(2)
 Wilson (`CharacterCone`).  `ρ` / `ρ⁻¹` / `trace` delegate to the keystone
 (the light-wrapper pattern).  The canonical basis is the keystone's
@@ -69,7 +73,6 @@ from laurent_poly import LaurentPoly
 from zplus_ring import TrivialZPlusRing, RPowerSeries
 from cone_data import ConeData, CrossProductTerm, Cone
 from cone_kalgebra import ConeKAlgebra
-from un_nf_kalgebra import UNNfKAlgebra
 from pure_u2_qtcone import u2_wilson_fusion
 
 
@@ -93,9 +96,10 @@ _TORUS = (W2, W2_INV)
 
 class U2Nf1QTConeData(ConeData):
     """The U(2)+N_f=1 `QTCone` structure (rank-1 central `w2` torus), every
-    primitive certified against the keystone `UNNfKAlgebra(2,1)`."""
+    primitive certified against the keystone `UNNfKAlgebra(2,1)` (retired
+    2026-09-19; the algebra passed in is now `U2Nf1FlavourFree`)."""
 
-    def __init__(self, keystone: UNNfKAlgebra) -> None:
+    def __init__(self, keystone) -> None:
         self._ks = keystone
 
     def coefficient_ring(self):
@@ -229,7 +233,8 @@ class U2Nf1QTConeKAlg(ConeKAlgebra):
     _R = TrivialZPlusRing()
 
     def __init__(self) -> None:
-        self._ks = UNNfKAlgebra(2, 1)
+        from u2_nf1_object import U2Nf1FlavourFree   # lazy: the object imports this module
+        self._ks = U2Nf1FlavourFree()                  # the general tier's U(2)+1, flavour forgotten (2026-09-19)
         self._cone_data_inst = U2Nf1QTConeData(self._ks)
 
     def coefficient_ring(self):

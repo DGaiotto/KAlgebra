@@ -1,0 +1,108 @@
+{
+ "id": "def:penta/existence",
+ "labels": [
+  "sec:pentagon",
+  "def:penta"
+ ],
+ "date": "2026-09-21T23:03:47Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "window": "31 labels, a+b <= 3, all i",
+  "K": 8
+ },
+ "counts": {
+  "pass": 16,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "all verifiers pass on the window",
+  "negative": "perturbed seed caught by orthonormality"
+ },
+ "elapsed_s": 15.878,
+ "notes": "All five axioms are EMERGENT on this hand-built presentation: the product is the cone data of the relations, the trace is the closed-form seeds plus the twisted-cyclicity reducer, so orthonormality with these seeds is a genuine check that the paper's traces satisfy δ + O(q).",
+ "checks": [
+  {
+   "name": "K1 verify_bar_involution on the window a+b <= 3 (961 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K2 verify_identity_in_basis on the window a+b <= 3 (1 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K2 verify_unit_law on the window a+b <= 3 (31 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K2 verify_associativity on the window a+b <= 3 (216 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K3 verify_rho_fixes_identity on the window a+b <= 3 (1 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K3 verify_rho_inverse on the window a+b <= 3 (31 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K3 verify_rho_is_automorphism on the window a+b <= 3 (961 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K4 verify_orthonormality on the window a+b <= 3 (961 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K4 verify_trace_pairing_faces on the window a+b <= 3 (961 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K4 verify_rho_twisted_trace on the window a+b <= 3 (961 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K5 verify_trace_intertwines_rho on the window a+b <= 3 (31 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K5 verify_pairing_rho_star_symmetric on the window a+b <= 3 (961 instances)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "K2 closure: all 961 products of window labels lie in the Z[q^±1]-span of canonical labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: Tr L_i + q^3 fails orthonormality on the paper's pair (L_{i-2}, L_i), i.e. Tr L_i^2 = O(q) fails, all i",
+   "ok": true,
+   "note": "80 failing pairs among identity, generators and squares, e.g. [((0, 0, 0), (0, 2, 0)), ((0, 0, 0), (1, 2, 0)), ((0, 0, 0), (2, 2, 0))]; diagonal pure powers catching it: [] (none expected)"
+  },
+  {
+   "name": "the presentations are one algebra: KAlgebraIso witnesses on 8 edges (multiply, trace, rho transported)",
+   "ok": true,
+   "note": "realizations ['cone-frozen', 'bps', 'closed-form', 'a1a2k', 'rg-sqed1', 'skein', 'skein-pinned', 'skein-cone']; 8 matched sample labels"
+  },
+  {
+   "name": "the presentations are one algebra: path-independence of the transports (coherence)",
+   "ok": true,
+   "note": "realizations ['cone-frozen', 'bps', 'closed-form', 'a1a2k', 'rg-sqed1', 'skein', 'skein-pinned', 'skein-cone']; 8 matched sample labels"
+  }
+ ]
+}

@@ -15,13 +15,13 @@ The **residual vector `(f_m)` is the primary content** other algorithms consume
 `U_m` form a rational-2-cocycle-twisted quantum torus,
 ``U_a U_b = R_{a,b}(v) U_{a+b}`` (single u-power, NO sum), so the algebra is carried
 by the closed forms `ψ, R` (multiply) and a **G-cocycle** (the √measure ρ); the
-Schur trace is the magnetic-0 measure residue.  See the design notes for the
-full design (ρ²-cyclicity, the inner-product picture, the q²-Levi-Vandermonde weight).
+Schur trace is the magnetic-0 measure residue; the design covers ρ²-cyclicity,
+the inner-product picture, and the q²-Levi-Vandermonde weight.
 
 Conventions
 -----------
 `q = 𝖖`; `v_1..v_N` abelianized gauge variables; magnetic `m` an integer N-tuple,
-*dominant* = descending.  Two shifts: the **full** normal-ordering `T_{2m}: v→q^{2m}v`
+*dominant* = descending.  Two shifts: the **full** normal-ordering `S_m: v→q^{2m}v`
 (used by the cocycles) and the **half**-shift `v→q^m v` (used to pass between the
 algebra-internal *bare* residual `c_m = d_m/ψ_m` and the public `f_m`, `c_m(v) =
 f_m(q^m v)`).
@@ -36,7 +36,8 @@ LABEL CONVENTION — read this.  A canonical has exactly two valid Kapustin
 
 The mixed states `(dom m, anti-dom e)` and `(anti-dom m, dom e)` are NOT labels.
 **Everything here uses LOWER Kapustin, uniformly** — `recognize_leading`,
-`recognize_q_extreme`, the builders `PureUNKAlgebra.minuscule` / `wilson`, and the
+`recognize_q_extreme`, the builders `PureUNKAlgebra.minuscule` / `wilson` (retired
+2026-09-19), and the
 engine's `labels()`/`urqt` (the canonical engine now speaks lower Kapustin);
 `leading()` returns an anti-dominant `m`.  `recognize_*` read the residual in the
 upper (dominant) frame internally and apply the joint `w_0` once, so their output
@@ -57,12 +58,528 @@ import itertools
 
 from abelianized_torus import DOp, VRational, VLaurent
 from laurent_poly import LaurentPoly
-from pure_un_closed_form import (
-    _perm_vr, _dominance_key, _levi_blocks, _levi_decompose, _center_palindromic)
-from pure_un_kalgebra import (
-    _rho_block_data, _vinv_vrational, trace_v0 as _schur_trace_v0)
+from math import factorial
+import functools
 
 from abelianized_torus import simplify_dop as _simp
+
+
+# ===========================================================================
+# Torus-level helpers re-homed from the retired type-A layer (2026-09-19).
+# These were imported from `pure_un_kalgebra` / `pure_un_chart_engine` /
+# `pure_un_closed_form` / `un_nf_dressed_generators` while those modules were
+# live; when the optimized type-A classes were retired
+# (PureUNKAlgebra, PureSUNKAlgebra, UNNfKAlgebra, UNQuiverKAlgebra) the
+# URQ substrate keeps its own copies here, so the spine has no import edge
+# into the source repository's archive.  They are the Schur-measure / Pochhammer / Vandermonde
+# arithmetic, the Levi decomposition and the Kostka / Schur-monomial data of
+# the U(N) torus — torus facts, not class facts.
+# ===========================================================================
+
+_MEASURE_CACHE: dict = {}
+_POCH_CACHE: dict = {}
+_INVPOCH_CACHE: dict = {}
+
+
+def _laurent_truncate(p: LaurentPoly, K: int) -> LaurentPoly:
+    """Truncate `p` to q^e with e ≤ K (drop higher-degree terms)."""
+    out = {e: c for e, c in p._coeffs.items() if e <= K}
+    return LaurentPoly._from_clean_dict(out)
+
+
+def _vlaurent_truncate(p: "VLaurent", K: int) -> "VLaurent":
+    """Truncate each LaurentPoly coefficient of `p` to q^e with e ≤ K."""
+    out: dict = {}
+    for ve, c in p._terms.items():
+        ct = _laurent_truncate(c, K)
+        if not ct.is_zero():
+            out[ve] = ct
+    return VLaurent._from_clean_terms(out, p._n)
+
+
+def _q_poch_q2_q2_truncated(K: int) -> LaurentPoly:
+    """`(q²; q²)_∞` truncated to terms `q^e` with `e ≤ K`.
+
+    `(q²; q²)_∞ = Π_{k≥1} (1 − q^{2k})`.  Only factors with `2k ≤ K`
+    can contribute non-trivially to the truncated product."""
+    result = LaurentPoly({0: 1})
+    for k in range(1, K // 2 + 1):
+        result = _laurent_truncate(result * LaurentPoly({0: 1, 2 * k: -1}), K)
+    return result
+
+
+def _kostka(lam, mu) -> int:
+    """Kostka number `K_{lam, mu}` = #SSYT of shape `lam` (partition) and
+    content `mu` (composition), via backtracking."""
+    lam = [int(x) for x in lam if x > 0]
+    mu = [int(x) for x in mu]
+    if sum(lam) != sum(mu):
+        return 0
+    rows = len(lam)
+    T = [[0] * lam[r] for r in range(rows)]
+    counts = list(mu)
+    cnt = [0]
+    cells = [(r, c) for r in range(rows) for c in range(lam[r])]
+
+    def bt(i):
+        if i == len(cells):
+            cnt[0] += 1
+            return
+        r, c = cells[i]
+        lo = 1
+        if c > 0:
+            lo = max(lo, T[r][c - 1])          # weakly increasing along row
+        for v in range(lo, len(mu) + 1):
+            if counts[v - 1] == 0:
+                continue
+            if r > 0 and v <= T[r - 1][c]:      # strictly increasing down column
+                continue
+            T[r][c] = v
+            counts[v - 1] -= 1
+            bt(i + 1)
+            counts[v - 1] += 1
+            T[r][c] = 0
+
+    bt(0)
+    return cnt[0]
+
+
+def _vdiv(num: dict, i: int, j: int, N: int) -> dict:
+    """Exact division of {v-exp: {q-exp: int}} by the m=0 factor (v_i - v_j)."""
+    work = {ve: dict(lp) for ve, lp in num.items()}; Q: dict = {}; guard = 0
+    while work:
+        guard += 1
+        if guard > 1_000_000:
+            raise RuntimeError("pure_un trace: (v_i-v_j) division did not terminate")
+        hi = max(ve[i] for ve in work)
+        for ve in [v for v in work if v[i] == hi]:
+            lp = work.pop(ve)
+            qe = list(ve); qe[i] = hi - 1; qe = tuple(qe)
+            cur = Q.get(qe, {}); Q[qe] = {e: cur.get(e, 0) + lp.get(e, 0) for e in set(cur) | set(lp)}
+            t2 = list(ve); t2[i] = hi - 1; t2[j] += 1; t2 = tuple(t2)
+            cur = work.get(t2, {}); nw = {e: cur.get(e, 0) + lp.get(e, 0) for e in set(cur) | set(lp)}
+            nw = {e: c for e, c in nw.items() if c}
+            if nw: work[t2] = nw
+            elif t2 in work: del work[t2]
+    return {ve: lp for ve, lp in Q.items() if any(lp.values())}
+
+
+def _inv_root(i: int, j: int, m: int, N: int, K: int) -> VLaurent:
+    """q-series of 1/(v_i - q^m v_j) up to q^K (m != 0)."""
+    out: dict = {}
+    if m > 0:
+        n = 0
+        while m * n <= K:
+            out[tuple((-n - 1) if t == i else (n if t == j else 0) for t in range(N))] = LaurentPoly({m * n: 1}); n += 1
+    elif m < 0:
+        am = -m; n = 0
+        while am * (n + 1) <= K:
+            out[tuple(n if t == i else (-n - 1 if t == j else 0) for t in range(N))] = LaurentPoly({am * (n + 1): -1}); n += 1
+    else:
+        raise ValueError("_inv_root: m=0 must be handled by numerator division")
+    return VLaurent(out, n=N)
+
+
+def _v0_coeff(s: "VLaurent", M: "VLaurent", K: int) -> LaurentPoly:
+    """The `v^0` coefficient of the product `s·M`, `[s·M]_{v^0} = Σ_w s[w]·M[-w]`,
+    truncated to `q^K` -- computed directly, WITHOUT forming the full v-product
+    (only v^0 is needed for the trace residue).  O(|s|) LaurentPoly products vs
+    O(|s|·|M|) for the full product."""
+    out = LaurentPoly.zero()
+    Mterms = M._terms
+    for w, sc in s._terms.items():
+        mc = Mterms.get(tuple(-x for x in w))
+        if mc is not None:
+            out = _laurent_truncate(out + sc * mc, K)
+    return out
+
+
+def _inv_qpoch_n(n: int, K: int) -> LaurentPoly:
+    """`1/(q^2;q^2)_n = 1/∏_{l=1}^n (1 - q^{2l})` as a q-series to q^K."""
+    key = (n, K)
+    r = _INVPOCH_CACHE.get(key)
+    if r is None:
+        r = LaurentPoly({0: 1})
+        for l in range(1, n + 1):
+            geom = LaurentPoly({2 * l * t: 1 for t in range(K // (2 * l) + 1)})
+            r = _laurent_truncate(r * geom, K)        # 1/(1-q^{2l}) = Σ q^{2l t}
+        _INVPOCH_CACHE[key] = r
+    return r
+
+
+def _schur_measure_euler(N: int, K: int) -> "VLaurent":
+    """Pure-U(N) Schur measure ∏_{i≠j} (v_i/v_j;q²)_∞ (q² v_i/v_j;q²)_∞ to q^K,
+    via the **Euler / Habiro** expansion of each factor (quadratic q-power):
+
+        (q^k v_i/v_j; q²)_∞ = Σ_n (-q^{k-1} v_i/v_j)^n q^{n²} / (q²;q²)_n
+                            = Σ_n (-1)^n q^{n²+(k-1)n} (v_i/v_j)^n / (q²;q²)_n.
+
+    Because the q-power is `n²+(k-1)n`, reaching q^K needs only `n ≲ √K` terms
+    per factor (v-degree √K) -- vs the product form's ~K/2.  Exact, and far
+    cheaper at the large internal cutoffs the q^0 pairings require."""
+    result = VLaurent({(0,) * N: LaurentPoly({0: 1})}, n=N)
+    for i in range(N):
+        for j in range(N):
+            if i == j:
+                continue
+            e_ratio = tuple(1 if t == i else (-1 if t == j else 0)
+                            for t in range(N))
+            for k in (0, 2):                          # the two Pochhammer factors
+                terms: dict = {}
+                n = 0
+                while n * n + (k - 1) * n <= K:
+                    qpow = n * n + (k - 1) * n
+                    coeff = _inv_qpoch_n(n, K - qpow)
+                    sgn = -1 if n % 2 else 1
+                    lp = LaurentPoly({qpow + e: sgn * c
+                                      for e, c in coeff._coeffs.items()})
+                    terms[tuple(n * x for x in e_ratio)] = lp
+                    n += 1
+                factor = VLaurent(terms, n=N)
+                result = _vlaurent_truncate(result * factor, K)
+    return result
+
+
+def _cached_measure(N: int, K: int) -> "VLaurent":
+    """Memoised Schur measure (the dominant cost of `trace`; rebuilt every call
+    before)."""
+    m = _MEASURE_CACHE.get((N, K))
+    if m is None:
+        m = _schur_measure_euler(N, K)
+        _MEASURE_CACHE[(N, K)] = m
+    return m
+
+
+def _cached_poch2N(N: int, K: int) -> LaurentPoly:
+    """Memoised `(q^2;q^2)_inf^{2N}` truncated to q^K."""
+    p = _POCH_CACHE.get((N, K))
+    if p is None:
+        p = LaurentPoly({0: 1}); poch = _q_poch_q2_q2_truncated(K)
+        for _ in range(2 * N):
+            p = _laurent_truncate(p * poch, K)
+        _POCH_CACHE[(N, K)] = p
+    return p
+
+
+def trace_v0(u0, N: int, K: int = 8, adaptive: bool = False,
+             watch: int | None = None) -> LaurentPoly:
+    """v-only Schur-measure residue of the magnetic-0 coefficient `u0` (a VRational
+    in v): `Tr = (q²;q²)_∞^{2N}/N! · ∮ dv/v · measure · u0`.  The trace needs only
+    the residual, no chart/DOp.  `u0=None` → 0."""
+    if u0 is None:
+        return LaurentPoly.zero()
+    if u0._sq:
+        raise NotImplementedError("pure_un trace: sq denominators not yet handled")
+    num = {ve: dict(lp._coeffs) for ve, lp in u0._num._terms.items()}
+    nz = []
+    for (i, j, m), mult in u0._den.items():
+        for _ in range(mult):
+            if m == 0:
+                num = _vdiv(num, i, j, N)
+            else:
+                nz.append((i, j, m))
+    nf = factorial(N)
+
+    def core(K_int: int) -> LaurentPoly:
+        s = VLaurent({ve: LaurentPoly(lp) for ve, lp in num.items()}, n=N)
+        for (i, j, m) in nz:
+            s = _vlaurent_truncate(s * _inv_root(i, j, m, N, K_int), K_int)
+        v0 = _v0_coeff(s, _cached_measure(N, K_int), K_int)   # only the v^0 residue
+        if v0.is_zero():
+            return LaurentPoly.zero()
+        qs = _laurent_truncate(v0 * _cached_poch2N(N, K_int), K)
+        # Genuine Schur coefficients are divisible by N! (Weyl average); near the
+        # cutoff the truncated measure leaves an incomplete (non-divisible)
+        # coefficient -- the first such order is the reliable boundary.
+        out = {}
+        for e in sorted(qs._coeffs):
+            qd, r = divmod(qs._coeffs[e], nf)
+            if r != 0:
+                break
+            if qd:
+                out[e] = qd
+        return LaurentPoly(out)
+
+    if not adaptive:
+        return core(K)
+    # ADAPTIVE: the q^0/low-order coefficients are exact once the internal cutoff
+    # reaches the operator's negative-q extent that actually feeds v^0.  The raw
+    # |min-q| (over all numerator terms) is a SAFE upper bound but usually wildly
+    # over-pads (its deep-q terms sit at high v-degree, reached only by high-q
+    # measure terms, so they never feed low q).  Escalate from a small cutoff in
+    # steps of 8 until the q<=K result stabilises -- fast for the common
+    # over-padded case -- capped at the proven-safe K + |min-q|.
+    min_q = 0
+    for lp in num.values():
+        if lp:
+            min_q = min(min_q, min(lp))
+    safe = ((K - min_q + 4 + 7) // 8) * 8
+    K_int = min(safe, ((K + 4 + 7) // 8) * 8)
+    res = core(K_int)
+    while K_int < safe:
+        K_int = min(safe, K_int + 8)
+        nxt = core(K_int)
+        if watch is None:
+            if nxt._coeffs == res._coeffs:
+                return nxt
+        elif nxt._coeffs.get(watch, 0) == res._coeffs.get(watch, 0):
+            return nxt
+        res = nxt
+    return res
+
+
+def _vinv_vlaurent(vl: VLaurent, N: int) -> VLaurent:
+    """Substitute v_i -> 1/v_i in a VLaurent (flip every v-exponent)."""
+    return VLaurent({tuple(-x for x in w): lp for w, lp in vl._terms.items()}, n=N)
+
+
+def _vinv_vrational(vr: VRational, N: int) -> VRational:
+    """Substitute v_i -> 1/v_i in a VRational.  The numerator flips v-exponents;
+    each denominator factor inverts as  1/(v_i - q^m v_j) -> (v_i v_j)/(v_j - q^m v_i)."""
+    if vr._sq:
+        raise NotImplementedError("_vinv_vrational: single-variable sq factors are "
+                                  "unsupported (they never arise for pure U(N))")
+    out = VRational.from_vlaurent(_vinv_vlaurent(vr.num, N))
+    for (i, j, m), mult in vr.den.items():
+        vij = VRational.from_vlaurent(VLaurent(
+            {tuple(1 if t in (i, j) else 0 for t in range(N)): LaurentPoly({0: 1})}, n=N))
+        inv = VRational.root_inv(j, i, m, N)           # 1/(v_j - q^m v_i)
+        for _ in range(mult):
+            out = out * vij * inv
+    return out
+
+
+def _rho_block_data(k, N):
+    """`(sign, qpow, wexp)` of the per-u-block ρ conjugation at u-power `k`,
+    qpow already including J's `q^{2 Σ_t t k_t}` grading shift."""
+    S = sum(k)
+    sign = -1 if (sum((N - 1 - 2 * t) * k[t] for t in range(N)) % 2) else 1
+    qf = -sum((k[i] - k[j]) * (k[i] - k[j] - 1)
+              for i in range(N) for j in range(i + 1, N))
+    qJ = 2 * sum(t * k[t] for t in range(N))
+    wexp = tuple(S - N * k[t] for t in range(N))
+    return sign, qf + qJ, wexp
+
+
+def _perm_vr(vr: VRational, sig, N: int) -> VRational:
+    """Permute the v-indices of a VRational by ``sig`` (sig[i] = new slot of i)."""
+    num = {}
+    for ve, lp in vr.num._terms.items():
+        ne = [0] * N
+        for i, e in enumerate(ve):
+            ne[sig[i]] = e
+        num[tuple(ne)] = lp
+    den = {}
+    for (i, j, m), mu in vr.den.items():
+        den[(sig[i], sig[j], m)] = den.get((sig[i], sig[j], m), 0) + mu
+    sq = {}
+    for (i, m), mu in vr.sq.items():
+        sq[(sig[i], m)] = sq.get((sig[i], m), 0) + mu
+    return VRational(VLaurent(num, n=N), den, n=N, sq=sq)
+
+
+def _levi_blocks(m):
+    """Index runs of equal value in anti-dominant ``m`` (the Levi block structure)."""
+    m = list(m)
+    blocks = []
+    start = 0
+    for i in range(1, len(m) + 1):
+        if i == len(m) or m[i] != m[start]:
+            blocks.append(list(range(start, i)))
+            start = i
+    return blocks
+
+
+def _dominance_key(p):
+    """Sort key picking the most-dominant magnetic charge (descending sort)."""
+    return tuple(sorted(p, reverse=True))
+
+
+def _schur(lam, idx, N):
+    """Schur polynomial s_lam in the variables ``idx`` (a list of v-indices),
+    as a VLaurent over all N variables.  Recursive GL_n -> GL_{n-1} interlacing."""
+    lam = list(lam)
+    if len(idx) == 1:
+        ve = [0] * N
+        ve[idx[0]] = lam[0] if lam else 0
+        return VLaurent({tuple(ve): LaurentPoly({0: 1})}, n=N)
+    out = VLaurent.zero(N)
+    last = idx[-1]
+    # mu interlaces lam:  lam_0 >= mu_0 >= lam_1 >= mu_1 >= ... (mu length len-1)
+    def gen(i, lo):
+        if i == len(lam) - 1:
+            yield []
+            return
+        hi = lam[i]
+        floor = lam[i + 1]
+        for mval in range(floor, hi + 1):
+            for rest in gen(i + 1, mval):
+                yield [mval] + rest
+    for mu in gen(0, 0):
+        sub = _schur(mu, idx[:-1], N)
+        power = sum(lam) - sum(mu)
+        # multiply sub by x_last^power: shift v-exponent
+        terms = {}
+        for ve, lp in sub._terms.items():
+            nve = list(ve); nve[last] += power
+            terms[tuple(nve)] = lp
+        out = out + VLaurent(terms, n=N)
+    return out
+
+
+def _vl_mul(a: VLaurent, b: VLaurent, N):
+    out = {}
+    for ve1, lp1 in a._terms.items():
+        for ve2, lp2 in b._terms.items():
+            nve = tuple(ve1[i] + ve2[i] for i in range(N))
+            prod = lp1 * lp2
+            cur = out.get(nve)
+            out[nve] = prod if cur is None else cur + prod
+    return VLaurent({k: v for k, v in out.items() if not v.is_zero()}, n=N)
+
+
+def _levi_decompose(ratio: VLaurent, blocks, N):
+    """Decompose a W_m-symmetric VLaurent into Levi Schur characters.
+    Returns ``[(e_tuple, coeff_LaurentPoly)]`` (e = dominant weight per block)."""
+    work = {ve: dict(lp._coeffs) for ve, lp in ratio._terms.items()}
+    out = []
+    guard = 0
+    while any(any(v for v in lp.values()) for lp in work.values()):
+        guard += 1
+        if guard > 2000:
+            raise RuntimeError("_levi_decompose: no termination")
+        def key(ve):
+            return tuple(tuple(sorted((ve[i] for i in blk), reverse=True)) for blk in blocks)
+        top = max((ve for ve, lp in work.items() if any(lp.values())), key=key)
+        # e = dominant weight per block
+        e = [0] * N
+        for blk in blocks:
+            vals = sorted((top[i] for i in blk), reverse=True)
+            for i, v in zip(blk, vals):
+                e[i] = v
+        e = tuple(e)
+        coeff = dict(work[top])
+        out.append((e, LaurentPoly(coeff)))
+        # subtract coeff * prod_blocks s_{e|block}
+        char = None
+        for blk in blocks:
+            lam = sorted((e[i] for i in blk), reverse=True)
+            sb = _schur(lam, blk, N)
+            char = sb if char is None else _vl_mul(char, sb, N)
+        for ve, lp in char._terms.items():
+            for eq, cc in lp._coeffs.items():
+                for ce, cv in coeff.items():
+                    cur = work.get(ve, {})
+                    cur[eq + ce] = cur.get(eq + ce, 0) - cc * cv
+                    work[ve] = cur
+        work = {ve: {e2: v for e2, v in lp.items() if v} for ve, lp in work.items()}
+    return out
+
+
+def _center_palindromic(lp: LaurentPoly):
+    """Return (C_centered, shift) where C = q^{-shift}*lp is palindromic, or
+    (None, None) if lp's support is not symmetric after integer centering."""
+    es = list(lp._coeffs)
+    if not es:
+        return LaurentPoly.zero(), 0
+    lo, hi = min(es), max(es)
+    if (lo + hi) % 2 != 0:
+        return None, None
+    shift = (lo + hi) // 2
+    cen = LaurentPoly({e - shift: v for e, v in lp._coeffs.items()})
+    if all(cen._coeffs.get(e, 0) == cen._coeffs.get(-e, 0) for e in cen._coeffs):
+        return cen, shift
+    return None, None
+
+
+def _lp_divide(a: LaurentPoly, b: LaurentPoly) -> LaurentPoly | None:
+    """Exact division a/b when both are single-... general Laurent division by
+    matching: returns C with a == C*b, else None.  Implemented via the leading
+    terms + verification."""
+    bc = b._coeffs
+    if not bc:
+        return None
+    ac = a._coeffs
+    if not ac:
+        return LaurentPoly.zero()
+    # shift so that the lowest exponent of b is 0, deduce C as a*b^{-1} only if
+    # b is a monomial; otherwise attempt polynomial division.
+    if len(bc) == 1:
+        (eb, vb), = bc.items()
+        if any(v % vb != 0 for v in ac.values()):
+            return None
+        return LaurentPoly({e - eb: v // vb for e, v in ac.items()})
+    # general: try C = a // b via long division on exponents
+    from fractions import Fraction
+    rem = dict(ac)
+    quot: dict = {}
+    blo = min(bc)
+    bhi = max(bc)
+    guard = 0
+    while rem:
+        guard += 1
+        if guard > 10000:
+            return None
+        rlo = min(rem)
+        ce = rlo - blo
+        # leading coeff division
+        if rem[rlo] % bc[blo] != 0:
+            return None
+        cc = rem[rlo] // bc[blo]
+        quot[ce] = quot.get(ce, 0) + cc
+        for be, bv in bc.items():
+            rem[ce + be] = rem.get(ce + be, 0) - cc * bv
+        rem = {e: v for e, v in rem.items() if v != 0}
+    return LaurentPoly(quot)
+
+
+def _struct_const(P, Lc, m_dom, e, cAmono, N):
+    """Structure constant C(q): P's coeff / Lc's coeff at the top (u,v) monomial."""
+    top_v = tuple(e[i] + cAmono[i] for i in range(N))
+    cP = P._terms[m_dom].simplify().num._terms.get(top_v)
+    cL = Lc._terms[m_dom].simplify().num._terms.get(top_v)
+    if cP is None or cL is None:
+        raise RuntimeError("_struct_const: top monomial missing")
+    C = _lp_divide(cP, cL)
+    if C is None:
+        raise RuntimeError("_struct_const: not a q-Laurent scalar")
+    return C
+
+
+def _partitions_into(k: int, parts: int):
+    """All partitions of `k` into ≤ `parts` parts, as descending tuples
+    padded to length `parts`."""
+    def gen(rem, mx, acc):
+        if len(acc) == parts:
+            if rem == 0:
+                yield tuple(acc)
+            return
+        for x in range(min(rem, mx), -1, -1):
+            yield from gen(rem - x, x, acc + [x])
+    yield from gen(k, k, [])
+
+
+def _schur_monomials(lam):
+    """`s_λ` as `{x-exponent tuple: int}` (all permutations of each `m_μ`,
+    Kostka-weighted).  Negative entries via the det-shift trick."""
+    lam = tuple(int(x) for x in lam)
+    d = len(lam)
+    shift = -min(lam + (0,))
+    lam_pos = tuple(x + shift for x in lam)
+    from itertools import permutations
+    out: dict = {}
+    for mu in _partitions_into(sum(lam_pos), d):
+        k_num = _kostka(lam_pos, mu)
+        if not k_num:
+            continue
+        for perm in set(permutations(mu)):
+            xe = tuple(x - shift for x in perm)
+            out[xe] = out.get(xe, 0) + k_num
+    return out
+
+
+_schur_trace_v0 = trace_v0   # the name the substrate used for its import alias
+
 
 
 # ===========================================================================
@@ -414,7 +931,7 @@ class URQTorus:
         """Pure-U(N) Schur trace — the **v-only** Schur-measure residue of the
         magnetic-0 residual `f_0` (`= c_0` since the `m=0` half-shift is trivial,
         `ψ_0=1`).  No chart/DOp: the trace acts on the residual `f_0(v)` directly."""
-        return _schur_trace_v0(self._f.get((0,) * self._N), self._N, K, adaptive=adaptive)
+        return trace_v0(self._f.get((0,) * self._N), self._N, K, adaptive=adaptive)
 
     def _pairing_f0(self, other: "URQTorus"):
         """The magnetic-0 residual of `ρ(self)·other`, built **directly** from the
@@ -466,7 +983,7 @@ class URQTorus:
         """`⟨a, b⟩ = Tr(ρ(a)·b)` — the block-diagonal inner product on the residual
         vectors (`= Σ_m ⟨·,·⟩_m`, §6b): the **Schur-quantization auxiliary-space
         pairing** `⊕_m (H_m, ⟨·,·⟩_m)`.  Orthonormal on the canonical basis to
-        `O(q)` (Goal 2.1), and the same pairing other goals (orbi-modules, real
+        `O(q)`, and the same pairing other goals (orbi-modules, real
         Schur) reuse.
 
         Computed **directly from the §6b formula — not via a multiply and not via a
@@ -484,7 +1001,7 @@ class URQTorus:
         if self._f.keys().isdisjoint(other._f.keys()):
             return LaurentPoly.zero()
         f0 = self._pairing_f0(other)
-        return _schur_trace_v0(None if (f0 is None or f0.is_zero()) else f0,
+        return trace_v0(None if (f0 is None or f0.is_zero()) else f0,
                                self._N, K, adaptive=True)
 
     def orthonormality(self, other: "URQTorus", K: int = 2):
@@ -502,7 +1019,7 @@ class URQTorus:
         element obtained as a polynomial in canonicals with leading orbit `L_{m,e}`
         and `O(q)` bubbling already IS `L_{m,e}` by Kazhdan-Lusztig uniqueness, §6c —
         the `δ` follows for free) and *useless* off-span (it auto-passes correct-
-        leading + arbitrary `O(q)` bubbling, and off-span garbage — the design notes
+        leading + arbitrary `O(q)` bubbling, and off-span garbage — the
         constructive-build rule).  The trace-free `well_formed()` (bar-invariance + `O(q)`
         bubbling *shape*) is the better and faster post-build certificate.
 
@@ -533,7 +1050,7 @@ class URQTorus:
 
         **Scope.**  It presupposes in-span, single-target.  It does *not* detect a
         superposition of canonicals with distinct leadings, nor an off-span element —
-        **no post-hoc test does** (the design notes constructive-build rule).  The only guard against bad
+        **no post-hoc test does** (the constructive-build rule).  The only guard against bad
         bubbling / leaving the span is **constructive building** itself."""
         if self.bar() != self:                     # (W1) bar-invariance — palindrome
             return False
@@ -561,7 +1078,7 @@ class URQTorus:
         # must resolve to the in-frame dominant representative — the Levi
         # e-read below is frame-dependent.  Previously implicit via dict
         # insertion order (constructors insert the dominant rep first);
-        # explicit since ruling T1.  When no dominant rep is present the
+        # explicit.  When no dominant rep is present the
         # historical first-max pick is kept (Weyl-closed supports always
         # carry it in practice).
         best = max(_dominance_key(m) for m in self._f)
@@ -733,7 +1250,7 @@ class HeldURQTorus:
     def trace(self, K: int = 8, adaptive: bool = True) -> LaurentPoly:
         """Schur trace — materialise only `f_0` (the v-only magnetic-0 residue)."""
         f0 = self.materialize_component((0,) * self._N)
-        return _schur_trace_v0(None if f0.is_zero() else f0,
+        return trace_v0(None if f0.is_zero() else f0,
                                self._N, K, adaptive=adaptive)
 
     def recognize_leading(self) -> dict:
@@ -744,7 +1261,7 @@ class HeldURQTorus:
         components are never combined.  Same lower-Kapustin output as
         `URQTorus.recognize_leading`."""
         N = self._N
-        # same tie-break as the eager class (ruling T1): among equal
+        # same tie-break as the eager class: among equal
         # dominance keys, materialise the in-frame dominant representative
         # first — the Levi e-read is frame-dependent.
         for m_dom in sorted(
@@ -791,3 +1308,4 @@ class HeldURQTorus:
 
     def __repr__(self) -> str:
         return f"HeldURQTorus(N={self._N}, candidates={self.support_candidates()})"
+

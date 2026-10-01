@@ -1,0 +1,58 @@
+{
+ "id": "sec:coulomb/global-forms",
+ "labels": [
+  "sec:coulomb",
+  "eq:su2so3lat"
+ ],
+ "date": "2026-09-22T01:02:46Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "forms": "SU(2), SO(3), the third form",
+  "window": "|m|, |e| <= 3"
+ },
+ "counts": {
+  "pass": 6,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "SU(2) and SO(3) are the conventional product lattices",
+  "negative": "the full lattice is not Dirac-integral"
+ },
+ "elapsed_s": 0.017,
+ "notes": "LineLattice(datum, classes=...) generates the lattice from centre-class pairs; the three maximal Lagrangian sublattices of the (Z/2)^2 of classes are the three global forms.",
+ "checks": [
+  {
+   "name": "eq:su2so3lat  K_q[SU(2)]: every (m ∈ Q^∨, e ∈ P) is a line; K_q[SO(3)]: every (m ∈ P^∨, e ∈ Q) is a line (the classes' own coordinates)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "both lattices are Dirac-integral (mutually local) and maximal",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the three order-two subgroups of the centre-class pairs (Z/2)^2 — ⟨(1,0)⟩ (SO(3)), ⟨(0,1)⟩ (SU(2)), ⟨(1,1)⟩ (the third form) — give Dirac-integral maximal lattices, and the full group does not",
+   "ok": true,
+   "note": "{((1, 0),): (True, True), ((0, 1),): (True, True), ((1, 1),): (True, True), ((1, 0), (0, 1)): (False, False)}"
+  },
+  {
+   "name": "LineLattice(su_2()) (H trivial) is the SU(2) lattice ⟨(0,1)⟩: same membership on integer labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the third form admits exactly the labels with e - m even (draft units m ∈ Z coweights, e ∈ Z weights), half-integral coroot coordinates presented on the coweight torus",
+   "ok": true,
+   "note": "{(-2, -2): True, (-2, -1): False, (-2, 0): True, (-2, 1): False, (-2, 2): True, (-1, -2): False, (-1, -1): True, (-1, 0): False, (-1, 1): True, (-1, 2): False, (0, -2): True, (0, -1): False, (0, 0): True, (0, 1): False, (0, 2): True, (1, -2): False, (1, -1): True, (1, 0): False, (1, 1): True, (1, 2): False, (2, -2): True, (2, -1): False, (2, 0): True, (2, 1): False, (2, 2): True}"
+  },
+  {
+   "name": "the Dirac pairing is integral on the third form's lines (verify_mutually_local on a window)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "id": "def:rg/matter-removal",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-22T01:27:44Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "flow": "GMatterOverPure(su_2(), fundamental, nf=1)",
+  "K": 8,
+  "labels": 5,
+  "seconds": 9.4
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the product of dilogarithms is Weyl-symmetric",
+  "negative": "n.a."
+ },
+ "elapsed_s": 9.38,
+ "notes": "The remark's S = Π_w E_q(μ v^w) re-interpreted on characters is the flow's S_RG; the R-axioms are emergent on this construction (the UV product is derived through the flow).",
+ "checks": [
+  {
+   "name": "Π_w E_q(μ v^w) for SU(2)+1 fundamental is Weyl-symmetric in v through q^8 (so it expands on characters χ_e(v))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "S_RG of GMatterOverPure(SU(2), 1 fundamental) equals Π_w E_q(μ v^w) expanded on Wilson characters, through q^8",
+   "ok": true,
+   "note": "identical through q^8"
+  },
+  {
+   "name": "the R-axiom verifiers as instruments on the flow, 5 UV labels (identity, Wilson e=1,2, monopole, dyon): R2 unital / multiplicative / bar-invariant, R3 discovery and the exact twist",
+   "ok": true,
+   "note": "{'R2 unital': True, 'R2 multiplicative (all pairs)': True, 'R2 bar-invariant images': True, 'R3 discovery RG_a S = L_l(a) + O(q), K=2': True, 'R3 twist, exact form RG(rho_UV a) = rho_IR(tRG a)': True}"
+  },
+  {
+   "name": "R4 as a CROSS-PRESENTATION check: the flow's I_(a,b) (trace transported through S_RG) equals the (G,N) abelianized tier's on all pairs of the 5 labels, K=4",
+   "ok": true,
+   "note": "25 pairs, K=4; identity row: 1 + q^2 + (-[(-2,)] + 2 - [(2,)])*q^4 + O(q^5)"
+  }
+ ]
+}

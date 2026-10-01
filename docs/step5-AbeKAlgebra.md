@@ -4,7 +4,10 @@
 that presents a K_𝖖-algebra **faithfully on an enriched rational quantum torus** —
 the abelianized (gauge-fugacity / difference-operator) description of the
 K-theoretic Coulomb branch algebras of conventional gauge theories: pure U(N) and
-SU(N), U(N) with `N_f` fundamentals, and linear quivers. It is also the *capstone*
+SU(N), U(N) with `N_f` fundamentals, and linear quivers. Those algebras are built by
+the general-gauge-group classes of Step 7 (`PureGAbeKAlgebra`, `GNAbeKAlgebra`, both
+`AbeKAlgebra` subclasses); this layer holds the tier's contract, its torus
+substrate, the native `PureSU2KAlgebra`, and the object layer. It is also the *capstone*
 that ties the presentations together: every algebra built here is certified
 against the BPS / cone / RG presentation of the *same* abstract algebra by a
 `KAlgebraIso`, and the object layer holds those presentations under one roof.
@@ -13,13 +16,15 @@ against the BPS / cone / RG presentation of the *same* abstract algebra by a
 
 Steps 1–3 are deliberately spine-free. **Step 5 is the opposite: it depends on the
 earlier layers.** The abelianized presentation of a *matter* theory is precisely a
-pure-gauge `AbeKAlgebra` (the keystone) combined with an `RGKAlgebra` flow that
+pure-gauge `AbeKAlgebra` combined with an `RGKAlgebra` flow that
 adjoins the matter; and the certification web uses the cone (Step 2), RG (Step 3),
 and BPS (Step 4) presentations as the other endpoints of its isomorphisms. Every
 module imports the earlier layers by bare name — nothing is duplicated (importing a
 Step-5 module without the earlier layers on the path raises `ModuleNotFoundError`).
 Because it imports the BPS spine, its self-test runs **last** in the gate, after the
-spine-freeness assertions of Steps 1–3.
+spine-freeness assertions of Steps 1–3. Six of its object and isomorphism modules
+also import Step 7, which now builds the U(N) algebras they wrap, and the pure SU(2)
+object imports Step 6 for its skein presentation.
 
 ## The tier — `abe_kalgebra.py`
 
@@ -39,127 +44,70 @@ supplies exactly three primitives —
     which **raises off its certified scope rather than guessing** —
 
 and the whole `KAlgebra` API is derived: `multiply = decompose(chart · chart)`,
-`ρ`/`ρ⁻¹` (the torus G-twist read back), `trace`/`inner_product` (the Schur-measure
-residue pairing), the chart-level bar verifier, and `certify_canonical` (the
-executable acceptance test: bar-palindromicity together with the single-leading
-q-extreme condition).
+`ρ`/`ρ⁻¹` (in closed form on labels, `wrq_torus.rho_label`, with the torus G-twist
+read back as the verifier `verify_rho_via_twist`; linear quiver chains still read
+the twist back), `trace`/`inner_product` (the Schur-measure residue pairing), the
+chart-level bar verifier, and `certify_canonical` (the executable acceptance test:
+bar-palindromicity together with the single-leading q-extreme condition). Charts
+are memoized, and the memo persists: `save_cache` / `load_cache`, with a
+presentation fingerprint and every loaded element re-verified.
 
 **The constructive-build rule** is contract-enforced: the tier exposes no solve
 entry point. A canonical is assembled constructively, as a polynomial in
 already-built bar-invariant generators (dressed minuscules, `det`, Wilson lines),
 never solved for — a solve can land *outside* the canonical span, where both
 orthonormality and the internal span-pairing test would pass on off-span content.
-Every decomposition is certified by exact reconstruction. (The tier's *own*
-surface is unchanged by Step 7's licensed solve: that licence lives in one
-auditable module and carries the guard the ban presupposes absent —
-[`step7-GNKAlgebra.md`](step7-GNKAlgebra.md).)
-
-## The product law, and the cocycle that is primitive
-
-Atoms multiply by a cocycle, and **the cocycle is the primitive** — defined by a
-closed form, with everything else derived from it:
-
-    U_m · U_{m'}  =  CC[N]_{m,m'} · U_{m+m'},        R = T_{a+b}(CC)
-
-`CC = CC[0]` is the pure-gauge case, a genuine specialisation matching the
-`(G, N)` / `(G, 0)` convention, and `CC[N]` is what the product law multiplies
-by. Both charged sectors are products over the charged directions, and a
-direction contributes exactly when the two magnetic charges pair with it in
-**opposite signs**. Writing `A`, `B` for the two pairings, both factors live on
-one Clebsch–Gordan range `d = ||A|−|B||` to `D = |A|+|B|` stepping by 2, and the
-vector/matter parallel is exact: the vector multiplet spans the **closed** range
-as denominators (ends once, interior twice), the matter spans its **strict
-interior** as numerators (once each).
-
-Two consequences worth having. `CC_{a,b} = 1` whenever `a`, `b` and `a+b` share a
-closed Weyl chamber — all the content is chamber-crossing. And `CC` satisfies the
-bar axiom at torus level, `bar(CC_{a,b}) = CC_{b,a}`, because every ingredient is
-symmetric in `|A|, |B|` so the swap and the charge conjugation coincide. The
-bare-argument `R` does **not** (measured: it fails on 28 of 81 charge pairs at
-SU(3) where `CC` fails on none), and that is the second reason `CC` is the
-primitive rather than a convenience.
-
-Nothing in the closed form mentions the atom dressing, the atom phase or the
-Weyl transport: it absorbs them all, including the half-integral-height case. So
-the dressing `ψ` and the matter numerator `Z` are demoted to **trivializations**,
-whose role is to let the (★) condition be stated — and since `R` and the matter
-cocycle are now defined independently, `δψ = R` and `δZ = W` become *emergent*
-evidence rather than definitions.
-
-## `ρ` on labels, and the memo
-
-`ρ`/`ρ⁻¹` are the **explicit label-level closed form**. On Weyl orbits of pairs,
-with no chamber assumed,
-
-    ρ^{±1}[(m, e)] = [( −m,  −e + Σ_{α∈Φ: ±⟨α,m⟩>0} |⟨α,m⟩|·α
-                              − Σ_{w∈wt(N): ±⟨w,m⟩>0} |⟨w,m⟩|·w )]
-
-— `ρ` uses the roots and matter weights *positive* on `m`, `ρ⁻¹` the negative
-half; vector multiplet with `+`, hypermultiplet with `−`. At `N = Adj` the two
-sums cancel identically and `ρ` is the antipode `[(m,e)] ↦ [(−m,−e)]`, with
-`ρ² = id` on gauge charges. The former route — read the torus twist back through
-`decompose` — is demoted to a **verifier**, which is the honest place for it.
-
-The charts are memoized, and the memo **persists**: `save_cache(path)` /
-`load_cache(path)`, the same names and shape as the RG tier's. A realisation opts
-in by exposing its live `{label: element}` memo, and one file can carry a
-delegated algebra's charts too. The file is exact — an integer numerator over an
-explicit denominator multiset — so a round trip is an identity, not a
-re-derivation. Two guards, because a cache file is untrusted input: the header
-fingerprints the presentation (with the phase convention *probed*, since it is a
-callable and cannot be compared otherwise) and refuses a mismatch, and every
-admitted chart is re-verified against the axioms. Memoization itself is
-deliberately **not** a switch — the memo is structural — but `clear_cache()`
-reclaims it.
+Every decomposition is certified by exact reconstruction. The one licensed solve —
+the (★)-guarded solve of `star_bubbling`, which the Step-7 classes build with — lives
+outside the tier, in one module that applies the whole guard before it returns
+anything: (★) asks that a line's difference operator preserve the Neumann module
+`R(G)`, a membership condition that orthonormality cannot see.
 
 ## The seven blocks
 
-**A — the pure-U(N) keystone.** `PureUNKAlgebra(N)` labels its canonical basis by
-the 't Hooft–Wilson charge `(m, λ)` (an anti-dominant cocharacter `m`, a dominant
-Levi irrep `λ`); `ρ` is a sign-free permutation. Every canonical is a polynomial in
-bar-invariant generators (dressed minuscules `L_E`/`L_F`, `det`, Wilson `L_W`),
-hence bar-invariant by construction, with each decomposition certified by exact
-reconstruction. Orthonormality `I_{a,b} = δ_{a,b} + O(𝖖)` is tested directly.
-Substrate: the `URQTorus` closed-form engine and the group-general `WRQTorus`
-transport (`root_datum`, `weyl_torus_ring`, `wrq_torus`).
+**A — pure U(N).** Pure U(N) is `PureGAbeKAlgebra(u_n(N))` (Step 7), its
+canonical basis labelled by the 't Hooft–Wilson charge `(m, e)` and every element
+built by the (★)-guarded solve. The block runs the tier's contract on it at U(2):
+the `AbeKAlgebra` base's derived `multiply` and `ρ` agree with the class's own; the
+bar involution, the ρ-automorphism property and orthonormality
+`I_{a,b} = δ_{a,b} + O(𝖖)` hold on a window of labels; and `certify_canonical`
+accepts each of them. Substrate: the group-general `WRQTorus` (`root_datum`,
+`weyl_torus_ring`, `wrq_torus`).
 
-**B — matter as Abe + RG.** `UNNfKAlgebra(N, N_f)` is the native abelianized
-U(N)+N_f algebra (labels `(m, λ)` at N_f=1; `((m, λ), w)` over `R(SU(N_f))` for
-N_f > 1 — the diagonal U(1) sits in the gauge centre, so the genuine flavour is
-SU(N_f)). `UNNfOverPure` is the same algebra as an `RGKAlgebra` (Step 3) over
-`PureUNKAlgebra.add_flavour(N_f)` with the matter spectrum generator. That these
-present the same abstract algebra as the BPS-quiver realisation is certified by a
-full `KAlgebraIso` battery at U(2)+N_f=1. Linear quivers: `UNQuiverKAlgebra` /
-`QuiverOverPure` (per-node U(N_i) chains with bifundamental links).
+**B — matter.** U(N) with fundamental matter is `GNAbeKAlgebra` (Step 7), with named
+presets in `g_matter_roster`; the block checks orthonormality of `roster('u2-nf1')`
+(U(2) with one fundamental, coefficient ring `UNZPlusRing(1)`) on a window of
+magnetic, electric and flavour labels. Linear quivers are `GNAbeKAlgebra` on a
+product datum with bifundamental matter.
 
-**C — the N=2\* machinery.** `N2StarBuilder(N)` implements the physical recipe
-"solve in N=2\*, then RG-flow": it builds a torus chart from magnetic + dressing
-data, which the pure keystone `decompose`s to a single canonical — the
-pure-U(N)/SU(N) `L_{m,e}` finder (minuscule / aligned-tower / adjoint sectors,
-N=2,3,4). `SU2N2StarRGKAlgebra` is the corresponding SU(2) adjoint RG flow.
+**C — N=2\*.** `SU2N2StarRGKAlgebra` is the SU(2) adjoint-matter RG flow: a live
+`RGKAlgebra` over `R(U(1))` whose `S_RG` carries even characters.
 
 **D — the object layer.** `pure_u2_object()` / `u2_nf1_object()` return
-`KAlgebraObject`s holding the abe (keystone), cone (`QTCone`), and BPS
+`KAlgebraObject`s holding the abe, cone (`QTCone`), and BPS
 presentations of one abstract algebra, wired with certified `KAlgebraIso`
-witnesses (`abe ↔ cone` identity-on-`(m,λ)`, full battery; `abe ↔ bps` the
-`(m,λ) ↔ γ` chamber map) and `verify_coherence`, a path-independence certificate
-across all three. `pure_un_bps_iso(N)` is the standalone `PureUNKAlgebra(N) ≅ BPS
-pure U(N)` witness.
+witnesses (`abe ↔ cone` identity-on-labels, full battery; `abe ↔ bps` the chamber map to
+charges `γ`) and `verify_coherence`, a path-independence certificate across all
+three; the `abe` presentation is `PureGAbeKAlgebra(u_n(2))`, and for U(2)+1 the
+`roster('u2-nf1')` preset. `pure_un_bps_iso(N)` is the standalone
+`PureGAbeKAlgebra(u_n(N)) ≅ BPS pure U(N)` witness.
 
-**E — the SU(2) AbeKAlgebra family.** SU(2) is non-minuscule, so `PureSU2KAlgebra`
-is a genuinely native `AbeKAlgebra` (a native peel + bar-correction), not a
-projection of the U(2) keystone; `PureSUNKAlgebra` generalises it.
-`AbelianizedSU2KAlg` realises pure SU(2) as the trace-zero subalgebra of the
-pure-U(2) keystone; `SU2Nf1Abe` and `SU2UNf{N_f}AbeKAlgebra` carry the matter
-cases (with the SO(2N_f) index enhancement — triality at N_f=4). The
-`KAlgebraObject`s `pure_su2_object` / `su2_nf1_object` / `su2_unf_object` tie these
-to the other layers; `su2_nf1_object` additionally carries **RG-flow legs**
-(decouple the matter dyon → pure SU(2); decouple the 't Hooft node → the A₂
-pentagon).
+**E — the SU(2) family.** SU(2) is non-minuscule, so `PureSU2KAlgebra` is a
+genuinely native `AbeKAlgebra` (a native peel + bar-correction) — the one
+type-specific class the tier keeps, a construction of pure SU(2) that does not go
+through the (★)-guarded solve and is much faster on deep dressed labels.
+`AbelianizedSU2KAlg` realises pure SU(2) as the trace-zero subalgebra of pure U(2).
+The `KAlgebraObject`s tie these to the other layers: `pure_su2_object` holds the
+`abe`, `bps`, `cone` and `skein` presentations; `su2_nf1_object` holds `cone`,
+`bps`, `abe` (`SU2Nf1FlavourInCoefficients`, over `roster('su2-nf1')`) and
+`bps-rform`, and additionally carries **RG-flow legs** (decouple the matter dyon →
+pure SU(2); decouple the 't Hooft node → the A₂ pentagon); `su2_unf_object` holds
+`cone` and `bps` (its abelianized presentation with the `SO(2N_f)` index
+enhancement is not carried in this release).
 
-**F — SU(3) / U(3).** Pure U(3) is the keystone at N=3; pure SU(3) is the native
-`PureSUNKAlgebra(3)`. Orthonormality holds for both, and each is certified `≅` its
-BPS realisation (`pure_un_bps_iso(3)`, `pure_sun_bps_iso(3)`).
+**F — SU(3) / U(3).** Pure SU(3) is `PureGAbeKAlgebra(su_n(3))`, orthonormal on a
+window of labels; pure U(3) is certified `≅` its BPS realisation
+(`pure_un_bps_iso(3)`).
 
 **G — the flow-typed object layer.** `RGKAlgebraObject` refines `KAlgebraObject` to
 flows: a witness is an `RGKAlgebraIso` — the UV-side iso plus an auxiliary iso, with
@@ -172,32 +120,28 @@ abelianized pure SU(2).
 
 ## What's included (`src/abe/`)
 
-The tier and its substrate: `abe_kalgebra.py` (the contract, and the persistable
-chart memo), the rational-quantum-torus engines (`urq_torus`, `wrq_torus` — which
-carries the primitive cocycle `CC` and the label-level `ρ` — `matter_urq_torus`,
-`matter_wrq_torus`, `quiver_urq_torus`, `quiver_wrq_torus`, `qtorus_1d`,
-`sun_rq_torus`, `abelianized_torus`, `weyl_torus_ring`), and the Lie-theoretic
-data (`root_datum`,
-`pure_ade`, `pure_ade_lattice`, `sun_cartan_reduction`, `so2nf_characters`).
+The tier and its substrate: `abe_kalgebra.py`, the rational-quantum-torus engines
+(`wrq_torus`, `matter_wrq_torus`, `quiver_wrq_torus`, and the `urq_torus` family —
+`urq_torus`, `matter_urq_torus`, `quiver_urq_torus` — kept as the substrate of the
+vacuum-state pairing's URQ form; `qtorus_1d`, `abelianized_torus`,
+`weyl_torus_ring`), and the Lie-theoretic data (`root_datum`, `pure_ade`,
+`pure_ade_lattice`, `sun_cartan_reduction`, `so2nf_characters`).
 
-Pure gauge: `pure_un_kalgebra`, `pure_sun_kalgebra`, `pure_su2_kalgebra`, plus the
-construction/chart engines (`pure_un_construct`, `pure_un_canonical`,
-`pure_un_chart_engine`, `pure_un_closed_form`, `un_bps_chamber`) and the N=2\*
-finder (`pure_via_n2star`).
+Pure gauge: `pure_su2_kalgebra`, `abelianized_su2_kalgebra`, `un_bps_chamber`; the
+U(N) and SU(N) algebras are Step 7's `PureGAbeKAlgebra`.
 
-Matter and quivers: `un_nf_kalgebra`, `un_nf_dressed_generators`, `un_quiver_kalgebra`,
-`un_nf_over_pure_rgflow`, `quiver_over_pure`, `su2_nf2_kalgebra`, `su2_n2star_rgkalgebra`,
-and the SU(2) abelianized family (`abelianized_su2_kalgebra`, `su2_nf1_abe`,
-`su2_unf_abe_kalgebra`, `su2_unf_object`).
+Matter: `su2_nf2_kalgebra`, `su2_n2star_rgkalgebra`, `su2_unf_object`; U(N) with
+matter and linear quivers are Step 7's `GNAbeKAlgebra`.
 
 The object layer: `pure_u2_object`, `u2_nf1_object`, `pure_su2_object`,
-`su2_nf1_object`, and the flow-typed `su2a1d3_rg_object`, `su2a1d4_rg_object`; the
-isomorphism witnesses (`pure_un_bps_iso`, `pure_sun_bps_iso`, `un_nf_bps_iso`,
-`un_nf1_over_pure_iso`, `abelianized_su2_bps_iso`, `su2_nf1_h_iso`, `su2_nf2_h_iso`,
-`iso_composed_rgkalgebra`, `rgkalgebra_iso_via_ir`); and the BPS decoders/objects it
-certifies against (`bps_su2_nf1/2/3`, `su2_nf1_bps_decoder`, `su2_nf1_bps_rform`,
-`pure_su2_object`, `pure_u2_object`, `u2_nf1_object`, `pure_u2_qtcone`,
-`u2_nf1_qtcone`, and the per-theory object modules).
+`su2_nf1_object`, `su2_unf_object`, and the flow-typed `su2a1d3_rg_object`,
+`su2a1d4_rg_object`; the isomorphism witnesses (`pure_un_bps_iso`,
+`abelianized_su2_bps_iso`, `pure_su2_bps_iso`, `pentagon_bps_iso`, `su2_nf1_h_iso`,
+`su2_nf2_h_iso`, `iso_composed_rgkalgebra`, `rgkalgebra_iso_via_ir`); the BPS
+decoders it certifies against (`bps_su2_nf1/2/3`, `su2_nf1_bps_decoder`,
+`su2_nf1_bps_rform`, `pure_u2_qtcone`, `u2_nf1_qtcone`); and the atlases of the
+gauged and quiver families (`su2_family_atlas`, `su2_gauged_a1dn_atlas`,
+`su3_family_atlas`, `su3_quiver_atlas`, `pure_su3_atlas`).
 
 ## Tests
 
@@ -205,16 +149,12 @@ certifies against (`bps_su2_nf1/2/3`, `su2_nf1_bps_decoder`, `su2_nf1_bps_rform`
 python3 run_tests.py        # the full gate; test_abe_flows.py runs last
 ```
 
-`tests/test_abe_flows.py` exercises all seven blocks plus the tier's own
-substrate — the primitive cocycle's bar axiom (and the measured *failure* of the
-same axiom for the derived `R`, without which that check would be vacuous), the
-label-level `ρ` round trip on dominant representatives, the chart cache's exact
-round trip and its fingerprint refusal, and `LaurentPoly`'s refusal of a
-non-integral coefficient. The seven blocks: the keystone contract and
-orthonormality (A), matter as native Abe and the flow ↔ BPS iso (B), the N=2\*
-builder and SU(2) N=2\* flow (C), the object layer with certified `KAlgebraIso`s and
-coherence (D), the SU(2) family with its RG-flow legs and coherence (E), SU(3)/U(3)
-native algebras and their BPS isos (F), and the flow-typed `RGKAlgebraObject`s (G).
+`tests/test_abe_flows.py` exercises all seven blocks: the tier's contract and
+orthonormality on pure U(2) (A), matter orthonormality on `roster('u2-nf1')` (B), the
+SU(2) N=2\* flow (C), the object layer with certified `KAlgebraIso`s and coherence
+(D), the SU(2) family with its RG-flow legs, its skein presentation and coherence
+(E), pure SU(3) orthonormality and U(3) `≅` BPS (F), and the flow-typed
+`RGKAlgebraObject`s (G).
 
 ## License
 

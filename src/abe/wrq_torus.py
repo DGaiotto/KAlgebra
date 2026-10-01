@@ -7,7 +7,7 @@ vectors `(f_m)` over the cocharacter lattice (`m ∈ X_*(T)`, dual to the weight
 lattice), `x = Σ_m f_m(𝖖^m v)·U_m`, with the atoms `U_m` carrying a single
 magnetic charge `m` and the dressing `ψ_m`.
 
-Representation policy (user ruling, this session)
+Representation policy
 -------------------------------------------------
 The **residual-vector form is the core representation**, and it needs no `u`'s:
 the whole algebra (multiply via the cocycle, ρ, trace, inner, the Levi layer) is
@@ -33,9 +33,9 @@ and the Levi/recognize layer:
     hence NOT linear in m**, and it does NOT cancel in mixed-chamber cocycles:
     its non-linear content must be the bar-honest `−½Σ_{α>0}⟨α,m_dom⟩` (up to
     linear terms, which do cancel) or `bar` fails antimultiplicativity on
-    products — the D10 su_2 finding (2026-07-01); see `RootDatum.atom_phase`.
+    products — the su_2 finding (2026-07-01); see `RootDatum.atom_phase`.
 
-    NOTE (public language — user ruling 2026-07-02): the tier speaks **atoms
+    NOTE (public language): the tier speaks **atoms
     `U_m`, weight monomials `v^e`, residuals, and the cocycle
     `U_a U_b = R_{a,b}(v)·U_{a+b}`** only.  The `ψ` of `dressing_psi` /
     `dressing_psi_inv` below is a PRIVATE derivational device for producing
@@ -44,11 +44,7 @@ and the Levi/recognize layer:
     questions need a difference-operator export, that is a separate, future
     surface (`abelianized_torus`, demoted by D9).
   * `dressing_psi_inv(datum, m)` — `1/ψ_m` (a Laurent times a monomial).
-  * **`CC(datum, a, b)` — the cocycle `CC_{a,b}`, THE PRIMITIVE** (user
-    rulings, 2026-08-24: *"In the definition of the rational quantum torus for
-    `Σ_m f_m(𝖖^m v)·U_m`, `R̃` is clearly the truly primitive object"*, and then
-    the name — *"`CC` is fine for cocycle.  `CC` for pure gauge, `CC[N]`
-    combining gauge and matter"*, so `CC = CC[0]`).  It is
+  * **`CC(datum, a, b)` — the cocycle `CC_{a,b}`, THE PRIMITIVE**.  It is
     what the product law is written in, it is defined by a closed form with no
     `ψ` in it, and it — not `R` — satisfies the bar axiom at torus level,
     `bar(CC_{a,b}) = CC_{b,a}` (measured; `R` fails it on most charge pairs).
@@ -138,7 +134,7 @@ def _root_pairing_count(datum, a, m) -> int:
     the ψ-dressing product `∏_{l<⟨α,m⟩}` has no meaning, and no coercion can
     manufacture one.  (Distinct from the *other* boundary — an `m ∈ P^∨` with odd
     `⟨Σ⁺, m⟩`, where the dressing is fine but the *standalone monomial* `M(m)`
-    wants `𝖖^{⟨ρ,m⟩}`.  That one is **not an obstruction** (D31): the algebra needs
+    wants `𝖖^{⟨ρ,m⟩}`.  That one is **not an obstruction**: the algebra needs
     the phase only through the integral coboundary `δS̃`, and `cocycle_R` restores
     the honest phase, so those charges build.  Either way, not a failure of this
     coercion.)"""
@@ -171,7 +167,7 @@ def _psi_monomial_data(datum, m):
 
       * shipped code never reaches the half-integral branch — the `ε`-corrected
         `RootDatum.atom_phase` keeps `S` integral — so this is a **trap for
-        probes** (the same species as `atom_phase_doubled`, D26), not a live bug;
+        probes** (the same species as `atom_phase_doubled`), not a live bug;
       * it is why "simulate `𝖖^{1/2}`" never worked at odd height: the honest atom
         normalisation there wants a square root of **`−𝖖`**, and simulating a
         half-power supplies the `𝖖` half while this line silently drops the `i`;
@@ -186,7 +182,7 @@ def _psi_monomial_data(datum, m):
     ⚠ **THE CONCLUSION THAT USED TO FOLLOW — "no integral `S` restores
     orthonormality, so this presentation does not carry those lines at all;
     absorbing `−𝖖^{−1}` would need the forbidden `i·𝖖^{−1/2}`" — IS RETRACTED
-    (D31, 2026-07-29).**  It treated `M(m)` as if the tier needed it.  The tier
+    (2026-07-29).**  It treated `M(m)` as if the tier needed it.  The tier
     needs only the *cocycle*, and there `S` appears solely through the coboundary
     `δS̃`, which is an INTEGER even when `S̃` is not (`π = ⟨Σ⁺,·⟩ mod 2` is
     Weyl-invariant and additive, so the halves cancel).  So this function keeps
@@ -196,11 +192,7 @@ def _psi_monomial_data(datum, m):
     certified at SO(3) against the `PureSO3KAlgebra` BPS oracle, and measured at
     SO(5)/SO(7).  Everything above about *this monomial* stays true: it is the
     square root of the measure, it genuinely wants `(−𝖖)^{⟨ρ,m⟩}`, and the
-    half-integral branch remains a trap for probes that call it directly.
-
-    See D26/D27 and especially **D31** in
-    the design record; battery
-    a probe in the source repository."""
+    half-integral branch remains a trap for probes that call it directly."""
     d = datum.dim
     wt = [0] * d
     qpow = 0
@@ -261,7 +253,7 @@ def _phase_gap(datum, m):
     """`S_honest(m̃) − S_used(m̃)` at the dominant rep `m̃`, as a `Fraction`.
 
     `S_honest = −⟨ρ, m⟩ = −½⟨Σ⁺, m⟩` is the phase the axioms want (bar
-    antimultiplicativity pins its Weyl-invariant content — the D10 finding);
+    antimultiplicativity pins its Weyl-invariant content — the finding);
     `S_used = RootDatum.atom_phase` is what the datum actually hands the ψ
     dressing, which must be an integer because `LaurentPoly` has integer
     exponents.  The gap is therefore:
@@ -271,7 +263,7 @@ def _phase_gap(datum, m):
         `⟨Σ⁺, m⟩`;
       * the CENTRAL shift on `u_n` / `product_datum`, which carry their own
         certified convention — `½Σ_j m_j` at `U(N)`, Weyl-invariant *and*
-        additive, hence invisible in the cocycle (D29: the centre is the only
+        additive, hence invisible in the cocycle (the centre is the only
         surviving freedom).  `U(2)` at `m = (1,0)` has odd `⟨Σ⁺,m⟩` yet needs no
         correction, which is exactly why the gap must be computed rather than
         read off the parity."""
@@ -297,7 +289,7 @@ def _phase_gap(datum, m):
 def _phase_coboundary(datum, a, b) -> int:
     """`δ(S_honest − S_used)(a, b)` — an INTEGER, always.
 
-    This is the whole content of D31.  `S̃ = S ∘ dominant_cochar_rep` may be a
+    `S̃ = S ∘ dominant_cochar_rep` may be a
     half-integer, but its coboundary cannot be: the parity character
     `π = ⟨Σ⁺, ·⟩ mod 2` is Weyl-invariant *and* additive (it kills every simple
     coroot, `⟨Σ⁺, α_i^∨⟩ = 2`), so the halves cancel in
@@ -316,18 +308,17 @@ def _phase_coboundary(datum, a, b) -> int:
 
 def cocycle_R_via_psi(datum, a, b):
     """`R_{a,b} = (−𝖖)^{δ(S_honest−S_used)(a,b)} · ψ_a · T_{2a}(ψ_b) · ψ_{a+b}^{-1}`
-    — the TRIVIALIZATION route, no longer the definition (user, 2026-08-24).
+    — the TRIVIALIZATION route, no longer the definition.
     `T_p : v^λ ↦ 𝖖^{⟨p,λ⟩} v^λ` (`q_shift`), so `T_{2a} : v ↦ 𝖖^{2a} v`.
 
     (This shift was written `S_a` until 2026-08-25.  Retired: `S` already names
     the atom phase `S(m)` — which appears in this very formula as
     `S_honest`/`S_used` — as well as the spectrum generator `S` and the flow's
-    `S_RG`, so an `S_`-subscripted shift is a collision waiting to happen
-    (user, 2026-08-25).  `T_p` was already the spelling used for the same
+    `S_RG`, so an `S_`-subscripted shift is a collision waiting to happen.  `T_p` was already the spelling used for the same
     operator in the matter cocycle `W_{m,m'} = T_{−m'}(Z_m)·T_m(Z_{m'})/Z_{m+m'}`,
     so this removes an alias rather than introducing a symbol.)
 
-    **The prefactor is the honest atom phase, restored** (D31, 2026-07-29), and
+    **The prefactor is the honest atom phase, restored** (2026-07-29), and
     it is what lets the tier carry 't Hooft lines at odd `⟨Σ⁺, m⟩` — SO(3),
     SO(5), Sp(4)/Z₂, SO(7), PSU(4).  On the default phase the exponent evaluates
     to `π(a)·π(b)` (so it fires only when BOTH charges have odd `⟨Σ⁺,·⟩`); on a
@@ -349,7 +340,7 @@ def cocycle_R_via_psi(datum, a, b):
 
         S_honest − S_red = −π(m)/2
         δ(S_honest − S_red)(a, b) = ½(π(a) + π(b) − π(a+b)) = π(a)·π(b)
-        R_honest = (−𝖖)^{π(a)π(b)} · R_red                    (D29's law)
+        R_honest = (−𝖖)^{π(a)π(b)} · R_red                    (the law)
 
     — vanishing unless BOTH charges have odd `⟨Σ⁺,·⟩`, so the entire certified
     even sector is bit-identical (measured).  `_phase_coboundary` computes the
@@ -363,7 +354,7 @@ def cocycle_R_via_psi(datum, a, b):
     a homogeneous residue-cancellation condition.  Keeping `ψ` reduced therefore
     keeps every difference-operator surface integral and unchanged.
 
-    Battery: a probe in the source repository; record: ruling D31."""
+    Battery: a probe in the source repository."""
     a, b = tuple(a), tuple(b)
     tot = tuple(a[i] + b[i] for i in range(datum.dim))
     shift = tuple(2 * x for x in a)
@@ -382,7 +373,7 @@ def cocycle_R_via_psi(datum, a, b):
 # The cocycle as a PRIMITIVE — a product over the charged directions
 # ---------------------------------------------------------------------------
 #
-# User ruling, 2026-08-24: *"The key is the cocycle in `U_m` products.  Ideally
+# The author's ruling, 2026-08-24: *"The key is the cocycle in `U_m` products.  Ideally
 # it would be a primitive object instead of being built from pieces like `ψ`"*,
 # and then *"`R` should be defined by the closed form … `ψ` and `Z` should have
 # the property that they trivialize it in an appropriate sense"*, whose *"main
@@ -391,11 +382,11 @@ def cocycle_R_via_psi(datum, a, b):
 # So `R_{a,b}` is DEFINED below, directly, and `ψ` is demoted to a
 # trivialization of it (`cocycle_R_via_psi`, checked by
 # `verify_psi_trivializes_cocycle`).  Nothing in the definition mentions `ψ`,
-# the atom phase `S`, the Weyl transport, or the D31 phase coboundary — the
+# the atom phase `S`, the Weyl transport, or the phase coboundary — the
 # closed form absorbs all of them, including at odd `⟨Σ⁺,m⟩` (measured at
 # SO(5)/SO(7), where the phase prefactor used to be needed).
 #
-# The support rule is the user's own (2026-08-24): *"the (gauge) cocycle
+# The support rule is the author's own (2026-08-24): *"the (gauge) cocycle
 # receives contributions from roots for which `m` and `m'` inner products have
 # opposite signs"* — measured exhaustively, and it holds for the matter cocycle
 # too (`matter_wrq_torus`), with numerators there where the gauge factor has
@@ -421,9 +412,7 @@ def cocycle_range(A, B):
 def CC_root_factor(datum, alpha, A, B):
     """The one-root factor of `CC_{a,b}` at `α`, with `A = ⟨a,α⟩`, `B = ⟨b,α⟩`.
 
-    **This is the primitive** (user ruling, 2026-08-24: *"In the definition of
-    the rational quantum torus for `Σ_m f_m(𝖖^m v)·U_m`, `R̃` is clearly the
-    truly primitive object"*).  `CC` is what the product law is written in; `R`
+    **This is the primitive**.  `CC` is what the product law is written in; `R`
     only ever appears as `T_{a+b}(CC)`, so `R` is derived below rather than the
     other way round.
 
@@ -459,7 +448,7 @@ def CC(datum, a, b):
     """`CC_{a,b}` — **the primitive** cocycle, as the `f`-representation uses it.
 
     `CC` is the pure-gauge case; `CC[N]` (`matter_wrq_torus.CC_N`) combines gauge
-    and matter, so `CC = CC[0]` (user ruling, 2026-08-24).
+    and matter, so `CC = CC[0]`.
 
     A product of `CC_root_factor` over the positive roots, so it is
     manifestly supported on the roots where `⟨a,α⟩` and `⟨b,α⟩` have opposite
@@ -495,20 +484,20 @@ def cocycle_R(datum, a, b):
 def psi_floor_defect_exponent(datum, a, b) -> int:
     """The exponent `e` with `R_{a,b} = (−𝖖)^e · δψ_floored(a,b)`.
 
-    Two `ψ`s have to be kept apart (user, 2026-08-24):
+    Two `ψ`s have to be kept apart:
 
     * the **honest** `ψ` trivializes `R` on the nose, but carries a *fractional*
       power of `(−𝖖)` at odd `⟨Σ⁺,m⟩` — it does not live in `Z[𝖖^{±1}]` and
       cannot be represented here at all;
     * the **floored** `ψ` — *"`ψ` with a fractional power of `(−𝖖)` stripped
-      off"* (user) — is what `dressing_psi` returns.  It stays integral and
+      off"* — is what `dressing_psi` returns.  It stays integral and
       therefore **does not trivialize `R`**.
 
     This is the whole of that failure, and it is a `v`-free scalar `(−𝖖)^e`,
     which is what makes the floor safe where `ψ` is still used: *"which does not
-    affect the star axiom because it is an overall factor"* (user), and (★) is a
+    affect the star axiom because it is an overall factor"*, and (★) is a
     homogeneous residue-cancellation condition, so an overall scalar is
-    invisible to it.  `e` is an integer — that is D31, and it is why the floored
+    invisible to it.  `e` is an integer, and that is why the floored
     `ψ` keeps every surface in integral powers of `𝖖`."""
     return _phase_coboundary(datum, a, b)
 
@@ -553,7 +542,8 @@ def verify_psi_trivializes_cocycle(datum, a, b) -> bool:
 def _rho_block(datum, k):
     """`(sign, qpow, wexp)` of the per-magnetic ρ block, datum-general.
 
-    Reduces the U(N) `pure_un_kalgebra._rho_block_data` to root-sums:
+    Reduces the U(N) `pure_un_kalgebra._rho_block_data` (of the keystone retired
+    2026-09-19) to root-sums:
       `wexp = −Σ_{α>0}⟨α,k⟩·α`,
       `qpow = −Σ_{α>0}⟨α,k⟩(⟨α,k⟩−1) + 2·S(k)`   (the `q^{2Σt k_t}` J-grading),
       `sign = (−1)^{Σ_t (d−1−2t) k_t}`.
@@ -598,8 +588,373 @@ def _rho_Gtilde(datum, m, inverse=False):
     return _rho_G(datum, m, inverse).q_shift(tuple(m))
 
 
+def sector_weight(datum, m):
+    """`w_m` — the per-sector measure of the Schur pairing, as its own object.
+
+    The pairing is a sum over magnetic charge of contour integrals,
+
+        I_{a,b}  =  Σ_m ∮ w_m(v) · f^a_m(arg) · f^b_m(arg),
+
+    and this returns the `w_m` of that expression (the full integrand's remaining
+    factor is the common Schur measure applied by `trace_residual`, which also
+    carries the `(𝖖²;𝖖²)^{2·dim}` prefactor and the `1/|W|` Haar normalization).
+    The two slots' "arg" is `T_{−m}∘v̄` on the left and `T_{−m}` on the right;
+    measure and evaluation points travel together, which is why the convention is
+    stated here rather than left to the call site.
+
+    Explicitly `w_m = T_{−m}(G̃_m) · R̃_{−m,m}` — the ρ twist factor at the sector,
+    half-shifted, times the `U_{−m}U_m` cocycle.  Both factors are this module's
+    own (`_rho_Gtilde`, `CC`), so `w_m` is a *derived* object and not a second
+    convention: `WRQTorus.pairing_residual` assembles `f_0` from it and agrees
+    exactly with the `ρ`-and-convolve route.
+
+    Weyl-covariant in `m` and independent of the states, so it is cacheable per
+    `(datum, m)` and is the natural object on which to state a symmetry of the
+    pairing (e.g. behaviour under `v → 1/v`) without computing any index."""
+    m = tuple(m)
+    neg = tuple(-x for x in m)
+    return (_rho_Gtilde(datum, m, False).q_shift(neg)
+            * CC(datum, neg, m)).simplify()
+
+
+def sector_measure(datum, m):
+    """`B_m` — the per-sector measure in the variable `u = 𝖖^{−m} v`, the frame
+    in which `I_{b,a} = ⋆(I_{a,b})` (axiom 5, ρ-equivariance of the trace) is
+    manifest.
+
+    Writing the sector integrand of `pairing_residual` in `u = 𝖖^{−m} v` moves
+    the contour from `|v| = 1` to `|u| = 1`, i.e. across the annulus in which the
+    residuals' `(1 − 𝖖^k u^α)` poles can sit — this is exactly the *"contour
+    shift and non-trivial pole cancellations"* by which the
+    sector form and `Tr(ρ(a)·b)` coincide; the shipped computation stays in the
+    `v`-frame (`pairing_residual` → `trace_residual`), and the `u`-frame is the
+    presentation.  The equality of the two constant terms is measured, not
+    argued here: per sector 128/128 and summed 36/36 at pure SU(2), `K=10`, even
+    `⟨m,α⟩` (review pass, 2026-09-18); the odd-`⟨m,α⟩` case is UNMEASURED in
+    the `u`-frame (its shifted measure is an infinite ratio there).  In that
+    frame the Schur pairing reads
+
+        I_{a,b} = (𝖖²;𝖖²)_∞^{2·dim}/|W| · Σ_m [u⁰]( M_m(u) · f^a_m(1/u) · f^b_m(u) ),
+
+        M_m(u) = T_{+m}μ(u) · B_m(u),      μ = ∏_{α∈Φ} (u^α;𝖖²)_∞ (𝖖²u^α;𝖖²)_∞,
+
+    with `B_m = T_{+m}(w_m) = G̃_m · T_{+m}(R̃_{−m,m})` an exact rational function
+    (this object) and `T_{+m}μ` the charge-shifted Schur measure.  The two
+    residuals enter at `1/u` and `u`, so exchanging `a ↔ b` is `u → 1/u`, and
+    `I_{b,a} = I_{a,b}` (with `⋆` once flavour fugacities, which live on the same
+    torus, are inverted too) follows from **inversion invariance of `M_m`**:
+
+        M_m(1/u) = M_m(u)   ⟺   v̄(B_m) = Q_m · B_m,   Q_m := T_{+m}μ / T_{−m}μ,
+
+    `Q_m` a FINITE product (the two shifts differ by `2⟨m,α⟩`; see
+    `sector_measure_inversion_ratio`).  That identity is exact — no states, no
+    truncation — and is the certificate `verify_sector_measure_inversion_symmetric`
+    checks: measured 16/16 at su_2, su_3, sp_4, g_2, odd `⟨m,α⟩` included.
+
+    Why this frame and not a convention: the two faces
+    `Tr(ρ(a)·b)` and `Tr(b·ρ⁻¹(a))` assemble at `T_{∓m}`, so the shift relating
+    them is `2m` and the pairing sits at exactly half of it — the midpoint, where
+    neither slot is privileged.
+
+    `𝖖 → 0` (the author's seed principle, measured 12/12 at su_2/su_3/sp_4): the
+    lowest-order term of `M_m` is `𝖖⁰` times the **m-Levi Vandermonde**
+    `∏_{⟨m,α⟩=0}(1−u^α)` exactly (no monomial, sign `+`), so at leading order the
+    pairing is Schur orthogonality of the seed Levi characters against the Levi
+    Weyl measure and `I_{a,b} = δ_{a,b} + O(𝖖)` is automatic.
+
+    Relation to the `v`-frame factor: `sector_weight(datum, m) = T_{−m}(B_m)`.
+
+    **Closed form, all `G`** (`sector_measure_closed_form`, 2026-09-19):
+    `B_m = u^{Σ_{α>0}⟨m,α⟩α}·∏_{α>0} b_{|⟨m,α⟩|}(u^α)` with
+    `b_t(z) = z^t/[(1−𝖖^t z)(1−𝖖^{−t}z)∏_{j=1}^{t−1}(1−𝖖^{t−2j}z)²]` — derived
+    there (the two dressing ladders of `G_m` cancel identically, the shifted
+    cocycle factorises over the roots), which turns the inversion certificate
+    below into a theorem.  This function stays the DERIVED object the closed
+    form is certified against (`verify_sector_measure_closed_form`)."""
+    return sector_weight(datum, m).q_shift(tuple(m)).simplify()
+
+
+def sector_measure_inversion_ratio(datum, m):
+    """`Q_m = T_{+m}μ / T_{−m}μ`, the finite product
+
+        ∏_{α∈Φ, s=⟨m,α⟩>0} 1 / [ ∏_{j<s}(1−𝖖^{−s+2j}u^α) · ∏_{j<s}(1−𝖖^{2−s+2j}u^α) ]
+
+    (the `s<0` roots contribute the reciprocal factors, i.e. numerators) — each
+    root of `μ` carries two Pochhammers, `(u^α;𝖖²)_∞` and `(𝖖²u^α;𝖖²)_∞`, hence
+    the two products.  Exact `TorusRational`; see `sector_measure`.
+
+    It collapses to the monomial `u^{−2Σ_{α>0}⟨m,α⟩α}`
+    (`sector_measure_inversion_ratio_closed_form`, derived there); this
+    function keeps the finite product as the DEFINITION the collapse is
+    certified against."""
+    m = tuple(m)
+    d = datum.dim
+    one = TorusLaurent(datum, {(0,) * d: LaurentPoly({0: 1})})
+    num = one
+    den = {}
+    for a in datum.roots():
+        s = datum.shift_pairing(m, a)
+        a = tuple(a)
+        if s > 0:
+            for j in range(s):
+                for base in (-s + 2 * j, 2 - s + 2 * j):
+                    den[(a, base)] = den.get((a, base), 0) + 1
+        elif s < 0:
+            t = -s
+            for j in range(t):
+                for base in (-t + 2 * j, 2 - t + 2 * j):
+                    num = num * (one + TorusLaurent(
+                        datum, {a: LaurentPoly({base: -1})}))
+    return TorusRational(datum, num, den)
+
+
+def verify_sector_measure_inversion_symmetric(datum, m) -> bool:
+    """The manifest-symmetry certificate: `v̄(B_m) == Q_m · B_m` exactly, i.e. the
+    half-shift-centred measure `M_m = T_{+m}μ·B_m` is invariant under `u → 1/u`.
+    No states, no truncation, no index computed.
+
+    Since 2026-09-19 a THEOREM, given the closed form: `B_m = u^{C}∏ b_t(u^α)`
+    with each `b_t` inversion-invariant and `Q_m = u^{−2C}`
+    (`sector_measure_closed_form`, `sector_measure_inversion_ratio_closed_form`).
+    Kept as the exact check on the derived objects."""
+    B = sector_measure(datum, m)
+    lhs = B.vinv().simplify()
+    rhs = (sector_measure_inversion_ratio(datum, m) * B).simplify()
+    return (lhs - rhs).simplify().is_zero()
+
+
 # ===========================================================================
-# ρ on LABELS — the explicit closed form (promoted to primary, user ruling
+# The per-sector measure in CLOSED FORM — derived for every RootDatum
+# (2026-09-19; user: "the closed form of the sector measure beyond su_2 …
+# for all G and N is needed")
+# ===========================================================================
+#
+# `sector_measure` above is DERIVED from the tier's two definitions (the
+# √-measure twist `G̃_m` and the cocycle `CC`).  Everything below is the same
+# object written out, with the derivation in the docstrings; the closed form
+# is asserted equal to the derived object by `verify_sector_measure_closed_form`
+# (pinned in `tests/test_sector_measure_closed_form.py`), and it makes the
+# inversion certificate `v̄(B_m) = Q_m·B_m` a two-line theorem instead of a
+# computation.
+
+
+def sector_root_factor(datum, alpha, t):
+    """`b_t(z)` — the one-root factor of the closed-form sector measure at the
+    positive root `α`, with `t = |⟨m,α⟩|` and `z = u^α`:
+
+        b_0(z) = 1,
+        b_t(z) = z^t / [ (1 − 𝖖^t z)(1 − 𝖖^{−t} z) · ∏_{j=1}^{t−1} (1 − 𝖖^{t−2j} z)² ].
+
+    **Derivation.**  It is `T_{+m}` of `CC_root_factor(α, −s, s)`, `s = ⟨m,α⟩`,
+    the cocycle factor of `CC_{−m,m}` at that root.  For `s = t > 0` that
+    factor is `bar` of the `(t, −t)` one, whose range is `(d, D) = (0, 2t)`:
+
+        bar( 𝖖^{t²} z^t / [(1−z) ∏_{k=2,4,…,2t−2}(1−𝖖^k z)² (1−𝖖^{2t} z)] )
+          = 𝖖^{−t²} z^t / [(1−z) ∏_k (1−𝖖^{−k} z)² (1−𝖖^{−2t} z)],
+
+    and the half shift `T_{+m}: z ↦ 𝖖^t z` multiplies the numerator by `𝖖^{t²}`
+    and moves every denominator exponent up by `t`, which is the display.  For
+    `s = −t < 0` the `(t, −t)` factor itself under `z ↦ 𝖖^{−t} z` gives the same
+    display, so only `|s|` enters.
+
+    **Inversion invariance, exactly:** `b_t(1/z) = b_t(z)`.  The denominator's
+    𝖖-exponents `{t, −t} ∪ {±(t−2j)}` form a multiset symmetric under negation,
+    and `(1 − 𝖖^k/z) = −𝖖^k z^{−1}(1 − 𝖖^{−k} z)` over it contributes
+    `(−1)^{2t}𝖖^0 z^{−2t}` — against `z^{−t}` from the numerator, i.e.
+    `z^{−t}/(z^{−2t}·den(z)) = z^t/den(z)`."""
+    t = int(t)
+    if t < 0:
+        raise ValueError(f"sector_root_factor: t = {t} must be |⟨m,α⟩| ≥ 0")
+    if t == 0:
+        return TorusRational.one(datum)
+    alpha = tuple(alpha)
+    out = TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, tuple(t * x for x in alpha), LaurentPoly({0: 1})))
+    out = out * TorusRational.factor_inv(datum, alpha, t)
+    out = out * TorusRational.factor_inv(datum, alpha, -t)
+    for j in range(1, t):
+        f = TorusRational.factor_inv(datum, alpha, t - 2 * j)
+        out = out * f * f
+    return out
+
+
+def sector_measure_prefactor(datum, m):
+    """`(sign, qpow)` of the scalar `sign·𝖖^{qpow}` in front of the closed-form
+    sector measure — the only place the datum's phase conventions enter.
+
+    With `m̃` the dominant representative of `m` and `m̃'` that of `−m̃`
+    (`= −w₀m̃`), `S_ψ = _phase_S` (the ψ-dressing's phase, `RootDatum.atom_phase`,
+    parity-corrected) and `2S_ρ = RootDatum.atom_phase_doubled` (the ρ block's,
+    honest and integral):
+
+        qpow  =  −S_ψ(m̃) + S_ψ(m̃') + 2S_ρ(m̃) + ⟨Σ⁺, m̃⟩,
+        sign  =  (−1)^{ S_ψ(m̃) + S_ψ(m̃') + 2S_ρ(m̃) + ⟨Σ⁺, m̃⟩ }.
+
+    **Where it comes from** (`G_m = v̄(ψ_m)·mono_m·ψ_{−m}⁻¹`, `m̃` dominant,
+    `s_α = ⟨α,m̃⟩`): `v̄(ψ_m̃)` carries `M(m̃) = ε 𝖖^{Σs_α(s_α−1) − S_ψ(m̃)} v^{Σ s_α α}`
+    conjugated; `mono_m̃` carries `𝖖^{−Σ s_α(s_α−1) + 2S_ρ(m̃)} v^{Σ s_α α}` with
+    sign `(−1)^{rho_sign_exp}`, `rho_sign_exp = 2S_ρ + ⟨Σ⁺,m̃⟩`; and `ψ_{−m̃}⁻¹`,
+    transported by `w₀` from its dominant representative `m̃'`, carries
+    `M(m̃')⁻¹ ↦ ε' 𝖖^{−Σ s_α(s_α−1) + S_ψ(m̃')} v^{Σ s_α α}` (the `w₀` image of
+    `v^{−Σ s'_α α}` is `v^{+Σ s_α α}`, since `−w₀` permutes the positive roots).
+    The `Σ s_α(s_α−1)` terms cancel, the half shift `T_{+m̃}` of the total
+    weight `Σ s_α α` adds `Σ s_α² = Σ s_α(s_α−1) + ⟨Σ⁺,m̃⟩`, and the display
+    follows; the sign collects `ε·ε'·(−1)^{rho_sign_exp}` with
+    `ε = (−1)^{S_ψ + Σ s_α}` (`_psi_monomial_data`).
+
+    **It is `1·𝖖⁰` for every shipped convention**, which is why the closed form
+    carries no visible scalar:
+
+    * default datum — `S_ψ = −½⟨Σ⁺,·⟩ + ½ε` with `ε ∈ {0, ±1}` the parity
+      correction, `2S_ρ = −⟨Σ⁺,·⟩`: `qpow = ½(ε(m̃') − ε(m̃)) = 0` because at a
+      DOMINANT cocharacter the correction is `+1` at odd height (sign of the
+      first non-zero simple-root pairing) and `0` at even, for `m̃` and `m̃'`
+      alike; the sign exponent is `−⟨Σ⁺,m̃⟩ + ε(m̃) ≡ 0 (mod 2)`.  This is the
+      odd-height case (SO(3), SO(5), SO(7), PSU(4) ω₁/ω₃): the two phases
+      differ there, and they cancel — no `𝖖^{1/2}`, no `i`.
+    * `u_n` — `S_ψ = S_ρ = Σ_j j·m_j`: with `−w₀` the reversal, `S(m̃) + S(m̃')
+      = Σ_j (2j − N + 1) m_j = −⟨Σ⁺, m̃⟩`, so both exponents vanish identically.
+    * `product_datum` — additive over the factors.
+
+    A datum with some other `atom_phase` override gets the honest value here,
+    so the closed form stays exact rather than assuming the cancellation."""
+    m = tuple(m)
+    md = tuple(datum.dominant_cochar_rep(m))
+    mdp = tuple(datum.dominant_cochar_rep(tuple(-x for x in md)))
+    s_psi = _phase_S(datum, md)
+    s_psi_p = _phase_S(datum, mdp)
+    two_s_rho = datum.atom_phase_doubled(md)
+    height = datum._root_height(md)
+    for name, val in (("S_ψ(m̃)", s_psi), ("S_ψ(m̃')", s_psi_p),
+                      ("2S_ρ(m̃)", two_s_rho), ("⟨Σ⁺,m̃⟩", height)):
+        if int(val) != val:
+            raise NotImplementedError(
+                f"sector_measure_prefactor: {name} = {val} is not an integer "
+                f"at m = {m} on {datum.name}")
+    s_psi, s_psi_p, two_s_rho, height = (int(s_psi), int(s_psi_p),
+                                         int(two_s_rho), int(height))
+    qpow = -s_psi + s_psi_p + two_s_rho + height
+    sign_exp = s_psi + s_psi_p + two_s_rho + height
+    return (-1 if sign_exp % 2 else 1), qpow
+
+
+def sector_measure_closed_form(datum, m):
+    """`B_m` in closed form — the per-sector measure of the Schur pairing in the
+    variable `u = 𝖖^{−m}v` (see `sector_measure`), for EVERY `RootDatum`:
+
+        B_m(u)  =  sign·𝖖^{qpow} · u^{Σ_{α>0} ⟨m,α⟩ α} · ∏_{α>0} b_{|⟨m,α⟩|}(u^α),
+
+    with `b_t` = `sector_root_factor` and `(sign, qpow)` = `sector_measure_prefactor`
+    (`= (1, 0)` on every shipped convention).  Derived, not fitted:
+
+    1. **The two dressing ladders cancel identically.**  At dominant `m`,
+       `v̄(ψ_m) = v̄(M(m))·∏_{α>0}∏_{l<s_α}(1−𝖖^{2l}v^{−α})⁻¹` and `ψ_{−m}⁻¹`,
+       carried by `w₀` from its dominant representative, is
+       `w₀(M⁻¹)·∏_{β>0}∏_{l<s_β}(1−𝖖^{2l}v^{−β})` — the SAME ladder, because
+       `−w₀` permutes `Φ⁺` and `⟨α, −w₀m⟩ = ⟨−w₀α, m⟩`.  So `G_m` is a monomial,
+       `G̃_m = T_{+m}G_m = sign·𝖖^{qpow}·v^{Σ_{α>0}⟨α,m⟩α}` (the scalar is
+       `sector_measure_prefactor`'s).  This is the whole content of the
+       "√-measure twist" at the level of the sector measure.
+    2. **The half-shifted cocycle factorises over the roots** into
+       `sector_root_factor`, `T_{+m}(CC_{−m,m}) = ∏_{α>0} b_{|⟨m,α⟩|}(u^α)`, with
+       no monomial and no scalar left over.
+    3. **Weyl covariance** carries 1–2 from dominant `m` to the orbit: the
+       weight `Σ_{α>0}⟨α,m⟩α` is covariant (a flipped root `β<0` contributes
+       `⟨β,m⟩β = ⟨−β,m⟩(−β)`), the block's 𝖖-power `−Σ_{α>0}⟨α,m⟩(⟨α,m⟩−1) +
+       2S_ρ(m)` is Weyl-INVARIANT because both terms shift by
+       `−2Σ_{α>0, ⟨α,m⟩<0}|⟨α,m⟩|` under a Weyl move and the shifts cancel, its
+       sign exponent is invariant mod 2 for the same reason, and `ψ` is
+       transported by `_weyl_transport`.  Hence `B_{wm} = w·B_m` and the display
+       — which depends on `m` only through the pairings `⟨m,α⟩` — is the
+       formula at every `m`.
+
+    Two consequences that used to be measured are now theorems:
+
+    * `b_t(1/z) = b_t(z)` and `u^{C} ↦ u^{−C}` for `C = Σ_{α>0}⟨m,α⟩α`, so
+      `v̄(B_m) = u^{−2C}·B_m` — and `Q_m = T_{+m}μ/T_{−m}μ` IS `u^{−2C}`
+      (`sector_measure_inversion_ratio_closed_form`), which is the certificate
+      `verify_sector_measure_inversion_symmetric` in one line.
+    * at `𝖖 → 0` only the roots with `⟨m,α⟩ = 0` survive in `T_{+m}μ·B_m` as
+      the m-Levi Vandermonde (the `b_t`, `t > 0`, are cancelled by the shifted
+      Pochhammers they sit under), the seed principle of `sector_measure`;
+    * **the full `u`-frame measure `M_m = T_{+m}μ·B_m` is ENTIRE.**  Per root
+      pair, `T_{+m}μ = (𝖖^t z;𝖖²)_∞(𝖖^{2+t}z;𝖖²)_∞(𝖖^{−t}/z;𝖖²)_∞(𝖖^{2−t}/z;𝖖²)_∞`
+      with `t = ⟨m,α⟩`, `z = u^α`, vanishes to order exactly 2 at every
+      `z = 𝖖^{k}` with `k ≡ t (mod 2)` (the first two factors cover `k ≤ −t−2`
+      twice and `k = −t` once; the last two, via `(1−𝖖^{k}/z) ∝ (1−𝖖^{−k}z)`,
+      cover `k ≥ 2−t` twice and `k = −t` once), while `b_t`'s denominators sit
+      at `k ∈ {t, −t} ∪ {±(t−2j)}`, all `≡ t (mod 2)`, with multiplicity ≤ 2.
+      So the sector measure crosses no pole under the contour move
+      `u → 1/u`: whatever residues that move meets come from the residuals
+      `f^a_m, f^b_m` alone (pinned exactly on `B_m`'s denominator data in
+      `tests/test_sector_measure_closed_form.py`).
+
+    Certified equal to the derived `sector_measure` by
+    `verify_sector_measure_closed_form` — 367/367 cocharacters at u_2, u_3,
+    su_2, su_3, sp_4, so_3, so_5, Spin(5), g_2, U(1)², U(2)×U(1), odd height and
+    non-dominant `m` included (`tests/test_sector_measure_closed_form.py`;
+    415/415 on the wider development grid).
+    the design record's `aux_space._sector_weight_parts` organises its weight by the same
+    per-root datum `|⟨m,α⟩|` in a different frame (the shifted Vandermonde
+    sits in the vacuum there); no term-by-term identity is claimed here.
+
+    **The same object in the author's `K_𝖖-algebras` draft (eq. Iexplicit):**
+    there the pairing measure is written with ABSOLUTE-VALUE shifts and no
+    rational factor, `∏_α (𝖖^{|⟨m,α⟩|}v^α;𝖖²)_∞(𝖖^{2+|⟨m,α⟩|}v^α;𝖖²)_∞`.  That is
+    `T_{+m}μ·B_m` exactly: on the side of each root pair where the signed shift
+    is `−t` the finite ratio of Pochhammers is `u^{−tα}/b_t(u^α)`, which is what
+    `B_m` supplies (pinned per root pair, `tests/test_sector_measure_closed_form.py`
+    leg 6).  So `B_m` is the conversion from the signed-shift Schur measure the
+    trace machinery carries to the `|·|`-shifted one, in which the `u → 1/u`
+    symmetry is visible with no certificate at all.  Matched after the fact:
+    the derivation above is from the code's definitions."""
+    m = tuple(m)
+    d = datum.dim
+    sign, qpow = sector_measure_prefactor(datum, m)
+    wt = [0] * d
+    for a in datum.positive_roots():
+        s = datum.shift_pairing(m, a)
+        for i in range(d):
+            wt[i] += s * a[i]
+    out = TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, tuple(int(x) for x in wt), LaurentPoly({int(qpow): sign})))
+    for a in datum.positive_roots():
+        t = abs(int(datum.shift_pairing(m, a)))
+        if t:
+            out = out * sector_root_factor(datum, a, t)
+    return out.simplify()
+
+
+def sector_measure_inversion_ratio_closed_form(datum, m):
+    """`Q_m = T_{+m}μ / T_{−m}μ` collapsed: the monomial `u^{−2Σ_{α>0}⟨m,α⟩α}`.
+
+    Per root pair `±α` with `s = ⟨m,α⟩ > 0` the finite product of
+    `sector_measure_inversion_ratio` is `∏_j (1−𝖖^{k_j}u^{−α}) / ∏_j (1−𝖖^{k_j}u^{α})`
+    over the multiset `{−s+2j} ∪ {2−s+2j}`, `j < s`, which is symmetric under
+    `k ↦ −k`; `(1−𝖖^k u^{−α}) = −𝖖^k u^{−α}(1−𝖖^{−k}u^α)` then cancels the
+    denominator and leaves `(−1)^{2s}𝖖^{Σk}u^{−2sα} = u^{−2sα}`.  Certified
+    against the finite product in `tests/test_sector_measure_closed_form.py`."""
+    m = tuple(m)
+    d = datum.dim
+    wt = [0] * d
+    for a in datum.positive_roots():
+        s = datum.shift_pairing(m, a)
+        for i in range(d):
+            wt[i] -= 2 * s * a[i]
+    return TorusRational.from_laurent(TorusLaurent.monomial(
+        datum, tuple(int(x) for x in wt), LaurentPoly({0: 1})))
+
+
+def verify_sector_measure_closed_form(datum, m) -> bool:
+    """The closed form equals the derived object: `sector_measure_closed_form ==
+    sector_measure`, exactly (no truncation, no states)."""
+    lhs = sector_measure_closed_form(datum, m)
+    rhs = sector_measure(datum, m)
+    return (lhs - rhs).simplify().is_zero()
+
+
+# ===========================================================================
+# ρ on LABELS — the explicit closed form (promoted to primary, the author's ruling
 # 2026-08-23; the chart→twist→decompose route is the demoted verification
 # route, `AbeKAlgebra.verify_rho_via_twist`)
 # ===========================================================================
@@ -624,7 +979,7 @@ def rho_level_star(slots, m, inverse=False):
 def rho_label(datum, m, e, slots=(), inverse=False):
     """`ρ^{±1}` on a canonical label `(m, e)` — the explicit label-level
     closed form (derived 2026-08-23 from the tier's definitions; promoted to
-    the PRIMARY ρ by user ruling the same day, with the torus-twist route
+    the PRIMARY ρ the same day, with the torus-twist route
     demoted to the verifier `AbeKAlgebra.verify_rho_via_twist`).
 
     On Weyl orbits of pairs `[(m, e)]` — no chamber assumed on the input;
@@ -637,11 +992,11 @@ def rho_label(datum, m, e, slots=(), inverse=False):
     half; vector multiplet with `+`, hypermultiplet with `−` — the
     weight-valued analogue of the scalar monopole-dimension combination.)
     Flavour levels star as `rho_level_star` above.  Two corollaries pinned in
-    the suite in the source repository: at `N = Adj` (`wt(Adj) = Φ ∪ {0}`) the two
+    `tests/test_abe_rho_label.py`: at `N = Adj` (`wt(Adj) = Φ ∪ {0}`) the two
     sums cancel identically and `ρ[(m,e)] = [(−m,−e)]`, the antipode
     (`ρ² = id` on the gauge charges); at a minuscule `ω_k` of U(N) the gauge
-    sum is `pure_un_kalgebra.witten_shift`, so this generalises the U(N)
-    keystone's `rho_label` maps to any datum.
+    sum is `pure_un_kalgebra.witten_shift`, so this generalises the (retired)
+    U(N) keystone's `rho_label` maps to any datum.
 
     Derivation, in two steps.  (1) At an anti-dominant source atom the twist
     factor `G_k` (`_rho_G`) is a PURE MONOMIAL: substituting `β = −w₀α`
@@ -867,8 +1222,69 @@ class WRQTorus:
 
     def inner(self, other, K: int = 8, w_cutoff: bool = True):
         """`⟨a,b⟩ = Tr(ρ(a)·b)` — the trace pairing (orthonormal on the canonical
-        basis to `O(𝖖)`)."""
+        basis to `O(𝖖)`).  Routes through `ρ(a)` and the full cocycle convolution;
+        `inner_by_sector` is the independent per-sector-measure route."""
         return (self.rho() * other).trace(K, w_cutoff=w_cutoff)
+
+    def pairing_residual(self, other):
+        """The magnetic-0 residual of `ρ(self)·other`, assembled **directly** over
+        the SHARED magnetic support — no `ρ(self)` object, no non-zero sectors of
+        the convolution — with the two residuals entering SYMMETRICALLY:
+
+            f_0  =  Σ_m  w_m · v̄( T_{+m} f^a_m ) · T_{−m}( f^b_m )
+
+        and the per-sector measure `w_m = sector_weight(datum, m)`.  The two slots
+        sit at OPPOSITE half-shifts `±m`, one inverted — the `x_m(1/v)·y_m(v)`
+        shape — so exchanging them is `v → 1/v` and nothing else.
+
+        **Why the half-shift is the right frame, not a convention**.  The same assembly for the other face, `Tr(b·ρ⁻¹(a))`, is
+        `Σ_m w'_m · v̄(T_{−m} f^a_m)·T_{+m}(f^b_m)` with
+        `w'_m = T_{+m}(G̃⁻_m)·R̃_{m,−m}`: the two faces sit at `T_{∓m}`, so the
+        shift relating them is `2m` and this expression uses exactly HALF of it.
+        Writing the pairing at the midpoint is what makes neither slot privileged.
+        Measured: face1 == face2 == the shipped `b·ρ⁻¹(a)` route, 16/16 at pure
+        SU(2) (`K=10`) and 9/9 at pure SU(3) (`K=8`).
+
+        Derived from this module's own two definitions, exact and not an
+        approximation: `_twist` gives `ρ(a)_{−m} = v̄(f^a_m)·G̃_m`, `__mul__`
+        contributes to total charge `0` exactly through the pairs `(−m, m)`, and
+        `T_{−m}∘v̄ = v̄∘T_{+m}` moves the inversion across the shift (measured
+        16/16, 15/15 on raw residuals).
+
+        Cost: linear in `|supp(a) ∩ supp(b)|` where `inner` is quadratic in
+        `|supp(a)|·|supp(b)|`.  Measured identical to the `inner` route (raw, i.e.
+        `w_cutoff=False`) at pure SU(2) 36/36 (`K=10`, supports to 9, 2.2× faster)
+        and pure SU(3) 16/16 (`K=8`, supports to 7, 1.3×) —
+        `tests/test_wrq_sector_pairing.py`."""
+        datum = self.datum
+        acc = None
+        for m, fa in self._f.items():
+            fb = other.residual(m)
+            if fb.is_zero():
+                continue
+            neg = tuple(-x for x in m)
+            term = (sector_weight(datum, m)
+                    * fa.q_shift(tuple(m)).vinv()      # v̄(T_{+m} f^a_m)
+                    * fb.q_shift(neg))                 # T_{−m} f^b_m
+            acc = term if acc is None else (acc + term)
+        return TorusRational.zero(datum) if acc is None else acc.simplify()
+
+    def inner_by_sector(self, other, K: int = 8, w_cutoff: bool = True):
+        """`⟨a,b⟩ = Tr(ρ(a)·b)` via the per-sector measure (`pairing_residual`).
+
+        A genuinely **separate expression** from `inner`, not a refactor of it: it
+        is the sum-over-sectors contour form, and its agreement with `Tr(ρ(a)·b)`
+        is a theorem (the total-charge-0 part of the convolution), certified rather
+        than assumed — see `tests/test_wrq_sector_pairing.py`.
+
+        The per-sector pieces are summed **before** the residue is taken, which is
+        required: `trace_residual` is non-linear in its argument when
+        `w_cutoff=True` (the `|W|`-divisibility cutoff can fire at different orders
+        on different pieces), so a per-sector `trace_residual` then sum would be
+        wrong.  It also reads a `0` the same way `trace_residual` does — see that
+        function's two warnings before believing a vanishing pairing."""
+        return trace_residual(self.datum, self.pairing_residual(other), K,
+                              w_cutoff=w_cutoff)
 
     def _twist(self, inverse):
         out = {}
@@ -926,7 +1342,7 @@ def build_canonical(datum, m, e):
     monomial; dressed minuscule (`m` minuscule, `e≠0`) → the dressed minuscule.
     Dressed NON-minuscule labels honest-fail here (their leading orbit is NOT
     the canonical — bubbling is missing); realisations reach them through the
-    generic `peel_to_canonical` + `kl_bar_correct` (D10 wall (b))."""
+    generic `peel_to_canonical` + `kl_bar_correct`."""
     if all(x == 0 for x in e):
         return build_cone_monomial(datum, m)
     if not is_minuscule(datum, m):
@@ -964,7 +1380,9 @@ def decompose(datum, x, build=build_canonical):
 class PureUNWRQ:
     """The native pure-U(N) build/decompose on WRQTorus over a `u_n` datum —
     the shared engine (extracted from the retired per-tier WRQ classes so the
-    keystone `PureUNKAlgebra` and the matter/quiver decompose all use it).
+    keystone `PureUNKAlgebra` and the matter/quiver decompose all used it).
+    **No live consumer since 2026-09-19**: every class that used it was retired
+    to the source repository's archive that day (`PureGAbeKAlgebra(u_n(N))` builds pure U(N) now).
 
     `chart(m, e)` builds `L_{(m,e)}` (cone monomial → dressed cone monomial →
     family-4b dressed-monopole·cone peel → the two generic seeds), cached with a
@@ -1045,7 +1463,7 @@ def multiply_in_basis(datum, a, b, build=build_canonical):
 
 
 # ===========================================================================
-# Generic native build — product-and-peel + KL bar-correction (D10 wall (b))
+# Generic native build — product-and-peel + KL bar-correction
 #
 # The datum-general transcription of the `PureSU2KAlgebra` native build
 # (itself the SU-torus transcription of the U(N) keystone `cf_build_full`):
@@ -1177,7 +1595,8 @@ def levi_character(datum, m, e):
 
     with `w·ρ_m − ρ_m = ½(Σ_{α∈Φ_m⁺} w·α − Σ α)` an integer vector (no half-integer
     ρ_m).  Regular m ⇒ Φ_m empty ⇒ χ_e = v^e.  For type-A Levi blocks this equals
-    the product-of-Schur `pure_un_closed_form.levi_character`."""
+    the product-of-Schur `pure_un_closed_form.levi_character` (retired
+    2026-09-19)."""
     Wm, Phim = _levi_data(datum, m)
     d = datum.dim
     e = tuple(e)
@@ -1280,7 +1699,7 @@ def build_cone_monomial(datum, m_dom):
 # q-commuting product of QTCone RAYS — per fundamental-coweight direction `k` a
 # `low`/`mut` dressed minuscule of `φ_k = (1^k, 0^{N-k})` — times `det^p`, slid
 # to the target dressing by the two free moves and bar-centered.  This is the
-# residual-native transcription of `pure_un_kalgebra._cone_build_impl` into the
+# residual-native transcription of `pure_un_kalgebra._cone_build_impl` (retired) into the
 # dominant WRQ frame (the keystone works anti-dominant).  The `φ_n` dressing
 # slide `φ_n(L_{(φ_k,d)}) = L_{(φ_k, d+n·φ_k)}` (exact, q-free) is FOLDED into
 # the ray dressings (so no residual-level `φ_n` port is needed); the `w2^l`
@@ -1707,8 +2126,7 @@ def trace_residual(datum, f0: TorusRational, K: int = 8,
     cancel against the measure — first tried as exact numerator division (the
     U(N) fast path), else folded into the measure itself, which carries an
     order-2 zero per root pair at `v^α = 1` (`(v^α;𝖖²)_∞ = (1−v^α)·(𝖖²v^α;𝖖²)_∞`
-    and `(1−v^{−α}) = −v^{−α}(1−v^α)`) — the datum-general prescription (D10
-    wall (a); values unchanged where the fast path succeeds, since both compute
+    and `(1−v^{−α}) = −v^{−α}(1−v^α)`) — the datum-general prescription (values unchanged where the fast path succeeds, since both compute
     the same `[v^0](measure·f_0)`).  k≠0 factors are 𝖖-expanded.  The
     `|W|`-divisibility cutoff marks the reliable 𝖖-order — NOTE it makes the
     result non-linear in `f0` (pieces of a decomposition may cut at different
@@ -1724,7 +2142,7 @@ def trace_residual(datum, f0: TorusRational, K: int = 8,
     manifestly non-zero — and `w_cutoff=True` reports `0`, while the even control
     `m = (1,)` gives raw `2 − 2𝖖² + 4𝖖⁶` → `1 − 𝖖² + 2𝖖⁶` as it should.  That `0`
     was once reported as "the leading orbit is trace-null at odd height", which was
-    wrong: the element is non-zero and so is its pairing (ruling D23 addendum).
+    wrong: the element is non-zero and so is its pairing.
 
     So when a pairing comes out `0` and that is *surprising*, re-run with
     `w_cutoff=False` before drawing any conclusion.  Scanning the requested `K` is
@@ -1733,7 +2151,7 @@ def trace_residual(datum, f0: TorusRational, K: int = 8,
     bug (`langlands_iso`'s module docstring): an internal window producing a
     structured false signal.
 
-    ⚠ **AND THERE IS A SECOND, DISTINCT ZERO MECHANISM** (D30): a `K`-WINDOW zero,
+    ⚠ **AND THERE IS A SECOND, DISTINCT ZERO MECHANISM**: a `K`-WINDOW zero,
     where `w_cutoff=True` *and* `w_cutoff=False` both give `0` because the series
     simply starts beyond the requested order.  Measured: at SO(3) with `S = −2m`,
     `I(x·y, x)` is `0/0` at `K = 8` but `−𝖖⁹ + 3𝖖¹³` at `K = 14`; at SU(2) with

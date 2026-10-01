@@ -71,8 +71,7 @@ its `μ⁰` coefficient is known, and the only free parameters are `Q[μ^j]`
 (`j ≥ 1`) on cells where `Δ_N` drops below its leading value — i.e. exactly the
 bubbled cells, and exactly as many parameters as the degree law allows.
 
-**D2 is a HEURISTIC, not an axiom** (user ruling, 2026-07-28: *"I feel D2 should
-not be needed a priori, but perhaps it is a useful heuristic."*).  It is used
+**D2 is a HEURISTIC, not an axiom**.  It is used
 here to *decide what to try*, never as the ground of correctness: where the
 degree law says a μ-level carries no free parameter, `solve_level` is skipped
 and `f = offset` proposed — but the proposal is then put through
@@ -321,7 +320,7 @@ def check_divisibility(datum, matter, m, cells: dict, pure=None,
 
 def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
                 verbose: bool = False, oq_offset=None, max_pad_retry: int = 2,
-                audit=None):
+                audit=None, support=None, stats=None, admits_e=None):
     """Solve the **μ-level-`n` slice** of `L_{m,e}` for `(G, N)` from
     (★) + bar + `O(𝖖)`, reusing the pure solver.
 
@@ -332,7 +331,7 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
 
     * the **seed** on extremal cells is `pure_a · Z_a[n]` (the leading-orbit
       product law) instead of the bare leading orbit.  This is asserted, not
-      solved for, and that is **correct rather than merely convenient** — user
+      solved for, and that is **correct rather than merely convenient** — the author's
       ruling 2026-07-30: *"the seed written in terms of `U_m` which include matter
       contributions to the `R` cocycle is matter-independent."*  The atoms already
       carry the matter factor `W = T_{−m'}(Z_m)T_m(Z_{m'})/Z_{m+m'}`, so in the
@@ -340,7 +339,7 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
       un-dressed residual IS the pure canonical's, hence `Q[k ≠ 0]|orbit = 0` and
       the extremal cells carry no unknowns for a solve to find.  (The *bubbled*
       cells' degree budget — D2 proper — is a different claim and stays a
-      heuristic, guarded by (★)+W1.)  ruling D35 addendum;
+      heuristic, guarded by (★)+W1.)  addendum;
     * the **box anchors** are shifted by the weights occurring in `Z[n]`, i.e.
       by sums of `n` matter weights.  These are not roots, so the pure `pad`
       dilation (which runs along root directions) cannot reach them;
@@ -356,7 +355,14 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
 
     Returns `(status, Ff, interior)` exactly as `star_bubbling.joint_solve`.
     At `n = 0` the seed is the plain leading orbit and this reduces to the pure
-    solve."""
+    solve.
+
+    `support`, `stats` and `admits_e` (default `None` = unchanged) are handed to
+    `star_bubbling.joint_solve` as they are — the support condition measured
+    rather than assumed (see `matter_multislot.solve_canonical_matter_vec`).
+    With `support`, the box anchors and the 𝖖-window also cover the dressing
+    `Z[n]` on the cells outside the hull: a cutoff that could not hold a filling
+    of those cells would report the vanishing it is there to test."""
     import star_bubbling as SB
     from pure_g_abe_kalgebra import PureGAbeKAlgebra
 
@@ -381,8 +387,11 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
         def _Z(cell):
             return Z_levels(datum, matter, cell, kmax=n).get(n)
 
+    hull = [tuple(p) for p in SB.tropical_support(datum, m)]
+    cells = hull if support is None else [tuple(p) for p in support]
+    beyond = [] if support is None else [c for c in cells if c not in hull]
     seed_f, z_weights, z_qmax = {}, set(), 0
-    for a in pres:
+    for a in list(pres) + beyond:
         Zn = _Z(a)
         if a in orbit:
             if Zn is None:
@@ -402,9 +411,10 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
     # No bubbling cells (minuscule / central `m`) ⇒ nothing to solve: the seed
     # IS the answer.  `joint_solve` has no unknowns to build an ansatz from and
     # raises there, so short-circuit rather than let it fail.
-    support = [tuple(p) for p in SB.tropical_support(datum, m)]
-    if not [p for p in support if p not in orbit]:
+    if not [p for p in cells if p not in orbit]:
         return "unique", {}, []
+    extra = {k: v for k, v in (("support", support), ("stats", stats),
+                               ("admits_e", admits_e)) if v is not None}
 
     anchors = set()
     for base in SB.wilson_weights(datum, e):
@@ -444,15 +454,16 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
         return SB.joint_solve(
             datum, m, e, pad=pad, q_extra=q_extra, verbose=verbose,
             seed_f=seed_f, anchors=sorted(anchors), oq_offset=oq_offset,
-            audit=audit)
+            audit=audit, **extra)
 
-    for extra in range(0, max_pad_retry + 1):
+    for widen in range(0, max_pad_retry + 1):
         status, Ff, _support, interior, _K_f = SB.joint_solve(
-            datum, m, e, pad=pad + extra, q_extra=q_extra, verbose=verbose,
-            seed_f=seed_f, anchors=sorted(anchors), oq_offset=oq_offset)
+            datum, m, e, pad=pad + widen, q_extra=q_extra, verbose=verbose,
+            seed_f=seed_f, anchors=sorted(anchors), oq_offset=oq_offset,
+            **extra)
         if status != "inconsistent":
-            if extra and verbose:
-                print(f"  [widened box to pad={pad + extra}]", flush=True)
+            if widen and verbose:
+                print(f"  [widened box to pad={pad + widen}]", flush=True)
             return status, Ff, interior
     return status, Ff, interior
 
@@ -460,7 +471,7 @@ def solve_level(datum, matter, m, e, n, pad: int = 1, lines=None,
 def verify_forced_level(datum, lvl, verbose: bool = False):
     """**The degree law proposes; the axioms dispose.**
 
-    D2 is a *measured* law, not an axiom — user ruling, 2026-07-28: *"I feel D2
+    D2 is a *measured* law, not an axiom *"I feel D2
     should not be needed a priori, but perhaps it is a useful heuristic."*  So
     where the degree law says a μ-sector carries no free parameter and the
     answer is `f = offset` outright, that answer is **checked against the
@@ -563,6 +574,8 @@ def solve_canonical_matter(datum, matter, m, e, pad: int = 1, lines=None,
         # as the existing "no bubbled cells at all" short-circuit in
         # `solve_level`, one notch finer: no free PARAMETERS rather than no
         # cells.  Constructive — it reads off a measured law, it does not solve.
+        # (Re-measured 2026-09-26 on the multi-slot tower: the `inconsistent`
+        # does not reproduce there — see `matter_multislot`, same short-circuit.)
         forced = n and not any(n <= budget[c]
                                for c in pres if c not in orbit)
         if forced:
@@ -634,7 +647,7 @@ def matter_theta_twist(x, k: int):
     gauge — 7/7 at SU(2)+1×2 (`m = (1,), (2,)`), SU(2)+2×2 and Sp(4)+1×4, for
     `k = 1, 2`: W1 holds, `well_formed()` returns precisely the predicted label,
     and the image **equals** the independently built chart
-    (a probe in the source repository).  User-confirmed the same day.
+    (a probe in the source repository).  Confirmed by the author the same day.
 
     It was not obvious: the matter chart is the quotient `Q` of `F = Z·Q` and the
     dressing `Z(m)` carries `v`-dependence of its own, so the twist had to commute

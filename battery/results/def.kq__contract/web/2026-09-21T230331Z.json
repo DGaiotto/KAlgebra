@@ -1,0 +1,89 @@
+{
+ "id": "def:kq/contract",
+ "labels": [
+  "def:kq",
+  "ax:bar",
+  "ax:basis",
+  "ax:rho",
+  "ax:trace",
+  "eq:orthonormality",
+  "ax:rhotr"
+ ],
+ "date": "2026-09-21T23:03:31Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "toy realisations": 6,
+  "window": "rank 2: |γ_i| <= 1 (9 labels); rank 1: |a| <= 2",
+  "K": 6
+ },
+ "counts": {
+  "pass": 11,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "genuine torus passes all verifiers",
+  "negative": "each countermodel rejected by its axiom's verifier"
+ },
+ "elapsed_s": 0.074,
+ "notes": "Discrimination matrix (countermodel -> axiom groups whose verifiers fire): K1 -> ['K1', 'K4']; K2 -> ['K1', 'K2']; K3 -> ['K3', 'K4']; K4 -> ['K4']; K5 -> ['K5'].  Where more than the targeted group fires the axioms are entangled in the construction, not the verifier: a non-bar-invariant basis also breaks orthonormality (I_{a,a} = q^{2a_1^2}), an anti-automorphism rho breaks I_{a,a} for a_1 != 0, a q-scaled unit breaks the bar symmetry of the pairs (1, b).  K4 and K5 are isolated: the doubled trace fails orthonormality alone, and on the degenerate torus the even flavour trace fails rho-equivariance alone, so K5 is independent of K1-K4 as a statement about flavoured algebras.",
+ "checks": [
+  {
+   "name": "transcription K1 (ax:bar): bar involution: antimultiplicative, q -> q^{-1} <-> verify_bar_involution",
+   "ok": true,
+   "note": "C^c_{ab}(q^{-1}) = C^c_{ba}(q) on every pair of the window (structure constants of the canonical basis)"
+  },
+  {
+   "name": "transcription K2 (ax:basis): canonical basis of bar-invariant elements including 1 <-> verify_identity_in_basis / verify_unit_law / verify_associativity",
+   "ok": true,
+   "note": "1 is a basis label and a two-sided unit; products of basis elements are Z[q^{±1}]-combinations of basis elements (closure: every product label is a label); bar-invariance of the basis is K1's statement on the structure constants"
+  },
+  {
+   "name": "transcription K3 (ax:rho): algebra automorphism rho permuting the basis <-> verify_rho_is_automorphism / verify_rho_inverse / verify_rho_fixes_identity",
+   "ok": true,
+   "note": "rho(L_a L_b) = rho(L_a) rho(L_b); rho^{-1} rho = id; rho(1) = 1"
+  },
+  {
+   "name": "transcription K4 (ax:trace, eq:orthonormality): rho^2-twisted trace with I_{a,b} = Tr L_{rho(a)} L_b = Tr L_b L_{rho^{-1}(a)} = delta_{a,b} + O(q) <-> verify_rho_twisted_trace / verify_trace_pairing_faces / verify_orthonormality",
+   "ok": true,
+   "note": "Tr(L_a L_b) = Tr(rho^2(L_b) L_a); the two faces agree; I_{a,b} has no negative q-powers and I_{a,b}[q^0] = delta_{a,b}"
+  },
+  {
+   "name": "transcription K5 (ax:rhotr): Tr L_{rho(a)} = Tr L_a (hence I_{b,a} = I_{a,b}) <-> verify_trace_intertwines_rho / verify_pairing_rho_star_symmetric",
+   "ok": true,
+   "note": "Tr(L_{rho(a)}) = *(Tr L_a) and I_{b,a} = *(I_{a,b}), * the identity on Z[q^{±1}] (the rep-ring duality with flavour)"
+  },
+  {
+   "name": "positive control: the Z^2 quantum torus passes all 12 verifiers on |γ_i| <= 1",
+   "ok": true,
+   "note": "verify_bar_involution 81/81; verify_identity_in_basis 1/1; verify_unit_law 9/9; verify_associativity 64/64; verify_rho_fixes_identity 1/1; verify_rho_inverse 9/9; verify_rho_is_automorphism 81/81; verify_orthonormality 81/81; verify_trace_pairing_faces 81/81; verify_rho_twisted_trace 81/81; verify_trace_intertwines_rho 9/9; verify_pairing_rho_star_symmetric 81/81"
+  },
+  {
+   "name": "discrimination K1: the K1-countermodel is rejected by verify_bar_involution",
+   "ok": true,
+   "note": "verifier groups that fire: ['K1', 'K4']; failures per verifier: verify_bar_involution 36, verify_orthonormality 6"
+  },
+  {
+   "name": "discrimination K2: the K2-countermodel is rejected by verify_unit_law",
+   "ok": true,
+   "note": "verifier groups that fire: ['K1', 'K2']; failures per verifier: verify_bar_involution 16, verify_unit_law 8"
+  },
+  {
+   "name": "discrimination K3: the K3-countermodel is rejected by verify_rho_is_automorphism",
+   "ok": true,
+   "note": "verifier groups that fire: ['K3', 'K4']; failures per verifier: verify_rho_is_automorphism 48, verify_orthonormality 12"
+  },
+  {
+   "name": "discrimination K4: the K4-countermodel is rejected by verify_orthonormality",
+   "ok": true,
+   "note": "verifier groups that fire: ['K4']; failures per verifier: verify_orthonormality 9"
+  },
+  {
+   "name": "discrimination K5: the K5-countermodel is rejected by verify_trace_intertwines_rho",
+   "ok": true,
+   "note": "verifier groups that fire: ['K5']; failures per verifier: verify_trace_intertwines_rho 4, verify_pairing_rho_star_symmetric 20"
+  }
+ ]
+}

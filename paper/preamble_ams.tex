@@ -1,0 +1,489 @@
+% !TEX root = nice_temp.tex
+%% ===================================================================
+%%  preamble_ams.tex  --  complete preamble for the K_q-Algebras paper
+%%
+%%  Your document becomes -- note that \title and \abstract stay in the
+%%  PREAMBLE, above the single \begin{document}, exactly where they were
+%%  under jheppub:
+%%
+%%      \documentclass[12pt]{amsart}
+%%      \input{preamble_ams}
+%%
+%%      \title{$K_\fq$-algebras}
+%%      \author{Davide Gaiotto}
+%%      \affiliation{Perimeter Institute for Theoretical Physics, ...}
+%%      \emailAdd{dgaiotto@perimeterinstitute.ca}
+%%      \abstract{We introduce the notion of ...}
+%%
+%%      \begin{document}
+%%      \maketitle
+%%      \section{Introduction}
+%%      ...
+%%
+%%  A SECOND \begin{document} -- e.g. one before the title block and one
+%%  after -- gives "! LaTeX Error: Can be used only in preamble."
+%%
+%%  (11pt + the margins set below reads better than 12pt article defaults
+%%   for a long mathematics paper; change it if you disagree.)
+%%
+%%  jheppub is gone.  Four things it was doing are replaced here:
+%%    * the title page      -- rebuilt in "Title block" below, in three
+%%      selectable looks, with JHEP's \author / \affiliation / \emailAdd;
+%%    * hyperref            -- now loaded explicitly, before cleveref;
+%%    * \abstract{...} in the preamble -- emulated, so the body of your
+%%      draft needs NO edits (see "Title block" below);
+%%    * \bibliographystyle{JHEP} -- JHEP.bst ships WITH jheppub, so that
+%%      line will now fail.  See "Bibliography" at the foot of this file.
+%%
+%%  Package policy (changed 2026-09-19, measured on a fresh TeX Live 2023):
+%%  every package below is REQUIRED and loaded unconditionally.  The
+%%  earlier design -- "each optional package is guarded, so a missing one
+%%  gives a plainer document rather than an error" -- was measured to be
+%%  false safety: with enumitem absent the axiom lists throw twenty-odd
+%%  errors, with booktabs absent the tables error, with lmodern absent
+%%  (and no cm-super) pdfTeX dies fatally on page 1, and the remaining
+%%  guards silently changed the document (no boxes, an empty list of
+%%  conjectures).  Instead, section 0b names every missing package in
+%%  ONE error before anything else runs.
+%%
+%%  The line "% !TEX root = nice_temp.tex" at the very top tells TeXShop /
+%%  TeXstudio / VS Code which file to typeset when THIS file is frontmost:
+%%  a run of "pdflatex mono.bib" (the bibliography typeset as if it were
+%%  the document) is what one of the 2026-09-19 logs recorded.
+%% ===================================================================
+
+
+%% ---- 0.  One knob ---------------------------------------------------
+% Claim boxes -- conjecture, definition, remark: tinted box with a
+% coloured left rule, or plain theorem styles.  ONE switch for all three.
+\newif\ifkqboxed      \kqboxedtrue
+
+
+%% ---- 0b.  Required packages, checked up front -----------------------
+%  One loud error naming what is missing beats a silent divergence.  All
+%  of these ship with a full TeX Live / MacTeX (enumitem, thmtools,
+%  mdframed, cleveref in collection-latexextra; the rest in the basic and
+%  recommended collections).  A minimal install (BasicTeX, Debian's
+%  texlive-latex-base alone) lacks several of them and stops HERE with
+%  their names, instead of failing at line 58 of the paper.
+\makeatletter
+\@for\kq@pkg:=lmodern,microtype,mathtools,tikz,xcolor,booktabs,enumitem,hyperref,thmtools,mdframed,cleveref\do{%
+  \IfFileExists{\kq@pkg.sty}{}{%
+    \PackageError{preamble-ams}{Required package '\kq@pkg' is not installed
+      on this machine}{Install it (tlmgr install \kq@pkg) or use a full
+      TeX Live / MacTeX; the document does not build without it.}}}
+\makeatother
+
+
+%% ---- 1.  Page and fonts ---------------------------------------------
+\usepackage[a4paper,margin=3.0cm]{geometry}
+
+% Latin Modern: visually the Computer Modern design, but scalable Type 1
+% rather than bitmap Type 3.  Two reasons this matters:
+%   * bitmap fonts render fuzzy on screen -- a real and often unnoticed
+%     cause of "my PDFs look bad";
+%   * microtype's font expansion REQUIRES scalable fonts and errors out
+%     without them.
+%  (Palatino via mathpazo was trialled and rejected -- user, 2026-08-10.
+%   Latin Modern also keeps text and mathematics in ONE family, whereas
+%   Palatino leaves the fraktur \fq and the blackboard bold behind in
+%   Computer Modern, and \fq is on nearly every line of this paper.)
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+
+% microtype: margin kerning and subtle tracking.  The single largest
+% per-character improvement available to a LaTeX document.
+%  lmodern is REQUIRED above rather than guarded because of microtype:
+%  its font expansion needs scalable fonts, and with lmodern absent (and
+%  no cm-super) pdfTeX aborts on the first page with "auto expansion is
+%  only possible with scalable fonts" (measured 2026-09-19).
+\usepackage{microtype}
+
+
+%% ---- 2.  Mathematics ------------------------------------------------
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+
+% The appendices contain 26 align blocks.  Without this they cannot break
+% across a page and force bad page turns.
+\allowdisplaybreaks[1]
+
+% More air around displays than article's default.
+\setlength{\abovedisplayskip}{10pt plus 2pt minus 3pt}
+\setlength{\belowdisplayskip}{10pt plus 2pt minus 3pt}
+\setlength{\abovedisplayshortskip}{4pt plus 2pt minus 2pt}
+\setlength{\belowdisplayshortskip}{6pt plus 2pt minus 3pt}
+
+
+%% ---- 3.  Your macros ------------------------------------------------
+%  Unchanged, except \Tr.  \mathrm{Tr} carries NO spacing, which
+%  is why thin spaces were being inserted by hand -- and inconsistently:
+%  in the live text 53 sites write "\Tr \," and 59 write "\Tr" with none.
+%  \DeclareMathOperator supplies the spacing automatically and uniformly.
+%
+%  ==> After switching, the hand-inserted "\," directly after \Tr should
+%      be deleted: with a proper operator they make the gap too wide.
+%      (sed -i 's/\\Tr *\\,/\\Tr/g' yourfile.tex  does it.)
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\rk}{rk}      % same fix: \mathrm{rk}\,\Gamma -> \rk\Gamma
+%  \RG stays \mathrm.  It must NOT become an operator: the draft uses it
+%  in two roles -- as an operator in \RG(L_a), but also as a SUBSCRIPT
+%  LABEL in \Gamma_\RG and S_\RG.  An operator may take a subscript but
+%  cannot be one, so \DeclareMathOperator{\RG} makes those two a hard
+%  error ("Missing { inserted ... \mathop").
+\newcommand\RG{\mathrm{RG}}
+
+\newcommand\fq{\mathfrak{q}}
+\newcommand\fg{\mathfrak{g}}
+\newcommand\bZ{\mathbb{Z}}
+\newcommand\bR{\mathbb{R}}
+\newcommand\bC{\mathbb{C}}
+\newcommand\cN{\mathcal{N}}
+\newcommand\cP{{\mathcal P}}
+\newcommand\cC{{\mathcal C}}
+\newcommand\cT{{\mathcal T}}
+\newcommand\cA{{\mathcal A}}
+\newcommand\cQ{{\mathcal Q}}
+\newcommand\fQ{{\mathfrak Q}}
+\newcommand\cM{{\mathcal M}}
+\newcommand\IR{\mathrm{IR}}
+\newcommand\UV{\mathrm{UV}}
+\newcommand\op{\mathrm{op}}
+\newcommand\fsl{\mathfrak{sl}}
+\newcommand\fgl{\mathfrak{gl}}
+
+\newcommand{\cocy}{\mathsf{C}}  
+\newcommand{\cocha}{\mathsf{D}}  
+\newcommand{\Zmat}{\mathsf{Z}} 
+
+\newcommand{\cG}{\mathcal{G}} 
+\newcommand{\cE}{\mathcal{E}} 
+%  WATCH OUT: \sl is LaTeX's slanted-font command, NOT your \fsl.  Two
+%  such uses were in the draft once (fixed; none left on 2026-09-19).
+%  Watch for it in new text: it renders wrongly rather than erroring,
+%  and \sl is deliberately not redefined so the problem stays visible.
+
+
+%% ---- 4.  Graphics (your TikZ block, verbatim) -----------------------
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{arrows.meta}
+\tikzset{
+    midarrow/.style={postaction={decorate},decoration={
+            markings,
+            mark=at position .5 with {\arrow{stealth}}
+        }
+    }
+}
+
+
+%% ---- 5.  Tables and lists -------------------------------------------
+% Tables with proper rule weights and no vertical rules.  REQUIRED: the
+% paper's tables use \toprule / \midrule / \bottomrule (errors without it).
+\usepackage{booktabs}
+% Tighter, controllable list spacing.  REQUIRED: every axiom list is
+% \begin{enumerate}[label=(K\arabic*), ref=K\arabic*, ...], which plain
+% enumerate cannot parse (twenty-odd errors measured without it).
+\usepackage{enumitem}
+
+
+%% ---- 6.  Colour and links -------------------------------------------
+\usepackage{xcolor}
+%  The claim-box palette.  Three ranks, in decreasing visual weight:
+%    conjecture -- deep navy rule + barely-there blue tint (the paper's
+%                  headline objects: own counter, listed at the front);
+%    definition -- SAME box geometry and weight, deep pine-green rule +
+%                  equally faint green tint.  Equal standing, different
+%                  hue: a page with both is legible at a glance, and the
+%                  two tints are deliberately at the same lightness so
+%                  neither box looks "more important" than the other.
+%    remark     -- a thinner neutral-grey rule and NO tint: a remark is
+%                  an aside, so the rule marks its extent without
+%                  promoting it to a highlight.
+\definecolor{kqrule}{HTML}{1F4E79}    % deep navy: rules, conjecture boxes
+\definecolor{kqtint}{HTML}{F2F6FA}    % barely-there blue tint (conjecture)
+\definecolor{kqdefrule}{HTML}{2E6E4E} % deep pine green: definition boxes
+\definecolor{kqdeftint}{HTML}{F2F8F4} % barely-there green tint (definition)
+\definecolor{kqremrule}{HTML}{8A929E} % quiet cool grey: remark rule (no tint)
+\definecolor{kqlink}{HTML}{1F4E79}
+
+\usepackage{hyperref}                % jheppub used to load this
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = kqlink,
+  citecolor  = kqlink,
+  urlcolor   = kqlink,
+  linktocpage= true,
+  bookmarksnumbered = true,
+}
+
+
+%% ---- 7.  Title block: none -- amsart's own is used ------------------
+%  This variant of the preamble is for \documentclass{amsart}.  amsart has
+%  its own front matter, so all that is needed is a shim mapping the JHEP
+%  macro names used in the draft onto amsart's:
+\newcommand{\affiliation}[2][]{\address{#2}}
+\newcommand{\emailAdd}[1]{\email{#1}}
+\makeatletter
+\gdef\kq@amsabs{}
+\renewcommand{\abstract}[1]{\gdef\kq@amsabs{#1}}
+%  amsart's abstract environment cannot be opened from a hook (its
+%  \bgroup ... \egroup pair does not survive the hook's own grouping), so
+%  build the box the environment would have built, with amsart's measures.
+\AtBeginDocument{%
+  \ifx\kq@amsabs\@empty\else
+    \global\setbox\abstractbox=\vtop{%
+      \normalfont\Small
+      \list{}{\labelwidth\z@ \leftmargin3pc \rightmargin\leftmargin
+        \listparindent\normalparindent \itemindent\z@
+        \parsep\z@ \@plus\p@}%
+      \item[\hskip\labelsep\scshape\abstractname.]\kq@amsabs
+      \endlist}%
+  \fi}
+\makeatother
+%  amsart drops the LaTeX 2.09 math font switches, so the draft's 20
+%  "{\cal N}" would be undefined; restore \cal as the \mathcal alphabet.
+\DeclareOldFontCommand{\cal}{\normalfont\rmfamily}{\mathcal}
+\newcommand{\jheptoc}{\tableofcontents\listofconjectures}
+
+
+%% ---- 8.  Claim environments -----------------------------------------
+%%
+%%  ONE claim tier, after a false start.  A second tier was proposed for
+%%  the draft's hedged statements and REJECTED (user, 2026-08-10) --
+%%  correctly, because those statements share a tone but not a role:
+%%  the sec.2 one is a scope caveat on the definition, line 321 is
+%%  background from the literature, 330-333 is a conjecture explicitly
+%%  deferred to future work, 419 is an axiom declined, 429 is a
+%%  parenthetical qualifier.  Five kinds; no single environment fits.
+%%  They are served by ordinary devices -- \begin{remark} for a caveat
+%%  that qualifies a neighbouring definition, running prose otherwise.
+%%
+%%    conjecture -- boxed (navy), named, listed at the front.  Its OWN
+%%                  counter, running 1, 2, 3 through the whole paper and
+%%                  NOT scoped to the section: "Conjecture 4" is short,
+%%                  memorable, and can never be confused with a
+%%                  "2.4"-style number.
+%%
+%%    definition -- boxed (pine green), same box geometry and weight as
+%%                  conjecture but its own colour.  It KEEPS the shared
+%%                  theorem counter, so the interleaving Definition 2.1,
+%%                  Example 2.2, Remark 2.3 is unchanged.
+%%
+%%    remark     -- a quieter box: thinner grey left rule, NO tint.  A
+%%                  remark is an aside, not a highlight; the rule marks
+%%                  its extent without promoting it.  Shared counter,
+%%                  as before.
+%%
+%%  theorem / proposition / lemma / corollary / axiom / example stay
+%%  plain on purpose: boxing everything is boxing nothing.
+%%
+%%  All three boxed environments are declared through thmtools'
+%%  \declaretheorem (sibling= keeps the shared counter).  Beside the
+%%  boxes this fixes a real cross-referencing defect of the plain
+%%  \newtheorem route: with a SHARED counter cleveref cannot tell the
+%%  environments apart, so \cref{def:...} could print "Theorem 2.1";
+%%  thmtools registers each environment's name with cleveref properly.
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+%  theorem is the only one declared here: it OWNS the shared counter.
+%  Everything that shares that counter -- proposition, lemma, corollary,
+%  axiom, example, definition, remark -- is declared in the guarded
+%  thmtools block below, boxed or not.
+%
+%  Reason, measured 2026-09-10 on both article and amsart: a label set
+%  inside \newtheorem{x}[theorem]{X} carries the THEOREM counter, and
+%  cleveref reads a label's type off its counter, so \cref{prop:...}
+%  printed "Theorem 1.2" and \cref{ex:...} printed "Theorem 1.6".  A
+%  \crefname{proposition}{...} cannot repair it -- cleveref never sees
+%  the environment name.  thmtools' \declaretheorem[sibling=theorem]
+%  registers the name with cleveref properly, and then the five print as
+%  Proposition / Lemma / Corollary / Axiom / Example.  The draft uses
+%  \ref rather than \cref throughout, so nothing in it changes today;
+%  this only makes \cref safe to start using.
+
+%% ---- 8a.  LaTeX 2026-06-01 kernel vs thmtools: alias-counter clash ----
+%  The 2026-06-01 kernel added \newcounteralias and makes every
+%  shared-counter \newtheorem{x}[y]{...} define x as an ALIAS counter of y
+%  (for amsthm this is done by the kernel's own first-aid file).  thmtools
+%  (0.76, 2023, still current) has done exactly that itself since 2008: for
+%  every sibling= theorem its thm-autoref module runs \@counteralias BEFORE
+%  handing the theorem to amsthm.  On the new kernel the two collide and
+%  every sibling= declaration reports
+%      LaTeX Error: Command \c@definition already defined.
+%  The PDF is unaffected (the alias exists either way) -- the errors are
+%  noise -- and mdframed plays no role: the plain fallback branches below
+%  would fail identically, as would any \newtheorem{x}[y]{..} issued after
+%  \usepackage{thmtools}.  Older kernels (TeX Live <= 2025) are untouched.
+%
+%  Fix: where the kernel does the aliasing, let it -- skip thmtools' own
+%  alias step but keep its \<env>autorefname registration.  Guarded on
+%  BOTH sides: only if \newcounteralias exists, and only for thmtools
+%  <= 0.76, so a fixed thmtools release switches the shim off by itself.
+\makeatletter
+\@ifundefined{newcounteralias}{}{%
+  \AddToHook{package/thmtools/after}{%
+    \@ifpackagelater{thmtools}{2023/05/05}{}{%
+      \renewcommand\thmt@autorefsetup{%
+        \expandafter\def\csname\thmt@envname autorefname\expandafter\endcsname
+          \expandafter{\thmt@thmname}%
+      }%
+    }%
+  }%
+}
+\makeatother
+
+\usepackage{thmtools}
+% The unboxed claim environments, declared through thmtools so that
+% cleveref knows their names (see the note above \newtheorem{theorem}).
+\declaretheorem[name=Proposition, style=plain,      sibling=theorem]{proposition}
+\declaretheorem[name=Lemma,       style=plain,      sibling=theorem]{lemma}
+\declaretheorem[name=Corollary,   style=plain,      sibling=theorem]{corollary}
+\declaretheorem[name=Axiom,       style=definition, sibling=theorem]{axiom}
+\declaretheorem[name=Example,     style=definition, sibling=theorem]{example}
+\ifkqboxed
+  \usepackage[framemethod=TikZ]{mdframed}
+  % Shared box geometry -- ONE place to tune every claim box.
+  % (linewidth=0pt kills the full frame; the visible left rule is
+  %  middlelinewidth, overridden per environment where needed.)
+  \mdfdefinestyle{kqclaim}{%
+    linewidth=0pt,
+    leftline=true, rightline=false, topline=false, bottomline=false,
+    innerleftmargin=10pt, innerrightmargin=10pt,
+    innertopmargin=7pt, innerbottommargin=7pt,
+    middlelinewidth=2.5pt, roundcorner=0pt,
+    skipabove=\topsep, skipbelow=\topsep,
+  }
+  \declaretheorem[
+    name=Conjecture, style=definition,
+    mdframed={style=kqclaim,
+              backgroundcolor=kqtint, linecolor=kqrule},
+  ]{conjecture}
+  \declaretheorem[
+    name=Definition, style=definition, sibling=theorem,
+    mdframed={style=kqclaim,
+              backgroundcolor=kqdeftint, linecolor=kqdefrule},
+  ]{definition}
+  \declaretheorem[
+    name=Remark, style=remark, sibling=theorem,
+    mdframed={style=kqclaim,
+              linecolor=kqremrule, middlelinewidth=1.5pt},
+  ]{remark}
+\else
+  \declaretheorem[name=Conjecture, style=definition]{conjecture}
+  \declaretheorem[name=Definition, style=definition,
+                  sibling=theorem]{definition}
+  \declaretheorem[name=Remark, style=remark,
+                  sibling=theorem]{remark}
+\fi
+
+%% ---- 8a'.  Old thmtools + amsart: the list of conjectures ---------------
+%  thmtools older than 0.76 (TeX Live <= 2022; v68 on TeX Live 2020)
+%  typesets list entries with the kernel's \@dottedtocline, which needs
+%  \@dotsep -- defined by article.cls and NOT by amsart.cls.  On such a
+%  machine every conjecture entry of an EXISTING .loe raises "Undefined
+%  control sequence" + "Missing number, treated as zero" at
+%  \listofconjectures: 36 errors in a TeX Live 2020 log of 2026-09-19, on
+%  the second and later runs only, since a clean first run has no .loe to
+%  read.  That was the "unpredictable, machine-dependent" failure.
+%  thmtools 0.76 switched to amsart's own \@tocline on AMS classes, so
+%  there this line is inert (measured).  \providecommand: a class that
+%  defines it wins.
+\makeatletter
+\providecommand\@dotsep{4.5}
+\makeatother
+
+% Put \listofconjectures right after \tableofcontents.
+% NOTE: needs TWO pdflatex passes -- the list is written to .loe on the
+% first and typeset on the second.  One pass silently yields an empty list.
+\newcommand{\listofconjectures}{%
+  \begingroup
+  \renewcommand{\listtheoremname}{List of conjectures}%
+  \listoftheorems[ignoreall,show={conjecture},onlynamed={conjecture}]%
+  \endgroup}
+
+%% ---- 8b.  Bare-\remark guard -----------------------------------------
+%  The draft once called \remark as a COMMAND in eight places instead of
+%  opening \begin{remark}...\end{remark} (all converted; none left on
+%  2026-09-19 -- the guard stays as a safety net).  Under plain \newtheorem that
+%  "worked" by accident: a bare \remark is the environment's begin-code,
+%  so each use opened a trivlist that nothing ever closed -- a silent
+%  leak.  With BOXED remarks the same leak is fatal: every unclosed box
+%  stacks one nesting level, and pdflatex dies with "Too deeply nested"
+%  several remarks later, nowhere near the offending line.
+%
+%  Should a bare \remark reappear in new text, this guard
+%  keeps it compiling: used bare, \remark steps the same shared
+%  counter and typesets the same "Remark 2.x." head inline -- matching
+%  the old accidental output, minus the leak -- and drops a warning in
+%  the log.  \begin{remark}...\end{remark} still produces the real
+%  (boxed) environment: \@currenvir tells the two apart.
+\makeatletter
+\AtBeginDocument{%
+  \let\kq@remark@env\remark
+  \def\kq@remark@name{remark}%
+  \renewcommand\remark{%
+    \edef\kq@cur{\@currenvir}%
+    \ifx\kq@cur\kq@remark@name
+      \expandafter\kq@remark@env
+    \else
+      \expandafter\kq@remark@bare
+    \fi}%
+}
+\newcommand\kq@remark@bare{%
+  \@latex@warning{bare \string\remark\space used as a command; wrap it
+    in \string\begin{remark}...\string\end{remark} to get the boxed
+    form}%
+  \par\addvspace\topsep
+  \refstepcounter{theorem}%
+  {\itshape Remark \thetheorem.}\enspace\ignorespaces}
+\makeatother
+
+
+%% ---- 9.  Cross-references (LAST, after hyperref) --------------------
+%  \cref{sec:foo} -> "Section 3"; \cref{conj:bar} -> "Conjecture 2.1".
+%  Incidental benefit worth having here: a reference to a label that does
+%  not exist becomes conspicuous instead of silently printing "??", which
+%  is how \ref{Sec:alg} and \ref{app:a1a2k} survived in the draft.
+\usepackage[capitalise,nameinlink]{cleveref}
+  \crefname{conjecture}{Conjecture}{Conjectures}
+  \Crefname{conjecture}{Conjecture}{Conjectures}
+  \crefname{axiom}{Axiom}{Axioms}
+  \Crefname{axiom}{Axiom}{Axioms}
+  \crefname{proposition}{Proposition}{Propositions}
+  \Crefname{proposition}{Proposition}{Propositions}
+  \crefname{lemma}{Lemma}{Lemmas}
+  \Crefname{lemma}{Lemma}{Lemmas}
+  \crefname{corollary}{Corollary}{Corollaries}
+  \Crefname{corollary}{Corollary}{Corollaries}
+  \crefname{example}{Example}{Examples}
+  \Crefname{example}{Example}{Examples}
+  \crefname{definition}{Definition}{Definitions}
+  \Crefname{definition}{Definition}{Definitions}
+  \crefname{remark}{Remark}{Remarks}
+  \Crefname{remark}{Remark}{Remarks}
+
+
+%% ===================================================================
+%%  Bibliography -- the one thing dropping jheppub actually breaks
+%%
+%%  \bibliographystyle{JHEP} needs JHEP.bst, which ships with the jheppub
+%%  bundle and NOT with TeX Live: without it BibTeX writes no .bbl and all
+%%  ~100 citations come out undefined (measured 2026-09-19).  Two ways out:
+%%
+%%   (a) keep JHEP.bst next to your .tex file, under version control with
+%%       the paper, and leave the line as is (the current choice);
+%%   (b) switch to a style that ships with every TeX installation.  For a
+%%       mathematics readership the usual choices are
+%%           \bibliographystyle{amsalpha}   % [GHKK14]-style keys
+%%           \bibliographystyle{amsplain}   % numeric
+%%       amsalpha is the more common convention in the journals this
+%%       paper is aimed at, and alphabetic keys are easier to read back
+%%       in a paper that cites many works.
+%%
+%%  mono.bib (BibDesk export, ~100 entries) travels with the paper.  A key
+%%  that appears twice makes BibTeX report "Repeated entry" on every
+%%  machine (Alim:2011ae did; the second copy was removed 2026-09-19); the
+%%  .bbl is still written, but latexmk counts the run as failed.
+%% ===================================================================

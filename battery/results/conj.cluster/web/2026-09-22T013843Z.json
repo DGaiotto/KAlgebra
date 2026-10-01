@@ -1,0 +1,53 @@
+{
+ "id": "conj:cluster",
+ "labels": [
+  "conj:cluster"
+ ],
+ "date": "2026-09-22T01:38:43Z",
+ "commit": "9f70a0aa7af6fa8e4f5077de62f583c5230d32fa",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/enumerated/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "sample": "first 120 stored (cyclic) entries with n <= 4 of dictionaries/enumerated (E = 9), cell order",
+  "depth": 4,
+  "seconds": 4.3
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "green replay is exact",
+  "negative": "n.a. (an acceptance census)"
+ },
+ "elapsed_s": 4.348,
+ "notes": "Web-tier SAMPLE of the shipped tier; the full census is the manifest's (668,273 green of 668,926 at E = 9) and the local machine's at E >= 10.",
+ "checks": [
+  {
+   "name": "def:sw / eq:quiver  every sampled entry with a stored spec is accepted at depth 4 (green replay or the finite-depth constraint + crystalline agreement): 111/111; entries stored without a spec (no maximal green sequence found): 9",
+   "ok": true,
+   "note": "[]; no spec: [[[0, 2, -2], [-2, 0, 2], [2, -2, 0]], [[0, 2, -3], [-2, 0, 2], [3, -2, 0]], [[0, -3, 2], [3, 0, -3], [-2, 3, 0]]]"
+  },
+  {
+   "name": "conj:cluster  the green specs satisfy the quiver constraint and equal the crystalline S to depth 4: green 111/111, leading-data ok 111/111, matches crystalline 111/111",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "conj:S-unique  the factor engine gives the same S in the lex order and two random total orders (depth 4): 120/120",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "conj:pbw  the factor content Ω(γ,s) is integral on every sampled entry: 120/120; entries with a negative Ω: 119",
+   "ok": true,
+   "note": "negative Ω is the sign census (not the paper's no-exotic conjecture, which is about RG_a)"
+  }
+ ]
+}

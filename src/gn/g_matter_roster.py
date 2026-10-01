@@ -1,24 +1,25 @@
 """`g_matter_roster` — named `(G, N)` **theory presets** for `GNAbeKAlgebra`.
 
-Presets, **not classes**.  User ruling, 2026-07-28: *"use special names only if
+Presets, **not classes**.  The author's ruling, 2026-07-28: *"use special names only if
 you have algorithms specifically optimized for a G and/or N."*  A named class has
-to earn its name with an algorithm, not by naming a nameable theory — and the
-classes that have earned it already exist:
+to earn its name with an algorithm, not by naming a nameable theory.  On
+2026-09-19 the type-A classes that had claimed that licence were measured
+against `GNAbeKAlgebra` / `PureGAbeKAlgebra` (adversarially reviewed) and
+retired to the source repository's archive: `PureUNKAlgebra`, `PureSUNKAlgebra` (A75: wrong products),
+`UNNfKAlgebra` and `UNQuiverKAlgebra` were at parity, slower, or defective.
+The one that earned it is pure gauge:
 
 | optimized class | what it optimizes |
 |---|---|
-| `PureUNKAlgebra` | pure U(N): the closed-form dressed-minuscule build engine |
-| `UNNfKAlgebra` | U(N)+N_f: the type-A registry peel + SU peel |
-| `UNQuiverKAlgebra` | linear U(N_i) chains: the joint registry peel |
-| `PureSU2KAlgebra` | pure SU(2): the native adjoint-monopole fiber |
-| `PureSUNKAlgebra` | pure SU(N) on the trace-zero torus |
+| `PureSU2KAlgebra` | pure SU(2): the native adjoint-monopole fiber (the only non-solving construction of the odd-`e` fiber; ~450x on deep dressed labels) |
 
 Everything else is `GNAbeKAlgebra(datum, matter, lines=…)` — one class taking the
 **4d gauge group data** and the matter as arguments.  So this module holds no
 subclasses at all: just a dict of `(group, matter)` parameter tuples with short
 names, so the theories the `(G, N)` algorithm reaches are *addressable* (for
 batteries, sweeps and discussion) without minting a class per theory.
-`GNAbeKAlgebra.faster_equivalent()` is the bridge to the optimized classes above.
+`GNAbeKAlgebra.faster_equivalent()` returns `None` everywhere since the 2026-09-19
+retirements (see its docstring).
 
 An earlier version of this module *did* define per-theory subclasses
 (`SU2FundAbeKAlgebra`, `SpinSpinorAbeKAlgebra`, …).  They were pure delegation —

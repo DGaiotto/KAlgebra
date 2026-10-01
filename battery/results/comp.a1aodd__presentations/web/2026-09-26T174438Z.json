@@ -1,0 +1,112 @@
+{
+ "id": "comp:a1aodd/presentations",
+ "labels": [
+  "comp:a1aodd"
+ ],
+ "date": "2026-09-26T17:44:38Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "a3": {
+   "pairs each way": 64,
+   "seconds": 0.2
+  },
+  "a5": {
+   "pairs each way": 676,
+   "seconds": 1.1
+  },
+  "a7": {
+   "pairs each way": 4489,
+   "seconds": 9.8
+  },
+  "rg": {
+   "1": [
+    true,
+    2.6
+   ],
+   "2": [
+    true,
+    7.6
+   ],
+   "3": [
+    true,
+    13.6
+   ]
+  },
+  "bootstrap": {
+   "a5": [
+    true,
+    24,
+    24,
+    4.0
+   ],
+   "a7": [
+    true,
+    65,
+    65,
+    5.3
+   ]
+  },
+  "seconds": 48.2
+ },
+ "counts": {
+  "pass": 9,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the certified isomorphism with the zoo's exported cone tables; Tr 1 against the RG flow",
+  "negative": "a flipped flavour normalisation and two transposed zoo generators fail the isomorphism; the wrong read-back orientation fails the a3 characters"
+ },
+ "elapsed_s": 48.547,
+ "notes": "The zoo's a3/a5/a7 seed traces are served from ungauge_u1a1aodd through this map, so the isomorphism's trace check is not independent there; its product and rho checks are, and so are the zoo's own reduction of composite labels, the RG flow, the a3 characters and the u(1) bootstrap.",
+ "checks": [
+  {
+   "name": "a3: the KAlgebraIso from the zoo's Z-form wrapper onto ungauge_u1a1aodd(1) passes ['multiplicative', 'rho_equivariant', 'round_trip', 'trace_equivariant', 'unit'] on the identity, 6 generators and the flavour characters, 64 ordered pairs each way, traces through q^12",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}; 0.2 s"
+  },
+  {
+   "name": "a5: the KAlgebraIso from the zoo's Z-form wrapper onto ungauge_u1a1aodd(2) passes ['multiplicative', 'rho_equivariant', 'round_trip', 'trace_equivariant', 'unit'] on the identity, 24 generators and the flavour characters, 676 ordered pairs each way, traces through q^12",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}; 1.1 s"
+  },
+  {
+   "name": "a7: the KAlgebraIso from the zoo's Z-form wrapper onto ungauge_u1a1aodd(3) passes ['multiplicative', 'rho_equivariant', 'round_trip', 'trace_equivariant', 'unit'] on the identity, 65 generators and the flavour characters, 4489 ordered pairs each way, traces through q^12",
+   "ok": true,
+   "note": "{'unit': True, 'round_trip': True, 'multiplicative': True, 'rho_equivariant': True, 'trace_equivariant': True}; 9.8 s"
+  },
+  {
+   "name": "negative control: with the flavour normalisation flipped, or two zoo generators transposed, the isomorphism battery fails (a3, a5: {'a3': (['multiplicative', 'rho_equivariant', 'trace_equivariant'], ['multiplicative', 'rho_equivariant', 'trace_equivariant']), 'a5': (['multiplicative', 'rho_equivariant', 'trace_equivariant'], ['multiplicative', 'rho_equivariant', 'trace_equivariant'])})",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the zoo's own trace (its Layer-1 reduction over its exported cone table) equals the class's on 5 composite labels, among them the pair powers at k = 3 that the E-power window alone got wrong",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "the named classes: HexagonKAlg is k = 1 under (F, e) -> (F, -e) (all 36 generator products; traces through q^8 with z -> 1/z); UngaugedPolygonKAlg(2, 3, 4) has the same labels, products and, with z -> 1/z, traces ({2: True, 3: True, 4: True})",
+   "ok": true,
+   "note": "hexagon products True, traces True"
+  },
+  {
+   "name": "witness: Tr 1 equals the RG flow A1AoddToEvenRGKAlgebra(k)'s at k = 1, 2, 3 through q^16 ({1: (True, 2.6), 2: (True, 7.6), 3: (True, 13.6)})",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: Tr 1 and the six a3 generator traces equal the closed-form characters of finite_kalgebras.ad_characters through q^48; negative control: read back with z -> z instead of z -> 1/z, 4 of the 6 differ",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the u(1) orthonormality bootstrap generate_u1 gives the same Tr 1 and generator traces (a5 through q^10, a7 through q^6: {'a5': (True, 24, 24, 4.0), 'a7': (True, 65, 65, 5.3)})",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

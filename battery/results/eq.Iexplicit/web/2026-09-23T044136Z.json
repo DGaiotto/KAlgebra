@@ -1,0 +1,59 @@
+{
+ "id": "eq:Iexplicit",
+ "labels": [
+  "eq:Iexplicit"
+ ],
+ "date": "2026-09-23T04:41:36Z",
+ "commit": "c59fdd987f3c6f550f34f47f7365293d9f585710",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) lines": 6,
+  "pairs": 36,
+  "SO(3)+adjoint lines": 5,
+  "K": 10
+ },
+ "counts": {
+  "pass": 6,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "orthonormality read off the formula",
+  "negative": "the unshifted measure fails"
+ },
+ "elapsed_s": 25.891,
+ "notes": "The repository computes the trace and pairing through the rational sector measure B_m (kalgebra.md, proved equal to the printed infinite products); here the printed formulas are evaluated directly, so this is an independent check of that equality on the lines listed.",
+ "checks": [
+  {
+   "name": "eq:measure  Tr f = (q^2;q^2)^2_∞/|W| ∮ f_0 Π_α (v^α;q^2)(q^2 v^α;q^2) on six SU(2) lines through q^10 (independent series; contour integral = constant term)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit  I_fg as the sum over m of contour integrals against the |<m,α>|-shifted measure, on all 36 pairs of six SU(2) lines through q^10",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "orthonormality read off the formula: I_ab[q^0] = δ_ab on the six lines (the leading Weyl orbit contributes δ, the bubbling O(q))",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:measure with matter  SO(3) + adjoint: the μ-dependent measure Π_w (-q μ^(w_f) v^w;q^2)^-1 (-q μ^-w_f v^-w;q^2)^-1 reproduces the class's traces of five lines through q^8",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:Iexplicit with matter  SO(3) + adjoint on all 25 pairs of five lines through q^8: the shifted vector and matter factors reproduce the class's pairing",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the pairing formula with the unshifted measure (|<m,α>| dropped) fails at m != 0",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

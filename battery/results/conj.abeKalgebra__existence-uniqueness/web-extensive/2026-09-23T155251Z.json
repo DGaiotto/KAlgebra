@@ -1,0 +1,1027 @@
+{
+ "id": "conj:abeKalgebra/existence-uniqueness",
+ "labels": [
+  "conj:abeKalgebra",
+  "ab:bar",
+  "ab:ofq",
+  "ab:res",
+  "eq:star"
+ ],
+ "date": "2026-09-23T15:52:51Z",
+ "commit": "25bd26e449b02790c94b9fd16915373422cb31a0",
+ "environment": "web",
+ "depth": "extensive",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "labels": 32,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 32,
+   "equal_to_chart": 32,
+   "a3_as_printed": 32,
+   "unknown_cells": {
+    "((0,), (0,))": 0,
+    "((0,), (1,))": 0,
+    "((0,), (2,))": 0,
+    "((0,), (3,))": 0,
+    "((1,), (-1,))": 1,
+    "((1,), (-2,))": 1,
+    "((1,), (-3,))": 1,
+    "((1,), (0,))": 1,
+    "((1,), (1,))": 1,
+    "((1,), (2,))": 1,
+    "((1,), (3,))": 1,
+    "((2,), (-1,))": 3,
+    "((2,), (-2,))": 3,
+    "((2,), (-3,))": 3,
+    "((2,), (0,))": 3,
+    "((2,), (1,))": 3,
+    "((2,), (2,))": 3,
+    "((2,), (3,))": 3,
+    "((3,), (-1,))": 5,
+    "((3,), (-2,))": 5,
+    "((3,), (-3,))": 5,
+    "((3,), (0,))": 5,
+    "((3,), (1,))": 5,
+    "((3,), (2,))": 5,
+    "((3,), (3,))": 5,
+    "((4,), (-1,))": 7,
+    "((4,), (-2,))": 7,
+    "((4,), (-3,))": 7,
+    "((4,), (0,))": 7,
+    "((4,), (1,))": 7,
+    "((4,), (2,))": 7,
+    "((4,), (3,))": 7
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 56,
+    "other_conditions_hold": 56,
+    "star_rejects": 56
+   },
+   "seconds": 21.4
+  },
+  "pure SO(3)": {
+   "labels": 32,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 32,
+   "equal_to_chart": 32,
+   "a3_as_printed": 32,
+   "unknown_cells": {
+    "((0,), (0,))": 0,
+    "((0,), (1,))": 0,
+    "((0,), (2,))": 0,
+    "((0,), (3,))": 0,
+    "((1,), (-1,))": 0,
+    "((1,), (-2,))": 0,
+    "((1,), (-3,))": 0,
+    "((1,), (0,))": 0,
+    "((1,), (1,))": 0,
+    "((1,), (2,))": 0,
+    "((1,), (3,))": 0,
+    "((2,), (-1,))": 1,
+    "((2,), (-2,))": 1,
+    "((2,), (-3,))": 1,
+    "((2,), (0,))": 1,
+    "((2,), (1,))": 1,
+    "((2,), (2,))": 1,
+    "((2,), (3,))": 1,
+    "((3,), (-1,))": 2,
+    "((3,), (-2,))": 2,
+    "((3,), (-3,))": 2,
+    "((3,), (0,))": 2,
+    "((3,), (1,))": 2,
+    "((3,), (2,))": 2,
+    "((3,), (3,))": 2,
+    "((4,), (-1,))": 3,
+    "((4,), (-2,))": 3,
+    "((4,), (-3,))": 3,
+    "((4,), (0,))": 3,
+    "((4,), (1,))": 3,
+    "((4,), (2,))": 3,
+    "((4,), (3,))": 3
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 42,
+    "other_conditions_hold": 42,
+    "star_rejects": 42
+   },
+   "seconds": 0.7
+  },
+  "pure rank 1, the third global form": {
+   "labels": 12,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 12,
+   "equal_to_chart": 12,
+   "a3_as_printed": 12,
+   "unknown_cells": {
+    "((0,), (0,))": 0,
+    "((0,), (2,))": 0,
+    "((1,), (-2,))": 1,
+    "((1,), (0,))": 1,
+    "((1,), (2,))": 1,
+    "((2,), (-2,))": 3,
+    "((2,), (0,))": 3,
+    "((2,), (2,))": 3,
+    "((Fraction(1, 2),), (-1,))": 0,
+    "((Fraction(1, 2),), (1,))": 0,
+    "((Fraction(3, 2),), (-1,))": 2,
+    "((Fraction(3, 2),), (1,))": 2
+   },
+   "wilson": 2,
+   "negative": {
+    "perturbed": 16,
+    "other_conditions_hold": 16,
+    "star_rejects": 16
+   },
+   "seconds": 0.4
+  },
+  "pure SU(3)": {
+   "labels": 16,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 16,
+   "equal_to_chart": 16,
+   "a3_as_printed": 16,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (0, 1))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((0, 0), (2, 0))": 0,
+    "((1, 1), (-1, 1))": 1,
+    "((1, 1), (0, 0))": 1,
+    "((1, 1), (0, 1))": 1,
+    "((1, 1), (1, -1))": 1,
+    "((1, 1), (1, 0))": 1,
+    "((1, 1), (2, 0))": 1,
+    "((2, 2), (-1, 1))": 13,
+    "((2, 2), (0, 0))": 13,
+    "((2, 2), (0, 1))": 13,
+    "((2, 2), (1, -1))": 13,
+    "((2, 2), (1, 0))": 13,
+    "((2, 2), (2, 0))": 13
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 24,
+    "other_conditions_hold": 24,
+    "star_rejects": 24
+   },
+   "seconds": 130.1
+  },
+  "pure PSU(3)": {
+   "labels": 16,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 16,
+   "equal_to_chart": 16,
+   "a3_as_printed": 16,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (0, 3))": 0,
+    "((0, 0), (1, 1))": 0,
+    "((0, 0), (3, 0))": 0,
+    "((1, 1), (0, 0))": 1,
+    "((1, 1), (0, 3))": 1,
+    "((1, 1), (1, 1))": 1,
+    "((1, 1), (3, 0))": 1,
+    "((Fraction(1, 3), Fraction(2, 3)), (0, 0))": 0,
+    "((Fraction(1, 3), Fraction(2, 3)), (0, 3))": 0,
+    "((Fraction(1, 3), Fraction(2, 3)), (1, 1))": 0,
+    "((Fraction(1, 3), Fraction(2, 3)), (3, 0))": 0,
+    "((Fraction(2, 3), Fraction(1, 3)), (0, 0))": 0,
+    "((Fraction(2, 3), Fraction(1, 3)), (0, 3))": 0,
+    "((Fraction(2, 3), Fraction(1, 3)), (1, 1))": 0,
+    "((Fraction(2, 3), Fraction(1, 3)), (3, 0))": 0
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 8,
+    "other_conditions_hold": 8,
+    "star_rejects": 8
+   },
+   "seconds": 1.2
+  },
+  "pure Sp(4)": {
+   "labels": 19,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 19,
+   "equal_to_chart": 19,
+   "a3_as_printed": 19,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((0, 0), (1, 1))": 0,
+    "((0, 0), (2, 0))": 0,
+    "((1, 1), (0, 0))": 5,
+    "((1, 1), (1, -1))": 5,
+    "((1, 1), (1, 0))": 5,
+    "((1, 1), (2, 0))": 5,
+    "((2, 1), (-1, 1))": 13,
+    "((2, 1), (0, 0))": 13,
+    "((2, 1), (0, 1))": 13,
+    "((2, 1), (0, 2))": 13,
+    "((2, 1), (1, -1))": 13,
+    "((2, 1), (1, 0))": 13,
+    "((2, 1), (2, 0))": 13,
+    "((2, 2), (0, 0))": 21,
+    "((2, 2), (1, -1))": 21,
+    "((2, 2), (1, 0))": 21,
+    "((2, 2), (2, 0))": 21
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 30,
+    "other_conditions_hold": 30,
+    "star_rejects": 30
+   },
+   "seconds": 3018.1
+  },
+  "pure Spin(5)": {
+   "labels": 25,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 25,
+   "equal_to_chart": 25,
+   "a3_as_printed": 25,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (0, 1))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((0, 0), (2, 0))": 0,
+    "((1, 1), (0, 0))": 1,
+    "((1, 1), (0, 1))": 1,
+    "((1, 1), (1, -1))": 1,
+    "((1, 1), (1, 0))": 1,
+    "((1, 1), (2, 0))": 1,
+    "((2, 1), (-1, 1))": 5,
+    "((2, 1), (0, 0))": 5,
+    "((2, 1), (0, 1))": 5,
+    "((2, 1), (1, 0))": 5,
+    "((2, 1), (2, 0))": 5,
+    "((2, 2), (0, 0))": 9,
+    "((2, 2), (0, 1))": 9,
+    "((2, 2), (1, -1))": 9,
+    "((2, 2), (1, 0))": 9,
+    "((2, 2), (2, 0))": 9,
+    "((3, 2), (-1, 1))": 13,
+    "((3, 2), (-1, 2))": 13,
+    "((3, 2), (-2, 4))": 13,
+    "((3, 2), (0, 0))": 13,
+    "((3, 2), (0, 1))": 13,
+    "((3, 2), (1, -1))": 13
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 42,
+    "other_conditions_hold": 42,
+    "star_rejects": 42
+   },
+   "seconds": 1226.0
+  },
+  "pure SO(5)": {
+   "labels": 16,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 16,
+   "equal_to_chart": 16,
+   "a3_as_printed": 16,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (0, 2))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((0, 0), (2, 0))": 0,
+    "((1, 1), (0, 0))": 1,
+    "((1, 1), (0, 2))": 1,
+    "((1, 1), (1, 0))": 1,
+    "((1, 1), (2, 0))": 1,
+    "((2, 1), (0, 0))": 5,
+    "((2, 1), (0, 2))": 5,
+    "((2, 1), (1, 0))": 5,
+    "((2, 1), (2, 0))": 5,
+    "((Fraction(1, 1), Fraction(1, 2)), (0, 0))": 0,
+    "((Fraction(1, 1), Fraction(1, 2)), (0, 2))": 0,
+    "((Fraction(1, 1), Fraction(1, 2)), (1, 0))": 0,
+    "((Fraction(1, 1), Fraction(1, 2)), (2, 0))": 0
+   },
+   "wilson": 4,
+   "negative": {
+    "perturbed": 16,
+    "other_conditions_hold": 16,
+    "star_rejects": 16
+   },
+   "seconds": 11.6
+  },
+  "pure G2": {
+   "labels": 12,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 12,
+   "equal_to_chart": 12,
+   "a3_as_printed": 12,
+   "unknown_cells": {
+    "((0, 0), (0, 0))": 0,
+    "((0, 0), (0, 1))": 0,
+    "((0, 0), (1, 0))": 0,
+    "((1, 2), (0, 0))": 1,
+    "((1, 2), (0, 1))": 1,
+    "((1, 2), (1, 0))": 1,
+    "((2, 3), (0, 0))": 7,
+    "((2, 3), (0, 1))": 7,
+    "((2, 3), (1, 0))": 7,
+    "((2, 4), (0, 0))": 13,
+    "((2, 4), (0, 1))": 13,
+    "((2, 4), (1, 0))": 13
+   },
+   "wilson": 3,
+   "negative": {
+    "perturbed": 18,
+    "other_conditions_hold": 18,
+    "star_rejects": 18
+   },
+   "seconds": 1127.9
+  },
+  "SU(2)+1": {
+   "labels": 18,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 18,
+   "equal_to_chart": 18,
+   "a3_as_printed": 18,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 13.8
+  },
+  "SU(2)+2": {
+   "labels": 13,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 13,
+   "equal_to_chart": 13,
+   "a3_as_printed": 13,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 3.9
+  },
+  "SU(2)+3": {
+   "labels": 8,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 8,
+   "equal_to_chart": 8,
+   "a3_as_printed": 8,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 7.8
+  },
+  "SU(2)+4": {
+   "labels": 8,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 8,
+   "equal_to_chart": 8,
+   "a3_as_printed": 8,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 30.2
+  },
+  "SU(2)+adjoint (N=2*)": {
+   "labels": 13,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 13,
+   "equal_to_chart": 13,
+   "a3_as_printed": 13,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 2.8
+  },
+  "SO(3)+adjoint (N=2*)": {
+   "labels": 11,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 11,
+   "equal_to_chart": 11,
+   "a3_as_printed": 11,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 1.2
+  },
+  "rank 1 + adjoint (N=2*), the third global form": {
+   "labels": 6,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 6,
+   "equal_to_chart": 6,
+   "a3_as_printed": 6,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 0.1
+  },
+  "SU(3)+adjoint (N=2*)": {
+   "labels": 6,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 6,
+   "equal_to_chart": 6,
+   "a3_as_printed": 6,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 4.7
+  },
+  "SU(3)+symmetric": {
+   "labels": 10,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 10,
+   "equal_to_chart": 10,
+   "a3_as_printed": 10,
+   "unknown_cells": null,
+   "wilson": 4,
+   "negative": null,
+   "seconds": 7.2
+  },
+  "SU(3)+symmetric+1": {
+   "labels": 6,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 6,
+   "equal_to_chart": 6,
+   "a3_as_printed": 6,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 7.7
+  },
+  "Spin(5)+vector": {
+   "labels": 9,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 9,
+   "equal_to_chart": 9,
+   "a3_as_printed": 9,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 27.0
+  },
+  "SO(5)+vector": {
+   "labels": 12,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 12,
+   "equal_to_chart": 12,
+   "a3_as_printed": 12,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 29.3
+  },
+  "G2+7": {
+   "labels": 6,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 6,
+   "equal_to_chart": 6,
+   "a3_as_printed": 6,
+   "unknown_cells": null,
+   "wilson": 2,
+   "negative": null,
+   "seconds": 336.7
+  },
+  "SU(2)xSU(2)+bifundamental": {
+   "labels": 16,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 16,
+   "equal_to_chart": 16,
+   "a3_as_printed": 16,
+   "unknown_cells": null,
+   "wilson": 4,
+   "negative": null,
+   "seconds": 6.4
+  },
+  "[2]-SU(2)-SU(2)-[2]": {
+   "labels": 12,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 12,
+   "equal_to_chart": 12,
+   "a3_as_printed": 12,
+   "unknown_cells": null,
+   "wilson": 3,
+   "negative": null,
+   "seconds": 82.9
+  },
+  "U(1)-U(2)+3": {
+   "labels": 24,
+   "unreached": [],
+   "solves_unreached": [],
+   "errors": {},
+   "pinned": 24,
+   "equal_to_chart": 24,
+   "a3_as_printed": 24,
+   "unknown_cells": null,
+   "wilson": 4,
+   "negative": null,
+   "seconds": 0.2
+  },
+  "A3 with printed matter factors": {
+   "SU(3)+1": {
+    "printed": 2,
+    "dual": 0,
+    "none": 0
+   },
+   "SU(3)+symmetric": {
+    "printed": 2,
+    "dual": 0,
+    "none": 0
+   },
+   "Spin(5)+vector": {
+    "printed": 2,
+    "dual": 2,
+    "none": 0
+   }
+  }
+ },
+ "counts": {
+  "pass": 86,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the Wilson lines: a single support cell and no unknowns (the seed is the answer)",
+  "negative": "in pure gauge, every window line with bubbling perturbed two ways (bubbling removed; bubbling doubled): bar, the seed, O(q) and the support bound still hold, and (★) rejects"
+ },
+ "elapsed_s": 6104.58,
+ "notes": "With matter the solver returns the dressed image F; the chart is F/Z (gn_abe_kalgebra), so the comparison divides first.  The perturbations are Weyl-covariant by construction (the whole bubbling is scaled).  Total 6104.6 s.",
+ "checks": [
+  {
+   "name": "pure SU(2): the guarded solver, called directly, pins all 32 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): negative control — 56 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(2): the draft's A3 as printed holds on all 32 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 32, residues 32 of 32"
+  },
+  {
+   "name": "pure SO(3): the guarded solver, called directly, pins all 32 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): negative control — 42 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): the draft's A3 as printed holds on all 32 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 32, residues 32 of 32"
+  },
+  {
+   "name": "pure rank 1, the third global form: the guarded solver, called directly, pins all 12 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: positive control — the 2 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: negative control — 16 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure rank 1, the third global form: the draft's A3 as printed holds on all 12 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 12, residues 12 of 12"
+  },
+  {
+   "name": "pure SU(3): the guarded solver, called directly, pins all 16 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): negative control — 24 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): the draft's A3 as printed holds on all 16 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 16, residues 16 of 16"
+  },
+  {
+   "name": "pure PSU(3): the guarded solver, called directly, pins all 16 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): negative control — 8 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure PSU(3): the draft's A3 as printed holds on all 16 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 16, residues 16 of 16"
+  },
+  {
+   "name": "pure Sp(4): the guarded solver, called directly, pins all 19 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): negative control — 30 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Sp(4): the draft's A3 as printed holds on all 19 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 19, residues 19 of 19"
+  },
+  {
+   "name": "pure Spin(5): the guarded solver, called directly, pins all 25 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): negative control — 42 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure Spin(5): the draft's A3 as printed holds on all 25 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 25, residues 25 of 25"
+  },
+  {
+   "name": "pure SO(5): the guarded solver, called directly, pins all 16 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): positive control — the 4 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): negative control — 16 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(5): the draft's A3 as printed holds on all 16 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 16, residues 16 of 16"
+  },
+  {
+   "name": "pure G2: the guarded solver, called directly, pins all 12 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: positive control — the 3 Wilson lines have a single support cell and no unknowns",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: negative control — 18 perturbed lines (bubbling removed or doubled) keep bar, the seed, O(q) and the support bound, and the residue rule (★) rejects every one",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure G2: the draft's A3 as printed holds on all 12 window lines: every d_a = f_a(q^a v) cocha_a(v) has simple poles only (a clause no solver imposes) and its pair residues cancel",
+   "ok": true,
+   "note": "simple poles 12, residues 12 of 12"
+  },
+  {
+   "name": "SU(2)+1: the guarded solver, called directly, pins all 18 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+1: the draft's A3 as printed holds on all 18 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 18, residues 18 of 18"
+  },
+  {
+   "name": "SU(2)+2: the guarded solver, called directly, pins all 13 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+2: the draft's A3 as printed holds on all 13 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 13, residues 13 of 13"
+  },
+  {
+   "name": "SU(2)+3: the guarded solver, called directly, pins all 8 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+3: positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+3: the draft's A3 as printed holds on all 8 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 8, residues 8 of 8"
+  },
+  {
+   "name": "SU(2)+4: the guarded solver, called directly, pins all 8 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+4: positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+4: the draft's A3 as printed holds on all 8 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 8, residues 8 of 8"
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): the guarded solver, called directly, pins all 13 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): the draft's A3 as printed holds on all 13 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 13, residues 13 of 13"
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): the guarded solver, called directly, pins all 11 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): the draft's A3 as printed holds on all 11 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 11, residues 11 of 11"
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: the guarded solver, called directly, pins all 6 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 1 + adjoint (N=2*), the third global form: the draft's A3 as printed holds on all 6 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 6, residues 6 of 6"
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): the guarded solver, called directly, pins all 6 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): the draft's A3 as printed holds on all 6 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 6, residues 6 of 6"
+  },
+  {
+   "name": "SU(3)+symmetric: the guarded solver, called directly, pins all 10 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: positive control — the 4 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric: the draft's A3 as printed holds on all 10 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 10, residues 10 of 10"
+  },
+  {
+   "name": "SU(3)+symmetric+1: the guarded solver, called directly, pins all 6 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric+1: positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3)+symmetric+1: the draft's A3 as printed holds on all 6 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 6, residues 6 of 6"
+  },
+  {
+   "name": "Spin(5)+vector: the guarded solver, called directly, pins all 9 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "Spin(5)+vector: the draft's A3 as printed holds on all 9 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 9, residues 9 of 9"
+  },
+  {
+   "name": "SO(5)+vector: the guarded solver, called directly, pins all 12 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(5)+vector: positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(5)+vector: the draft's A3 as printed holds on all 12 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 12, residues 12 of 12"
+  },
+  {
+   "name": "G2+7: the guarded solver, called directly, pins all 6 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "G2+7: positive control — the 2 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "G2+7: the draft's A3 as printed holds on all 6 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 6, residues 6 of 6"
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: the guarded solver, called directly, pins all 16 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: positive control — the 4 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: the draft's A3 as printed holds on all 16 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 16, residues 16 of 16"
+  },
+  {
+   "name": "[2]-SU(2)-SU(2)-[2]: the guarded solver, called directly, pins all 12 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "[2]-SU(2)-SU(2)-[2]: positive control — the 3 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "[2]-SU(2)-SU(2)-[2]: the draft's A3 as printed holds on all 12 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 12, residues 12 of 12"
+  },
+  {
+   "name": "U(1)-U(2)+3: the guarded solver, called directly, pins all 24 window labels uniquely and returns the production chart on each",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: positive control — the 4 Wilson lines have a single support cell",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "U(1)-U(2)+3: the draft's A3 as printed holds on all 24 window lines: every d_a = f_a(q^a v) cocha_a(v, mu) has simple poles only (a clause no solver imposes) and its pair residues cancel (the printed matter factors of eq:cocha, power by power in mu)",
+   "ok": true,
+   "note": "simple poles 24, residues 24 of 24"
+  },
+  {
+   "name": "the draft's A3 as printed on SU(3)+1 (2 lines), SU(3)+symmetric (2 lines), Spin(5)+vector (2 lines): every line passes with the printed matter factors",
+   "ok": true,
+   "note": "{'SU(3)+1': {'printed': 2, 'dual': 0, 'none': 0}, 'SU(3)+symmetric': {'printed': 2, 'dual': 0, 'none': 0}, 'Spin(5)+vector': {'printed': 2, 'dual': 2, 'none': 0}}"
+  },
+  {
+   "name": "negative controls: the matter factor over the weights of N^vee fails on these complex representations, and dropping the matter factor fails",
+   "ok": true,
+   "note": "{'SU(3)+1': {'printed': 2, 'dual': 0, 'none': 0}, 'SU(3)+symmetric': {'printed': 2, 'dual': 0, 'none': 0}, 'Spin(5)+vector': {'printed': 2, 'dual': 2, 'none': 0}}"
+  }
+ ]
+}

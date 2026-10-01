@@ -205,26 +205,26 @@ def _weyl_cone_witness(r: int, C: list[list[int]]) -> Vec:
     """Linear form evaluating to 1 on every SC node charge.
 
     f[2i]   = 1          (from γ_{i,+} = e_{2i})
-    f[2j+1] = (2ρ)_j     where 2ρ = C⁻¹ · (2, …, 2) (twice the Weyl vector
+    f[2j+1] = (Σ⁺)_j     where Σ⁺ = C⁻¹ · (2, …, 2) (the sum of the positive roots
                           expressed in the simple-root basis).
 
     Verification:
       f · γ_{i,+} = f[2i] = 1.
       f · γ_{i,−} = −f[2i] + Σ_j C_{ij} f[2j+1]
-                  = −1 + Σ_j C_{ij} (2ρ)_j = −1 + 2 = 1.
+                  = −1 + Σ_j C_{ij} (Σ⁺)_j = −1 + 2 = 1.
 
-    For all simply-laced ADE, 2ρ has positive integer coordinates in the
+    For all simply-laced ADE, Σ⁺ has positive integer coordinates in the
     simple-root basis (verified numerically for A/D/E up to E_8).
     """
-    two_rho = _gauss_jordan_solve(C, [2] * r)
+    sigma_plus = _gauss_jordan_solve(C, [2] * r)
     f = [0] * (2 * r)
     for i in range(r):
-        assert two_rho[i].denominator == 1, (
-            f"2ρ[{i}] = {two_rho[i]} is not an integer; "
+        assert sigma_plus[i].denominator == 1, (
+            f"Σ⁺[{i}] = {sigma_plus[i]} is not an integer; "
             f"unexpected for simply-laced ADE"
         )
         f[2 * i] = 1
-        f[2 * i + 1] = int(two_rho[i])
+        f[2 * i + 1] = int(sigma_plus[i])
     return tuple(f)
 
 
@@ -819,7 +819,7 @@ def _apply_explicit_lagrangian(
             continue
         ade_offsets.append((d_info["start"], d_info["dim"]))
     # M_ade rows/cols are also block-diagonal across simple factors (Λ₀
-    # has no cross-block coupling, and the user's combined Lagrangian
+    # has no cross-block coupling, and the author's combined Lagrangian
     # mixes only via the explicit generators — which still respect block
     # structure since C_total is block-diagonal).  So we copy each ADE
     # diagonal block into the corresponding global slice.
@@ -1536,7 +1536,7 @@ def filtration_level_ADE_closed_form(
 
     **Verified.**  A_1 (SU(2)), A_2 (SU(3)) on 305 elements, and A_3 (SU(4))
     on 190 Wilson-product first-appearance assignments — 0 mismatches in all
-    cases.  See the tests in ``tests/test_pure_ade_lattice.py``.
+    cases.  See the tests in `the suite in the source repository`.
 
     **Conjectured.**  All ADE; awaiting Wilson-product verification beyond
     A_3.  The non-empty-subset enhancement is essential for A_3 ω_2^∨: the

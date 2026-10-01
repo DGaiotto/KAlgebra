@@ -26,11 +26,16 @@ Reference:
 
             L_{ac} · L_{bd} = q^α · L_{ab} · L_{cd}  +  q^β · L_{ad} · L_{bc}
 
-        where (α, β) is determined by the parity of d (the orbit-position
-        offset between the two LHS factors):
-
-            d odd  →  (α, β) = (0, -1)        ("Form A")
-            d even →  (α, β) = (1,  0)        ("Form B")
+        where (α, β) ∈ {(1, 0), (0, -1)} is selected by the arc parities
+        of the quadrilateral a < b < c < d: writing (A_0, A_1, A_2, A_3)
+        for the edge-lengths of the four arcs a→b, b→c, c→d, d→a (CCW),
+        (α, β) = (1, 0) if the opposite pair {A_0, A_2} (the arcs
+        subtended by L_{ab}, L_{cd}) contains fewer odd lengths than
+        {A_1, A_3}, and (0, -1) otherwise — H = 2k+3 is odd, so the two
+        counts always differ.  (This matches `_plucker_alpha_beta` below
+        and `A1A2k_algebra.tex` §2; an earlier revision of this docstring
+        stated a d-parity rule that contradicts the code on 2/10, 6/28,
+        14/60, 26/110 crossing pairs at k = 2, 3, 4, 5 — wrong, retired.)
 
         Edges L_{i, i+1} are normalised to the algebra identity 1.
 

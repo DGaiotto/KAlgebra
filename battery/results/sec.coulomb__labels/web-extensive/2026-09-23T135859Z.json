@@ -1,0 +1,626 @@
+{
+ "id": "sec:coulomb/labels",
+ "labels": [
+  "sec:coulomb"
+ ],
+ "date": "2026-09-23T13:58:59Z",
+ "commit": "fc096a4e1caeaa3787985ad33d4c156ac6705045",
+ "environment": "web",
+ "depth": "extensive",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "labels": 32,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 70,
+   "nontrivial_orbits": 34,
+   "rank": 32,
+   "seconds": 8.6
+  },
+  "pure SO(3)": {
+   "labels": 32,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 70,
+   "nontrivial_orbits": 34,
+   "rank": 32,
+   "seconds": 0.8
+  },
+  "pure SO(3), the dyonic form": {
+   "labels": 12,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 50,
+   "nontrivial_orbits": 24,
+   "rank": 12,
+   "seconds": 0.1
+  },
+  "pure SU(3)": {
+   "labels": 16,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 108,
+   "nontrivial_orbits": 17,
+   "rank": 16,
+   "seconds": 25.6
+  },
+  "pure PSU(3)": {
+   "labels": 16,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 96,
+   "nontrivial_orbits": 15,
+   "rank": 16,
+   "seconds": 0.4
+  },
+  "pure Sp(4)": {
+   "labels": 19,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 240,
+   "nontrivial_orbits": 29,
+   "rank": 19,
+   "seconds": 590.8
+  },
+  "pure Spin(5)": {
+   "labels": 25,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 240,
+   "nontrivial_orbits": 29,
+   "rank": 25,
+   "seconds": 244.2
+  },
+  "pure SO(5)": {
+   "labels": 16,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 128,
+   "nontrivial_orbits": 15,
+   "rank": 16,
+   "seconds": 2.1
+  },
+  "pure G2": {
+   "labels": 12,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 144,
+   "nontrivial_orbits": 11,
+   "rank": 12,
+   "seconds": 197.6
+  },
+  "SU(2)+1": {
+   "labels": 18,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 40,
+   "nontrivial_orbits": 19,
+   "rank": 18,
+   "seconds": 6.7
+  },
+  "SU(2)+2": {
+   "labels": 13,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 30,
+   "nontrivial_orbits": 14,
+   "rank": 13,
+   "seconds": 2.2
+  },
+  "SU(2)+3": {
+   "labels": 8,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 18,
+   "nontrivial_orbits": 8,
+   "rank": 8,
+   "seconds": 4.7
+  },
+  "SU(2)+4": {
+   "labels": 8,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 18,
+   "nontrivial_orbits": 8,
+   "rank": 8,
+   "seconds": 14.1
+  },
+  "SU(2)+adjoint (N=2*)": {
+   "labels": 13,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 30,
+   "nontrivial_orbits": 14,
+   "rank": 13,
+   "seconds": 1.4
+  },
+  "SO(3)+adjoint (N=2*)": {
+   "labels": 11,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 24,
+   "nontrivial_orbits": 11,
+   "rank": 11,
+   "seconds": 0.6
+  },
+  "SO(3)+adjoint, the dyonic form (N=2*)": {
+   "labels": 6,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 24,
+   "nontrivial_orbits": 11,
+   "rank": 6,
+   "seconds": 0.1
+  },
+  "SU(3)+adjoint (N=2*)": {
+   "labels": 6,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 36,
+   "nontrivial_orbits": 5,
+   "rank": 6,
+   "seconds": 1.9
+  },
+  "SU(3)+symmetric": {
+   "labels": 10,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 72,
+   "nontrivial_orbits": 11,
+   "rank": 10,
+   "seconds": 3.3
+  },
+  "SU(3)+symmetric+1": {
+   "labels": 6,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 36,
+   "nontrivial_orbits": 5,
+   "rank": 6,
+   "seconds": 4.3
+  },
+  "Spin(5)+vector": {
+   "labels": 9,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 72,
+   "nontrivial_orbits": 8,
+   "rank": 9,
+   "seconds": 12.6
+  },
+  "SO(5)+vector": {
+   "labels": 12,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 96,
+   "nontrivial_orbits": 11,
+   "rank": 12,
+   "seconds": 14.7
+  },
+  "G2+7": {
+   "labels": 6,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 72,
+   "nontrivial_orbits": 5,
+   "rank": 6,
+   "seconds": 167.7
+  },
+  "SU(2)xSU(2)+bifundamental": {
+   "labels": 16,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 64,
+   "nontrivial_orbits": 15,
+   "rank": 16,
+   "seconds": 3.4
+  },
+  "[2]-SU(2)-SU(2)-[2]": {
+   "labels": 12,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 48,
+   "nontrivial_orbits": 11,
+   "rank": 12,
+   "seconds": 42.5
+  },
+  "U(1)-U(2)+3": {
+   "labels": 24,
+   "unreached": [],
+   "errors": {},
+   "weyl_images": 48,
+   "nontrivial_orbits": 12,
+   "rank": 24,
+   "seconds": 0.2
+  }
+ },
+ "counts": {
+  "pass": 75,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the window labels themselves",
+  "negative": "raw pairs with nontrivial Weyl orbits (the identity labelling would fail); the relation x0 + 2 x1 appended to the rank test does not raise the rank"
+ },
+ "elapsed_s": 1350.723,
+ "notes": "Rank certificate: residuals evaluated exactly at q = 3/11, v at s rational points, flavour fugacities at generic rationals; a nonzero maximal minor at a point is a nonzero rational function, so full rank there is full rank over Q(q, mu).  Total 1350.7 s.",
+ "checks": [
+  {
+   "name": "pure SU(2): all 32 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SU(2): all 70 Weyl images of the window's raw (m, e) fold to the same label (34 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SU(2): the 32 built labels give linearly independent elements (exact rank 32 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 32 of 32; control True"
+  },
+  {
+   "name": "pure SO(3): all 32 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SO(3): all 70 Weyl images of the window's raw (m, e) fold to the same label (34 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SO(3): the 32 built labels give linearly independent elements (exact rank 32 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 32 of 32; control True"
+  },
+  {
+   "name": "pure SO(3), the dyonic form: all 12 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SO(3), the dyonic form: all 50 Weyl images of the window's raw (m, e) fold to the same label (24 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SO(3), the dyonic form: the 12 built labels give linearly independent elements (exact rank 12 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 12 of 12; control True"
+  },
+  {
+   "name": "pure SU(3): all 16 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SU(3): all 108 Weyl images of the window's raw (m, e) fold to the same label (17 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SU(3): the 16 built labels give linearly independent elements (exact rank 16 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 16 of 16; control True"
+  },
+  {
+   "name": "pure PSU(3): all 16 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure PSU(3): all 96 Weyl images of the window's raw (m, e) fold to the same label (15 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure PSU(3): the 16 built labels give linearly independent elements (exact rank 16 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 16 of 16; control True"
+  },
+  {
+   "name": "pure Sp(4): all 19 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure Sp(4): all 240 Weyl images of the window's raw (m, e) fold to the same label (29 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure Sp(4): the 19 built labels give linearly independent elements (exact rank 19 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 19 of 19; control True"
+  },
+  {
+   "name": "pure Spin(5): all 25 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure Spin(5): all 240 Weyl images of the window's raw (m, e) fold to the same label (29 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure Spin(5): the 25 built labels give linearly independent elements (exact rank 25 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 25 of 25; control True"
+  },
+  {
+   "name": "pure SO(5): all 16 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure SO(5): all 128 Weyl images of the window's raw (m, e) fold to the same label (15 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure SO(5): the 16 built labels give linearly independent elements (exact rank 16 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 16 of 16; control True"
+  },
+  {
+   "name": "pure G2: all 12 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "pure G2: all 144 Weyl images of the window's raw (m, e) fold to the same label (11 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "pure G2: the 12 built labels give linearly independent elements (exact rank 12 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 12 of 12; control True"
+  },
+  {
+   "name": "SU(2)+1: all 18 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2)+1: all 40 Weyl images of the window's raw (m, e) fold to the same label (19 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+1: the 18 built labels give linearly independent elements (exact rank 18 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 18 of 18; control True"
+  },
+  {
+   "name": "SU(2)+2: all 13 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2)+2: all 30 Weyl images of the window's raw (m, e) fold to the same label (14 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+2: the 13 built labels give linearly independent elements (exact rank 13 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 13 of 13; control True"
+  },
+  {
+   "name": "SU(2)+3: all 8 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2)+3: all 18 Weyl images of the window's raw (m, e) fold to the same label (8 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+3: the 8 built labels give linearly independent elements (exact rank 8 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 8 of 8; control True"
+  },
+  {
+   "name": "SU(2)+4: all 8 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2)+4: all 18 Weyl images of the window's raw (m, e) fold to the same label (8 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+4: the 8 built labels give linearly independent elements (exact rank 8 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 8 of 8; control True"
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): all 13 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): all 30 Weyl images of the window's raw (m, e) fold to the same label (14 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)+adjoint (N=2*): the 13 built labels give linearly independent elements (exact rank 13 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 13 of 13; control True"
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): all 11 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): all 24 Weyl images of the window's raw (m, e) fold to the same label (11 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SO(3)+adjoint (N=2*): the 11 built labels give linearly independent elements (exact rank 11 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 11 of 11; control True"
+  },
+  {
+   "name": "SO(3)+adjoint, the dyonic form (N=2*): all 6 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SO(3)+adjoint, the dyonic form (N=2*): all 24 Weyl images of the window's raw (m, e) fold to the same label (11 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SO(3)+adjoint, the dyonic form (N=2*): the 6 built labels give linearly independent elements (exact rank 6 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 6 of 6; control True"
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): all 6 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): all 36 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(3)+adjoint (N=2*): the 6 built labels give linearly independent elements (exact rank 6 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 6 of 6; control True"
+  },
+  {
+   "name": "SU(3)+symmetric: all 10 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(3)+symmetric: all 72 Weyl images of the window's raw (m, e) fold to the same label (11 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(3)+symmetric: the 10 built labels give linearly independent elements (exact rank 10 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 10 of 10; control True"
+  },
+  {
+   "name": "SU(3)+symmetric+1: all 6 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(3)+symmetric+1: all 36 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(3)+symmetric+1: the 6 built labels give linearly independent elements (exact rank 6 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 6 of 6; control True"
+  },
+  {
+   "name": "Spin(5)+vector: all 9 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "Spin(5)+vector: all 72 Weyl images of the window's raw (m, e) fold to the same label (8 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "Spin(5)+vector: the 9 built labels give linearly independent elements (exact rank 9 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 9 of 9; control True"
+  },
+  {
+   "name": "SO(5)+vector: all 12 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SO(5)+vector: all 96 Weyl images of the window's raw (m, e) fold to the same label (11 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SO(5)+vector: the 12 built labels give linearly independent elements (exact rank 12 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 12 of 12; control True"
+  },
+  {
+   "name": "G2+7: all 6 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "G2+7: all 72 Weyl images of the window's raw (m, e) fold to the same label (5 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "G2+7: the 6 built labels give linearly independent elements (exact rank 6 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 6 of 6; control True"
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: all 16 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: all 64 Weyl images of the window's raw (m, e) fold to the same label (15 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "SU(2)xSU(2)+bifundamental: the 16 built labels give linearly independent elements (exact rank 16 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 16 of 16; control True"
+  },
+  {
+   "name": "[2]-SU(2)-SU(2)-[2]: all 12 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "[2]-SU(2)-SU(2)-[2]: all 48 Weyl images of the window's raw (m, e) fold to the same label (11 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "[2]-SU(2)-SU(2)-[2]: the 12 built labels give linearly independent elements (exact rank 12 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 12 of 12; control True"
+  },
+  {
+   "name": "U(1)-U(2)+3: all 24 window labels lie in the fundamental domain (m dominant, e dominant for the Levi of m)",
+   "ok": true,
+   "note": "outside: []"
+  },
+  {
+   "name": "U(1)-U(2)+3: all 48 Weyl images of the window's raw (m, e) fold to the same label (12 raw pairs have a nontrivial orbit, so the test has teeth)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "U(1)-U(2)+3: the 24 built labels give linearly independent elements (exact rank 24 at a rational point), and the control relation x0 + 2 x1 is detected",
+   "ok": true,
+   "note": "rank 24 of 24; control True"
+  }
+ ]
+}

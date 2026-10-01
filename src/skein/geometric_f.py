@@ -43,7 +43,7 @@ live since the 2026-07-07 id-based edge refactor, e.g. the
 once-punctured torus = N=2* SU(2) — odd intersection numbers produce
 odd A-powers, and the `A -> +lq` convention (already hardwired in the
 peel's inverter) is pinned by the `verify_relation` cross-validation
-there (`tests/test_edge_data_engine.py`).  The trivial loop is
+there (the suite in the source repository).  The trivial loop is
 `delta = -(lq^2 + lq^{-2})`.
 
 Self-contained within `skein_sphere`.

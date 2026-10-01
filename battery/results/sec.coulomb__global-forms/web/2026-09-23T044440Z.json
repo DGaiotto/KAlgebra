@@ -1,0 +1,233 @@
+{
+ "id": "sec:coulomb/global-forms",
+ "labels": [
+  "sec:coulomb",
+  "eq:su2so3lat"
+ ],
+ "date": "2026-09-23T04:44:40Z",
+ "commit": "c59fdd987f3c6f550f34f47f7365293d9f585710",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "forms": "SU(2), SO(3), the third form",
+  "window": "|m|, |e| <= 3",
+  "census": {
+   "SU(2)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "SU(3)": {
+    "centre": [
+     3
+    ],
+    "order-|Z| subgroups": 4,
+    "Lagrangian": 4,
+    "formula": 4,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "SU(4)": {
+    "centre": [
+     4
+    ],
+    "order-|Z| subgroups": 7,
+    "Lagrangian": 7,
+    "formula": 7,
+    "product forms": 3,
+    "subgroups of Z": 3
+   },
+   "SU(5)": {
+    "centre": [
+     5
+    ],
+    "order-|Z| subgroups": 6,
+    "Lagrangian": 6,
+    "formula": 6,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "Sp(4)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "Sp(6)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "Sp(8)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "Spin(5)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "Spin(7)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "Spin(9)": {
+    "centre": [
+     2
+    ],
+    "order-|Z| subgroups": 3,
+    "Lagrangian": 3,
+    "formula": 3,
+    "product forms": 2,
+    "subgroups of Z": 2
+   },
+   "G2": {
+    "centre": [],
+    "order-|Z| subgroups": 1,
+    "Lagrangian": 1,
+    "formula": 1,
+    "product forms": 1,
+    "subgroups of Z": 1
+   },
+   "D4": {
+    "centre": [
+     2,
+     2
+    ],
+    "order-|Z| subgroups": 35,
+    "Lagrangian": 15,
+    "formula": 15,
+    "product forms": 5,
+    "subgroups of Z": 5
+   },
+   "SU(2)xSU(2)": {
+    "centre": [
+     2,
+     2
+    ],
+    "order-|Z| subgroups": 35,
+    "Lagrangian": 15,
+    "formula": 15,
+    "product forms": 5,
+    "subgroups of Z": 5
+   },
+   "SU(2)xSU(3)": {
+    "centre": [
+     6
+    ],
+    "order-|Z| subgroups": 12,
+    "Lagrangian": 12,
+    "formula": 12,
+    "product forms": 4,
+    "subgroups of Z": 4
+   },
+   "SU(3)xSU(3)": {
+    "centre": [
+     3,
+     3
+    ],
+    "order-|Z| subgroups": 130,
+    "Lagrangian": 40,
+    "formula": 40,
+    "product forms": 6,
+    "subgroups of Z": 6
+   },
+   "SU(2)^3": {
+    "centre": [
+     2,
+     2,
+     2
+    ],
+    "order-|Z| subgroups": 1395,
+    "Lagrangian": 135,
+    "formula": 135,
+    "product forms": 16,
+    "subgroups of Z": 16
+   }
+  }
+ },
+ "counts": {
+  "pass": 8,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "SU(2) and SO(3) are the conventional product lattices; SU(2)'s three forms in the census",
+  "negative": "the full lattice is not Dirac-integral; the non-isotropic order-|Z| subgroups are rejected"
+ },
+ "elapsed_s": 1.817,
+ "notes": "LineLattice(datum, classes=...) generates the lattice from centre-class pairs; the Lagrangian subgroups of the classes are the global forms.  The census uses LineLattice's own class labelling (invariant factors: Z6 at SU(2)xSU(3), where centre_invariants lists (2, 3)).",
+ "checks": [
+  {
+   "name": "eq:su2so3lat  K_q[SU(2)]: every (m ∈ Q^∨, e ∈ P) is a line; K_q[SO(3)]: every (m ∈ P^∨, e ∈ Q) is a line (the classes' own coordinates)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "both lattices are Dirac-integral (mutually local) and maximal",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the three order-two subgroups of the centre-class pairs (Z/2)^2 — ⟨(1,0)⟩ (SO(3)), ⟨(0,1)⟩ (SU(2)), ⟨(1,1)⟩ (the third form) — give Dirac-integral maximal lattices, and the full group does not",
+   "ok": true,
+   "note": "{((1, 0),): (True, True), ((0, 1),): (True, True), ((1, 1),): (True, True), ((1, 0), (0, 1)): (False, False)}"
+  },
+  {
+   "name": "LineLattice(su_2()) (H trivial) is the SU(2) lattice ⟨(0,1)⟩: same membership on integer labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the third form admits exactly the labels with e - m even (draft units m ∈ Z coweights, e ∈ Z weights), half-integral coroot coordinates presented on the coweight torus",
+   "ok": true,
+   "note": "{(-2, -2): True, (-2, -1): False, (-2, 0): True, (-2, 1): False, (-2, 2): True, (-1, -2): False, (-1, -1): True, (-1, 0): False, (-1, 1): True, (-1, 2): False, (0, -2): True, (0, -1): False, (0, 0): True, (0, 1): False, (0, 2): True, (1, -2): False, (1, -1): True, (1, 0): False, (1, 1): True, (1, 2): False, (2, -2): True, (2, -1): False, (2, 0): True, (2, 1): False, (2, 2): True}"
+  },
+  {
+   "name": "the Dirac pairing is integral on the third form's lines (verify_mutually_local on a window)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "census: for every simply connected root datum of rank <= 4 and four products, the order-|Z| subgroups of the centre-class pairs that LineLattice reports Dirac-integral (the Lagrangian ones) number exactly the independent count (a cyclic p-part Z_{p^a} gives 1 + p + ... + p^a, (Z_p)^n gives prod (p^i + 1)); the rest are rejected",
+   "ok": true,
+   "note": "{'SU(2)': (3, 3, 3), 'SU(3)': (4, 4, 4), 'SU(4)': (7, 7, 7), 'SU(5)': (6, 6, 6), 'Sp(4)': (3, 3, 3), 'Sp(6)': (3, 3, 3), 'Sp(8)': (3, 3, 3), 'Spin(5)': (3, 3, 3), 'Spin(7)': (3, 3, 3), 'Spin(9)': (3, 3, 3), 'G2': (1, 1, 1), 'D4': (15, 15, 35), 'SU(2)xSU(2)': (15, 15, 35), 'SU(2)xSU(3)': (12, 12, 12), 'SU(3)xSU(3)': (40, 40, 130), 'SU(2)^3': (135, 135, 1395)}"
+  },
+  {
+   "name": "census: the conventional (product) forms among the Lagrangian ones are exactly one per subgroup of the centre",
+   "ok": true,
+   "note": "{'SU(2)': (2, 2), 'SU(3)': (2, 2), 'SU(4)': (3, 3), 'SU(5)': (2, 2), 'Sp(4)': (2, 2), 'Sp(6)': (2, 2), 'Sp(8)': (2, 2), 'Spin(5)': (2, 2), 'Spin(7)': (2, 2), 'Spin(9)': (2, 2), 'G2': (1, 1), 'D4': (5, 5), 'SU(2)xSU(2)': (5, 5), 'SU(2)xSU(3)': (4, 4), 'SU(3)xSU(3)': (6, 6), 'SU(2)^3': (16, 16)}"
+  }
+ ]
+}

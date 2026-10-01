@@ -2,7 +2,7 @@
 torus — the vacuum-state formulation of the Schur pairing.
 
 The definition (derived and certified 2026-07-24; record and derivation in
-the design notes, plan in the design record):
+`aux_vacuum_pairing.md`, plan in the design record):
 
     |1>      =  (q^2;q^2)_oo^dim . prod_alpha (q^2 v^alpha; q^2)_oo . U_0
     L_a|1>   =  chart(a) . |1>            (plain torus LEFT multiplication)
@@ -22,18 +22,41 @@ cocycle at the half-shifted argument; the prefactor exponent is the GNO
 monopole dimension).  Then
 
     I_{a,b}  =  Tr(rho(a).b)  =  <L_a.1, L_b.1>        (Schur / Gram pairing)
-This module ships ONE row: `I_{a,b}`, a 4d quantity -- the Schur pairing of two
-bulk line defects, certified `== inner_product` at U(1)/U(2)/U(3).
+    (a|Pi]   =  <L_a.1, Pi>                            (half-index)          [*]
+    (Pi|Pi') =  <Pi, Pi'>                              (3d index)            [*]
 
-The same pairing with one or both slots carrying a boundary state computes a
-half-index or a 3d index, but that machinery belongs to a LATER release: no
-boundary state is constructed anywhere in this package.  What this module is for
-is the 4d pairing and the derivation of its weight.
+✅ [*] RESOLVED ✅
+
+    The two rows marked [*] ARE inner products, against the SOLVED pure-U(2)
+    Neumann wavefunction (the design notes Sections 2k-2l; battery
+    a probe in the source repository):
+
+        f_m = (-q^-1 x^-1)^k / [(q^2;q^2)^rk prod_alpha (q^{2+|<m,alpha>|} v^alpha;q^2)],
+        k = (m1-m2)/2, constant along the U(1) centre, f_odd = 0,
+        f_0 = 1/|1>  (physical normalization -- the exact reciprocal of THIS
+        module's vacuum residual; in main's [1]=1 convention f carries one
+        extra 1/(q^2;q^2), and the 42/42 class-map match below is stated in
+        that convention).
+
+    (a|N] = I(a, f) reproduces main's rank-one class-map (L|N] on 42/42
+    labels; (a|N(k)] = I(a, v^{km} f); and [N|N(k)] is the boundary
+    flux sum verbatim (letter map x_flux = q, kappa(m) = k m, q^{-Delta_GNO} =
+    the squared tail prefactor; exactly 1 at k >= h_dual, matching).
+    The rk exponent is confirmed at U(3) against the affine Weyl-Kac
+    Wilson row.  The historical "measured obstruction" (w_m = q^{2tr(m)}
+    Z_gauge M^(0)_m vs |Delta_m|^2 = q^{(N-1)tr(m)} Z_gauge) is understood:
+    one Delta_m per Delta-dressed slot of the superseded Pi_f candidate
+    (|Delta_m|^2 in all across the pairing's two slots) -- a property of the
+    dead candidate, not of the pairing.
+
+    Still open as an ordinary Plan-23 item (stage gamma, H5): the B2 trade
+    axiom -- DERIVING the boundary state from the axiomatics; the solved f
+    is a verified representative anchored on the quotient ground truth.
 
 NOT affected by the above: the Schur pairing row `I_{a,b}` (certified
 `== inner_product` at U(1)/U(2)/U(3), the suite in the source repository), the weight
 derivation below (verified by exact factor algebra at U(2), d <= 4 --
-the design notes), and the Abelian boundary-state usage.
+`aux_vacuum_pairing.md`), and the Abelian boundary-state usage.
 
 Exact-arithmetic implementation notes:
 
@@ -74,7 +97,7 @@ per-cell window Xi (c = <m, w_cell>: trivial for c >= 0, the mu-dressed
 double window prod_{s<|c|}(1+q^{1-|c|+2s} mu^-1 v^-w)(1+q^{1-|c|+2s} mu v^w)
 for c < 0) — derivation a probe in the source repository,
 validated mu-refined at N=2*, U(1)xU(1) bifundamental, and N_f = 1, 2;
-promotion of the matter surface into this class is staged (ruling T5/T6).
+promotion of the matter surface into this class is staged.
 """
 
 import math
@@ -453,4 +476,5 @@ class AuxSpace:
 
     def half_index(self, algebra, a, boundary_state, K):
         """(a | Pi] = <L_a.1, Pi> — one dressed slot, one boundary vector."""
-        return self.pair(self.state(algebra.urqt(a)), boundary_state, K)
+        get = getattr(algebra, "urqt", None) or algebra.chart   # WRQ charts since 2026-09-19 (the URQ keystone is in the source repository's archive)
+        return self.pair(self.state(get(a)), boundary_state, K)

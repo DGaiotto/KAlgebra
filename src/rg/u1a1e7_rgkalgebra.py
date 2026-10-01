@@ -13,22 +13,37 @@ subclass-refined trace (impractically slow). Gauging the U(1) turns it into a
 clean quantum-torus leg, putting the flow on the generic **exact-FS** engine —
 fast and truncation-safe.
 
-The flow (drop E₇'s node 7, then gauge its U(1))
-------------------------------------------------
+The flow (drop E₇'s branch node, then gauge its U(1))
+----------------------------------------------------
 The E₇ Dynkin/BPS quiver is the `A₆` chain `1-2-3-4-5-6` with a branch node `7`
 off the **trivalent node 4** (arms 3,2,1 from node 4). Dropping the degree-1
 node 7 leaves the `A₆` linear quiver — `A1A2kKAlg(3)` — and **gauging node 7's
 U(1)** promotes it to one leg of a symplectic `QT(Z²)`:
 
-    auxiliary = A1A2kKAlg(3) ⊗ QT(Z²),   S_RG = E_𝖖(X_{(0,1)} · L_{(2,2)}).
+    auxiliary = A1A2kKAlg(3) ⊗ QT(Z²),   S_RG = E_𝖖(X_{(0,1)} · L_{(3,0)}).
 
-The dressing chord `L` (= node 4)
----------------------------------
-Node 7 attaches to the **interior** node 4, not a terminus — so (unlike the
-A-type leg, where `L` is the *shortest* chord) here `L` is the **second-shortest
-chord** `(a=2, i=2)`, whose BPS c-vector is `-e₄` = node 4. `S_RG =
-E_𝖖(X_{(0,1)}·L_{(2,2)})` couples the gauge leg to node 4 = the E₇ node7↔node4
-edge. (The *shortest* dressing would instead give `[A₁,A₇]`.)
+The dressing chord `L = (3, 0)`
+-------------------------------
+`L` is the chord `E7RGKAlgebra` dresses: the **central** chord `(3, 0)` of the
+9-gon.  It crosses the `A₆` chain `(1,0)..(1,5)` of `E7RGKAlgebra._a6_chain`
+only at its node 4, and the chain plus `L` has Cartan determinant 2
+(`E7RGKAlgebra.uv_cartan_determinant`).  That crossing pattern does **not** pin
+the chord: `(2, 4)` and `(3, 4)` also cross the chain only at node 4 (and
+`(2, 0)`, `(3, 3)`, `(3, 8)` only at node 3), all with determinant 2, and the
+`(2, 4)` dressing gives `Tr(E^{±1}) = 𝖖²`, not the `[A₁,E₇]` value `−𝖖³`
+(measured 2026-09-23).  What certifies `(3, 0)` are the traces: the gauged flow
+is `E7RGKAlgebra`'s flow with the spectator flavour `μ` made the gauge leg
+(measured in the source repository's tests):
+
+    Tr(E^n)             = [μ^{−n}] ((𝖖²;𝖖²)_∞² · Tr_{[A₁,E₇]}(1; μ))   (Nahm e7 vacuum),
+    Tr((chord, (0, n))) = [μ^{−n}] ((𝖖²;𝖖²)_∞² · Tr_{E7RGKAlgebra}((chord, (0,)); μ)).
+
+An earlier version dressed the chord `(2, 2)` on the argument that its tropical
+c-vector is `−e₄` (node 4).  That chord crosses the chain at nodes 2 and 5, and
+the flow it defines is `[A₁,D₇]` with the Cartan `U(1)` of its `SU(2)` flavour
+gauged: `Tr(E^{±1}) = 𝖖²` (against `−𝖖³` here), and `Σ_n μ^n Tr(E^n)/(𝖖²;𝖖²)_∞²`
+equals the Nahm a1d7 vacuum through `𝖖¹⁰`.  It is kept only as a test-local
+negative control.
 
 Labels `(chord, (c0, c1))`: `chord` an `A1A2kKAlg(3)` label, `(c0,c1)` the QT(Z²)
 charge; `c1` the dressed/graded leg `(0,1)` (the gauged U(1)), `c0` the
@@ -44,8 +59,8 @@ Engine
 ------
 A **pure** `RGKAlgebra` — `RG` solved, `multiply`/`ρ`/`trace` all the generic
 engine, no override. The exact-FS bilinear trace is truncation-safe and fast
-(vacuum `1 − q² + q⁶ + q⁸ + … ` to q¹⁰ in a few seconds; the `q²` coefficient is
-`−1`, the gauged-U(1) current subtraction). The spine-free auxiliary draws
+(vacuum `1 − 𝖖² + 𝖖⁶ + O(𝖖¹¹)` in about 20 s; the `𝖖²` coefficient is `−1`, the
+gauged-U(1) current subtraction). The spine-free auxiliary draws
 `A1A2kKAlg(3)` from the cone tier.
 """
 from __future__ import annotations
@@ -78,14 +93,17 @@ def _e_q_coeff(m: int) -> HabiroElement:
 
 class U1A1E7RGKAlgebra(RGKAlgebra):
     """u(1)-gauged `[A₁, E₇]` over `A1A2kKAlg(3)` (= A₆) ⊗ `QT(Z²)`, dropping
-    E₇'s node 7 (interior, at the trivalent node 4); `S_RG =
-    E_𝖖(X_{(0,1)}·L_{(2,2)})`. A pure exact-FS `RGKAlgebra`. See the module
+    E₇'s branch node 7 (attached at the trivalent node 4); `S_RG =
+    E_𝖖(X_{(0,1)}·L_{(3,0)})`. A pure exact-FS `RGKAlgebra`. See the module
     docstring."""
 
-    # the dressing chord L: second-shortest chord (type 2) at i=2, c-vector
-    # -e_4 = node 4 (where E7's node 7 attaches).  Fixed by the E7 geometry.
-    DRESS_TYPE = 2
-    DRESS_INDEX = 2
+    # the dressing chord L: the central chord (3, 0), the chord E7RGKAlgebra
+    # dresses.  It crosses the A6 chain only at node 4, as (2, 4) and (3, 4) do;
+    # the traces, not the crossing pattern, certify it ((2, 4) gives
+    # Tr(E^{±1}) = q², and (2, 2) gives [A1,D7] with the Cartan U(1) of its
+    # SU(2) gauged; see the module docstring).
+    DRESS_TYPE = 3
+    DRESS_INDEX = 0
 
     def __init__(self):
         self._surv = A1A2kKAlg(3)                       # A6 survivor
@@ -110,8 +128,9 @@ class U1A1E7RGKAlgebra(RGKAlgebra):
         return (a[0], tuple(a[1]))
 
     def _short_chord_power(self, m: int):
-        """`L^m` as an `A1A2kKAlg(3)` label: the node-4 dressing chord (type 2,
-        index 2) to power `m`."""
+        """`L^m` as an `A1A2kKAlg(3)` label: the dressing chord
+        `(DRESS_TYPE, DRESS_INDEX) = (3, 0)` to power `m` (it q-commutes with
+        itself, so `L^m` is the single label `((3, 0, m),)`)."""
         return ((self.DRESS_TYPE, self._i0, m),)
 
     def _s_rg_component(self, p):
@@ -150,7 +169,7 @@ if __name__ == "__main__":
     T = U1A1E7RGKAlgebra()
     print(repr(T))
     print("  aux =", type(T.auxiliary()).__name__, "( A1A2kKAlg(3) ⊗ QT(Z²) )  H =", T._H,
-          " dressing L = (type", T.DRESS_TYPE, ", i =", T._i0, ") = node 4")
+          " dressing L = (type", T.DRESS_TYPE, ", i =", T._i0, ") = the central chord")
     print("  exact-FS available:", T._fs_exact_available())
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")

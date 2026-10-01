@@ -1,0 +1,41 @@
+{
+ "id": "sec:coulomb/axioms-subsection",
+ "labels": [
+  "conj:abeKalgebra"
+ ],
+ "date": "2026-09-22T02:25:37Z",
+ "commit": "521d032db59c796afceb666e76f21bf5729fbc07",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "window": "13 SU(2) lines"
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "built lines satisfy both sides",
+  "negative": "the bare line fails both sides"
+ },
+ "elapsed_s": 17.627,
+ "notes": "The equivalence (★) <=> preserving Λ = R(G) is the repository's own reading of the residue rule (residue_cancellation_recognition.md); here it is checked as a biconditional on both truth values.",
+ "checks": [
+  {
+   "name": "the residue rule is equivalent to a well-defined action on the characters: criterion(x) <=> neumann_row(x) has no denominator, on 13 built lines (both true) and on the bare 't Hooft line U_2 + U_-2 (both false)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the bubbling corrections of every window line are O(q) as series (A2), and the pairing is δ + O(q) on all pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the two faces I_fg = Tr rho(f) g = Tr g rho^-1(f) agree on all pairs (the contour-shift cancellation the paper calls trickier)",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

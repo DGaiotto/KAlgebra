@@ -1,6 +1,5 @@
 """`bordered_disk_su2_nf3` — SU(2)+N_f=3 as the DISK with 2 regular
-interior punctures + a **2-marked boundary** (rank-1 irregular puncture)
-(user frame, 2026-07-10): the next rung of the cut = RG family, one
+interior punctures + a **2-marked boundary** (rank-1 irregular puncture): the next rung of the cut = RG family, one
 boundary mark above the N_f=2 disk.
 
 Surface: outer boundary circle with **2 marks** (O1,O2 → a bigon) + 2
@@ -15,7 +14,7 @@ Triangulation (4 triangles, vertices O1=0,O2=1,I1=2,I2=3):
     boundary       the outer bigon O1-O2 (two edges)
 Every triangle-pair shares a single edge; no self-gluing.
 
-Result (certified in `tests/test_su2_nf3_disk_skein.py`): 5-node BPS
+Result (certified in the suite in the source repository): 5-node BPS
 quiver, `AbelianZPlusRing(rank=3)` flavour (SO(6)=SU(4) Cartan), vacuum
 Schur index = `build_bps_su2_nf3` (same q-backbone: 12 flavour states +3
 at q², 54 +10 at q⁴; the flavour-neutral μ→1 index matches verbatim).

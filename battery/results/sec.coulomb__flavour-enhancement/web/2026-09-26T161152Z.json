@@ -1,0 +1,266 @@
+{
+ "id": "sec:coulomb/flavour-enhancement",
+ "labels": [
+  "sec:coulomb"
+ ],
+ "date": "2026-09-26T16:11:52Z",
+ "commit": "8177bce9ee720a1e71bc2788b487fbb6a31bcbe3",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "SU(2) + 2 doublets": {
+   "sections": [
+    "((0,), (0,))",
+    "((0,), (1,))",
+    "((1,), (0,))",
+    "((1,), (1,))",
+    "((2,), (0,))",
+    "((2,), (1,))"
+   ],
+   "K": 4,
+   "max_product_m": 3,
+   "not_reached": [],
+   "traces": {
+    "objects": 6,
+    "orders": 12,
+    "not_invariant": [],
+    "round_trip_failures": [],
+    "also_single_flip_invariant": 6
+   },
+   "pairings": {
+    "objects": 36,
+    "orders": 62,
+    "not_invariant": [],
+    "round_trip_failures": [],
+    "also_single_flip_invariant": 22
+   },
+   "products": {
+    "objects": 18,
+    "orders": 29,
+    "not_invariant": [],
+    "round_trip_failures": [],
+    "also_single_flip_invariant": 24
+   },
+   "unshifted_odd_trace_orders_failing": 4,
+   "seconds": 288.6
+  },
+  "SU(2) + 3 doublets": {
+   "sections": [
+    "((0,), (0,))",
+    "((1,), (0,))"
+   ],
+   "K": 4,
+   "max_product_m": 2,
+   "not_reached": [],
+   "traces": {
+    "objects": 2,
+    "orders": 5,
+    "not_invariant": [],
+    "round_trip_failures": [],
+    "also_single_flip_invariant": 3
+   },
+   "pairings": {
+    "objects": 4,
+    "orders": 10,
+    "not_invariant": [],
+    "round_trip_failures": [],
+    "also_single_flip_invariant": 6
+   },
+   "products": {
+    "objects": 3,
+    "orders": 3,
+    "not_invariant": [],
+    "round_trip_failures": [],
+    "also_single_flip_invariant": 3
+   },
+   "unshifted_odd_trace_orders_failing": 2,
+   "seconds": 149.5
+  },
+  "SU(2) + 1 doublet": "SO(2) = U(1): no Weyl reflection beyond the manifest U(1), so nothing to test",
+  "SU(2) + adjoint (N=2*), USp(2)": {
+   "sections": [
+    "((0,), (0,))",
+    "((0,), (1,))",
+    "((1,), (0,))",
+    "((1,), (1,))",
+    "((2,), (0,))",
+    "((2,), (1,))"
+   ],
+   "K": 4,
+   "max_product_m": "2",
+   "not_reached": [],
+   "traces": {
+    "objects": 6,
+    "orders": 11,
+    "not_invariant": []
+   },
+   "pairings": {
+    "objects": 36,
+    "orders": 63,
+    "not_invariant": []
+   },
+   "products": {
+    "objects": 14,
+    "orders": 33,
+    "not_invariant": []
+   },
+   "untwisted_trace_orders_failing": "7 of 7",
+   "seconds": 22.2
+  },
+  "SO(3) + adjoint (N=2*), USp(2)": {
+   "sections": [
+    "((0,), (0,))",
+    "((0,), (2,))",
+    "((Fraction(1, 2),), (0,))",
+    "((Fraction(1, 2),), (2,))",
+    "((1,), (0,))",
+    "((1,), (2,))"
+   ],
+   "K": 4,
+   "max_product_m": "1",
+   "not_reached": [],
+   "traces": {
+    "objects": 6,
+    "orders": 16,
+    "not_invariant": []
+   },
+   "pairings": {
+    "objects": 36,
+    "orders": 75,
+    "not_invariant": []
+   },
+   "products": {
+    "objects": 14,
+    "orders": 36,
+    "not_invariant": []
+   },
+   "untwisted_trace_orders_failing": "8 of 8",
+   "seconds": 8.3
+  },
+  "U(1) + 3 (negative control)": {
+   "orders_not_invariant": [
+    2,
+    4
+   ]
+  }
+ },
+ "counts": {
+  "pass": 21,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "Tr(1) at q^2, the flavour currents, re-expands as the SO(2N_f) adjoint, and at N=2* as the USp(2) adjoint μ^-2 + 1 + μ^2",
+  "negative": "the odd-m traces without the det^(-m/2) twist are not W(D_N_f)-invariant; U(1) with three charge-1 hypers (complex, no enhancement) fails the W(D_3) test; at N=2* the traces with m ≠ 0 without the μ^(-m) twist are not μ ↦ μ^-1 invariant"
+ },
+ "elapsed_s": 468.686,
+ "notes": "Total 468.7 s.",
+ "checks": [
+  {
+   "name": "SU(2) + 2 doublets: positive control — Tr(1) at q^2 (the flavour currents) is the SO(4) adjoint [(1, -1), (1, 1)] after re-expansion",
+   "ok": true,
+   "note": "content {(Fraction(1, 1), Fraction(1, 1)): 1, (Fraction(1, 1), Fraction(-1, 1)): 1}"
+  },
+  {
+   "name": "SU(2) + 2 doublets: the traces of 6 window sections, twisted by det^(-m/2), are W(D_2)-invariant at every one of their 12 nonzero orders (through q^4 for traces and pairings) and lift exactly to Spin(4) characters",
+   "ok": true,
+   "note": "not invariant: []; round trip: []"
+  },
+  {
+   "name": "SU(2) + 2 doublets: the pairings I(a, b) of 36 pairs of window sections, twisted by det^((m_a - m_b)/2), are W(D_2)-invariant at every one of their 62 nonzero orders (through q^4 for traces and pairings) and lift exactly to Spin(4) characters",
+   "ok": true,
+   "note": "not invariant: []; round trip: []"
+  },
+  {
+   "name": "SU(2) + 2 doublets: the structure constants of 18 products with m_a + m_b <= 3, twisted by det^((m_c - m_a - m_b)/2), are W(D_2)-invariant at every one of their 29 nonzero orders (through q^4 for traces and pairings) and lift exactly to Spin(4) characters",
+   "ok": true,
+   "note": "not invariant: []; round trip: []"
+  },
+  {
+   "name": "SU(2) + 2 doublets: negative control — without the det^(-m/2) twist the odd-m traces are not W(D_2)-invariant (4 of 4 orders fail)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + 3 doublets: positive control — Tr(1) at q^2 (the flavour currents) is the SO(6) adjoint [(1, 1, 0)] after re-expansion",
+   "ok": true,
+   "note": "content {(Fraction(1, 1), Fraction(1, 1), Fraction(0, 1)): 1}"
+  },
+  {
+   "name": "SU(2) + 3 doublets: the traces of 2 window sections, twisted by det^(-m/2), are W(D_3)-invariant at every one of their 5 nonzero orders (through q^4 for traces and pairings) and lift exactly to Spin(6) characters",
+   "ok": true,
+   "note": "not invariant: []; round trip: []"
+  },
+  {
+   "name": "SU(2) + 3 doublets: the pairings I(a, b) of 4 pairs of window sections, twisted by det^((m_a - m_b)/2), are W(D_3)-invariant at every one of their 10 nonzero orders (through q^4 for traces and pairings) and lift exactly to Spin(6) characters",
+   "ok": true,
+   "note": "not invariant: []; round trip: []"
+  },
+  {
+   "name": "SU(2) + 3 doublets: the structure constants of 3 products with m_a + m_b <= 2, twisted by det^((m_c - m_a - m_b)/2), are W(D_3)-invariant at every one of their 3 nonzero orders (through q^4 for traces and pairings) and lift exactly to Spin(6) characters",
+   "ok": true,
+   "note": "not invariant: []; round trip: []"
+  },
+  {
+   "name": "SU(2) + 3 doublets: negative control — without the det^(-m/2) twist the odd-m traces are not W(D_3)-invariant (2 of 2 orders fail)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + adjoint (N=2*), USp(2): positive control — Tr(1) at q^2 (the flavour currents) is the USp(2) adjoint μ^-2 + 1 + μ^2",
+   "ok": true,
+   "note": "q^2 coefficient {(Fraction(0, 1),): 1, (Fraction(2, 1),): 1, (Fraction(-2, 1),): 1}"
+  },
+  {
+   "name": "SU(2) + adjoint (N=2*), USp(2): the traces of 6 window sections, twisted by μ^(-m), are integral and invariant under μ ↦ μ^-1 — USp(2) characters — at every one of their 11 nonzero orders (through q^4 for traces and pairings)",
+   "ok": true,
+   "note": "not invariant: []"
+  },
+  {
+   "name": "SU(2) + adjoint (N=2*), USp(2): the pairings I(a, b) of 36 pairs of window sections, twisted by μ^(m_a - m_b), are integral and invariant under μ ↦ μ^-1 — USp(2) characters — at every one of their 63 nonzero orders (through q^4 for traces and pairings)",
+   "ok": true,
+   "note": "not invariant: []"
+  },
+  {
+   "name": "SU(2) + adjoint (N=2*), USp(2): the structure constants of 14 products with m_a + m_b <= 2, twisted by μ^(m_c - m_a - m_b), are integral and invariant under μ ↦ μ^-1 — USp(2) characters — at every one of their 33 nonzero orders (through q^4 for traces and pairings)",
+   "ok": true,
+   "note": "not invariant: []"
+  },
+  {
+   "name": "SU(2) + adjoint (N=2*), USp(2): negative control — without the μ^(-m) twist the traces of the sections with m ≠ 0 are not USp(2) characters (7 of 7 orders fail)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*), USp(2): positive control — Tr(1) at q^2 (the flavour currents) is the USp(2) adjoint μ^-2 + 1 + μ^2",
+   "ok": true,
+   "note": "q^2 coefficient {(Fraction(0, 1),): 1, (Fraction(2, 1),): 1, (Fraction(-2, 1),): 1}"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*), USp(2): the traces of 6 window sections, twisted by μ^(-m), are integral and invariant under μ ↦ μ^-1 — USp(2) characters — at every one of their 16 nonzero orders (through q^4 for traces and pairings)",
+   "ok": true,
+   "note": "not invariant: []"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*), USp(2): the pairings I(a, b) of 36 pairs of window sections, twisted by μ^(m_a - m_b), are integral and invariant under μ ↦ μ^-1 — USp(2) characters — at every one of their 75 nonzero orders (through q^4 for traces and pairings)",
+   "ok": true,
+   "note": "not invariant: []"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*), USp(2): the structure constants of 14 products with m_a + m_b <= 1, twisted by μ^(m_c - m_a - m_b), are integral and invariant under μ ↦ μ^-1 — USp(2) characters — at every one of their 36 nonzero orders (through q^4 for traces and pairings)",
+   "ok": true,
+   "note": "not invariant: []"
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*), USp(2): negative control — without the μ^(-m) twist the traces of the sections with m ≠ 0 are not USp(2) characters (8 of 8 orders fail)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control — U(1) with three charge-1 hypers (a complex representation, flavour U(3) with no enhancement) fails the same W(D_3) test: its Schur index is not invariant at q^[2, 4]",
+   "ok": true,
+   "note": "Tr(1) = {0: '1', 2: '-1 + [(1, 0, -1)]', 4: '[(1, 0, -1)] + [(2, 0, -2)]'}"
+  }
+ ]
+}

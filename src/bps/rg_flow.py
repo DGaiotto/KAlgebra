@@ -833,7 +833,7 @@ def factor_through_subquiver(A: "BPSKAlgebra", subquiver_node_indices):
         spec  =  (factors with >=1 outside-subquiver charge) . (subquiver spec)
 
     i.e. the spec entries supported purely on subquiver-node charges form a
-    contiguous **right tail** (the user's driving class).  Then `MS->IR` is
+    contiguous **right tail** (the author's driving class).  Then `MS->IR` is
     the subquiver theory flowing to the shared quantum torus,
     `mid = BPSKAlgebra(A.pairing, subquiver nodes, subquiver spec)`, and the
     returned `A.factor_through(mid)` is the `UV->MS` flow: its `RG` is the

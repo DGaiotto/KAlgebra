@@ -1,0 +1,41 @@
+{
+ "id": "comp:u1a1aodd/is-kalgebra",
+ "labels": [
+  "comp:u1a1aodd"
+ ],
+ "date": "2026-09-22T04:39:26Z",
+ "commit": "89fdd791dbad2bee0721155b40fe41f7a1450d01",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": [
+   1,
+   2
+  ],
+  "K": 4,
+  "seconds": 7.1
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the identity row",
+  "negative": "n.a."
+ },
+ "elapsed_s": 7.15,
+ "notes": "All five axioms emergent: the tables are analytic (arc parities, pairing, charges), not built to satisfy them.",
+ "checks": [
+  {
+   "name": "k=1: K1-K5 verifiers on all pairs of a window of 15 labels (letters, E^±1, identity, products) at K=4, and closure over Z[q^±1]",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "k=2: K1-K5 verifiers on all pairs of a window of 26 labels (letters, E^±1, identity, products) at K=4, and closure over Z[q^±1]",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

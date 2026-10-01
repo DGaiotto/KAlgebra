@@ -1,0 +1,113 @@
+{
+ "id": "ex:qt",
+ "labels": [
+  "ex:qt"
+ ],
+ "date": "2026-09-21T23:03:31Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "pairings": [
+   "rank 2, <e1,e2> = 1 (the pentagon's IR torus)",
+   "rank 2, <e1,e2> = 2",
+   "rank 4, block (1, 3)"
+  ],
+  "labels": "|γ_i| <= 1",
+  "pairs checked": 6723,
+  "K": 10
+ },
+ "counts": {
+  "pass": 16,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "pentagonal-number theorem on the independent Euler product",
+  "negative": "wrong prefactor exponent detected"
+ },
+ "elapsed_s": 0.209,
+ "notes": "The bar involution fixing X_γ is K1 on structure constants that are pure q-powers: q^<a,b> -> q^-<a,b> = q^<b,a>.",
+ "checks": [
+  {
+   "name": "positive control: independent (q^2;q^2)_∞ equals the pentagonal-number series to q^40",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 1 (the pentagon's IR torus): X_γ X_γ' = q^<γ,γ'> X_(γ+γ') on all 81 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 1 (the pentagon's IR torus): rho(γ) = -γ and rho^-1(γ) = -γ on 9 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 1 (the pentagon's IR torus): Tr X_γ = (q^2;q^2)_∞^2 δ_(γ,0) to q^10 (independent series)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 1 (the pentagon's IR torus): I_(γ,γ') = (q^2;q^2)_∞^2 δ_(γ,γ') to q^10 on all pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 1 (the pentagon's IR torus): K1-K5 verifiers all pass (consistency witness of def:kq)",
+   "ok": true,
+   "note": "verify_bar_involution 81/81; verify_identity_in_basis 1/1; verify_unit_law 9/9; verify_associativity 64/64; verify_rho_fixes_identity 1/1; verify_rho_inverse 9/9; verify_rho_is_automorphism 81/81; verify_orthonormality 81/81; verify_trace_pairing_faces 81/81; verify_rho_twisted_trace 81/81; verify_trace_intertwines_rho 9/9; verify_pairing_rho_star_symmetric 81/81"
+  },
+  {
+   "name": "rank 2, <e1,e2> = 2: X_γ X_γ' = q^<γ,γ'> X_(γ+γ') on all 81 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 2: rho(γ) = -γ and rho^-1(γ) = -γ on 9 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 2: Tr X_γ = (q^2;q^2)_∞^2 δ_(γ,0) to q^10 (independent series)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 2: I_(γ,γ') = (q^2;q^2)_∞^2 δ_(γ,γ') to q^10 on all pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 2, <e1,e2> = 2: K1-K5 verifiers all pass (consistency witness of def:kq)",
+   "ok": true,
+   "note": "verify_bar_involution 81/81; verify_identity_in_basis 1/1; verify_unit_law 9/9; verify_associativity 64/64; verify_rho_fixes_identity 1/1; verify_rho_inverse 9/9; verify_rho_is_automorphism 81/81; verify_orthonormality 81/81; verify_trace_pairing_faces 81/81; verify_rho_twisted_trace 81/81; verify_trace_intertwines_rho 9/9; verify_pairing_rho_star_symmetric 81/81"
+  },
+  {
+   "name": "rank 4, block (1, 3): X_γ X_γ' = q^<γ,γ'> X_(γ+γ') on all 6561 pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, block (1, 3): rho(γ) = -γ and rho^-1(γ) = -γ on 81 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, block (1, 3): Tr X_γ = (q^2;q^2)_∞^4 δ_(γ,0) to q^10 (independent series)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rank 4, block (1, 3): I_(γ,γ') = (q^2;q^2)_∞^4 δ_(γ,γ') to q^10 on all pairs",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the rank-2 trace differs from (q^2;q^2)_∞^1",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

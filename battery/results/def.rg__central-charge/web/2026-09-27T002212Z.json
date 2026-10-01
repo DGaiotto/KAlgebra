@@ -1,0 +1,66 @@
+{
+ "id": "def:rg/central-charge",
+ "labels": [
+  "def:rg"
+ ],
+ "date": "2026-09-27T00:22:12Z",
+ "commit": "6006d0adcc4702dc1e9b90813557b3a4a3af8886",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "atlases (monodromy)": [
+   "pentagon (A_2)",
+   "A_3",
+   "[A_1,D_4]"
+  ],
+  "chambers": {
+   "pentagon": [
+    "2 factor charges, S equal True",
+    "3 factor charges, S equal True"
+   ],
+   "A_3": [
+    "3 factor charges, S equal True",
+    "6 factor charges, S equal True"
+   ],
+   "Kronecker (pure SU(2))": [
+    "2 factor charges, S equal True",
+    "5 factor charges, S equal True"
+   ],
+   "SU(2)+1": [
+    "5 factor charges, S equal True",
+    "8 factor charges, S equal True"
+   ]
+  },
+  "depth": 4,
+  "seconds": 0.1
+ },
+ "counts": {
+  "pass": 3,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.058,
+ "notes": "The rotation by pi (the ρ-family) is def:rg/rho-family's; the Kronecker quiver's rotation loop does not close (infinite type), so its monodromy is not computed by the chart graph.",
+ "checks": [
+  {
+   "name": "def:rg/central-charge  the full rotation of the central charge (the chart-graph monodromy) is rho^2 on the node labels",
+   "ok": true,
+   "note": "{'pentagon (A_2)': 'monodromy = rho^2 on the node labels', 'A_3': 'monodromy = rho^2 on the node labels'}"
+  },
+  {
+   "name": "[A_1,D_4]: the chart-graph monodromy is rho^2 on the node labels",
+   "ok": true,
+   "note": "monodromy = rho^2 on the node labels"
+  },
+  {
+   "name": "def:rg/central-charge  in two chambers of a generic linear central charge per chart, the factor engine ordered by phase reproduces the chart's S through cone depth 4",
+   "ok": true,
+   "note": "{'pentagon': ['2 factor charges, S equal True', '3 factor charges, S equal True'], 'A_3': ['3 factor charges, S equal True', '6 factor charges, S equal True'], 'Kronecker (pure SU(2))': ['2 factor charges, S equal True', '5 factor charges, S equal True'], 'SU(2)+1': ['5 factor charges, S equal True', '8 factor charges, S equal True']}"
+  }
+ ]
+}

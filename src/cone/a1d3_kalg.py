@@ -413,6 +413,10 @@ def _reduce_letter_seq(letter_seq, k, q_factor, depth=0):
 # Layer-1 trace reduction (tag-move-cycle-Plücker algorithm)
 # ---------------------------------------------------------------------------
 
+# The only keys a completed reduction may carry.  `trace` sums over these
+# and nothing else, so anything outside this set must raise rather than be
+# dropped (see `trace_layer1`).
+_ELEMENTARY_TRACE_KEYS = frozenset({('Tr_1',), ('Tr_T',), ('Tr_D',)})
 
 def _base_to_qdict(q_lp, chi_re):
     """Convert a (LaurentPoly, RElement) base-case entry into the
@@ -994,18 +998,24 @@ class A1D3KAlg(ConeKAlgebra):
         RElement chi-coef)}` decomposing Tr(label) as a R(SU(2))[q^±]-
         linear combination of elementary traces.
 
-        Elementary trace keys:
-          ('Tr_1',)                -- Tr(1)                  (= identity)
-          ('Tr_T',)                -- Tr(T_0) = Tr(T_1) = Tr(T_2)
-                                      (ρ²-orbit-averaged)
-          ('Tr_D',)                -- Tr(D_0) = Tr(D_1) = Tr(D_2)
-          ('Tr_irreducible', word) -- irreducible higher trace
-                                      (= cannot Plücker-reduce in
-                                       3 cyclic shifts)
+        Elementary trace keys — the reduction is a theorem, so these are
+        the ONLY keys that can appear:
+          ('Tr_1',)  -- Tr(1)  (= identity)
+          ('Tr_T',)  -- Tr(T_0) = Tr(T_1) = Tr(T_2)
+          ('Tr_D',)  -- Tr(D_0) = Tr(D_1) = Tr(D_2)
 
-        Closed form only for `label` that reduces fully to identity-
-        gauge-cell content (= same as before).  General reduction is
-        algorithmic.
+        The recursion terminates for every word: the weight
+        `4·n_T + 3·n_D` strictly drops (by at least 2) at every relation
+        rewrite and is unchanged by the ρ-relabelling and the
+        q-commutations, so the depth is at most `⌊(4 n_T + 3 n_D)/2⌋`;
+        and a rewrite always fires within 3 cyclicity steps because no
+        letter q-commutes with all three members of a ρ-orbit.
+
+        The depth guard is therefore sized from that bound rather than
+        left at the module default, and any surviving non-elementary key
+        is an honest failure (`RuntimeError`) rather than a silently
+        dropped term — `trace` sums over the three elementary keys only,
+        so a discarded term would return a wrong series with no signal.
         """
         tile, a_exp, b_exp, k = self.canonicalise(label)
         if a_exp == 0 and b_exp == 0:
@@ -1021,8 +1031,27 @@ class A1D3KAlg(ConeKAlgebra):
         for L in sorted([L for L in letters if L[0] == 'D']):
             word += [L] * letters[L]
 
-        # Run the recursive reduction.
-        return _trace_reduce_word(self, word, chi_idx, q_factor, depth=0)
+        # Run the recursive reduction.  Size the depth guard from the
+        # proven bound (see the docstring) instead of the module default,
+        # which is a fixed constant and is exceeded by long words.
+        n_T = sum(1 for L in word if L[0] == 'T')
+        n_D = len(word) - n_T
+        depth_bound = (4 * n_T + 3 * n_D) // 2 + 2
+        result = _trace_reduce_word(
+            self, word, chi_idx, q_factor, depth=0,
+            max_depth=max(depth_bound, 40),
+        )
+        stray = sorted(k for k in result if k not in _ELEMENTARY_TRACE_KEYS)
+        if stray:
+            raise RuntimeError(
+                f"A1D3KAlg.trace_layer1: reduction of {label!r} left "
+                f"non-elementary key(s) {stray}. The reduction to "
+                f"{{Tr 1, Tr T_0, Tr D_0}} is a theorem, so this is a bug "
+                f"in the reducer or the depth guard, not a limitation — "
+                f"failing honestly rather than dropping the term, which "
+                f"would make `trace` return a wrong series silently."
+            )
+        return result
 
     def trace_layer1_element(self, elt: Element) -> dict:
         """Layer-1 trace reduction applied to an Element (sum of L's).

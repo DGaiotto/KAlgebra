@@ -1,0 +1,83 @@
+{
+ "id": "def:penta/implementation",
+ "labels": [
+  "def:penta"
+ ],
+ "date": "2026-09-21T23:03:31Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "generators": 5,
+  "basis window": "a, b <= 4 for the basis form; a+b <= 3 for rho",
+  "K": 24
+ },
+ "counts": {
+  "pass": 11,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the paper's relations reproduced on all i",
+  "negative": "altered relation detected"
+ },
+ "elapsed_s": 0.005,
+ "notes": "The stand-alone class is kalgebra_samples.PentagonKAlg (a ConeKAlgebra: cone data pentagon_cone_data.PENTAGON_CONE_DATA; trace seeds inline).  These checks are the specification a Lean formalisation of the pentagon example (a local session, user 2026-09-21) has to meet.",
+ "checks": [
+  {
+   "name": "relation L_{i+1} L_i = q^2 L_i L_{i+1}, i in Z/5",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "relation L_{i+1} L_{i-1} = 1 + q L_i, i in Z/5",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "relation L_{i-1} L_{i+1} = 1 + q^{-1} L_i, i in Z/5",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "cyclic notation L_{i+5} = L_i (labels reduce mod 5)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "canonical basis: L_i^a L_{i+1}^b = q^{-ab} L_{i;a,b}, 1 <= a,b <= 4, all i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure powers: L_i^{a-1} L_i = L_i^a is a basis element, a <= 5",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the identity is the basis element (0,0,0) and 1·L_i = L_i·1 = L_i",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho(L_i) = L_{i+2} and rho^{-1}(L_i) = L_{i-2}",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho(L_{i;a,b}) = L_{i+2;a,b} on the window a+b <= 3",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho has order exactly 5 on the window (rho^5 = id, rho^k != id for k = 1..4)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: L_{i+1} L_{i-1} != 1 + q^2 L_i is detected",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

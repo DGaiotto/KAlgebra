@@ -1,7 +1,7 @@
 """The **Langlands family of `KAlgebraIso`** — `(G, N) ≅ (G^∨, N)` under the
 Kapustin charge map `S: (m, e) ↦ (e, −m)`.
 
-User framing (2026-07-28): *"consider (G, Adj) and verify the Langlands duality to
+The author's framing (2026-07-28): *"consider (G, Adj) and verify the Langlands duality to
 (G^∨, Adj) m→e, e→−m"*, then *"you can formalize by a Langlands family of
 KAlgebraIso"*, and *"the Langlands dual notion seems to extend cleanly to 4d gauge
 group data"*.  All three are taken literally here: the duality is presented as
@@ -20,10 +20,9 @@ and the duality is a statement about the charge lattice alone.  A fundamental
 hypermultiplet would not survive the trip — at `PSU(N)` it is not a
 representation, which `GNAbeKAlgebra` refuses up front.
 
-**Why this test needs ruling D10.**  The charge dictionary is `φ = C·`
+**Why this test needs the non-simply-connected forms.**  The charge dictionary is `φ = C·`
 (`φ(ω_i^∨) = ω_i`), so a **Wilson line of `SU(N)` maps to a fractional-coweight
-monopole of `PSU(N)`** — e.g. `(0, ω_1) ↦ ((2/3, 1/3), 0)` at `SU(3)`.  Before D10
-the tier refused those charges outright, so no non-trivial dual label could even be
+monopole of `PSU(N)`** — e.g. `(0, ω_1) ↦ ((2/3, 1/3), 0)` at `SU(3)`.  Earlier, the tier refused those charges outright, so no non-trivial dual label could even be
 built and this family would have been vacuous.
 
 **WHAT IS ESTABLISHED** (measured 2026-07-28 at `SU(2)+Adj` and `SU(3)+Adj`):
@@ -39,8 +38,7 @@ however large a `K` was asked for.  The first wrong `𝖖`-order is exactly `W+1
 everything above `𝖖⁴` was silently wrong — and it produced a *beautifully plausible*
 false signal: the trace appeared to agree exactly when `κ = 0` and fail exactly when
 `κ ≠ 0`, which invited the conclusion that the zero modes contribute an index factor
-no monomial could carry.  That reading was wrong; there was no phenomenon.  (User
-ruling: *"the trace cannot fail. You have a bug."*)  `UNNfKAlgebra` had already been
+no monomial could carry.  That reading was wrong; there was no phenomenon.  (The author: *"the trace cannot fail. You have a bug."*)  `UNNfKAlgebra` had already been
 fixed this way in an earlier session — the group-general classes simply never
 inherited it.
 
@@ -50,15 +48,14 @@ the divergence order moves with them; and treat a discrepancy that switches on
 cleanly with some structural label as *evidence of a cutoff correlated with that
 label*, not as a discovered law.
 
-**What bounds the certifiable set** (rewritten 2026-07-30, ruling D31 + D33).  `S` is
-total on the *lattice*, and since D31 the tier builds odd-`⟨Σ⁺, m⟩` charges too — so
+**What bounds the certifiable set** (rewritten 2026-07-30).  `S` is
+total on the *lattice*, and the tier builds odd-`⟨Σ⁺, m⟩` charges too — so
 SO(3)'s spinorial coweight, which this module used to report as unbuildable, is no
 longer the obstacle.  What remains is one presentation limit: where the magnetic
 **parity** `π = ⟨Σ⁺, ·⟩ mod 2` differs across `S`, the two sides' one-sided
 zero-mode frames are offset by half a unit, so the twist `κ` is half-integral and no
 *integer* flavour label can carry it.  That is a limit on writing the map, not on the
-duality — `δκ` stays integral, so multiplication never sees the half (user, 2026-07-30:
-*"the presentation of canonicals may not respect SU(2), but the multiplication will"*).
+duality — `δκ` stays integral, so multiplication never sees the half.
 `dual_pairs` therefore reports which labels are jointly presentable rather than
 assuming any are, `verify_langlands` runs the `KAlgebraIso` battery on that set, and
 `langlands_frame_coboundary` certifies the rest.
@@ -143,11 +140,7 @@ def langlands_frame_offset(alg, dual, m, e, image=None):
     an error to be raised past: the honest object is the Fraction, and only the step
     that must write an integer flavour **label** can fail.
 
-    **What the half means — the presentation, not the physics** (user ruling,
-    2026-07-30: *"the presentation of canonicals may not respect SU(2), but the
-    multiplication will"*, and earlier the same day: the flavour symmetry of
-    `(G, Adj)` is `SU(2)` with the adjoint hyper a **doublet**, so *"I do not see
-    how the quantization could be modified"* — closing the double-cover reading).
+    **What the half means — the presentation, not the physics**.
 
     `_flavour_rungs` emits one rung per matter weight with `⟨m, w⟩ < 0`, each
     carrying `μ^{+1}`, so the tier's zero-mode count is **one-sided**:
@@ -166,8 +159,8 @@ def langlands_frame_offset(alg, dual, m, e, image=None):
     (`⟨Σ⁺, α_i^∨⟩ = 2`), dually `e` moves by roots.  Hence the coboundary
     `δκ(a, b; z) = κ(z) − κ(a) − κ(b)` is **always an integer**, even where `κ` is
     not (measured 17/17 on the real support of real products, `e = 1` Wilson squared
-    included) — so **multiplication never sees the half**, which is the ruling above
-    verbatim.  This is the same shape as the atom-phase resolution in ruling D31,
+    included) — so **multiplication never sees the half**, which is the statement above
+    verbatim.  This is the same shape as the atom-phase resolution at odd `⟨Σ⁺,m⟩`,
     where a half-integral `S̃` is legitimate because only its integral coboundary
     `δS̃` ever reaches the cocycle.
 
@@ -191,7 +184,7 @@ def langlands_frame_coboundary(alg, dual, a, b, dual_alg=None):
 
     This is the certificate that the Langlands map is an algebra isomorphism *even
     where its label shift is half-integral*, and it is the only leg that speaks to
-    the user's criterion directly (2026-07-30: *"the presentation of canonicals may
+    the author's criterion directly (2026-07-30: *"the presentation of canonicals may
     not respect SU(2), but the multiplication will"*).  Multiplicativity constrains
     `κ` only through this coboundary — the structure constants must absorb exactly
     `δκ` — so an integral `δκ` on a half-integral `κ` says the half is invisible to
@@ -255,11 +248,11 @@ def langlands_flavour_twist(alg, dual, m, e, image=None):
     **Honest-fails on an odd difference — and what that does and does not mean.**  The
     flavour *label* is an integer (a μ-power), so a half-unit twist cannot be written
     as one.  It was read here until 2026-07-30 as *"the duality is projective on the
-    flavour grading"*; that reading is **retracted** (ruling D33).  The half is the
+    flavour grading"*; that reading is **retracted**.  The half is the
     mismatch between the two sides' one-sided level frames — the offsets are
     `D_src(m)/2` and `D_dual(S m)/2`, so `κ` is half-integral exactly when the
     magnetic **parity** `π = ⟨Σ⁺, ·⟩ mod 2` differs across `S` (measured 23/23,
-    equivalently ⟺ `e` odd), the same `Z/2` character as ruling D20/D23.  In the
+    equivalently ⟺ `e` odd).  In the
     centred weight `ŵ = w + D/2` the twist is identically zero, and `δκ` is integral
     throughout, so the algebra isomorphism is there — only this label-level
     presentation of it is not.  (It is not a `𝖖^{1/2}` either: the grading is in μ,
@@ -387,14 +380,13 @@ def dual_pairs(alg, labels, dual=None):
     * the **flavour twist** `κ` is half-integral — `langlands_flavour_twist`
       honest-fails when the zero-mode-count change is odd, because no *integer*
       flavour label can carry a half unit.  It surfaced once the odd-`⟨Σ⁺,m⟩`
-      charges became buildable (ruling D31) — at `SU(2)+Adj ↔ SO(3)+Adj` the Wilson
+      charges became buildable — at `SU(2)+Adj ↔ SO(3)+Adj` the Wilson
       line `(m=0, e=1)` maps to SO(3)'s spinorial 't Hooft `(m=ω^∨, e=0)`, whose
-      single matter zero mode makes `κ = −1/2`.  Before D31 the SO(3) side did not
+      single matter zero mode makes `κ = −1/2`.  Earlier, the SO(3) side did not
       build, so the pair was skipped for the *other* reason and this one was
       invisible.
 
-      **This skip is a presentation limit, not a failure of the duality** (ruling
-      D33, retracting the earlier "the duality is projective on the flavour grading"
+      **This skip is a presentation limit, not a failure of the duality** (retracting the earlier "the duality is projective on the flavour grading"
       reading).  The half is the offset between the two sides' *one-sided* zero-mode
       frames; `δκ` is integral throughout, so the product never sees it, and the
       algebra isomorphism exists at these labels even though this integer-labelled
@@ -530,8 +522,7 @@ def adjoint_theory(datum, lines=None):
 
 def langlands_family(data, labels_for=None, theory_for=None, trace_K: int = 10,
                      product_labels=None):
-    """The **family** of Langlands `KAlgebraIso` (user, 2026-07-28: *"you can
-    formalize by a Langlands family of KAlgebraIso"*) — one entry per member, each an
+    """The **family** of Langlands `KAlgebraIso` — one entry per member, each an
     iso plus its verified battery.
 
     Each entry of `data` is `(tag, x)` where `x` is **either**

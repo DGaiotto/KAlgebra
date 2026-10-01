@@ -1,0 +1,44 @@
+{
+ "id": "sec:rg/flavoured-quivers",
+ "labels": [
+  "eq:fleq",
+  "eq:flavouredquiver"
+ ],
+ "date": "2026-09-22T01:28:59Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [
+  {
+   "path": "dictionaries/flavoured/manifest.json",
+   "tracked": true
+  }
+ ],
+ "population": {
+  "sample": "first 12 stored flavoured entries (orbit size 2) with n <= 3",
+  "depth": 3,
+  "seconds": 0.3
+ },
+ "counts": {
+  "pass": 2,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the covariant spec replays",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.262,
+ "notes": "Web-tier sample of dictionaries/flavoured/; the ten tiers' full census is the manifests' (0 crystalline_failed) and the local staging builds'.",
+ "checks": [
+  {
+   "name": "sec:rg/flavoured-quivers  the stored covariant spec reproduces the flavoured S on 12/12 sample entries (n <= 3) at depth 3+1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:flavouredquiver  S = 1 - q Σ_i χ^(□_i)(μ) X_(γ_i) + O(q^2): the degree-one part carries every weight of the fundamental of SU(N_i), each with the coefficient -q/(1-q^2) of E_q (leading term -q), on 12/12 entries",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

@@ -1604,30 +1604,76 @@ class A1DoddSkeinKAlgebra(SkeinKAlgebra):
         )
 
 
+class _DevenSkeinConeData(A1DoddSkeinConeData):
+    """The ray dictionary of `U1A1DevenSkeinKAlgebra` on the
+    `U1A1DevenConeKAlgebra(k)` labels `(curves, e, κ)`: the curve rays of the
+    once-punctured `(2k+2)`-gon (open arcs ⇒ monomial; a loop around the
+    puncture is a curve `(x, 2k + 2)` too), the gauge letter `E^{±1}` as the
+    adjoined torus pair, and the peripheral loop as the central `SU(2)`
+    character ray `CHI_RAY` — the `A1DoddSkeinConeData` construction with the
+    torus pair added.  Word combinatorics delegate to the intrinsic's
+    `χ`-stripped cone data (native labels `(curves, e)`); crossing products
+    come from the intrinsic's closed-form engine (the analytic skein rule,
+    `u1a1deven_geometric_frame` docstring D)."""
+
+    def ray_kind(self, g) -> str:
+        if tuple(g) == CHI_RAY:
+            return "char"
+        if self._int._torus_inverse_letter(g) is not None:
+            return "torus"
+        return "monomial"
+
+    def _one_letter(self, g):
+        curves, e = self._int.from_cone_label(frozenset({tuple(g)}),
+                                              {tuple(g): 1})
+        return (curves, e, 0)
+
+    def to_cone_label(self, native_label):
+        curves, e, kappa = native_label
+        gens, powers = self._int.to_cone_label((tuple(curves), e))
+        gens = set(gens)
+        powers = dict(powers)
+        if kappa:
+            gens.add(CHI_RAY)
+            powers[CHI_RAY] = int(kappa)
+        return frozenset(gens), powers
+
+    def from_cone_label(self, gens, powers):
+        kappa = powers.get(CHI_RAY, 0)
+        wgens = frozenset(g for g in gens if tuple(g) != CHI_RAY)
+        wpow = {g: p for g, p in powers.items() if tuple(g) != CHI_RAY}
+        curves, e = self._int.from_cone_label(wgens, wpow)
+        return (curves, e, kappa)
+
+    def _torus_inverse_letter(self, g):
+        if tuple(g) == CHI_RAY:
+            return None
+        return self._int._torus_inverse_letter(g)
+
+
 class U1A1DevenSkeinKAlgebra(SkeinKAlgebra):
     """The U(1)-gauged `[A₁, D_{2k+2}]` (k = 1 → D₄, …) — the D-side
-    even general constructor, on the `U1A1DevenConeKAlgebra(k)`
-    ray-keyed labels `(factors, e_X01)`.
+    even general constructor, on the `U1A1DevenConeKAlgebra(k)` labels
+    `(curves, e, κ)` (since 2026-09-24).
 
     **Surface**: the underlying `[A₁, D_{2k+2}]` is the `(2k+2)`-gon
     with a single **regular interior puncture** (the A1Dn family map);
     the even-D flavour is rank 2 — the regular puncture's SU(2) stays
-    a flavour here (riding in the `SU2ZPlusRing` COEFFICIENTS, the
-    intrinsic's encoding), while the extra U(1) is the direction being
-    gauged.  **Naming caution:** the rays below are the intrinsic's
-    monomial-RG canonical seeds (`DevenConeTables`), NOT yet a
-    certified simple-curve dictionary on that punctured surface — the
-    ray↔curve identification (and the stated engine that would make
-    the cross-products native) is the recorded open frontier; only the
-    `X_{0,1}^{±}` adjoined torus pair has a clean matter-direction
-    reading.
+    a flavour here (its peripheral loop is `χ₁`, the κ slot of the
+    labels), while the extra U(1) is the direction being gauged (the
+    torus pair `E^{±1}`).  The rays are the simple curves of that
+    punctured polygon, in `A1DnKAlg`'s `(x, ℓ)` convention —
+    the ray↔curve dictionary this docstring used to list as open is the
+    intrinsic's own labelling since the curve frame became the public
+    class.
 
-    Cone combinatorics delegate to the intrinsic's complete cone data;
-    cross-products anchored on the intrinsic engine (the honest
-    exception, as `A1DoddSkeinKAlgebra`).  ρ² has infinite orbits
-    (torus drift) — the intrinsic closed-form rep is passed through.
-    Trace = the intrinsic exact closed-form gauge sector + frozen
-    matter seeds."""
+    Cone combinatorics delegate to the intrinsic's cone data (with the
+    central χ ray, `_DevenSkeinConeData`); cross-products anchored on the
+    intrinsic engine (the honest exception, as `A1DoddSkeinKAlgebra`).
+    ρ² has infinite orbits (torus drift) — the intrinsic closed-form rep
+    is passed through.  Trace = the intrinsic's: the exact closed form on
+    the gauge sector, the exact transport of the closed-form RG image
+    otherwise."""
 
     def __init__(self, k: int = 1, intrinsic=None):
         if intrinsic is None:
@@ -1635,8 +1681,7 @@ class U1A1DevenSkeinKAlgebra(SkeinKAlgebra):
             intrinsic = U1A1DevenConeKAlgebra(k)
         self.k = getattr(intrinsic, "k", k)
         self.intrinsic = intrinsic
-        cd = IntrinsicBridgeSkeinConeData(intrinsic.cone_data(),
-                                          intrinsic.multiply)
+        cd = _DevenSkeinConeData(intrinsic)
         super().__init__(
             cone_data=cd,
             identity_label=intrinsic.identity(),
@@ -1644,10 +1689,12 @@ class U1A1DevenSkeinKAlgebra(SkeinKAlgebra):
             rho_inverse_fn=intrinsic.rho_inverse,
             trace_fn=lambda a, K: intrinsic.trace(a, K),
             bps_factory=None,
-            engine_multiply=None,          # derived reducer over the bridge
+            engine_multiply=None,          # derived char-aware reducer
             rho2_rep_fn=intrinsic._canonical_rho2_orbit_rep,
             coefficient_ring=intrinsic.coefficient_ring(),
             name=f"skein-u1a1d{2 * self.k + 2}-cone",
+            r_label_decompose_fn=intrinsic.r_label_decompose,
+            r_label_compose_fn=intrinsic.r_label_compose,
             engine_provenance="cone-anchored",     # the honest exception
             trace_provenance="transported-intrinsic",
         )

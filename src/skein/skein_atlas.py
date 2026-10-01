@@ -548,10 +548,9 @@ def _a1a2k_root_cd(k: int, tri: Triangulation,
 
 def _linear_charge_maps(intr):
     """The charge dictionary of a gauged even-polygon intrinsic
-    (`u1a1aodd_general.U1A1AoddKAlg` — bootstrap `chord_charges` /
-    `E_charge` — or `u1a1aodd_kalg.U1A1AoddKAlg` — the oracle-extracted
-    `_chg` / `_MU` on its cone data; same gauged-quiver frame, same
-    alternating E):  `from_base` is LINEAR on cone monomials
+    (`u1a1aodd_kalg.U1A1AoddKAlg` — the closed-form `_chg` / `_MU` on its
+    cone data, in the frame of `u1a1aodd_kalg.gauged_quiver_bps`, with
+    the alternating E):  `from_base` is LINEAR on cone monomials
     (`Σ e·charge[(a,i)] + e_E·E` — cluster charges add within a cone),
     `to_base` is the fan solve over the cone family (chord powers ≥ 0,
     the E direction Laurent), canonicalized through the base's
@@ -559,14 +558,9 @@ def _linear_charge_maps(intr):
     == γ` asserted — honest-fail off the fan)."""
 
     cd = intr.cone_data()
-    if hasattr(intr, "chord_charges"):          # u1a1aodd_general
-        E = tuple(intr.E_charge)
-        CH = {g: tuple(c) for g, c in intr.chord_charges.items()}
-        E_GEN, E_INV = cd.E_GEN, cd.E_INV
-    else:                                        # u1a1aodd_kalg (oracle)
-        E = tuple(cd._MU)
-        CH = {g: tuple(c) for g, c in cd._chg.items()}
-        from u1a1aodd_kalg import E_GEN, E_INV
+    E = tuple(cd._MU)
+    CH = {g: tuple(c) for g, c in cd._chg.items()}
+    from u1a1aodd_kalg import E_GEN, E_INV
     dim = len(E)
     cones = [frozenset(c) for c in cd.cones()]
     cache: dict = {}
@@ -1195,28 +1189,30 @@ class SkeinAtlas:
             engine = SkeinEvenPolygonKAlg(intrinsic=intr)
             prov = "stated-skein-pinned"
         elif k <= 4:
-            # The gauged octagon / decagon / 12-gon: the
-            # oracle-extracted intrinsic (`u1a1aodd_kalg` — the
-            # roster's frame) SHARED with the generic-n PINNED engine
-            # (`SkeinEvenPolygonKAlg`), the charge dictionary read off
-            # ITS cone data (`_chg` / `_MU` — same gauged-quiver frame
-            # as `_build_bps`; inverse = the fan solve, E Laurent).
-            # The atlas battery against the gauged quiver twin
-            # certifies frame + engine together.
+            # The gauged octagon / decagon / 12-gon: the closed-form
+            # intrinsic (`u1a1aodd_kalg` — the roster's frame) SHARED
+            # with the generic-n PINNED engine (`SkeinEvenPolygonKAlg`),
+            # the charge dictionary read off ITS cone data (`_chg` /
+            # `_MU` — the frame of `gauged_quiver_bps`; inverse = the
+            # fan solve, E Laurent).  The atlas checks against the
+            # gauged quiver twin certify frame + engine together.
             from u1a1aodd_kalg import U1A1AoddKAlg as _Kalg
-            from u1a1aodd_general import _build_bps
+            from u1a1aodd_kalg import gauged_quiver_bps
             from skein_evengon_kalg import SkeinEvenPolygonKAlg
             intr = _Kalg(k)
             iso = None
             engine = SkeinEvenPolygonKAlg(intrinsic=intr)
             prov = "stated-skein-pinned"
             obj = None
-            bps = _build_bps(k)
+            bps = gauged_quiver_bps(k)
         else:
+            # The intrinsic and the engine are general in k; the bound is
+            # where the atlas checks have been run (k = 4 is the last leg
+            # certified in the source repository).
             raise NotImplementedError(
-                f"u1a1aodd(k={k}): the u1a1aodd_general bootstrap knows "
-                f"k ≤ 4 only (hand-discovered seeds; higher k needs the "
-                f"RGKAlgebra-presented route — see the module docstring)"
+                f"u1a1aodd(k={k}): the atlas is certified for k ≤ 4 "
+                f"only — lifting the bound needs the atlas checks run "
+                f"at the new k"
             )
         if obj is not None:
             bps = obj.realization("bps")

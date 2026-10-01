@@ -72,7 +72,10 @@ Defining relations (each line is a single Z_4 ρ-orbit; indices mod 4)
 
     T_i · T_{i+2}      =  q^{-3}·T_{i+1}  +  q^{-2}·1
                          +  q^{-1}·(χ_{(1,0)}·D_{i+1}  +  χ_{(0,1)}·D_i)
-                         +  4 + 2·χ_{(1,1)}
+                         +  2 + χ_{(1,1)}        (the six adjoint root-weights
+                                                 are χ_{(1,1)} − 2 as a virtual
+                                                 character, plus two singlets;
+                                                 see `_tt_dist2`)
                          +  q^{+1}·(χ_{(0,1)}·D_{i+2}  +  χ_{(1,0)}·D_{i-1})
                          +  q^{+2}·1  +  q^{+3}·T_{i-1}        (palindromic)
 
@@ -115,17 +118,32 @@ so expanding M into literal letters pulls out a q^{-a·b·twist} factor.
 ρ on labels: ρ-shift on tiles 0→2→4→6→0 and 1→3→5→7→1 (= shift both
 i_T and i_D by 1 mod 4).
 
+Geometric labels (since 2026-09-24):
+`geometric_label((tile, a, b, p, q)) = (curves, (p, q))`, `curves` the
+balanced multiset of curves of the once-punctured square that the section is
+in the ungauged `A1DevenKAlg(1)` — this algebra restricted to SU(2)×U(1):
+`T_i` the loop at marked point `i` with the curve `(i + 1, 2)`, `D_i` the
+curve `(i + 1, 3)`.  The map, its U(1) offsets and its certificate: the
+"Geometric labels" block above `SU3ADKAlg`.
+
 Trace: `trace` / `inner_product` / `trace_word` compute the ρ²-twisted
 Schur trace (virtual SU(3) characters) **BPS-free**, via `sl3_su3_traces`.
 Any canonical monomial Layer-1-reduces to the three elementary seeds
-{Tr_1, Tr_T, Tr_D}; the seed *values* are exact and engine-free —
-`Tr_1` is the closed-form Kac–Wakimoto vacuum character of
-`\widehat{sl}(3)_{-3/2}` (the [A_1,D_4] VOA; `Tr(1)=1+χ_(1,1)·q²+…`,
-the SU(3) flavour current), and `Tr_T`/`Tr_D` come from the
-orthonormality bootstrap seeded by `Tr_1`.  All work is carried in
-Cartan fugacities (weights, not characters) and Weyl-symmetrized to
-SU(3) characters only on the *total*, so genuinely non-self-dual product
-content (e.g. `T₀·T₂`'s `3+3̄`) is handled correctly.  Arbitrary q-order;
+{Tr_1, Tr_T, Tr_D}; the seed *values* are exact and engine-free, all three
+the closed forms of the U(1)-gauged even-D family at k = 1
+(`u1a1deven_seed_characters`) summed over the gauge charge (ungauging makes
+it the flavour U(1) of `A1DevenKAlg(1)`, the U(1) of SU(2)×U(1) ⊂ SU(3)) and
+carried through the generator images above — for `Tr_1`, the identity,
+Creutzig's gauge tower (since 2026-09-24).  Until then `Tr_1` was the
+closed-form Kac–Wakimoto vacuum character of `\widehat{sl}(3)_{-3/2}` (the
+[A_1,D_4] VOA; `Tr(1)=1+χ_(1,1)·q²+…`, the SU(3) flavour current) and
+`Tr_T`/`Tr_D` came from the orthonormality bootstrap `SU3ElemTraces` seeded by
+it; both are now witnesses of the closed forms (equal through 𝖖¹⁰⁰ and
+𝖖⁸⁰).  All work is carried in Cartan fugacities (weights, not characters) and
+Weyl-symmetrized to SU(3) characters only on the *total*, so genuinely
+non-self-dual product content (e.g. `T₀·T₂`'s `3+3̄`) is handled correctly.
+The seeds are asked for exactly the depth a reduction reads (a product trace
+too, since 2026-09-24), so no order is truncated.  Arbitrary q-order;
 no BPS / RG engine on the trace path — the BPS realisation is consulted
 lazily only as a cross-check oracle (where that derivation is available).
 `trace_layer1` (the character-level Layer-1 reduction) is retained for
@@ -684,6 +702,92 @@ def _trace_reduce_word(alg, word, chi_pq, q_factor, depth=0, max_depth=80):
 
 
 # ---------------------------------------------------------------------------
+# Geometric labels: curves of the once-punctured square
+# ---------------------------------------------------------------------------
+#
+# `[A_1, D_4]` is the k = 1 member of the even-D family: restricted to
+# SU(2)×U(1) (`zplus_ring.su3_to_su2u1_hom`, `3 ↦ 2₊₁ ⊕ 1₋₂`, U(1) charge `Y`)
+# this algebra is `A1DevenKAlg(1)`, whose canonical-basis labels are the
+# balanced multisets of pairwise non-crossing curves of the square with one
+# interior puncture (the curve frame of `U1A1DevenConeKAlgebra(1)`: a
+# curve `(x, ℓ)` runs from marked point `x` to `x + ℓ` with `ℓ` boundary edges
+# on the side away from the puncture, `ℓ = 4` the loop at `x`).  The
+# generators go to generators of `A1DevenKAlg(1)`:
+#
+#     T_i  ↦  {(i, 4), (i + 1, 2)}    the loop at marked point i and the curve
+#                                     from i + 1 to i + 3 (magnetic charges
+#                                     ∓1 and ±1);
+#     D_i  ↦  {(i + 1, 3)}            the curve from i + 1 to i (charge 0),
+#
+# and a section `(tile, a, b)` = `T_i^a·D_j^b` to the union of `a` copies of
+# the first and `b` of the second — one canonical element, since its letters
+# 𝖖-commute.  The flavour: `A1DevenKAlg(1)`'s U(1) fugacity `z` (`E = z⁻¹`)
+# has `Y`-charge 3.  The section of `SU3ADKAlg` is canonical (SU(3) is
+# semisimple) while `A1DevenKAlg(1)`'s is fixed by the curve frame's edge-{1, 2}
+# convention, so each generator `X` goes to its image with a `Y`-charge
+# offset `Δ(X)`: a term `χ_κ·z^f·L_F` on the `A1DevenKAlg(1)` side stands for
+# the restricted terms of charge `Y = 3f + Δ`.  The
+# offsets are fixed by `Δ(T_0) = 0`, `Δ(D_0) = 1` and ρ, which rotates the
+# curves with the drift of the curve frame's rule (b) and inverts the U(1):
+# `Δ(ρX) = −Δ(X) − 3d`, `d` the power of `E` that ρ produces on the image —
+# `Δ = 0, 3, 3, 0` on `T_0..T_3` and `1, 2, 1, −1` on `D_0..D_3`; additive over
+# a section's letters.  Certificate (the suite in the source repository): among
+# every ρ-equivariant bijection of the eight generators onto `A1DevenKAlg(1)`'s,
+# with both signs of the U(1) and the two base offsets solved exactly from the
+# generator products, the ones reproducing all 64 generator products (through
+# the restriction, which is injective on class functions) and ρ are exactly
+# this map composed with the four powers of ρ, the sign alternating.  Used by
+# `geometric_label` and by the trace seeds (`sl3_su3_traces`).
+
+_DEVEN_IMAGES: dict = {}
+
+
+def _deven_letter_images() -> dict:
+    """`{letter: (curves, Δ)}` for the eight letters `('T', i)`, `('D', i)`:
+    the image in `A1DevenKAlg(1)` (a sorted tuple of `((x, ℓ), m)`) and the
+    offset `Δ` in units of the branching charge `Y` (the block comment above).
+    Memoised."""
+    if not _DEVEN_IMAGES:
+        from u1a1deven_seed_characters import rho as _deven_rho
+        out = {}
+        for kind, delta in (('T', 0), ('D', 1)):
+            for i in range(_N):
+                if kind == 'T':
+                    curves = (((i % _N, 4), 1), (((i + 1) % _N, 2), 1))
+                else:
+                    curves = ((((i + 1) % _N, 3), 1),)
+                curves = tuple(sorted(curves))
+                if i and curves != rotated:
+                    raise AssertionError(
+                        f"su3_ad_kalg: the image of {kind}_{i} is not the "
+                        f"rotation of {kind}_{i - 1}'s")
+                out[(kind, i)] = (curves, delta)
+                rotated, drift = _deven_rho(curves, 0, 1)
+                delta = -delta - 3 * drift
+            if delta != out[(kind, 0)][1] or rotated != out[(kind, 0)][0]:
+                raise AssertionError(f"su3_ad_kalg: the {kind}-orbit does not "
+                                     f"close under ρ")
+        _DEVEN_IMAGES.update(out)
+    return _DEVEN_IMAGES
+
+
+def _deven_section(section):
+    """`(curves, Δ)` of a section `(tile, a, b)` (canonical): the union of its
+    letters' images, with multiplicity, and the sum of their offsets."""
+    tile, a, b = section
+    img = _deven_letter_images()
+    acc: dict = {}
+    delta = 0
+    for L, m in zip(_TILE_LETTERS[tile], (a, b)):
+        if m:
+            curves, d = img[L]
+            for c, k in curves:
+                acc[c] = acc.get(c, 0) + k * m
+            delta += m * d
+    return tuple(sorted(acc.items())), delta
+
+
+# ---------------------------------------------------------------------------
 # SU3ADKAlg
 # ---------------------------------------------------------------------------
 
@@ -745,6 +849,26 @@ class SU3ADKAlg(ConeKAlgebra):
         if p < 0 or q < 0:
             raise ValueError(f"chi(p, q): need p, q ≥ 0; got ({p}, {q})")
         return (0, 0, 0, p, q)
+
+    # -- geometric labels ------------------------------------------------
+
+    def geometric_label(self, label):
+        """The geometric label `(curves, (p, q))` of the canonical label
+        `(tile, a, b, p, q)`: `curves` the balanced multiset of pairwise
+        non-crossing curves of the once-punctured square that the section
+        `(tile, a, b)` is in `A1DevenKAlg(1)` (that class's labels; the module's
+        "Geometric labels" block: `T_i` the loop at `i` with the curve
+        `(i + 1, 2)`, `D_i` the curve `(i + 1, 3)`, a section the union over
+        its letters), as a sorted tuple of `((x, ℓ), m)`; `(p, q)` the SU(3)
+        weight.  `A1DnKAlg`'s `(curves, κ)` layout, the SU(2) weight replaced
+        by the SU(3) one.  Injective, and onto the balanced multisets (checked
+        on a window, the suite in the source repository); ρ rotates the curves,
+        `(x, ℓ) ↦ (x + 1, ℓ)`, and conjugates the weight, `(p, q) ↦ (q, p)`.
+        The hook name is the one of `U1A1AoddKAlg`, `U1A1DevenConeKAlgebra`
+        (on letters) and `UngaugedKAlgebra` (on labels)."""
+        tile, a, b, p, q = self.canonicalise(label)
+        curves, _delta = _deven_section((tile, a, b))
+        return (curves, (p, q))
 
     # -- section engine (the freeness structure) -------------------------
     #
@@ -951,28 +1075,29 @@ class SU3ADKAlg(ConeKAlgebra):
             word += [L] * letters[L]
         return _trace_reduce_word(self, word, chi_pq, q_factor)
 
-    # -- cross-check trace via the BPS oracle -----------------------------
+    # -- label transport to the BPS chart (NOT used by the trace) --------
     #
     # The standalone ↔ BPS-realisation correspondence (gauge charge =
     # the (tile, a, b) letter-monomial position; SU(3) character carried
     # in the flavour direction) is certified product-for-product against
-    # the BPS engine (exact coefficients on all 64 generator pairs).
-    # The `_bps_*` helpers below transport a canonical label to the BPS
-    # chart and read off its analytic trace there; they serve only as a
-    # cross-check oracle (the derivation module is not included in this
-    # repository) — the production `trace` is the BPS-free
-    # `sl3_su3_traces` route.  `trace_layer1` (the algebraic Layer-1
-    # reduction) is retained for the elementary-trace
-    # tag-move-cycle-Plücker pipeline.
+    # the BPS engine in the source repository's tests (exact coefficients
+    # on all 64 generator pairs).  The trace does NOT go through it:
+    # `trace` is BPS-free (`sl3_su3_traces` — Layer-1, the Kac–Wakimoto
+    # vacuum character, the orthonormality bootstrap), which those tests
+    # prove by tripping `_bps_engine`.  `_bps_engine` / `_std_to_bps_label`
+    # are kept only for independent cross-checks that transport labels to
+    # the BPS chart (`SU3BPSKAlgebra`, not included in this repository).
+    # (An earlier BPS-trace helper, `_bps_trace_to_K`, was removed as dead
+    # code.)
 
     _TPOS = {0: (1, 0), 1: (-1, -3), 2: (-2, -3), 3: (-1, 0)}
     _DPOS = {0: (0, -1), 1: (-1, -2), 2: (-1, -1), 3: (0, 1)}
 
     def _bps_engine(self):
-        """Memoised companion BPS-quiver realisation (the analytic-trace
-        cross-check oracle; its module `su3_bps_kalgebra` is not included
-        in this repository).  Built lazily — `multiply`/`rho` and the
-        production trace path never touch it."""
+        """Memoised companion `SU3BPSKAlgebra`, the chart the labels are
+        transported to for independent cross-checks.  Built lazily; nothing
+        on this class's own API touches it — not `multiply`, `rho`,
+        `trace` or `inner_product`."""
         if not hasattr(self, "_bps_eng"):
             from su3_bps_kalgebra import _user_quiver
             self._bps_eng = _user_quiver()
@@ -992,45 +1117,15 @@ class SU3ADKAlg(ConeKAlgebra):
         B = self._bps_engine()
         return B.canonicalise((g0, g1, -(p + q), -p))
 
-    def _bps_trace_to_K(self, bps_label, K, **kwargs):
-        """BPS analytic trace of `bps_label`, returned over `R(SU(3))`
-        truncated to `q^K`.
-
-        Flavour-charged elements draw on `S_RG` levels *above* K (the
-        flavoured-trace "trapezoid": the χ-content near the window top is
-        clipped and momentarily non-Weyl-symmetric), so we compute with a
-        growing internal margin and truncate back.  If even a generous
-        margin leaves the q^≤K content clipped, we raise (rather
-        than return a silently wrong / non-symmetric character) — that
-        regime is what the exact closed-form Layer-2 (the SU(3)_{−3/2}
-        chiral characters) is for."""
-        B = self._bps_engine()
-        last_err = None
-        for margin in (0, 4):
-            try:
-                full = B.trace(bps_label, K=K + margin, **kwargs)
-                return RPowerSeries(
-                    self._R,
-                    {q: r for q, r in full.coeffs.items() if q <= K},
-                    K,
-                )
-            except ValueError as e:   # non-S_3-symmetric clipped top
-                last_err = e
-        raise NotImplementedError(
-            f"SU3ADKAlg.trace: the analytic Schur trace of {bps_label} clips "
-            f"non-symmetrically at q^≤{K} even with margin (BPS-window "
-            f"trapezoid: {last_err}).  The exact closed-form Layer-2 for this "
-            f"flavour-charged element needs the SU(3)_{{-3/2}} chiral "
-            f"characters."
-        )
-
     def trace(self, a: Label, K: int = 20, **kwargs) -> RPowerSeries:
         """ρ²-twisted Schur trace `Tr(L_a)` over `R(SU(3))((q))`, **BPS-free**.
 
         Layer-1 reduces the (flavour-stripped) gauge monomial to the three
         elementary seeds {Tr_1, Tr_T, Tr_D} in Cartan fugacities; the exact,
-        engine-free seed values are the closed-form Kac–Wakimoto vacuum
-        character (`Tr_1`) and the orthonormality bootstrap (`Tr_T`, `Tr_D`).
+        engine-free seed values are the even-D k = 1 closed forms through the
+        generator images of `geometric_label`, summed over the gauge charge
+        (for `Tr_1`, Creutzig's gauge tower; equal to the Kac–Wakimoto vacuum
+        character of `sl(3)_{−3/2}`, its witness).
         The flavour `χ_(p,q)` is a genuine spectator over `R(SU(3))`, so it is
         multiplied back (R(SU(3))-linearity), Weyl-symmetrizing the total to
         SU(3) characters only at the end.  Arbitrary q-order; see

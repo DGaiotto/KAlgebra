@@ -1,0 +1,210 @@
+{
+ "id": "conj:abeKalgebra/consistency",
+ "labels": [
+  "conj:abeKalgebra"
+ ],
+ "date": "2026-09-23T12:00:13Z",
+ "commit": "e6d98f9c569657908fc7444f2d7d1035ada1f0ec",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pure SU(2)": {
+   "labels": 13,
+   "built": 13,
+   "routes": {
+    "star": 8,
+    "twist[k=-1 from (0,)]": 1,
+    "twist[k=1 from (-1,)]": 1,
+    "twist[k=1 from (0,)]": 1,
+    "monoid[(1,)+(1,)]": 1,
+    "twist[k=1 from (-2,)]": 1
+   },
+   "certified": 13,
+   "star": 13,
+   "verifier_failures": 0,
+   "closure": true,
+   "seconds": 19.8
+  },
+  "pure SO(3)": {
+   "labels": 13,
+   "built": 13,
+   "routes": {
+    "star": 8,
+    "twist[k=-2 from (0,)]": 1,
+    "twist[k=-1 from (0,)]": 1,
+    "monoid[(1,)+(1,)]": 1,
+    "twist[k=1 from (0,)]": 1,
+    "twist[k=1 from (1,)]": 1
+   },
+   "certified": 13,
+   "star": 13,
+   "verifier_failures": 0,
+   "closure": true,
+   "seconds": 3.6
+  },
+  "pure SU(3)": {
+   "labels": 8,
+   "built": 8,
+   "routes": {
+    "star": 8
+   },
+   "certified": 8,
+   "star": 8,
+   "verifier_failures": null,
+   "closure": null,
+   "seconds": 0.3
+  },
+  "pure Sp(4)": {
+   "labels": 5,
+   "built": 5,
+   "routes": {
+    "star": 5
+   },
+   "certified": 5,
+   "star": 5,
+   "verifier_failures": null,
+   "closure": null,
+   "seconds": 0.2
+  },
+  "pure G2": {
+   "labels": 4,
+   "built": 4,
+   "routes": {
+    "star": 4
+   },
+   "certified": 4,
+   "star": 4,
+   "verifier_failures": null,
+   "closure": null,
+   "seconds": 9.7
+  },
+  "SU(2) + 1 fund. (roster su2-nf1)": {
+   "labels": 5,
+   "built": 5,
+   "routes": {
+    "solve": 4,
+    "twist[k=1 from (-1,)]": 1
+   },
+   "certified": 5,
+   "star": 5,
+   "verifier_failures": 0,
+   "closure": true,
+   "seconds": 36.8
+  },
+  "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour)": {
+   "labels": 5,
+   "built": 5,
+   "routes": {
+    "solve": 4,
+    "twist[k=1 from (-1,)]": 1
+   },
+   "certified": 5,
+   "star": 5,
+   "verifier_failures": null,
+   "closure": null,
+   "seconds": 0.1
+  },
+  "SO(3) + adjoint (N=2*)": {
+   "labels": 5,
+   "built": 5,
+   "routes": {
+    "solve": 5
+   },
+   "certified": 5,
+   "star": 5,
+   "verifier_failures": 0,
+   "closure": true,
+   "seconds": 55.2
+  },
+  "SU(3) + 1 fund. (roster su3-nf1)": {
+   "labels": 4,
+   "built": 4,
+   "routes": {
+    "solve": 4
+   },
+   "certified": 4,
+   "star": 4,
+   "verifier_failures": null,
+   "closure": null,
+   "seconds": 0.5
+  }
+ },
+ "counts": {
+  "pass": 13,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "every label of every window builds",
+  "negative": "n.a. here: the negative controls of the conjecture are the rows conj:abeKalgebra/existence-uniqueness (perturbed lines) and conj:abeKalgebra/support (grafts)"
+ },
+ "elapsed_s": 126.159,
+ "notes": "Fast-window version of the extensive rows; total 126.2 s.  Per algebra: pure SU(2): {'labels': 13, 'built': 13, 'routes': {'star': 8, 'twist[k=-1 from (0,)]': 1, 'twist[k=1 from (-1,)]': 1, 'twist[k=1 from (0,)]': 1, 'monoid[(1,)+(1,)]': 1, 'twist[k=1 from (-2,)]': 1}, 'certified': 13, 'star': 13, 'verifier_failures': 0, 'closure': True, 'seconds': 19.8}; pure SO(3): {'labels': 13, 'built': 13, 'routes': {'star': 8, 'twist[k=-2 from (0,)]': 1, 'twist[k=-1 from (0,)]': 1, 'monoid[(1,)+(1,)]': 1, 'twist[k=1 from (0,)]': 1, 'twist[k=1 from (1,)]': 1}, 'certified': 13, 'star': 13, 'verifier_failures': 0, 'closure': True, 'seconds': 3.6}; pure SU(3): {'labels': 8, 'built': 8, 'routes': {'star': 8}, 'certified': 8, 'star': 8, 'verifier_failures': None, 'closure': None, 'seconds': 0.3}; pure Sp(4): {'labels': 5, 'built': 5, 'routes': {'star': 5}, 'certified': 5, 'star': 5, 'verifier_failures': None, 'closure': None, 'seconds': 0.2}; pure G2: {'labels': 4, 'built': 4, 'routes': {'star': 4}, 'certified': 4, 'star': 4, 'verifier_failures': None, 'closure': None, 'seconds': 9.7}; SU(2) + 1 fund. (roster su2-nf1): {'labels': 5, 'built': 5, 'routes': {'solve': 4, 'twist[k=1 from (-1,)]': 1}, 'certified': 5, 'star': 5, 'verifier_failures': 0, 'closure': True, 'seconds': 36.8}; SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): {'labels': 5, 'built': 5, 'routes': {'solve': 4, 'twist[k=1 from (-1,)]': 1}, 'certified': 5, 'star': 5, 'verifier_failures': None, 'closure': None, 'seconds': 0.1}; SO(3) + adjoint (N=2*): {'labels': 5, 'built': 5, 'routes': {'solve': 5}, 'certified': 5, 'star': 5, 'verifier_failures': 0, 'closure': True, 'seconds': 55.2}; SU(3) + 1 fund. (roster su3-nf1): {'labels': 4, 'built': 4, 'routes': {'solve': 4}, 'certified': 4, 'star': 4, 'verifier_failures': None, 'closure': None, 'seconds': 0.5}",
+ "checks": [
+  {
+   "name": "pure SU(2): all 13 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'star': 8, 'twist[k=-1 from (0,)]': 1, 'twist[k=1 from (-1,)]': 1, 'twist[k=1 from (0,)]': 1, 'monoid[(1,)+(1,)]': 1, 'twist[k=1 from (-2,)]': 1}; "
+  },
+  {
+   "name": "pure SU(2): K1-K5 verifiers on all pairs of the window (K = 4) and closure of 169 products with Z[q^±1] coefficients",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SO(3): all 13 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'star': 8, 'twist[k=-2 from (0,)]': 1, 'twist[k=-1 from (0,)]': 1, 'monoid[(1,)+(1,)]': 1, 'twist[k=1 from (0,)]': 1, 'twist[k=1 from (1,)]': 1}; "
+  },
+  {
+   "name": "pure SO(3): K1-K5 verifiers on all pairs of the window (K = 4) and closure of 169 products with Z[q^±1] coefficients",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "pure SU(3): all 8 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'star': 8}; "
+  },
+  {
+   "name": "pure Sp(4): all 5 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'star': 5}; "
+  },
+  {
+   "name": "pure G2: all 4 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'star': 4}; "
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): all 5 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'solve': 4, 'twist[k=1 from (-1,)]': 1}; "
+  },
+  {
+   "name": "SU(2) + 1 fund. (roster su2-nf1): K1-K5 verifiers on all pairs of the window (K = 4) and closure of 25 products with Z[q^±1] coefficients",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(2) + 2 fund. (roster su2-nf2, U(2) flavour): all 5 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'solve': 4, 'twist[k=1 from (-1,)]': 1}; "
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): all 5 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'solve': 5}; "
+  },
+  {
+   "name": "SO(3) + adjoint (N=2*): K1-K5 verifiers on all pairs of the window (K = 4) and closure of 25 products with Z[q^±1] coefficients",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "SU(3) + 1 fund. (roster su3-nf1): all 4 labels of the window build by the axiom route or a declared optimization asserted equal to it, pass certify_canonical and the residue rule (★)",
+   "ok": true,
+   "note": "routes {'solve': 4}; "
+  }
+ ]
+}

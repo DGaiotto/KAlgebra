@@ -1,0 +1,242 @@
+{
+ "id": "comp:a1deven/implementation",
+ "labels": [
+  "comp:a1deven"
+ ],
+ "date": "2026-09-26T17:27:11Z",
+ "commit": "351591ce967ea49a2848175ac95e2d5a0f020217",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "k": {
+   "1": {
+    "curves": 12,
+    "cones": 20,
+    "noncrossing pairs": 60,
+    "crossing pairs": 72,
+    "flow pairs": 268,
+    "ungauged generators": [
+     4,
+     4
+    ]
+   },
+   "2": {
+    "curves": 30,
+    "cones": 252,
+    "noncrossing pairs": 420,
+    "crossing pairs": 450,
+    "flow pairs": 1204,
+    "ungauged generators": [
+     12,
+     27
+    ]
+   },
+   "3": {
+    "curves": 56,
+    "cones": 3432,
+    "noncrossing pairs": 1512,
+    "crossing pairs": 1568,
+    "flow pairs": 3700,
+    "ungauged generators": [
+     24,
+     96
+    ]
+   }
+  },
+  "seconds": 5.6
+ },
+ "counts": {
+  "pass": 36,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed k = 1 products; the flow's products on every generator pair",
+  "negative": "rho with the drift at marked point 3; E on the edge {2,3}"
+ },
+ "elapsed_s": 5.612,
+ "notes": "Transcribed independently: the crossing test on the doubled polygon, the parity rule, the collapse of the edge {1,2} and the A1DnKAlg(2k+1) cocycle, rho with its drift, the printed products.  The flow U1A1DevenViaDoddRG(k) is an independent presentation (its own RG solver); the bijection of labels is the closed-form lowest term of its image.",
+ "checks": [
+  {
+   "name": "k=1: 12 curves (x, l), and 20 = C(6, 3) maximal cones, each 3 pairwise non-crossing curves with E^(+-1)",
+   "ok": true,
+   "note": "curves 12, cones 20"
+  },
+  {
+   "name": "k=1: two curves q-commute iff they do not cross (every ordered pair of distinct curves, crossing transcribed on the doubled polygon)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: for the 60 ordered non-crossing pairs L_g L_h = q^c(g,h) L_(g,h), c antisymmetric, c = the exponent of A1DnKAlg(3)'s product of the curves after collapsing the edge {1,2} (0 when one becomes a boundary edge); values [(-1, 14), (0, 32), (1, 14)]",
+   "ok": true,
+   "note": "[] []"
+  },
+  {
+   "name": "k=1: E L_c = q^(-2 c0(c)) L_c E on every curve, c0 the printed parity rule",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: L_a1...L_am E^e = q^(sum_(i<j) c(a_i,a_j) + e c0(F)) L_(F,e) on 40 cone monomials (all curves of 25 maximal cones, e = -1, 2)",
+   "ok": true,
+   "note": "0 fail"
+  },
+  {
+   "name": "k=1: rho(L_(x,l) E^e) = L_(x+1,l) E^(-e+d), d = -(endpoints at marked point 1), on all 72 curve labels (e = -1, 0, 2; kappa = 0, 1); rho(E) = E^-1; the full turn rho^4(L_(c,e)) = L_(c,e+2c0) on every curve (e = -1, 0, 2)",
+   "ok": true,
+   "note": "rho []; full turn []"
+  },
+  {
+   "name": "k=1: negative control: rho with its drift at marked point 3 disagrees with the class",
+   "ok": true,
+   "note": "18 of 36 labels differ"
+  },
+  {
+   "name": "k=1: on all 72 ordered crossing pairs every coefficient of L_g L_h is a single power of q, times chi_1 at most",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: the printed exponents (q^(sum_f c(g,f)) for one crossing and two loops, q^(+-sum_f c(loop,f)) for a loop and a curve, q^(A+1-#B) for two crossings), on the model's resolution states with E on the edge {1,2} and chi_1 for a puncture loop, reproduce every product of two crossing curves ({'one crossing': 32, 'curve and loop': 12, 'two crossings': 4, 'two loops': 12, 'loop and curve': 12})",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: products equal the flow U1A1DevenViaDoddRG(1)'s on all 196 ordered generator pairs (curves and E^(+-1)) and on 72 pairs with SU(2) weights and E-powers",
+   "ok": true,
+   "note": "generators True, weighted True"
+  },
+  {
+   "name": "k=1: A1DevenKAlg(1)'s generators are the 4 charge-0 curves and the 4 non-crossing (+1, -1) pairs (8 in all), geometric_label is the label, and rho(z) = z^-1",
+   "ok": true,
+   "note": "8 generators"
+  },
+  {
+   "name": "k=2: 30 curves (x, l), and 252 = C(10, 5) maximal cones, each 5 pairwise non-crossing curves with E^(+-1)",
+   "ok": true,
+   "note": "curves 30, cones 252"
+  },
+  {
+   "name": "k=2: two curves q-commute iff they do not cross (every ordered pair of distinct curves, crossing transcribed on the doubled polygon)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: for the 420 ordered non-crossing pairs L_g L_h = q^c(g,h) L_(g,h), c antisymmetric, c = the exponent of A1DnKAlg(5)'s product of the curves after collapsing the edge {1,2} (0 when one becomes a boundary edge); values [(-1, 81), (0, 258), (1, 81)]",
+   "ok": true,
+   "note": "[] []"
+  },
+  {
+   "name": "k=2: E L_c = q^(-2 c0(c)) L_c E on every curve, c0 the printed parity rule",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: L_a1...L_am E^e = q^(sum_(i<j) c(a_i,a_j) + e c0(F)) L_(F,e) on 50 cone monomials (all curves of 25 maximal cones, e = -1, 2)",
+   "ok": true,
+   "note": "0 fail"
+  },
+  {
+   "name": "k=2: rho(L_(x,l) E^e) = L_(x+1,l) E^(-e+d), d = -(endpoints at marked point 1), on all 180 curve labels (e = -1, 0, 2; kappa = 0, 1); rho(E) = E^-1; the full turn rho^6(L_(c,e)) = L_(c,e+2c0) on every curve (e = -1, 0, 2)",
+   "ok": true,
+   "note": "rho []; full turn []"
+  },
+  {
+   "name": "k=2: negative control: rho with its drift at marked point 3 disagrees with the class",
+   "ok": true,
+   "note": "42 of 90 labels differ"
+  },
+  {
+   "name": "k=2: on all 450 ordered crossing pairs every coefficient of L_g L_h is a single power of q, times chi_1 at most",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: the printed exponents (q^(sum_f c(g,f)) for one crossing and two loops, q^(+-sum_f c(loop,f)) for a loop and a curve, q^(A+1-#B) for two crossings), on the model's resolution states with E on the edge {1,2} and chi_1 for a puncture loop, reproduce every product of two crossing curves ({'one crossing': 240, 'curve and loop': 60, 'two crossings': 60, 'two loops': 30, 'loop and curve': 60})",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=2: products equal the flow U1A1DevenViaDoddRG(2)'s on all 1024 ordered generator pairs (curves and E^(+-1)) and on 180 pairs with SU(2) weights and E-powers",
+   "ok": true,
+   "note": "generators True, weighted True"
+  },
+  {
+   "name": "k=2: A1DevenKAlg(2)'s generators are the 12 charge-0 curves and the 27 non-crossing (+1, -1) pairs (39 in all), geometric_label is the label, and rho(z) = z^-1",
+   "ok": true,
+   "note": "39 generators"
+  },
+  {
+   "name": "k=3: 56 curves (x, l), and 3432 = C(14, 7) maximal cones, each 7 pairwise non-crossing curves with E^(+-1)",
+   "ok": true,
+   "note": "curves 56, cones 3432"
+  },
+  {
+   "name": "k=3: two curves q-commute iff they do not cross (every ordered pair of distinct curves, crossing transcribed on the doubled polygon)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: for the 1512 ordered non-crossing pairs L_g L_h = q^c(g,h) L_(g,h), c antisymmetric, c = the exponent of A1DnKAlg(7)'s product of the curves after collapsing the edge {1,2} (0 when one becomes a boundary edge); values [(-1, 264), (0, 984), (1, 264)]",
+   "ok": true,
+   "note": "[] []"
+  },
+  {
+   "name": "k=3: E L_c = q^(-2 c0(c)) L_c E on every curve, c0 the printed parity rule",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: L_a1...L_am E^e = q^(sum_(i<j) c(a_i,a_j) + e c0(F)) L_(F,e) on 50 cone monomials (all curves of 25 maximal cones, e = -1, 2)",
+   "ok": true,
+   "note": "0 fail"
+  },
+  {
+   "name": "k=3: rho(L_(x,l) E^e) = L_(x+1,l) E^(-e+d), d = -(endpoints at marked point 1), on all 336 curve labels (e = -1, 0, 2; kappa = 0, 1); rho(E) = E^-1; the full turn rho^8(L_(c,e)) = L_(c,e+2c0) on every curve (e = -1, 0, 2)",
+   "ok": true,
+   "note": "rho []; full turn []"
+  },
+  {
+   "name": "k=3: negative control: rho with its drift at marked point 3 disagrees with the class",
+   "ok": true,
+   "note": "66 of 168 labels differ"
+  },
+  {
+   "name": "k=3: on all 1568 ordered crossing pairs every coefficient of L_g L_h is a single power of q, times chi_1 at most",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: the printed exponents (q^(sum_f c(g,f)) for one crossing and two loops, q^(+-sum_f c(loop,f)) for a loop and a curve, q^(A+1-#B) for two crossings), on the model's resolution states with E on the edge {1,2} and chi_1 for a puncture loop, reproduce every product of two crossing curves ({'one crossing': 896, 'curve and loop': 168, 'two crossings': 280, 'two loops': 56, 'loop and curve': 168})",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=3: products equal the flow U1A1DevenViaDoddRG(3)'s on all 3364 ordered generator pairs (curves and E^(+-1)) and on 336 pairs with SU(2) weights and E-powers",
+   "ok": true,
+   "note": "generators True, weighted True"
+  },
+  {
+   "name": "k=3: A1DevenKAlg(3)'s generators are the 24 charge-0 curves and the 96 non-crossing (+1, -1) pairs (120 in all), geometric_label is the label, and rho(z) = z^-1",
+   "ok": true,
+   "note": "120 generators"
+  },
+  {
+   "name": "k=1: the printed products L_(0,2)L_(1,2), L_(0,3)L_(2,3), L_(0,2)L_(1,4), L_(1,4)L_(0,2), L_(0,4)L_(1,4)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "k=1: SU3ADKAlg's geometric labels are the printed curves of A1DevenKAlg(1) with the SU(3) weight: T_i the loop at i with the curve (i+1,2), D_i the curve (i+1,3), a tile monomial the union of its letters' curves (128 labels: 8 tiles, powers up to 2, two weights), each a balanced label of A1DevenKAlg(1)",
+   "ok": true,
+   "note": "[]"
+  },
+  {
+   "name": "negative control: with E on the boundary edge {2,3} instead of {1,2} the products of crossing curves disagree with the flow",
+   "ok": true,
+   "note": "disagreeing crossing pairs {1: 46, 2: 170}"
+  }
+ ]
+}

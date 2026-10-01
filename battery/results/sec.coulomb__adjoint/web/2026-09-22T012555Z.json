@@ -1,0 +1,57 @@
+{
+ "id": "sec:coulomb/adjoint",
+ "labels": [
+  "eq:adjsquare",
+  "eq:adjbubble"
+ ],
+ "date": "2026-09-22T01:25:55Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "lines": "L_10, L_20, μ; 175 labels for rho"
+ },
+ "counts": {
+  "pass": 6,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the printed product and residual reproduced",
+  "negative": "n.a."
+ },
+ "elapsed_s": 0.035,
+ "notes": "GNAbeKAlgebra(so_n(3), (1,), nf=1) is the N=2* SO(3) theory (the SO(3) fundamental is the adjoint); μ is the flavour label (((0,),(0,)),(1,)).",
+ "checks": [
+  {
+   "name": "eq:adjsquare  L_10 · L_10 = L_20 + μ",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "eq:adjbubble  f_0(L_20) = μ[(q+q^-1)(μ+μ^-1)v^2 + (1+v^2)^2]/((1-q^2v^2)(1-q^-2v^2)), level by level in μ (SO(3) coordinates v^2 -> v)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the U_±2 coefficients of L_20 are 1 and the U_±1 coefficients of L_10 are 1",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "κ ≡ 0 for adjoint matter (gauge and matter contributions cancel) and κ_f(m) = -m, m = 0..4",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "rho is the antipode (m,e) -> (-m,-e) with the flavour shifted by -m, on 175 labels",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "L_20 with adjoint matter passes the class's certification (the matter (★)-guarded solve: unique, bar-invariant, W2) and was built by the axiom route",
+   "ok": true,
+   "note": "route 'solve' (the matter tier names its guarded solve 'solve')"
+  }
+ ]
+}

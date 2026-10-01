@@ -1,0 +1,38 @@
+{
+ "id": "conj:factored",
+ "labels": [
+  "conj:factored"
+ ],
+ "date": "2026-09-22T01:28:59Z",
+ "commit": "99f5c86253ef215bdf704f6f736fd38a81eb9607",
+ "environment": "web",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "pairs (Q, Q')": [
+   "pentagon (A_2) dropping node 0",
+   "pentagon (A_2) dropping node 1 (spec arranged stuff-first)",
+   "A_3 linear dropping node 0",
+   "A_3 linear dropping the middle node 1 (arranged)",
+   "A_3 linear dropping nodes 0, 1"
+  ],
+  "seconds": 75.3
+ },
+ "counts": {
+  "pass": 1,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the pentagon's single-node flow",
+  "negative": "n.a."
+ },
+ "elapsed_s": 75.27,
+ "notes": "The dictionary-wide sweep (scripts/certify_directional_on_dictionary.py) is the extensive tier's; here the smallest pairs.",
+ "checks": [
+  {
+   "name": "conj:factored  the directional flow K_q(Q,Γ) -> K_q(Q',Γ) built from (Q, Q') passes the RG axiom battery (bar, rho, RG-unital/multiplicative/bar-invariant, tRG intertwining, trace K = 3)",
+   "ok": true,
+   "note": "{'pentagon (A_2) dropping node 0': 'ok', 'pentagon (A_2) dropping node 1 (spec arranged stuff-first)': 'ok', 'A_3 linear dropping node 0': 'ok', 'A_3 linear dropping the middle node 1 (arranged)': 'ok', 'A_3 linear dropping nodes 0, 1': 'ok'}"
+  }
+ ]
+}

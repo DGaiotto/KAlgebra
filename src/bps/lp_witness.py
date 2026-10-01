@@ -14,6 +14,15 @@ Serves as the exact fallback behind the box searches in
 `bps_quiver_tools` (a near-antipodal generator pair can force a witness
 coordinate outside any fixed box — e.g. a mutated flavoured chamber
 needing a -4 entry).
+
+**Why this is its own leaf** (absorbed 2026-07-31).  These six
+functions used to live inside `sigma_iso`, and the spine reached in for the
+*private* `sigma_iso._lp_feasible_strict` — a `KAlgebra`-level module importing an
+underscore name from a realisation-side module, which is the interface discipline
+backwards.  Extracting them here makes the dependency a public one on a
+self-contained leaf (`fractions` + `typing`, nothing else), and `sigma_iso`
+re-exports the names so its own callers are unaffected.  The extraction is exact:
+all six bodies are byte-identical to the originals.
 """
 from __future__ import annotations
 

@@ -20,8 +20,7 @@ Two realisations of the spectator `U(1)` (the central `μ = X_{½,½,½}`):
   q-powers identical up to `μ → −μ` (the `E_𝖖(z)=E^{paper}(−z)` sign), i.e.
   `Tr(1)(μ) = I(q; −μ)`.
 
-* **`U1GaugedSU2N2StarRGKAlgebra`** — `μ` **weakly gauged** (user, 2026-06-27;
-  paper §"Improved intertwining recursion"): aux = `PureSU2KAlg() ⊗
+* **`U1GaugedSU2N2StarRGKAlgebra`** — `μ` **weakly gauged**: aux = `PureSU2KAlg() ⊗
   QuantumTorusKAlg([[0,1],[-1,0]])` (the `U(1)` *gauge* torus), the adjoint on
   the electric gauge leg `X_{0,1}`, graded by `b`.  Gauging the Cartan of the
   flavour enlarges Γ = Z³ → Z⁴ and makes the pairing **non-degenerate** — curing
@@ -40,7 +39,7 @@ At μ-charge `k` the adjoint factor `Σ_{a+b+d=k} c_a c_b c_d v^{2(a-d)}`
     N_{k,n} = P_k[v^n] − P_k[v^{n+2}],   P_k[v^j] = Σ_{a−d = j/2, a+b+d = k} c_a c_b c_d.
 
 Both flows are **pure** `RGKAlgebra`s (generic exact-FS engine, no override),
-spine-free.  Validation: `tests/test_su2_n2star_rgkalgebra.py`.
+spine-free.  Validation: the suite in the source repository.
 """
 from __future__ import annotations
 

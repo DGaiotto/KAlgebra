@@ -39,7 +39,7 @@ This module provides:
 * component extraction (`components_of_coords`) and the peripheral /
   core split of a normal multicurve.
 
-Self-contained: depends only on `skein_sphere.triangulation`.
+Self-contained: depends only on `triangulation`.
 """
 
 from __future__ import annotations

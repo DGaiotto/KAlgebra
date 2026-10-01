@@ -1,0 +1,103 @@
+{
+ "id": "comp:e7/traces",
+ "labels": [
+  "comp:e7"
+ ],
+ "date": "2026-09-26T18:15:30Z",
+ "commit": "b71d3dc50cbe67ad9a39d60ef8463da233dafde2",
+ "environment": "web",
+ "depth": "fast",
+ "machine": "vm",
+ "inputs": [],
+ "population": {
+  "seeds": 90,
+  "K": 22,
+  "fixtures": "q^20",
+  "Nahm live K": 16,
+  "flow K": 12,
+  "rho2 bootstrap K": 6,
+  "seconds": 143.4
+ },
+ "counts": {
+  "pass": 14,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "theta(mu) against the Jacobi triple product; the pinned bootstrap and Nahm sum through q^20; the flow",
+  "negative": "the levels u = 4, 7 in the vacuum; one sign flipped in N_13; mu^{+delta} in the rule"
+ },
+ "elapsed_s": 143.638,
+ "notes": "The vacuum, the blocks, the nine recipes and the rule are transcribed from the companion's text with their own exact arithmetic (no import of src/cone/e7_seeds.py).  The bootstrap witnesses rest on their recorded mu-support hypothesis (the q^k coefficient of a seed has mu-degree at most 4k).",
+ "checks": [
+  {
+   "name": "positive control: the transcription's theta(mu) equals the Jacobi triple product through q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "served: Tr 1 of FiniteE7KAlgebra is the printed product eq:comp-e7-vacuum through q^30",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the printed product equals the Nahm sum on the BPS spectrum, pinned in tests/test_e7_seeds.py, through q^20",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "witness: the Nahm sum computed now equals the printed product through q^16 (88.6 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "independent witness: the RG flow E7RGKAlgebra gives the printed Tr 1 through q^12 (15.7 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: with 10 replaced by 8 or 14 (u = 4, 7) the product disagrees with the Nahm sum, from q^6 and q^8",
+   "ok": true,
+   "note": "first differing orders {8: 6, 14: 8}"
+  },
+  {
+   "name": "served: all 90 seed traces of FiniteE7KAlgebra equal the printed recipes eq:comp-e7-recipes over (q^2;q^2) theta(mu), transported by eq:comp-e7-rule, through q^22 (transcription 0.0 s)",
+   "ok": true,
+   "note": "disagreeing seeds []"
+  },
+  {
+   "name": "every seed is O(q), and the printed recipes N_0 and N_1 give equal traces",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the printed seeds obey the bootstrap's recorded mu-support hypothesis (|mu-degree| <= 4k at q^k) through q^22",
+   "ok": true,
+   "note": "violations []"
+  },
+  {
+   "name": "witness: the eight distinct representatives equal the certified u(1) orthonormality bootstrap (finite_kalgebras.u1_bootstrap.generate_u1, pinned in tests/test_e7_seeds.py) through q^20",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "the printed heads eq:comp-e7-heads (Tr 1 through q^6, Tr s_5 through q^5, Tr s_0 = Tr s_1 through q^8)",
+   "ok": true,
+   "note": "{'vacuum': True, '5': True, '0': True, '1': True}"
+  },
+  {
+   "name": "witness: the orthonormality bootstrap over rho^2-orbits (no rho-rule) gives all 90 seeds equal to the printed ones through q^6 (38.8 s)",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: N_13 with the sign of one Theta term flipped is caught by the pinned bootstrap",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "name": "negative control: the rule with mu^{+delta_i} in place of mu^{-delta_i} is caught on the orbits with delta != 0",
+   "ok": true,
+   "note": "35 seeds differ"
+  }
+ ]
+}

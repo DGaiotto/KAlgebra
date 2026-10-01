@@ -18,12 +18,30 @@ Generators
 ----------
 ρ acts as (i → i+1, μ → μ^{-1}) jointly.
 
-Closed form
------------
-The 81 = 9 × 9 reference pairwise products are tabulated in
-`FULL_PLUCKER_TABLE` below — derived once via BPSKAlgebra on the
-gauged quiver, then frozen as a Python literal so the class has NO
-BPSKAlgebra runtime dependency.
+Serving path (2026-09-23)
+-------------------------
+`multiply`, `rho`, `rho_inverse` and `trace` are served by the closed-form
+`u1a1aodd_kalg.U1A1AoddKAlg(1)` through the label dictionary
+
+    (F, e)  ↦  (F, −e)            (the same letters; `E ↦ E⁻¹`),
+
+certified on all 121 ordered products of the 11 multiplicative generators
+(the 9 chords and `E^{±1}`) and on `ρ`, `ρ⁻¹` of all 11, against this class's
+own frozen tables.  So neither a frozen table nor the orthonormality bootstrap
+(`u1aodd_trace_bootstrap.solve_intermediate`, which has known
+certification holes) is on the serving path; the chord seeds of
+`_trace_residual` come from `U1A1AoddKAlg(1)`'s closed-form trace too.  The
+labels are unchanged.
+
+Frozen witnesses (off the serving path)
+---------------------------------------
+The 81 = 9 × 9 reference pairwise products `FULL_PLUCKER_TABLE` — derived once
+via BPSKAlgebra on the gauged quiver and frozen — live in `cone_algebra.py`
+beside their cone-monomial twin `MULT_TABLE_LL`, and are re-exported here
+lazily (`from u1_hexagon_kalg import FULL_PLUCKER_TABLE` still works), so that
+importing this class loads no frozen table.  They serve `multiply_single`,
+`_legacy_multiply`, `cone_data()` and `trace_layer1`, which are kept as the
+independent cross-checks.
 
 Coefficient ring
 ----------------
@@ -42,11 +60,28 @@ from kalgebra import KAlgebra, Element
 from cone_kalgebra import ConeKAlgebra
 from laurent_poly import LaurentPoly
 from zplus_ring import AbelianZPlusRing, RPowerSeries, TrivialZPlusRing
-from cone_algebra import (
-    multiply_cone_monomials as _cone_multiply,
-    charge_of_label as _cone_charge_of_label,
-)
-import u1_hexagon_singlet as _sing   # exact M(1,3) singlet v-tower character
+
+
+def _plucker_table() -> dict:
+    """The frozen 81-entry `FULL_PLUCKER_TABLE` (in `cone_algebra`), loaded on
+    first use — it serves only the cross-check surfaces."""
+    from cone_algebra import FULL_PLUCKER_TABLE
+    return FULL_PLUCKER_TABLE
+
+
+def __getattr__(name):
+    """Lazy re-exports of the frozen k = 1 witnesses that used to be defined
+    or imported at the top of this module (PEP 562), so that their importers
+    keep working while `import u1_hexagon_kalg` loads no frozen table."""
+    if name == "FULL_PLUCKER_TABLE":
+        return _plucker_table()
+    if name == "_cone_multiply":
+        from cone_algebra import multiply_cone_monomials
+        return multiply_cone_monomials
+    if name == "_cone_charge_of_label":
+        from cone_algebra import charge_of_label
+        return charge_of_label
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # ----------------------------------------------------------------------
@@ -98,100 +133,10 @@ MU_LETTER_QPOWER: dict = {
 
 
 # ----------------------------------------------------------------------
-# FULL_PLUCKER_TABLE: 81 hard-coded entries for L_{a1, i1} · L_{a2, i2}
-# with a ∈ {1, 2}, i ∈ {0..5} for short, i ∈ {0..2} for long.
-# Each entry is a list of (q_power, mu_power, [(a, i), ...]) — the output
-# is Σ_terms q^{q_power} · μ^{mu_power} · ∏ L_{(a, i)} .
-#
-# Generated once via BPSKAlgebra on the gauged quiver, then frozen here.
-# Verified: all 81 entries match BPS ground truth.
+# FULL_PLUCKER_TABLE (the 81 frozen reference products, a cross-check only)
+# lives in `cone_algebra.py` since 2026-09-23 and is re-exported lazily by
+# this module's `__getattr__`; `_plucker_table()` reads it.
 # ----------------------------------------------------------------------
-
-FULL_PLUCKER_TABLE: dict = {
- ((1, 0), (1, 0)): [(0, 0, [(1, 0), (1, 0)])],
- ((1, 0), (1, 1)): [(0, 0, []), (-1, 0, [(2, 0)])],
- ((1, 0), (1, 2)): [(1, 0, [(1, 0), (1, 2)])],
- ((1, 0), (1, 3)): [(-1, 0, [(1, 0), (1, 3)])],
- ((1, 0), (1, 4)): [(1, 0, [(1, 0), (1, 4)])],
- ((1, 0), (1, 5)): [(-1, 1, [(2, 2)]), (-2, 2, [])],
- ((1, 0), (2, 0)): [(-1, 0, [(1, 0), (2, 0)])],
- ((1, 0), (2, 1)): [(1, 0, [(1, 2)]), (0, 1, [(1, 4)])],
- ((1, 0), (2, 2)): [(0, 0, [(1, 0), (2, 2)])],
- ((1, 1), (1, 0)): [(0, 0, []), (1, 0, [(2, 0)])],
- ((1, 1), (1, 1)): [(0, 0, [(1, 1), (1, 1)])],
- ((1, 1), (1, 2)): [(-1, -1, [(2, 4)]), (0, 0, [])],
- ((1, 1), (1, 3)): [(1, 0, [(1, 1), (1, 3)])],
- ((1, 1), (1, 4)): [(-1, -2, [(2, 0), (2, 4)])],
- ((1, 1), (1, 5)): [(1, 0, [(1, 1), (1, 5)])],
- ((1, 1), (2, 0)): [(1, 0, [(1, 1), (2, 0)])],
- ((1, 1), (2, 1)): [(-1, -1, [(1, 1), (2, 4)])],
- ((1, 1), (2, 2)): [(0, -1, [(1, 5)]), (1, 0, [(1, 3)])],
- ((1, 2), (1, 0)): [(-1, 0, [(1, 0), (1, 2)])],
- ((1, 2), (1, 1)): [(1, -1, [(2, 4)]), (0, 0, [])],
- ((1, 2), (1, 2)): [(0, 0, [(1, 2), (1, 2)])],
- ((1, 2), (1, 3)): [(0, 0, []), (-1, 0, [(2, 2)])],
- ((1, 2), (1, 4)): [(1, 0, [(1, 2), (1, 4)])],
- ((1, 2), (1, 5)): [(-1, 0, [(1, 2), (1, 5)])],
- ((1, 2), (2, 0)): [(0, 1, [(1, 4)]), (-1, 0, [(1, 0)])],
- ((1, 2), (2, 1)): [(1, -1, [(1, 2), (2, 4)])],
- ((1, 2), (2, 2)): [(-1, 0, [(1, 2), (2, 2)])],
- ((1, 3), (1, 0)): [(1, 0, [(1, 0), (1, 3)])],
- ((1, 3), (1, 1)): [(-1, 0, [(1, 1), (1, 3)])],
- ((1, 3), (1, 2)): [(0, 0, []), (1, 0, [(2, 2)])],
- ((1, 3), (1, 3)): [(0, 0, [(1, 3), (1, 3)])],
- ((1, 3), (1, 4)): [(-1, -1, [(2, 0)]), (0, 0, [])],
- ((1, 3), (1, 5)): [(1, 0, [(1, 3), (1, 5)])],
- ((1, 3), (2, 0)): [(0, 0, [(1, 3), (2, 0)])],
- ((1, 3), (2, 1)): [(-1, 0, [(1, 1)]), (0, -1, [(1, 5)])],
- ((1, 3), (2, 2)): [(1, 0, [(1, 3), (2, 2)])],
- ((1, 4), (1, 0)): [(-1, 0, [(1, 0), (1, 4)])],
- ((1, 4), (1, 1)): [(1, -2, [(2, 0), (2, 4)])],
- ((1, 4), (1, 2)): [(-1, 0, [(1, 2), (1, 4)])],
- ((1, 4), (1, 3)): [(1, -1, [(2, 0)]), (0, 0, [])],
- ((1, 4), (1, 4)): [(0, 0, [(1, 4), (1, 4)])],
- ((1, 4), (1, 5)): [(-1, 0, [(2, 4)]), (0, 0, [])],
- ((1, 4), (2, 0)): [(0, 0, [(1, 4), (2, 0)])],
- ((1, 4), (2, 1)): [(0, -1, [(1, 4), (2, 4)])],
- ((1, 4), (2, 2)): [(-1, 0, [(1, 2)]), (0, -1, [(1, 0)])],
- ((1, 5), (1, 0)): [(1, 1, [(2, 2)]), (2, 2, [])],
- ((1, 5), (1, 1)): [(-1, 0, [(1, 1), (1, 5)])],
- ((1, 5), (1, 2)): [(1, 0, [(1, 2), (1, 5)])],
- ((1, 5), (1, 3)): [(-1, 0, [(1, 3), (1, 5)])],
- ((1, 5), (1, 4)): [(1, 0, [(2, 4)]), (0, 0, [])],
- ((1, 5), (1, 5)): [(0, 0, [(1, 5), (1, 5)])],
- ((1, 5), (2, 0)): [(1, 2, [(1, 1)]), (0, 1, [(1, 3)])],
- ((1, 5), (2, 1)): [(0, -1, [(1, 5), (2, 4)])],
- ((1, 5), (2, 2)): [(0, 0, [(1, 5), (2, 2)])],
- ((2, 0), (1, 0)): [(1, 0, [(1, 0), (2, 0)])],
- ((2, 0), (1, 1)): [(-1, 0, [(1, 1), (2, 0)])],
- ((2, 0), (1, 2)): [(0, 1, [(1, 4)]), (1, 0, [(1, 0)])],
- ((2, 0), (1, 3)): [(0, 0, [(1, 3), (2, 0)])],
- ((2, 0), (1, 4)): [(0, 0, [(1, 4), (2, 0)])],
- ((2, 0), (1, 5)): [(-1, 2, [(1, 1)]), (0, 1, [(1, 3)])],
- ((2, 0), (2, 0)): [(0, 0, [(2, 0), (2, 0)])],
- ((2, 0), (2, 1)): [(-1, -1, [(2, 0), (2, 4)]), (0, 0, [])],
- ((2, 0), (2, 2)): [(0, 1, []), (1, 0, [(1, 0), (1, 3)])],
- ((2, 1), (1, 0)): [(-1, 0, [(1, 2)]), (0, 1, [(1, 4)])],
- ((2, 1), (1, 1)): [(1, -1, [(1, 1), (2, 4)])],
- ((2, 1), (1, 2)): [(-1, -1, [(1, 2), (2, 4)])],
- ((2, 1), (1, 3)): [(1, 0, [(1, 1)]), (0, -1, [(1, 5)])],
- ((2, 1), (1, 4)): [(0, -1, [(1, 4), (2, 4)])],
- ((2, 1), (1, 5)): [(0, -1, [(1, 5), (2, 4)])],
- ((2, 1), (2, 0)): [(1, -1, [(2, 0), (2, 4)]), (0, 0, [])],
- ((2, 1), (2, 1)): [(0, -2, [(2, 4), (2, 4)])],
- ((2, 1), (2, 2)): [(-1, -1, [(1, 2), (1, 5)]), (0, 0, [])],
- ((2, 2), (1, 0)): [(0, 0, [(1, 0), (2, 2)])],
- ((2, 2), (1, 1)): [(0, -1, [(1, 5)]), (-1, 0, [(1, 3)])],
- ((2, 2), (1, 2)): [(1, 0, [(1, 2), (2, 2)])],
- ((2, 2), (1, 3)): [(-1, 0, [(1, 3), (2, 2)])],
- ((2, 2), (1, 4)): [(1, 0, [(1, 2)]), (0, -1, [(1, 0)])],
- ((2, 2), (1, 5)): [(0, 0, [(1, 5), (2, 2)])],
- ((2, 2), (2, 0)): [(0, 1, []), (-1, 0, [(1, 0), (1, 3)])],
- ((2, 2), (2, 1)): [(1, -1, [(1, 2), (1, 5)]), (0, 0, [])],
- ((2, 2), (2, 2)): [(0, 0, [(2, 2), (2, 2)])],
-}
-
-assert len(FULL_PLUCKER_TABLE) == 81, f"expected 81 entries, got {len(FULL_PLUCKER_TABLE)}"
 
 
 # ----------------------------------------------------------------------
@@ -316,9 +261,10 @@ def _multiply_letters(letter1, letter2) -> list[tuple[int, int, list]]:
     l1n, mu1 = _normalize_letter(letter1)
     l2n, mu2 = _normalize_letter(letter2)
     pre_mu = mu1 + mu2
-    if (l1n, l2n) not in FULL_PLUCKER_TABLE:
+    table = _plucker_table()
+    if (l1n, l2n) not in table:
         raise KeyError(f"No PLUCKER_TABLE entry for ({l1n}, {l2n})")
-    entries = FULL_PLUCKER_TABLE[(l1n, l2n)]
+    entries = table[(l1n, l2n)]
     return [(q, mu + pre_mu, list(factors)) for (q, mu, factors) in entries]
 
 
@@ -341,18 +287,21 @@ class U1HexagonKAlg(ConeKAlgebra):
       * `L((a, i))` accessor — single-letter cone monomial
       * `identity`, `mu` — distinguished labels
       * `rho`, `rho_inverse` — Z_6 cyclic symmetry (inverts E)
-      * `multiply(label1, label2)` — closed-form cone-monomial product
-        (delegates to `cone_algebra.multiply_cone_monomials`); single-
-        letter fast path also available as `multiply_single`
+      * `multiply(label1, label2)` — the closed-form product of
+        `U1A1AoddKAlg(1)` read through `(F, e) ↦ (F, −e)` (see the module
+        docstring); the frozen single-letter table survives as
+        `multiply_single` and the frozen cone reducer as `_legacy_multiply`,
+        both cross-checks
       * `as_generator_monomial(label)` — expresses a label as
         `fq^c · sorted L-product · μ^m`
       * `trace_layer1(label)` — closed-form Layer 1 ρ²-tagged cyclicity
         reduction to a dict of irreducible canonical labels with
-        LaurentPoly coefficients
-      * `trace(label, K)` — BPS-free two-layer evaluation: the exact
-        M(1,3) singlet character + the certified orthonormality
-        bootstrap (see `trace`)
-      * `elementary_traces()` — partial list of elementary trace
+        LaurentPoly coefficients (over the frozen cone data; a cross-check)
+      * `trace(label, K)` — `U1A1AoddKAlg(1)`'s closed-form trace of the
+        relabelled label (Layer-1 cyclicity + the `M(1,3)` singlet
+        closed forms), any label to any order; `_bps_trace` is the
+        off-path verification twin
+      * `elementary_traces()` — provisional list of elementary trace
         symbols (T_0, T_long)
     """
 
@@ -361,8 +310,34 @@ class U1HexagonKAlg(ConeKAlgebra):
     def __init__(self):
         self._R = TrivialZPlusRing()
         self.k = 1                  # k of the U1A1AoddKAlg family (= [A_1, A_3])
-        self._boot_cache = {}       # single certified bootstrap solve (max K)
+        self._gen = None            # U1A1AoddKAlg(1), the serving presentation
+        self._boot_cache = {}       # cross-check only: the bootstrap solve (max K)
         self._rep_cache = {}        # ρ²-rep memo for the bootstrap lookup
+
+    # -- the serving presentation -------------------------------------------
+
+    def _general(self):
+        """`U1A1AoddKAlg(1)`, which serves `multiply`, `rho`, `rho_inverse`
+        and `trace` through `_to_general` / `_from_general`.  Built on first
+        use and cached."""
+        if self._gen is None:
+            from u1a1aodd_kalg import U1A1AoddKAlg
+            self._gen = U1A1AoddKAlg(1)
+        return self._gen
+
+    @staticmethod
+    def _to_general(label):
+        """This class's label `(F, e)` as the `U1A1AoddKAlg(1)` label
+        `(F, −e)`: the letters `(a, i)` are the same diagonals, and this
+        class's `E` is `U1A1AoddKAlg(1)`'s `E⁻¹`.  Certified on all 121
+        ordered products of the 11 multiplicative generators and on `ρ`,
+        `ρ⁻¹` of each (the suite in the source repository compares the
+        served product with the frozen `_legacy_multiply`; the dictionary
+        is its own inverse)."""
+        factors, e = label
+        return (factors, -e)
+
+    _from_general = _to_general
 
     # -- KAlgebra contract --
 
@@ -393,9 +368,38 @@ class U1HexagonKAlg(ConeKAlgebra):
         """The μ generator = (empty factors, μ-power 1)."""
         return ((), 1)
 
+    # -- Geometry: the diagonals of the hexagon --
+
+    def geometric_label(self, g):
+        """A letter `g = (a, i)` — the letter of a factor `(a, i, exp)`, a
+        multiplicative generator of `cone_data()` — as a sorted diagonal
+        `(v1, v2)` of the hexagon with marked points `0, …, 5`: `(1, i)` is
+        `{i, i + 2}`, `(2, i)` the diameter `{i, i + 3}`.  Read from
+        `U1A1AoddKAlg(1).geometric_label`, whose letters these are (see
+        `_to_general`).  `None` for the gauge letters `E = (3, 0)` and
+        `E⁻¹ = (3, 1)` (`u1_hexagon_cone_data`'s `E_GEN`, `E_INV`, named here
+        rather than imported: that module loads the frozen tables of
+        `cone_algebra`, which no serving path reads)."""
+        g = tuple(g)
+        if g in ((3, 0), (3, 1)):
+            return None
+        return self._general().geometric_label(g)
+
     # -- ρ symmetry --
 
     def rho(self, lbl):
+        """ρ, served by `U1A1AoddKAlg(1)` through `(F, e) ↦ (F, −e)`
+        (`_legacy_rho` is this class's own closed form, kept as the
+        cross-check; the two agree on every label)."""
+        return self._from_general(self._general().rho(self._to_general(lbl)))
+
+    def rho_inverse(self, lbl):
+        """ρ⁻¹, served by `U1A1AoddKAlg(1)` through `(F, e) ↦ (F, −e)`
+        (`_legacy_rho_inverse` is the cross-check)."""
+        return self._from_general(
+            self._general().rho_inverse(self._to_general(lbl)))
+
+    def _legacy_rho(self, lbl):
         """ρ acts as (i → i+1, μ → μ^{-1}) jointly.
 
         For each (a, i, e) factor: shift i → i+1 (with period 6 for a=1,
@@ -418,8 +422,8 @@ class U1HexagonKAlg(ConeKAlgebra):
         new_factors.sort()
         return (tuple(new_factors), -mu_p + pickup)
 
-    def rho_inverse(self, lbl):
-        """Inverse of `rho`: from `ρ(w, m) = (Pw, −m + δ(w))` solve
+    def _legacy_rho_inverse(self, lbl):
+        """Inverse of `_legacy_rho`: from `ρ(w, m) = (Pw, −m + δ(w))` solve
         `m = δ(w) − n` with `w = P⁻¹·input`.  δ(w) is recomputed with
         the SAME up-shift normalization `rho` uses (`_normalize_letter`'s
         μ-pickup conventions differ between the a=1 and a=2 families, so
@@ -471,7 +475,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         derived from the table.  Returns None if (la, lb) Plückers."""
         la_n, _ = _normalize_letter(la)
         lb_n, _ = _normalize_letter(lb)
-        entries = FULL_PLUCKER_TABLE.get((la_n, lb_n))
+        entries = _plucker_table().get((la_n, lb_n))
         if entries is None or len(entries) != 1:
             return None
         return entries[0][0]
@@ -480,7 +484,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         """μ-power contribution from single-term pair (la, lb)."""
         la_n, _ = _normalize_letter(la)
         lb_n, _ = _normalize_letter(lb)
-        entries = FULL_PLUCKER_TABLE.get((la_n, lb_n))
+        entries = _plucker_table().get((la_n, lb_n))
         if entries is None or len(entries) != 1:
             return None
         return entries[0][1]
@@ -491,10 +495,14 @@ class U1HexagonKAlg(ConeKAlgebra):
         return U1HEXAGON_CONE_DATA
 
     def multiply(self, label1, label2):
-        """Routes through `cone_data().derived_multiply` (= the generic
-        word reducer driven by `MULT_TABLE_LL` / `MU_LETTER_QPOWER`
-        through the cone-data primitives)."""
-        return self._multiply_via_cone_data(label1, label2)
+        """The product of `U1A1AoddKAlg(1)` (closed-form analytic peel, no
+        frozen table) read through `(F, e) ↦ (F, −e)`.  Until 2026-09-23 this
+        routed through `cone_data().derived_multiply`, the reducer over the
+        frozen `MULT_TABLE_LL`; that route (`_multiply_via_cone_data`) and
+        `_legacy_multiply` are kept as cross-checks."""
+        prod = self._general().multiply(self._to_general(label1),
+                                        self._to_general(label2))
+        return Element({self._from_general(l): c for l, c in prod.terms.items()})
 
     def _legacy_multiply(self, label1, label2):
         """Legacy multiply via `cone_algebra.multiply_cone_monomials`
@@ -505,6 +513,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         sorted tuple of `(a, i, exp)` all drawn from one of the 14 maximal
         q-commuting subsets, and `e_E ∈ Z` is the E-power.
         """
+        from cone_algebra import multiply_cone_monomials as _cone_multiply
         return Element(_cone_multiply(label1, label2))
 
     @classmethod
@@ -619,10 +628,16 @@ class U1HexagonKAlg(ConeKAlgebra):
             self._R, {e: c for e, c in lp._coeffs.items() if 0 <= e <= K}, K)
 
     def _boot(self, K, nmax=3):
-        """Certified orthonormality-bootstrap solve, cached at the largest
+        """CROSS-CHECK ONLY since 2026-09-23 — not on any serving path: the
+        chord seeds of `_trace_residual` now come from `U1A1AoddKAlg(1)`'s
+        closed-form trace, and `u1aodd_trace_bootstrap.solve_intermediate`
+        has known certification holes.
+        Measured equal to the new seeds at `k = 1` through `K = 40`.
+
+        Orthonormality-bootstrap solve, cached at the largest
         (K, nmax) requested (smaller reuse it).  Trusts ONLY the exact M(1,3)
         singlet v-tower and solves the long chord (type 2 = the k=1 diameter)
-        from orthonormality — BPS-free, certified.
+        from orthonormality — BPS-free.
 
         `nmax` is the gauge half-width of the pool: a single chord at
         |gauge| ≤ nmax is solved.  The default 3 suffices for ordinary traces
@@ -640,31 +655,28 @@ class U1HexagonKAlg(ConeKAlgebra):
         return self._boot_cache["Tr"]
 
     def _trace_residual(self, seed_label, K):
-        """Layer-2 trace of one Layer-1 seed — BPS-free, certified.
+        """Layer-2 trace of one Layer-1 seed — closed forms only.
 
           * vanishing (short chords, flavour-charged orbit) → 0;
           * v-tower `μ^m` → the exact M(1,3) singlet character `tr_v_n(m)`;
-          * long chord (type 2) → the certified orthonormality bootstrap
-            (handles all m, including the negative branch the closed form
-            `u1_hexagon_singlet.tr_L20_v_n` does not cover).
+          * long chord (type 2) → `U1A1AoddKAlg(1)`'s closed-form trace of
+            the relabelled seed `(F, −m)` (`u1_pgon_layer2.
+            singlet_chord_trace`, every `m`).  Until 2026-09-23 this branch
+            called `_boot` (`u1aodd_trace_bootstrap.solve_intermediate`),
+            which is now a cross-check only; the two agree through `K = 40`.
 
-        The chord branch widens the bootstrap's gauge half-width to cover the
-        seed's gauge, so a chord absent from the (certified) result is exactly
-        "trace 0 through q^K" → returns 0; only a non-reduced multi-gen seed
-        raises (rather than silently degrading)."""
-        from u1aodd_trace_bootstrap import _rho2_rep
+        `trace` itself no longer comes through here (it is served by
+        `U1A1AoddKAlg(1)` directly); this reduction stays for the class's
+        own Layer-1 route (`ConeKAlgebra.trace` over `cone_data()`)."""
         if not self._orbit_has_physical(seed_label):
             return RPowerSeries(self._R, {}, K)
         factors, m = seed_label
         g0 = self._seed_charge(seed_label)[0]
         if not factors:
+            import u1_hexagon_singlet as _sing   # exact M(1,3) singlet v-tower
             return self._lp_to_rps(_sing.tr_v_n(g0, K), K)      # v-tower: n = g0
         if len(factors) == 1 and factors[0][2] == 1:
-            Tr = self._boot(K, nmax=abs(m) + 1)                 # cover this gauge
-            rep = _rho2_rep(self, seed_label, self._rep_cache)
-            ser = Tr.get(rep, {})        # in-pool (|gauge|<=nmax); absent ⇒ 0 through K
-            return self._lp_to_rps(
-                LaurentPoly({q: c for q, c in ser.items() if 0 <= q <= K}), K)
+            return self._general().trace(self._to_general(seed_label), K)
         raise NotImplementedError(
             f"U1HexagonKAlg._trace_residual: physical seed {seed_label!r} "
             f"(g0={g0}) is neither a v-tower nor a single chord — Layer-1 did "
@@ -672,12 +684,16 @@ class U1HexagonKAlg(ConeKAlgebra):
 
     def _is_cone_monomial(self, label):
         """True iff every chord letter of `label` lies in a common cone — i.e.
-        `label` is a genuine canonical basis element (single cone monomial)."""
+        `label` is a genuine canonical basis element (single cone monomial).
+        The cones are the maximal sets of pairwise q-commuting letters, so this
+        is the pairwise test, read off `U1A1AoddKAlg(1)`'s closed-form
+        q-commutation (non-crossing diagonals; the same letters here)."""
         factors, _ = label
-        letters = set((a, i) for (a, i, exp) in factors)
-        if not letters:
-            return True
-        return any(letters <= set(c) for c in self.cone_data().cones())
+        letters = sorted(set((a, i) for (a, i, exp) in factors))
+        cd = self._general().cone_data()
+        return all(cd.q_commute(letters[x], letters[y])
+                   for x in range(len(letters))
+                   for y in range(x + 1, len(letters)))
 
     def _mag_charge(self, label):
         """Σ_l MU_LETTER_QPOWER[l] · e_l for the L-factors.  Non-zero
@@ -763,6 +779,7 @@ class U1HexagonKAlg(ConeKAlgebra):
         rest_rho2 = self._rho2_label(rest_label)
         L_first_label = (((first_a, first_i, 1),), 0)
         # Compute ρ²(algebra(rest)) · L_first  via cone_multiply on cone monomials.
+        from cone_algebra import multiply_cone_monomials as _cone_multiply
         prod = _cone_multiply(rest_rho2, L_first_label)
         # Prefactor: M_canon = fq^{T_canon} · algebra(canon),  T_canon = cone_T_half(canon).
         # Tr(M_canon) = fq^{T_canon} · Tr(algebra(canon))
@@ -782,14 +799,17 @@ class U1HexagonKAlg(ConeKAlgebra):
         return {s: v for s, v in result.items() if not v.is_zero()}
 
     def trace(self, label, K=20):
-        """Schur-index trace as an `RPowerSeries` in fq — **BPS-free**.
+        """Schur-index trace as an `RPowerSeries` in fq — closed forms only.
 
-        Layer-1 cone-data ρ²-cyclicity (`ConeKAlgebra.trace`) reduces every
-        trace to the v-tower / long-chord seeds, and Layer-2
-        (`_trace_residual`) evaluates them via the exact M(1,3) singlet
-        character (`u1_hexagon_singlet.tr_v_n`) + the certified orthonormality
-        bootstrap (long chord = the k=1 diameter; the short chords vanish).
-        Verified seed-by-seed against the BPS twin (`_bps_trace`).
+        Served by `U1A1AoddKAlg(1).trace` of the relabelled label
+        `(F, −e)`: its Layer-1 cyclicity reduction with every seed a closed
+        form (the `M(1,3)` singlet characters of `u1_pgon_layer2`), defined
+        on every label to any order.  Until 2026-09-23 this was the class's
+        own Layer-1 over the frozen cone data with chord seeds from the
+        orthonormality bootstrap; that route (`ConeKAlgebra.trace(self, …)`,
+        whose chord seeds now also come from the closed form) and the BPS
+        twin (`_bps_trace`, the suite in the source repository) are the
+        cross-checks.
 
         `label` must be a single cone monomial (canonical basis element); a
         cross-cone product is not a basis element — `multiply` it first.  For
@@ -800,7 +820,7 @@ class U1HexagonKAlg(ConeKAlgebra):
                 f"(its chord letters span multiple cones), so it is a product "
                 f"of basis elements rather than one basis element.  Call "
                 f"`multiply` first, then trace each summand.")
-        return ConeKAlgebra.trace(self, label, K)
+        return self._general().trace(self._to_general(label), K)
 
     def _bps_trace(self, label, K=20):
         """Cross-check oracle: trace via BPSKAlgebra(gauged-hexagon) on the
@@ -955,7 +975,7 @@ if __name__ == '__main__':
     print("U1HexagonKAlg (closed-form, no BPSKAlgebra runtime dependency)")
     print(f"  μ charge: {MU_CHARGE}")
     print(f"  9 references: 6 short L_{{1, 0..5}} + 3 long L_{{2, 0..2}}")
-    print(f"  {len(FULL_PLUCKER_TABLE)} reference pairwise products tabulated")
+    print(f"  {len(_plucker_table())} reference pairwise products tabulated")
     print()
     print("Sample products:")
     for l1, l2 in [((2, 0), (2, 2)), ((1, 0), (1, 1)), ((1, 0), (2, 1))]:

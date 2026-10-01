@@ -1,0 +1,47 @@
+{
+ "id": "rem:miracle",
+ "labels": [
+  "rem:miracle"
+ ],
+ "date": "2026-09-21T23:03:48Z",
+ "commit": "cc4668427dddf5ed341433b31f3981f0452171a1",
+ "environment": "web",
+ "machine": "web session",
+ "inputs": [],
+ "population": {
+  "n": "<= 16",
+  "K": 80
+ },
+ "counts": {
+  "pass": 4,
+  "fail": 0
+ },
+ "controls": {
+  "positive": "the table's limit row",
+  "negative": "n.a. (a measured convergence)"
+ },
+ "elapsed_s": 0.001,
+ "notes": "Measured, not derived: the orders grow without a visible bound over the window; the statement A_∞ = -Tr L_1, B_∞ = Tr 1 remains the paper's remark.",
+ "checks": [
+  {
+   "name": "A_n -> -Tr L_1: the agreement order is non-decreasing and unbounded over n = 2..16",
+   "ok": true,
+   "note": "first differing power: n=2: 7, n=3: 7, n=4: 9, n=5: 11, n=6: 13, n=7: 15, n=8: 17, n=9: 19, n=10: 21, n=11: 23, n=12: 25, n=13: 27, n=14: 29, n=15: 31, n=16: 33;  measured law: 2n+1 for n >= 3"
+  },
+  {
+   "name": "B_n -> Tr 1: the agreement order is non-decreasing and unbounded over n = 2..16",
+   "ok": true,
+   "note": "first differing power: n=2: 4, n=3: 6, n=4: 8, n=5: 10, n=6: 12, n=7: 14, n=8: 16, n=9: 18, n=10: 20, n=11: 22, n=12: 24, n=13: 26, n=14: 28, n=15: 30, n=16: 32"
+  },
+  {
+   "name": "each row extends the one above, termwise: A_n - A_{n-1} and B_n - B_{n-1} have non-negative coefficients, n = 3..16",
+   "ok": true,
+   "note": "a consequence of the recursion A_n - A_{n-1} = q^{2n-2} A_{n-2}; note the new terms need not lie above the previous top term (A_7 adds q^13 below A_6's q^17)"
+  },
+  {
+   "name": "A_16 agrees with -Tr L_1 through q^30 and B_16 with Tr 1 through q^30",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}
